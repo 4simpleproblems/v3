@@ -7,66 +7,47 @@
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="firebase-config.js"></script>
 
-  <!-- Inline fallback styles including white outlines for logout button -->
   <style>
     :root {
       --dark-bg: #1a1a1a;
       --light-text: #f0f0f0;
-      --tile-height: 280px;
+      --light-gray: #e0e0e0;
     }
-    .hidden {
-      display: none !important;
-    }
-    /* Standard button styling */
+    /* Basic button styles */
     .btn {
-      display: inline-block !important;
-      padding: 0.8rem 1.8rem !important;
-      border-radius: 50px !important;
-      font-size: 0.95rem !important;
-      cursor: pointer !important;
-      text-align: center !important;
-      border: 2px solid transparent !important;
+      display: inline-block;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      border: 2px solid transparent;
       font-weight: 500;
-      transition: all 0.2s ease !important;
+      /* Ensuring no transition conflicts */
+      transition: none !important;
     }
     .btn.primary {
-      background-color: var(--dark-bg) !important;
-      color: var(--light-text) !important;
+      background-color: var(--dark-bg);
+      color: var(--light-text);
     }
     .btn.secondary {
-      background-color: transparent !important;
-      color: var(--dark-bg) !important;
-      border-color: var(--dark-bg) !important;
-    }
-    /* Override for the logout button so it always shows a white outline */
-    .nav-buttons .btn.primary {
-      border: 2px solid var(--light-text) !important;
-    }
-    /* Hover and focus effects for consistency */
-    .btn.primary:hover,
-    .btn.primary:focus {
+      background-color: transparent;
+      color: var(--light-text);
       border-color: var(--light-text);
-      box-shadow: 0 0 0 2px var(--light-text);
     }
-    .btn.secondary:hover,
-    .btn.secondary:focus {
-      border-color: var(--dark-bg);
-      box-shadow: 0 0 0 2px var(--dark-bg);
-    }
-    /* Navigation styles */
+    /* Navigation bar styling */
     .navbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 1.5rem 3rem;
-      background-color: var(--dark-bg);
+      background-color: var(--dark-bg); /* Matches index.html navbar background */
       color: var(--light-text);
-      border-bottom: 1px solid var(--dark-bg);
+      border-bottom: 1px solid var(--dark-bg); /* Adjusted border slightly */
     }
     .logo {
       font-size: 1.8rem;
@@ -78,16 +59,20 @@
       gap: 1.5rem;
       align-items: center;
     }
+    /* Hide elements with this class */
+    .hidden {
+      display: none !important; /* Added important to ensure hiding */
+    }
     /* Dashboard grid layout */
     .dashboard-grid {
-      display: grid !important;
-      grid-template-columns: repeat(3, 1fr) !important;
-      gap: 2rem !important;
-      margin: 2rem 0 !important;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin: 2rem 0;
     }
     @media (max-width: 768px) {
       .dashboard-grid {
-        grid-template-columns: 1fr !important;
+        grid-template-columns: 1fr;
       }
     }
     /* Dashboard tile styling */
@@ -102,7 +87,7 @@
       text-decoration: none;
       color: var(--dark-bg);
       overflow: hidden;
-      height: var(--tile-height);
+      height: 280px; /* Consider using var(--tile-height) if defined */
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     .dashboard-tile .tile-content {
@@ -124,23 +109,39 @@
       left: 0;
       right: 0;
       bottom: 0;
-      border: 3px solid rgba(0, 0, 0, 0.08);
+      border: 3px solid rgba(0, 0, 0, 0.08); /* Consider var(--frame-color) */
       border-radius: 22px;
       z-index: 1;
       transition: border-color 0.3s ease;
     }
-    /* Hover effects for dashboard tiles */
     .dashboard-tile:hover {
       transform: translateY(-5px) scale(1.03);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* Consider var(--hover-glow) */
     }
     .dashboard-tile:hover .tile-frame {
       border-color: var(--dark-bg);
     }
+
+    /* Ensure body background matches other pages if needed */
+    body {
+      background-color: var(--light-gray); /* Ensures background consistency */
+      color: var(--dark-bg);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    main.container {
+       flex: 1; /* Allows footer to stick to bottom */
+    }
+    footer {
+        text-align: center;
+        padding: 1rem 0;
+        color: var(--medium-gray); /* Defined in styles.css, add here if needed */
+    }
+
   </style>
 </head>
 <body>
-  <!-- Navbar with logout button showing a persistent white outline -->
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
@@ -148,12 +149,10 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
   <main class="container">
     <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
-    
+
     <div class="dashboard-grid" id="dashboardGrid">
-      <!-- Soundboard Tile -->
       <a href="soundboard.html" class="dashboard-tile">
         <div class="tile-content">
           <h3>Open Soundboard</h3>
@@ -162,7 +161,6 @@
         <div class="tile-frame"></div>
       </a>
 
-      <!-- Request Sound Tile -->
       <a href="request.html" class="dashboard-tile">
         <div class="tile-content">
           <h3>Request Sound</h3>
@@ -171,7 +169,6 @@
         <div class="tile-frame"></div>
       </a>
 
-      <!-- Account Tile -->
       <a href="account.html" class="dashboard-tile">
         <div class="tile-content">
           <h3>Account</h3>
@@ -191,38 +188,63 @@
     function handleAuthState(user) {
       const authNotice = document.getElementById('authNotice');
       const dashboardGrid = document.getElementById('dashboardGrid');
+      const logoutBtn = document.getElementById('logoutBtn'); // Get logout button
+
       if (user) {
+        // User is logged in: Show dashboard grid, ensure logout button is visible (it should be by default now)
         authNotice.classList.add('hidden');
         dashboardGrid.classList.remove('hidden');
+        if (logoutBtn) logoutBtn.classList.remove('hidden'); // Ensure it's shown
       } else {
-        window.location.href = 'index.html';
+        // User is not logged in: Redirect to index/login page
+        window.location.href = 'index.html'; // Or 'login.html'
       }
     }
 
-    // Initialize Firebase authentication
+    // Initialize Firebase authentication and set up logout
     function initAuth() {
       try {
         const auth = firebase.auth();
-        auth.onAuthStateChanged(user => {
-          handleAuthState(user);
-          document.getElementById('logoutBtn').addEventListener('click', () => {
+
+        // Attach listener AFTER DOM is loaded and element exists
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
             auth.signOut().then(() => {
               window.location.href = 'index.html';
             }).catch(error => {
               console.error("Logout error:", error);
             });
           });
+        } else {
+            console.error("Logout button not found!");
+        }
+
+
+        auth.onAuthStateChanged(user => {
+          handleAuthState(user);
+          // Note: No need to toggle nav buttons visibility here anymore as they are fixed
         });
+
       } catch (error) {
         console.error("Auth initialization error:", error);
+        // Redirect if auth fails to initialize
         window.location.href = 'index.html';
       }
     }
 
+    // Ensure Firebase is loaded before initializing auth
     if (typeof firebase !== 'undefined') {
+      // Wait for the DOM to be fully loaded before running the script
       document.addEventListener('DOMContentLoaded', initAuth);
     } else {
-      window.location.href = 'index.html';
+        console.error("Firebase SDK not loaded.");
+        // Optionally redirect or show an error message
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('authNotice').textContent = 'Error loading application components. Please try again later.';
+            document.getElementById('authNotice').classList.remove('hidden');
+            document.getElementById('dashboardGrid').classList.add('hidden');
+        });
     }
   </script>
 </body>
