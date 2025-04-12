@@ -54,18 +54,15 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- Navbar with only logout button -->
     <nav class="navbar">
         <div class="logo">4SP</div>
-        <div class="nav-buttons" id="navButtons">
-            <a href="index.html" class="btn secondary">Home</a>
-            <a href="dashboard.html" class="btn primary hidden" id="dashboardNavBtn">Dashboard</a>
-            <button class="btn primary" id="logoutNavBtn">Logout</button>
-            <a href="login.html" class="btn secondary hidden" id="loginNavBtn">Login</a>
+        <div class="nav-buttons">
+            <button class="btn primary" id="logoutBtn">Logout</button>
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Main Content (unchanged) -->
     <main class="container">
         <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
         
@@ -108,24 +105,14 @@
         function handleAuthState(user) {
             const authNotice = document.getElementById('authNotice');
             const dashboardGrid = document.getElementById('dashboardGrid');
-            const dashboardNavBtn = document.getElementById('dashboardNavBtn');
-            const loginNavBtn = document.getElementById('loginNavBtn');
-            const logoutNavBtn = document.getElementById('logoutNavBtn');
 
             if (user) {
                 // User is authenticated
                 authNotice.classList.add('hidden');
                 dashboardGrid.classList.remove('hidden');
-                dashboardNavBtn.classList.remove('hidden');
-                loginNavBtn.classList.add('hidden');
-                logoutNavBtn.classList.remove('hidden');
             } else {
-                // User is not authenticated
-                authNotice.classList.remove('hidden');
-                dashboardGrid.classList.add('hidden');
-                dashboardNavBtn.classList.add('hidden');
-                loginNavBtn.classList.remove('hidden');
-                logoutNavBtn.classList.add('hidden');
+                // User is not authenticated - redirect to index
+                window.location.href = 'index.html';
             }
         }
 
@@ -138,7 +125,7 @@
                     handleAuthState(user);
                     
                     // Setup logout button
-                    document.getElementById('logoutNavBtn').addEventListener('click', () => {
+                    document.getElementById('logoutBtn').addEventListener('click', () => {
                         auth.signOut().then(() => {
                             window.location.href = 'index.html';
                         }).catch(error => {
@@ -149,35 +136,15 @@
                 
             } catch (error) {
                 console.error("Auth initialization error:", error);
-                // Show error state
-                document.getElementById('authNotice').textContent = "Error loading dashboard. Please refresh.";
-                document.getElementById('authNotice').classList.remove('hidden');
-            }
-        }
-
-        // Redirect to login if not authenticated
-        function checkAuth() {
-            try {
-                const auth = firebase.auth();
-                auth.onAuthStateChanged(user => {
-                    if (!user) {
-                        window.location.href = 'login.html?redirect=dashboard';
-                    }
-                });
-            } catch (error) {
-                console.error("Auth check error:", error);
+                window.location.href = 'index.html';
             }
         }
 
         // Start auth when ready
         if (typeof firebase !== 'undefined') {
-            document.addEventListener('DOMContentLoaded', () => {
-                initAuth();
-                checkAuth(); // Extra protection for dashboard route
-            });
+            document.addEventListener('DOMContentLoaded', initAuth);
         } else {
-            document.getElementById('authNotice').textContent = "Authentication service unavailable. Please try again later.";
-            document.getElementById('authNotice').classList.remove('hidden');
+            window.location.href = 'index.html';
         }
     </script>
 </body>
