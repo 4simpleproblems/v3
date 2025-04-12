@@ -79,7 +79,6 @@ a {
   border-radius: 50px;
   border: 2px solid var(--light-gray);
   font-size: 1rem;
-  transition: all 0.25s ease;
   background-color: white;
 }
 
@@ -123,12 +122,10 @@ input[type="password"] {
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.25s ease;
 }
 
 .google-auth:hover {
   background-color: #f8f8f8;
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
@@ -212,7 +209,6 @@ input[type="password"] {
   background: white;
   border-radius: 24px;
   padding: 2.5rem;
-  transition: all 0.35s cubic-bezier(0.16, 0.84, 0.44, 1);
   text-decoration: none;
   color: var(--dark-bg);
   overflow: hidden;
@@ -229,19 +225,16 @@ input[type="password"] {
   bottom: 0;
   border: 3px solid var(--frame-color);
   border-radius: 22px;
-  transition: all 0.3s ease-out;
   z-index: -1;
 }
 
 .dashboard-tile:hover {
-  transform: translateY(-8px);
   box-shadow: 0 18px 36px -8px var(--hover-glow);
   border-color: var(--dark-bg);
 }
 
 .dashboard-tile:hover .tile-frame {
   border-color: var(--dark-bg);
-  transform: scale(0.98);
 }
 
 .tile-content {
@@ -293,7 +286,6 @@ input[type="password"] {
   border-radius: 50px;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.25s ease;
   text-align: center;
   border: 2px solid transparent;
   font-weight: 500;
@@ -311,12 +303,7 @@ input[type="password"] {
 }
 
 .btn:hover {
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.btn:active {
-  transform: translateY(0);
 }
 
 /* ===== HERO CARD ===== */
@@ -328,3 +315,9 @@ input[type="password"] {
   border: 1px solid var(--light-gray);
   text-align: center;
   max-width: 900px;
+}
+
+/* ===== UTILITY CLASSES ===== */
+.hidden {
+  display: none;
+}
