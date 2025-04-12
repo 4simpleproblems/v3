@@ -11,6 +11,15 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
     <style>
+        /* Button styling to match login.html exactly */
+        .btn.full-width {
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+        
         .google-auth {
             background: white;
             color: #5f6368;
@@ -35,39 +44,6 @@
         .google-icon {
             margin-right: 8px;
         }
-        .auth-footer {
-            margin-top: 1.5rem;
-            text-align: center;
-            color: #666;
-        }
-        .auth-footer a {
-            color: #2a7ae2;
-            text-decoration: none;
-        }
-        .auth-footer a:hover {
-            text-decoration: underline;
-        }
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 2.5rem;
-            max-width: 450px;
-            margin: 0 auto;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-        .full-width {
-            width: 100%;
-        }
     </style>
 </head>
 <body>
@@ -83,7 +59,7 @@
     <main class="container">
         <section class="auth-hero">
             <div class="card">
-                <h1 style="text-align: center; margin-bottom: 1.5rem;">Create Account</h1>
+                <h1>Create Account</h1>
                 
                 <form id="signup-form" class="auth-form">
                     <div class="form-group">
@@ -95,7 +71,7 @@
                     <div class="form-group">
                         <input type="password" id="confirm-password" placeholder="Confirm password" required>
                     </div>
-                    <button type="submit" class="btn primary full-width" style="margin-top: 0.5rem;">
+                    <button type="submit" class="btn primary full-width">
                         Create Account
                     </button>
                 </form>
@@ -117,16 +93,14 @@
         </section>
     </main>
 
-    <footer style="text-align: center; padding: 2rem 0; color: #666;">
-        <p>© 2025 4SP. All rights reserved.</p>
+    <footer>
+        <p>© 2025 4SP</p>
     </footer>
 
     <script>
-        // Initialize Firebase
         const auth = firebase.auth();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-        // Form submission handler
         document.getElementById('signup-form').addEventListener('submit', (e) => {
             e.preventDefault();
             
@@ -134,34 +108,28 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
 
-            // Validate passwords match
             if (password !== confirmPassword) {
                 alert("Passwords don't match!");
                 return;
             }
 
-            // Create user with email/password
             auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Signed up successfully
+                .then(() => {
                     alert("Account created successfully!");
                     window.location.href = "dashboard.html";
                 })
                 .catch((error) => {
-                    const errorMessage = error.message;
-                    alert(errorMessage);
+                    alert(error.message);
                 });
         });
 
-        // Google Sign Up handler
         document.getElementById('googleSignupBtn').addEventListener('click', () => {
             auth.signInWithPopup(googleProvider)
                 .then(() => {
                     window.location.href = "dashboard.html";
                 })
                 .catch((error) => {
-                    const errorMessage = error.message;
-                    alert(errorMessage);
+                    alert(error.message);
                 });
         });
     </script>
