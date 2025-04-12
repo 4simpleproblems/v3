@@ -14,65 +14,62 @@
     
     <!-- Inline styles as fallback -->
     <style>
-        /* Fallback button styles */
+        /* Mirror CSS variables */
+        :root {
+            --dark-bg: #1a1a1a;
+            --light-text: #f0f0f0;
+            --light-gray: #e0e0e0;
+        }
+        
+        /* Base button styles matching the CSS */
         .btn {
-            display: inline-block !important;
-            padding: 0.8rem 1.8rem !important;
-            border-radius: 50px !important;
-            font-size: 0.95rem !important;
-            cursor: pointer !important;
-            transition: all 0.2s ease !important;
-            text-align: center !important;
-            margin: 0.25rem !important;
-            border: 2px solid transparent !important;
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+            border: 2px solid var(--light-gray);
         }
         .btn.primary {
-            background-color: var(--dark-bg, #1a1a1a) !important;
-            color: var(--light-text, #f0f0f0) !important;
+            background-color: var(--dark-bg);
+            color: var(--light-text);
         }
         .btn.secondary {
-            background-color: transparent !important;
-            color: var(--dark-bg, #1a1a1a) !important;
-            border-color: var(--dark-bg, #1a1a1a) !important;
+            background-color: transparent;
+            color: var(--dark-bg);
+            border-color: var(--dark-bg);
         }
         .hidden {
-            display: none !important;
-        }
-        #navButtons, #ctaButtons {
-            display: flex !important;
-            gap: 1rem !important;
-            flex-wrap: wrap !important;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- Navbar matching login/signup styling -->
     <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons" id="navButtons">
-            <!-- Default state (shown before auth loads) -->
             <a href="index.html" class="btn primary">Home</a>
             <a href="login.html" class="btn secondary" id="loginNavBtn">Login</a>
             <a href="signup.html" class="btn secondary" id="signupNavBtn">Sign Up</a>
-            
-            <!-- Authenticated state (hidden by default) -->
             <a href="dashboard.html" class="btn secondary hidden" id="dashboardNavBtn">Dashboard</a>
             <button class="btn primary hidden" id="logoutNavBtn">Logout</button>
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Main Content with consistent card styling -->
     <main class="container">
-        <section class="hero-card">
+        <section class="card">
             <h1>Welcome to 4SP</h1>
             <p id="randomQuote">Loading your daily inspiration...</p>
-            <div class="cta-buttons" id="ctaButtons">
-                <!-- Default state -->
-                <a href="signup.html" class="btn primary" id="getStartedBtn">Get Started</a>
-                <a href="login.html" class="btn secondary" id="loginCtaBtn">Login</a>
-                
-                <!-- Authenticated state -->
-                <a href="dashboard.html" class="btn primary hidden" id="goToDashboardBtn">Go to Dashboard</a>
+            
+            <div class="auth-form" id="ctaButtons">
+                <a href="signup.html" class="btn primary full-width" id="getStartedBtn">Get Started</a>
+                <div class="auth-separator">or</div>
+                <a href="login.html" class="btn secondary full-width" id="loginCtaBtn">Login</a>
+                <a href="dashboard.html" class="btn primary full-width hidden" id="goToDashboardBtn">Go to Dashboard</a>
             </div>
         </section>
     </main>
@@ -144,15 +141,12 @@
                 
             } catch (error) {
                 console.error("Auth initialization error:", error);
-                // Fallback to default UI (already visible)
             }
         }
 
         // Start auth when ready
         if (typeof firebase !== 'undefined') {
             document.addEventListener('DOMContentLoaded', initAuth);
-        } else {
-            console.warn("Firebase not loaded - using static content");
         }
     </script>
 </body>
