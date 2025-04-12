@@ -139,6 +139,66 @@ a {
   padding: 1rem;
 }
 
+/* ===== GOOGLE AUTH BUTTONS ===== */
+.google-auth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.9rem 1.8rem;
+  border-radius: 50px;
+  background: white;
+  color: var(--dark-bg);
+  border: 2px solid var(--light-gray);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 1rem 0;
+}
+
+.google-auth:hover {
+  background: #f8f8f8;
+  border-color: var(--dark-bg);
+  transform: translateY(-1px);
+}
+
+.google-auth:active {
+  transform: translateY(0);
+}
+
+.google-icon {
+  margin-right: 12px;
+  width: 18px;
+  height: 18px;
+}
+
+.auth-separator {
+  margin: 1.5rem 0;
+  text-align: center;
+  position: relative;
+  color: var(--medium-gray);
+  font-size: 0.9rem;
+}
+
+.auth-separator::before, 
+.auth-separator::after {
+  content: "";
+  display: inline-block;
+  width: 30%;
+  height: 1px;
+  background: var(--light-gray);
+  position: absolute;
+  top: 50%;
+}
+
+.auth-separator::before {
+  left: 0;
+}
+
+.auth-separator::after {
+  right: 0;
+}
+
 /* ===== AUTH PAGES ===== */
 .auth-hero {
   display: flex;
@@ -263,6 +323,10 @@ footer {
 @media (max-width: 480px) {
   .btn {
     padding: 0.7rem 1.5rem;
+  }
+
+  .google-auth {
+    padding: 0.8rem 1.5rem;
   }
 
   .cta-buttons {
