@@ -7,50 +7,46 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <!-- Firebase with fallback loading -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
     
-    <!-- Inline styles as fallback -->
+    <!-- Inline styles for the middle login button -->
     <style>
-        /* Mirror CSS variables */
         :root {
             --dark-bg: #1a1a1a;
             --light-text: #f0f0f0;
             --light-gray: #e0e0e0;
         }
         
-        /* Base button styles matching the CSS */
-        .btn {
-            display: inline-block;
-            padding: 1rem 2rem;
+        /* Special style for middle login button */
+        .middle-login-btn {
+            background-color: transparent;
+            color: var(--dark-bg);
+            border: 2px solid var(--dark-bg);
+            width: 100%;
+            padding: 1rem;
             border-radius: 50px;
             font-size: 1rem;
             cursor: pointer;
-            transition: all 0.25s ease;
             text-align: center;
-            border: 2px solid var(--light-gray);
+            font-weight: 500;
+            margin-top: 0.5rem;
+            transition: all 0.25s ease;
         }
-        .btn.primary {
-            background-color: var(--dark-bg);
-            color: var(--light-text);
-        }
-        .btn.secondary {
-            background-color: transparent;
-            color: var(--dark-bg);
-            border-color: var(--dark-bg);
-        }
-        .hidden {
-            display: none;
+        
+        .middle-login-btn:hover {
+            background-color: rgba(26, 26, 26, 0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
     </style>
 </head>
 <body>
-    <!-- Navbar matching login/signup styling -->
+    <!-- Navbar (unchanged) -->
     <nav class="navbar">
         <div class="logo">4SP</div>
-        <div class="nav-buttons" id="navButtons">
+        <div class="nav-buttons">
             <a href="index.html" class="btn primary">Home</a>
             <a href="login.html" class="btn secondary" id="loginNavBtn">Login</a>
             <a href="signup.html" class="btn secondary" id="signupNavBtn">Sign Up</a>
@@ -59,16 +55,16 @@
         </div>
     </nav>
 
-    <!-- Main Content with consistent card styling -->
+    <!-- Main Content -->
     <main class="container">
         <section class="card">
             <h1>Welcome to 4SP</h1>
             <p id="randomQuote">Loading your daily inspiration...</p>
             
-            <div class="auth-form" id="ctaButtons">
+            <div class="auth-form">
                 <a href="signup.html" class="btn primary full-width" id="getStartedBtn">Get Started</a>
                 <div class="auth-separator">or</div>
-                <a href="login.html" class="btn secondary full-width" id="loginCtaBtn">Login</a>
+                <a href="login.html" class="middle-login-btn" id="loginCtaBtn">Login</a>
                 <a href="dashboard.html" class="btn primary full-width hidden" id="goToDashboardBtn">Go to Dashboard</a>
             </div>
         </section>
@@ -93,12 +89,11 @@
                 quotes[Math.floor(Math.random() * quotes.length)];
         })();
 
-        // Auth state management
+        // Auth state management (unchanged)
         function toggleAuthUI(user) {
             const authElements = document.querySelectorAll('[id$="NavBtn"], [id$="CtaBtn"]');
             
             if (user) {
-                // Show authenticated UI
                 document.getElementById('loginNavBtn').classList.add('hidden');
                 document.getElementById('signupNavBtn').classList.add('hidden');
                 document.getElementById('dashboardNavBtn').classList.remove('hidden');
@@ -108,7 +103,6 @@
                 document.getElementById('loginCtaBtn').classList.add('hidden');
                 document.getElementById('goToDashboardBtn').classList.remove('hidden');
             } else {
-                // Show unauthenticated UI
                 document.getElementById('loginNavBtn').classList.remove('hidden');
                 document.getElementById('signupNavBtn').classList.remove('hidden');
                 document.getElementById('dashboardNavBtn').classList.add('hidden');
@@ -120,31 +114,22 @@
             }
         }
 
-        // Initialize auth
         function initAuth() {
             try {
                 const auth = firebase.auth();
-                
                 auth.onAuthStateChanged(user => {
                     toggleAuthUI(user);
-                    
-                    // Handle logout
-                    const logoutBtn = document.getElementById('logoutNavBtn');
-                    if (logoutBtn) {
-                        logoutBtn.addEventListener('click', () => {
-                            auth.signOut().catch(error => {
-                                console.error("Logout error:", error);
-                            });
+                    document.getElementById('logoutNavBtn').addEventListener('click', () => {
+                        auth.signOut().catch(error => {
+                            console.error("Logout error:", error);
                         });
-                    }
+                    });
                 });
-                
             } catch (error) {
                 console.error("Auth initialization error:", error);
             }
         }
 
-        // Start auth when ready
         if (typeof firebase !== 'undefined') {
             document.addEventListener('DOMContentLoaded', initAuth);
         }
