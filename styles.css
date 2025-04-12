@@ -1,0 +1,201 @@
+/* ===== BASE STYLES ===== */
+:root {
+    --dark-bg: #1a1a1a;
+    --darker-bg: #0d0d0d;
+    --light-text: #f0f0f0;
+    --medium-gray: #333333;
+    --light-gray: #e0e0e0;
+    --accent: #4d4d4d;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 400;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--light-gray);
+    color: var(--dark-bg);
+    line-height: 1.6;
+}
+
+/* ===== NAVIGATION ===== */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--darker-bg);
+    border-bottom: 1px solid var(--accent);
+}
+
+.logo {
+    color: var(--light-text);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Circular/Pill-shaped buttons */
+.nav-btn, .btn, .sound-btn {
+    padding: 0.7rem 1.5rem;
+    border-radius: 50px;
+    border: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.nav-btn {
+    background-color: transparent;
+    color: var(--light-text);
+    border: 1px solid var(--light-text);
+}
+
+.nav-btn:hover {
+    background-color: var(--medium-gray);
+}
+
+.nav-btn.active {
+    background-color: var(--light-text);
+    color: var(--dark-bg);
+    font-weight: 500;
+}
+
+/* ===== MAIN CONTENT ===== */
+.container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+    flex: 1; /* This makes the main content grow and push footer down */
+}
+
+.hero {
+    text-align: center;
+    padding: 4rem 1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid var(--light-gray);
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.hero h1 span {
+    font-weight: 700;
+    color: var(--dark-bg);
+}
+
+.hero p {
+    font-size: 1.1rem;
+    color: var(--medium-gray);
+    margin-bottom: 2rem;
+}
+
+/* Button styles */
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn {
+    min-width: 140px;
+}
+
+.primary {
+    background-color: var(--dark-bg);
+    color: var(--light-text);
+    font-weight: 500;
+}
+
+.secondary {
+    background-color: transparent;
+    color: var(--dark-bg);
+    border: 1px solid var(--dark-bg);
+}
+
+.primary:hover {
+    background-color: var(--darker-bg);
+}
+
+.secondary:hover {
+    background-color: var(--light-gray);
+}
+
+.soundboard-preview {
+    margin-top: 3rem;
+}
+
+.sound-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.sound-card {
+    display: flex;
+    justify-content: center;
+}
+
+.sound-btn {
+    background-color: var(--dark-bg);
+    color: var(--light-text);
+    font-weight: 500;
+}
+
+.sound-btn:hover {
+    background-color: var(--darker-bg);
+}
+
+/* ===== FOOTER ===== */
+footer {
+    margin-top: auto; /* This pushes the footer to the bottom */
+    text-align: center;
+    padding: 2rem;
+    background-color: var(--darker-bg);
+    color: var(--light-text);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--accent);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    
+    .nav-buttons {
+        margin-top: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .container {
+        padding: 0 1rem;
+    }
+}
