@@ -11,7 +11,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
     <style>
-        /* Button styling to match login.html exactly */
         .btn.full-width {
             padding: 0.8rem 1.8rem;
             border-radius: 50px;
@@ -36,13 +35,17 @@
             width: 100%;
             margin-top: 1.5rem;
         }
+        
         .google-auth:hover {
             background: #f8f9fa;
             transform: translateY(-1px);
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
+        
         .google-icon {
             margin-right: 8px;
+            width: 18px;
+            height: 18px;
         }
     </style>
 </head>
@@ -59,21 +62,19 @@
     <main class="container">
         <section class="auth-hero">
             <div class="card">
-                <h1>Create Account</h1>
+                <h1>Sign Up</h1>
                 
                 <form id="signup-form" class="auth-form">
                     <div class="form-group">
-                        <input type="email" id="email" placeholder="Email address" required>
+                        <input type="email" id="email" placeholder="Email" required>
                     </div>
                     <div class="form-group">
-                        <input type="password" id="password" placeholder="Create password" required minlength="6">
+                        <input type="password" id="password" placeholder="Password" required minlength="6">
                     </div>
                     <div class="form-group">
-                        <input type="password" id="confirm-password" placeholder="Confirm password" required>
+                        <input type="password" id="confirm-password" placeholder="Confirm Password" required>
                     </div>
-                    <button type="submit" class="btn primary full-width">
-                        Create Account
-                    </button>
+                    <button type="submit" class="btn primary full-width">Create Account</button>
                 </form>
 
                 <button id="googleSignupBtn" class="google-auth">
@@ -86,9 +87,7 @@
                     Sign up with Google
                 </button>
 
-                <p class="auth-footer">
-                    Already have an account? <a href="login.html">Log in</a>
-                </p>
+                <p class="auth-footer">Already have an account? <a href="login.html">Log in</a></p>
             </div>
         </section>
     </main>
@@ -98,9 +97,12 @@
     </footer>
 
     <script>
+        // Initialize Firebase Auth
         const auth = firebase.auth();
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
 
+        // Email sign up
         document.getElementById('signup-form').addEventListener('submit', (e) => {
             e.preventDefault();
             
@@ -115,21 +117,37 @@
 
             auth.createUserWithEmailAndPassword(email, password)
                 .then(() => {
-                    alert("Account created successfully!");
                     window.location.href = "dashboard.html";
                 })
                 .catch((error) => {
-                    alert(error.message);
+                    console.error("Signup error:", error);
+                    
+                    if (error.code === 'auth/email-already-in-use') {
+                        alert('This email is already registered.');
+                    } else if (error.code === 'auth/weak-password') {
+                        alert('Password should be at least 6 characters.');
+                    } else {
+                        alert('Signup failed: ' + error.message);
+                    }
                 });
         });
 
+        // Google sign up
         document.getElementById('googleSignupBtn').addEventListener('click', () => {
-            auth.signInWithPopup(googleProvider)
+            auth.signInWithPopup(provider)
                 .then(() => {
                     window.location.href = "dashboard.html";
                 })
                 .catch((error) => {
-                    alert(error.message);
+                    console.error("Google sign-in error:", error);
+                    
+                    if (error.code === 'auth/popup-blocked') {
+                        alert('Popup blocked! Please allow popups for this site.');
+                    } else if (error.code === 'auth/network-request-failed') {
+                        alert('Network error. Please check your internet connection.');
+                    } else {
+                        alert('Google sign-in failed: ' + error.message);
+                    }
                 });
         });
     </script>
