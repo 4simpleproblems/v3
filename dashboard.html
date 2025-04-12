@@ -13,10 +13,11 @@
 
   <style>
     :root {
-      --dark-bg: #1a1a1a; /* Darker background color */
+      --dark-bg: #1a1a1a;
+      --darker-bg: #0d0d0d; /* Added darker background color from styles.css */
       --light-text: #f0f0f0;
       --light-gray: #e0e0e0;
-      --tile-height: 280px; /* Example height for tiles */
+      --tile-height: 280px;
     }
 
     body {
@@ -25,7 +26,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      margin: 0; /* Ensure no default body margin */
+      margin: 0;
       font-family: 'Roboto Mono', monospace;
     }
 
@@ -39,18 +40,18 @@
     footer {
         text-align: center;
         padding: 1rem 0;
-        color: #333333; /* Matching medium-gray from styles.css */
+        color: #333333;
     }
 
-    /* Navigation bar styling from index.html */
+    /* Navigation bar styling using darker background */
     .navbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 1.5rem 3rem;
-      background-color: var(--dark-bg); /* Darker background */
+      background-color: var(--darker-bg); /* Changed to darker background */
       color: var(--light-text);
-      border-bottom: 1px solid var(--dark-bg); /* Adjusted border */
+      border-bottom: 1px solid var(--darker-bg); /* Match border to new background */
     }
     .logo {
       font-size: 1.8rem;
@@ -63,30 +64,25 @@
       align-items: center;
     }
 
-    /* Basic button styles from index.html */
+    /* Basic button styles ensuring correct height via padding/font-size */
     .btn {
       display: inline-block;
-      padding: 1rem 2rem;
+      padding: 1rem 2rem; /* This padding defines the height */
       border-radius: 50px;
-      font-size: 1rem;
+      font-size: 1rem; /* This font-size contributes to height */
+      line-height: normal; /* Ensure line-height doesn't add unexpected space */
       cursor: pointer;
       text-align: center;
-      border: 2px solid transparent; /* Base border */
+      border: 2px solid transparent;
       font-weight: 500;
-      transition: none !important; /* Remove transitions */
+      transition: none !important;
     }
-    /* Primary button style from index.html, with added outline */
+    /* Primary button style with outline */
     .btn.primary {
-      background-color: var(--dark-bg);
+      background-color: var(--dark-bg); /* Using --dark-bg for button fill */
       color: var(--light-text);
-      border-color: var(--light-text); /* Added border for outline effect */
+      border-color: var(--light-text); /* Keeps the outline */
     }
-    /* (Secondary button style not needed for dashboard navbar, but included for reference)
-    .btn.secondary {
-      background-color: transparent;
-      color: var(--light-text);
-      border-color: var(--light-text);
-    } */
 
     /* Hide elements with this class */
     .hidden {
@@ -119,8 +115,8 @@
       overflow: hidden;
       height: var(--tile-height);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      border: 1px solid var(--light-gray); /* Add subtle border to tiles */
-      box-shadow: 0 6px 12px rgba(0,0,0,0.08); /* Add subtle shadow */
+      border: 1px solid var(--light-gray);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
     }
     .dashboard-tile .tile-content {
       position: relative;
@@ -135,7 +131,7 @@
       font-size: 1rem;
       line-height: 1.6;
     }
-    .dashboard-tile .tile-frame { /* Optional decorative frame */
+    .dashboard-tile .tile-frame {
       position: absolute;
       top: 0;
       left: 0;
