@@ -14,7 +14,7 @@
     
     <!-- Inline styles as fallback -->
     <style>
-        /* Fallback button styles if CSS fails to load */
+        /* Fallback button styles */
         .btn {
             display: inline-block !important;
             padding: 0.8rem 1.8rem !important;
@@ -27,13 +27,16 @@
             border: 2px solid transparent !important;
         }
         .btn.primary {
-            background-color: #1a1a1a !important;
-            color: #f0f0f0 !important;
+            background-color: var(--dark-bg, #1a1a1a) !important;
+            color: var(--light-text, #f0f0f0) !important;
         }
         .btn.secondary {
             background-color: transparent !important;
-            color: #1a1a1a !important;
-            border-color: #1a1a1a !important;
+            color: var(--dark-bg, #1a1a1a) !important;
+            border-color: var(--dark-bg, #1a1a1a) !important;
+        }
+        .hidden {
+            display: none !important;
         }
         #navButtons, #ctaButtons {
             display: flex !important;
@@ -43,34 +46,43 @@
     </style>
 </head>
 <body>
-    <!-- Navbar with forced display -->
-    <nav class="navbar" style="display: flex !important;">
+    <!-- Navbar -->
+    <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons" id="navButtons">
+            <!-- Default state (shown before auth loads) -->
             <a href="index.html" class="btn primary">Home</a>
-            <a href="login.html" class="btn secondary">Login</a>
-            <a href="signup.html" class="btn secondary">Sign Up</a>
+            <a href="login.html" class="btn secondary" id="loginNavBtn">Login</a>
+            <a href="signup.html" class="btn secondary" id="signupNavBtn">Sign Up</a>
+            
+            <!-- Authenticated state (hidden by default) -->
+            <a href="dashboard.html" class="btn secondary hidden" id="dashboardNavBtn">Dashboard</a>
+            <button class="btn primary hidden" id="logoutNavBtn">Logout</button>
         </div>
     </nav>
 
-    <!-- Main Content with visible fallback -->
-    <main class="container" style="display: block !important;">
-        <section class="hero-card" style="display: block !important;">
+    <!-- Main Content -->
+    <main class="container">
+        <section class="hero-card">
             <h1>Welcome to 4SP</h1>
             <p id="randomQuote">Loading your daily inspiration...</p>
-            <div class="cta-buttons" id="ctaButtons" style="display: flex !important;">
-                <a href="signup.html" class="btn primary">Get Started</a>
-                <a href="login.html" class="btn secondary">Login</a>
+            <div class="cta-buttons" id="ctaButtons">
+                <!-- Default state -->
+                <a href="signup.html" class="btn primary" id="getStartedBtn">Get Started</a>
+                <a href="login.html" class="btn secondary" id="loginCtaBtn">Login</a>
+                
+                <!-- Authenticated state -->
+                <a href="dashboard.html" class="btn primary hidden" id="goToDashboardBtn">Go to Dashboard</a>
             </div>
         </section>
     </main>
 
-    <footer style="display: block !important;">
+    <footer>
         <p>© 2025 4SP</p>
     </footer>
 
     <script>
-        // Immediate quote display (works before auth loads)
+        // Quote display
         (function() {
             const quotes = [
                 "A non-collaborative platform for inconvenient people",
@@ -84,48 +96,63 @@
                 quotes[Math.floor(Math.random() * quotes.length)];
         })();
 
-        // Auth handling with error recovery
-        function setupAuth() {
+        // Auth state management
+        function toggleAuthUI(user) {
+            const authElements = document.querySelectorAll('[id$="NavBtn"], [id$="CtaBtn"]');
+            
+            if (user) {
+                // Show authenticated UI
+                document.getElementById('loginNavBtn').classList.add('hidden');
+                document.getElementById('signupNavBtn').classList.add('hidden');
+                document.getElementById('dashboardNavBtn').classList.remove('hidden');
+                document.getElementById('logoutNavBtn').classList.remove('hidden');
+                
+                document.getElementById('getStartedBtn').classList.add('hidden');
+                document.getElementById('loginCtaBtn').classList.add('hidden');
+                document.getElementById('goToDashboardBtn').classList.remove('hidden');
+            } else {
+                // Show unauthenticated UI
+                document.getElementById('loginNavBtn').classList.remove('hidden');
+                document.getElementById('signupNavBtn').classList.remove('hidden');
+                document.getElementById('dashboardNavBtn').classList.add('hidden');
+                document.getElementById('logoutNavBtn').classList.add('hidden');
+                
+                document.getElementById('getStartedBtn').classList.remove('hidden');
+                document.getElementById('loginCtaBtn').classList.remove('hidden');
+                document.getElementById('goToDashboardBtn').classList.add('hidden');
+            }
+        }
+
+        // Initialize auth
+        function initAuth() {
             try {
                 const auth = firebase.auth();
                 
                 auth.onAuthStateChanged(user => {
-                    const navButtons = document.getElementById('navButtons');
-                    const ctaButtons = document.getElementById('ctaButtons');
+                    toggleAuthUI(user);
                     
-                    if (user) {
-                        navButtons.innerHTML = `
-                            <a href="index.html" class="btn secondary">Home</a>
-                            <a href="dashboard.html" class="btn secondary">Dashboard</a>
-                            <a href="#" id="logoutBtn" class="btn primary">Logout</a>
-                        `;
-                        ctaButtons.innerHTML = `
-                            <a href="dashboard.html" class="btn primary">Go to Dashboard</a>
-                        `;
-                        
-                        document.getElementById('logoutBtn').addEventListener('click', (e) => {
-                            e.preventDefault();
-                            auth.signOut();
+                    // Handle logout
+                    const logoutBtn = document.getElementById('logoutNavBtn');
+                    if (logoutBtn) {
+                        logoutBtn.addEventListener('click', () => {
+                            auth.signOut().catch(error => {
+                                console.error("Logout error:", error);
+                            });
                         });
-                    } else {
-                        // Default state already shown in HTML
-                        // JavaScript will enhance if needed
                     }
-                }).catch(error => {
-                    console.log("Auth observer error:", error);
                 });
                 
             } catch (error) {
-                console.log("Firebase init error:", error);
-                // Fallback: Keep the default buttons shown in HTML
+                console.error("Auth initialization error:", error);
+                // Fallback to default UI (already visible)
             }
         }
 
-        // Start auth after ensuring Firebase is loaded
-        if (typeof firebase === 'undefined') {
-            console.log("Firebase not loaded, using static content");
+        // Start auth when ready
+        if (typeof firebase !== 'undefined') {
+            document.addEventListener('DOMContentLoaded', initAuth);
         } else {
-            document.addEventListener('DOMContentLoaded', setupAuth);
+            console.warn("Firebase not loaded - using static content");
         }
     </script>
 </body>
