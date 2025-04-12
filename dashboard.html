@@ -12,7 +12,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="firebase-config.js"></script>
 
-  <!-- Inline fallback styles -->
+  <!-- Inline fallback styles including white outlines for logout button -->
   <style>
     :root {
       --dark-bg: #1a1a1a;
@@ -22,25 +22,61 @@
     .hidden {
       display: none !important;
     }
-    /* Base Button Styling (for Logout button) */
+    /* Standard button styling */
     .btn {
       display: inline-block !important;
       padding: 0.8rem 1.8rem !important;
       border-radius: 50px !important;
       font-size: 0.95rem !important;
       cursor: pointer !important;
-      transition: all 0.2s ease !important;
       text-align: center !important;
       border: 2px solid transparent !important;
+      font-weight: 500;
+      transition: all 0.2s ease !important;
     }
     .btn.primary {
-      background-color: var(--dark-bg, #1a1a1a) !important;
-      color: var(--light-text, #f0f0f0) !important;
+      background-color: var(--dark-bg) !important;
+      color: var(--light-text) !important;
     }
     .btn.secondary {
       background-color: transparent !important;
-      color: var(--dark-bg, #1a1a1a) !important;
-      border-color: var(--dark-bg, #1a1a1a) !important;
+      color: var(--dark-bg) !important;
+      border-color: var(--dark-bg) !important;
+    }
+    /* Override for the logout button so it always shows a white outline */
+    .nav-buttons .btn.primary {
+      border: 2px solid var(--light-text) !important;
+    }
+    /* Hover and focus effects for consistency */
+    .btn.primary:hover,
+    .btn.primary:focus {
+      border-color: var(--light-text);
+      box-shadow: 0 0 0 2px var(--light-text);
+    }
+    .btn.secondary:hover,
+    .btn.secondary:focus {
+      border-color: var(--dark-bg);
+      box-shadow: 0 0 0 2px var(--dark-bg);
+    }
+    /* Navigation styles */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      border-bottom: 1px solid var(--dark-bg);
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+    }
+    .nav-buttons {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
     }
     /* Dashboard grid layout */
     .dashboard-grid {
@@ -54,7 +90,7 @@
         grid-template-columns: 1fr !important;
       }
     }
-    /* Dashboard Tile Styling */
+    /* Dashboard tile styling */
     .dashboard-tile {
       position: relative;
       display: flex;
@@ -64,9 +100,9 @@
       border-radius: 24px;
       padding: 2.5rem;
       text-decoration: none;
-      color: var(--dark-bg, #1a1a1a);
+      color: var(--dark-bg);
       overflow: hidden;
-      height: var(--tile-height, 280px);
+      height: var(--tile-height);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     .dashboard-tile .tile-content {
@@ -80,10 +116,8 @@
     }
     .dashboard-tile .tile-content p {
       font-size: 1rem;
-      color: var(--dark-bg, #1a1a1a);
       line-height: 1.6;
     }
-    /* Tile frame (background border effect) */
     .dashboard-tile .tile-frame {
       position: absolute;
       top: 0;
@@ -95,18 +129,18 @@
       z-index: 1;
       transition: border-color 0.3s ease;
     }
-    /* Hover effects for the tiles */
+    /* Hover effects for dashboard tiles */
     .dashboard-tile:hover {
       transform: translateY(-5px) scale(1.03);
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
     }
     .dashboard-tile:hover .tile-frame {
-      border-color: var(--dark-bg, #1a1a1a);
+      border-color: var(--dark-bg);
     }
   </style>
 </head>
 <body>
-  <!-- Navbar with only logout button -->
+  <!-- Navbar with logout button showing a persistent white outline -->
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
@@ -153,28 +187,24 @@
   </footer>
 
   <script>
-    // Auth state management
+    // Authentication state management
     function handleAuthState(user) {
       const authNotice = document.getElementById('authNotice');
       const dashboardGrid = document.getElementById('dashboardGrid');
-
       if (user) {
-        // User is authenticated
         authNotice.classList.add('hidden');
         dashboardGrid.classList.remove('hidden');
       } else {
-        // User is not authenticated - redirect to index
         window.location.href = 'index.html';
       }
     }
 
-    // Initialize auth
+    // Initialize Firebase authentication
     function initAuth() {
       try {
         const auth = firebase.auth();
         auth.onAuthStateChanged(user => {
           handleAuthState(user);
-          // Setup logout button
           document.getElementById('logoutBtn').addEventListener('click', () => {
             auth.signOut().then(() => {
               window.location.href = 'index.html';
