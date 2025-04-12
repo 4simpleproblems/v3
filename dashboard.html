@@ -14,7 +14,7 @@
   <style>
     :root {
       --dark-bg: #1a1a1a;
-      --darker-bg: #0d0d0d; /* Added darker background color from styles.css */
+      --darker-bg: #0d0d0d;
       --light-text: #f0f0f0;
       --light-gray: #e0e0e0;
       --tile-height: 280px;
@@ -31,16 +31,16 @@
     }
 
     main.container {
-       max-width: 1200px;
-       margin: 2rem auto;
-       padding: 0 2rem;
-       flex: 1;
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      flex: 1;
     }
 
     footer {
-        text-align: center;
-        padding: 1rem 0;
-        color: #333333;
+      text-align: center;
+      padding: 1rem 0;
+      color: #333333;
     }
 
     /* Navigation bar styling using darker background */
@@ -49,9 +49,9 @@
       justify-content: space-between;
       align-items: center;
       padding: 1.5rem 3rem;
-      background-color: var(--darker-bg); /* Changed to darker background */
+      background-color: var(--darker-bg);
       color: var(--light-text);
-      border-bottom: 1px solid var(--darker-bg); /* Match border to new background */
+      border-bottom: 1px solid var(--darker-bg);
     }
     .logo {
       font-size: 1.8rem;
@@ -67,24 +67,23 @@
     /* Basic button styles ensuring correct height via padding/font-size */
     .btn {
       display: inline-block;
-      padding: 1rem 2rem; /* This padding defines the height */
+      padding: 1rem 2rem;
       border-radius: 50px;
-      font-size: 1rem; /* This font-size contributes to height */
-      line-height: normal; /* Ensure line-height doesn't add unexpected space */
+      font-size: 1rem;
+      line-height: normal;
       cursor: pointer;
       text-align: center;
       border: 2px solid transparent;
       font-weight: 500;
       transition: none !important;
     }
-    /* Primary button style with outline */
-    .btn.primary {
-      background-color: var(--dark-bg); /* Using --dark-bg for button fill */
+    /* Secondary button style (copied from index.html) */
+    .btn.secondary {
+      background-color: transparent;
       color: var(--light-text);
-      border-color: var(--light-text); /* Keeps the outline */
+      border-color: var(--light-text);
     }
 
-    /* Hide elements with this class */
     .hidden {
       display: none !important;
     }
@@ -101,7 +100,6 @@
         grid-template-columns: 1fr;
       }
     }
-    /* Dashboard tile styling */
     .dashboard-tile {
       position: relative;
       display: flex;
@@ -155,7 +153,9 @@
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
-      <button class="btn primary" id="logoutBtn">Logout</button>
+      <!-- Replaced logout button with the structure of the sign up button from index.html,
+           and updated text to "Log Out" -->
+      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
     </div>
   </nav>
 
@@ -209,14 +209,15 @@
       }
     }
 
-    // Initialize Firebase authentication and set up logout
+    // Initialize Firebase authentication and set up logout functionality
     function initAuth() {
       try {
         const auth = firebase.auth();
 
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
+          logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent any default link behavior
             auth.signOut().then(() => {
               window.location.href = 'index.html';
             }).catch(error => {
@@ -224,7 +225,7 @@
             });
           });
         } else {
-            console.error("Logout button not found!");
+          console.error("Logout button not found!");
         }
 
         auth.onAuthStateChanged(user => {
@@ -240,17 +241,16 @@
     if (typeof firebase !== 'undefined') {
       document.addEventListener('DOMContentLoaded', initAuth);
     } else {
-        console.error("Firebase SDK not loaded.");
-        document.addEventListener('DOMContentLoaded', () => {
-            const notice = document.getElementById('authNotice');
-            if(notice){
-                 notice.textContent = 'Error loading application components. Please try again later.';
-                 notice.classList.remove('hidden');
-            }
-            const grid = document.getElementById('dashboardGrid');
-            if(grid) grid.classList.add('hidden');
-
-        });
+      console.error("Firebase SDK not loaded.");
+      document.addEventListener('DOMContentLoaded', () => {
+        const notice = document.getElementById('authNotice');
+        if (notice) {
+          notice.textContent = 'Error loading application components. Please try again later.';
+          notice.classList.remove('hidden');
+        }
+        const grid = document.getElementById('dashboardGrid');
+        if (grid) grid.classList.add('hidden');
+      });
     }
   </script>
 </body>
