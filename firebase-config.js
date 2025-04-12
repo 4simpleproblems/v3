@@ -1,12 +1,12 @@
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCIShXZAgmjZcNTPxxph_SBIFyHyD0KlHM",
-  authDomain: "sp-proj-ee318.firebaseapp.com",
-  projectId: "sp-proj-ee318",
-  storageBucket: "sp-proj-ee318.firebasestorage.app",
-  messagingSenderId: "306497646656",
-  appId: "1:306497646656:web:e87b7bc7b96ffd85506fa5",
-  measurementId: "G-8ZR9HSE4GC"
+  apiKey: "AIzaSyCE8iictKO9DxGiB5YolWq5ZOfVBdqgwaI",
+  authDomain: "sp-v2-899a3.firebaseapp.com",
+  projectId: "sp-v2-899a3",
+  storageBucket: "sp-v2-899a3.firebasestorage.app",
+  messagingSenderId: "481680193086",
+  appId: "1:481680193086:web:20730bc623f399133a436f",
+  measurementId: "G-Q1N35C57EV"
 };
 
 // Initialize Firebase
