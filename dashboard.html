@@ -3,20 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4SP Dashboard</title>
+    <title>4SP | Dashboard</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    
+    <!-- Inline fallback styles -->
+    <style>
+        :root {
+            --dark-bg: #1a1a1a;
+            --light-text: #f0f0f0;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .btn {
+            display: inline-block !important;
+            padding: 0.8rem 1.8rem !important;
+            border-radius: 50px !important;
+            font-size: 0.95rem !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+            text-align: center !important;
+            border: 2px solid transparent !important;
+        }
+        .btn.primary {
+            background-color: var(--dark-bg, #1a1a1a) !important;
+            color: var(--light-text, #f0f0f0) !important;
+        }
+        .btn.secondary {
+            background-color: transparent !important;
+            color: var(--dark-bg, #1a1a1a) !important;
+            border-color: var(--dark-bg, #1a1a1a) !important;
+        }
+        .dashboard-grid {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 2rem !important;
+            margin: 2rem 0 !important;
+        }
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Navbar -->
     <nav class="navbar">
         <div class="logo">4SP</div>
-        <div class="nav-buttons">
-            <button id="signOutBtn" class="btn secondary"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        <div class="nav-buttons" id="navButtons">
+            <a href="index.html" class="btn secondary">Home</a>
+            <a href="dashboard.html" class="btn primary hidden" id="dashboardNavBtn">Dashboard</a>
+            <button class="btn primary" id="logoutNavBtn">Logout</button>
+            <a href="login.html" class="btn secondary hidden" id="loginNavBtn">Login</a>
         </div>
     </nav>
 
+    <!-- Main Content -->
     <main class="container">
-        <div class="dashboard-grid">
-            <!-- Open Soundboard Tile -->
+        <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
+        
+        <div class="dashboard-grid" id="dashboardGrid">
+            <!-- Soundboard Tile -->
             <a href="soundboard.html" class="dashboard-tile">
                 <div class="tile-content">
                     <h3>Open Soundboard</h3>
@@ -45,14 +99,86 @@
         </div>
     </main>
 
+    <footer>
+        <p>© 2025 4SP</p>
+    </footer>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Sign out functionality
-            document.getElementById('signOutBtn').addEventListener('click', () => {
-                // Add your sign out logic here
-                window.location.href = 'index.html';
+        // Auth state management
+        function handleAuthState(user) {
+            const authNotice = document.getElementById('authNotice');
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            const dashboardNavBtn = document.getElementById('dashboardNavBtn');
+            const loginNavBtn = document.getElementById('loginNavBtn');
+            const logoutNavBtn = document.getElementById('logoutNavBtn');
+
+            if (user) {
+                // User is authenticated
+                authNotice.classList.add('hidden');
+                dashboardGrid.classList.remove('hidden');
+                dashboardNavBtn.classList.remove('hidden');
+                loginNavBtn.classList.add('hidden');
+                logoutNavBtn.classList.remove('hidden');
+            } else {
+                // User is not authenticated
+                authNotice.classList.remove('hidden');
+                dashboardGrid.classList.add('hidden');
+                dashboardNavBtn.classList.add('hidden');
+                loginNavBtn.classList.remove('hidden');
+                logoutNavBtn.classList.add('hidden');
+            }
+        }
+
+        // Initialize auth
+        function initAuth() {
+            try {
+                const auth = firebase.auth();
+                
+                auth.onAuthStateChanged(user => {
+                    handleAuthState(user);
+                    
+                    // Setup logout button
+                    document.getElementById('logoutNavBtn').addEventListener('click', () => {
+                        auth.signOut().then(() => {
+                            window.location.href = 'index.html';
+                        }).catch(error => {
+                            console.error("Logout error:", error);
+                        });
+                    });
+                });
+                
+            } catch (error) {
+                console.error("Auth initialization error:", error);
+                // Show error state
+                document.getElementById('authNotice').textContent = "Error loading dashboard. Please refresh.";
+                document.getElementById('authNotice').classList.remove('hidden');
+            }
+        }
+
+        // Redirect to login if not authenticated
+        function checkAuth() {
+            try {
+                const auth = firebase.auth();
+                auth.onAuthStateChanged(user => {
+                    if (!user) {
+                        window.location.href = 'login.html?redirect=dashboard';
+                    }
+                });
+            } catch (error) {
+                console.error("Auth check error:", error);
+            }
+        }
+
+        // Start auth when ready
+        if (typeof firebase !== 'undefined') {
+            document.addEventListener('DOMContentLoaded', () => {
+                initAuth();
+                checkAuth(); // Extra protection for dashboard route
             });
-        });
+        } else {
+            document.getElementById('authNotice').textContent = "Authentication service unavailable. Please try again later.";
+            document.getElementById('authNotice').classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
