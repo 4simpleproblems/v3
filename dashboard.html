@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <button id="signOutBtn" class="btn secondary"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="dashboard-grid">
+            <!-- Open Soundboard Tile -->
+            <a href="soundboard.html" class="dashboard-tile">
+                <div class="tile-content">
+                    <h3>Open Soundboard</h3>
+                    <p>Access all available sound clips and categories. Play, organize, and manage your favorite sounds.</p>
+                </div>
+                <div class="tile-frame"></div>
+            </a>
+
+            <!-- Request Sound Tile -->
+            <a href="request.html" class="dashboard-tile">
+                <div class="tile-content">
+                    <h3>Request Sound</h3>
+                    <p>Submit requests for new sounds to be added to the collection. Vote on upcoming sound additions.</p>
+                </div>
+                <div class="tile-frame"></div>
+            </a>
+
+            <!-- Account Tile -->
+            <a href="account.html" class="dashboard-tile">
+                <div class="tile-content">
+                    <h3>Account</h3>
+                    <p>Manage your account settings, preferences, and saved sounds. Update your profile information.</p>
+                </div>
+                <div class="tile-frame"></div>
+            </a>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sign out functionality
+            document.getElementById('signOutBtn').addEventListener('click', () => {
+                // Add your sign out logic here
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+</body>
+</html>
