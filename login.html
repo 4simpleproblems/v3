@@ -6,6 +6,10 @@
     <title>4SP | Login</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -21,12 +25,12 @@
         <section class="auth-hero">
             <div class="card">
                 <h1>Login</h1>
-                <form class="auth-form">
+                <form id="login-form" class="auth-form">
                     <div class="form-group">
-                        <input type="email" placeholder="Email" required>
+                        <input type="email" id="email" placeholder="Email" required>
                     </div>
                     <div class="form-group">
-                        <input type="password" placeholder="Password" required>
+                        <input type="password" id="password" placeholder="Password" required>
                     </div>
                     <button type="submit" class="btn primary full-width">Login</button>
                 </form>
@@ -38,5 +42,22 @@
     <footer>
         <p>© 2025 4SP</p>
     </footer>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    window.location.href = "dashboard.html";
+                })
+                .catch((error) => {
+                    alert(error.message);
+                });
+        });
+    </script>
 </body>
 </html>
