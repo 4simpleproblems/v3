@@ -13,41 +13,44 @@
 
   <style>
     :root {
-      --dark-bg: #1a1a1a;
+      --dark-bg: #1a1a1a; /* Darker background color */
       --light-text: #f0f0f0;
       --light-gray: #e0e0e0;
+      --tile-height: 280px; /* Example height for tiles */
     }
-    /* Basic button styles */
-    .btn {
-      display: inline-block;
-      padding: 1rem 2rem;
-      border-radius: 50px;
-      font-size: 1rem;
-      cursor: pointer;
-      text-align: center;
-      border: 2px solid transparent;
-      font-weight: 500;
-      /* Ensuring no transition conflicts */
-      transition: none !important;
+
+    body {
+      background-color: var(--light-gray);
+      color: var(--dark-bg);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0; /* Ensure no default body margin */
+      font-family: 'Roboto Mono', monospace;
     }
-    .btn.primary {
-      background-color: var(--dark-bg);
-      color: var(--light-text);
+
+    main.container {
+       max-width: 1200px;
+       margin: 2rem auto;
+       padding: 0 2rem;
+       flex: 1;
     }
-    .btn.secondary {
-      background-color: transparent;
-      color: var(--light-text);
-      border-color: var(--light-text);
+
+    footer {
+        text-align: center;
+        padding: 1rem 0;
+        color: #333333; /* Matching medium-gray from styles.css */
     }
-    /* Navigation bar styling */
+
+    /* Navigation bar styling from index.html */
     .navbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 1.5rem 3rem;
-      background-color: var(--dark-bg); /* Matches index.html navbar background */
+      background-color: var(--dark-bg); /* Darker background */
       color: var(--light-text);
-      border-bottom: 1px solid var(--dark-bg); /* Adjusted border slightly */
+      border-bottom: 1px solid var(--dark-bg); /* Adjusted border */
     }
     .logo {
       font-size: 1.8rem;
@@ -59,10 +62,37 @@
       gap: 1.5rem;
       align-items: center;
     }
+
+    /* Basic button styles from index.html */
+    .btn {
+      display: inline-block;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      border: 2px solid transparent; /* Base border */
+      font-weight: 500;
+      transition: none !important; /* Remove transitions */
+    }
+    /* Primary button style from index.html, with added outline */
+    .btn.primary {
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      border-color: var(--light-text); /* Added border for outline effect */
+    }
+    /* (Secondary button style not needed for dashboard navbar, but included for reference)
+    .btn.secondary {
+      background-color: transparent;
+      color: var(--light-text);
+      border-color: var(--light-text);
+    } */
+
     /* Hide elements with this class */
     .hidden {
-      display: none !important; /* Added important to ensure hiding */
+      display: none !important;
     }
+
     /* Dashboard grid layout */
     .dashboard-grid {
       display: grid;
@@ -87,8 +117,10 @@
       text-decoration: none;
       color: var(--dark-bg);
       overflow: hidden;
-      height: 280px; /* Consider using var(--tile-height) if defined */
+      height: var(--tile-height);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid var(--light-gray); /* Add subtle border to tiles */
+      box-shadow: 0 6px 12px rgba(0,0,0,0.08); /* Add subtle shadow */
     }
     .dashboard-tile .tile-content {
       position: relative;
@@ -103,42 +135,24 @@
       font-size: 1rem;
       line-height: 1.6;
     }
-    .dashboard-tile .tile-frame {
+    .dashboard-tile .tile-frame { /* Optional decorative frame */
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      border: 3px solid rgba(0, 0, 0, 0.08); /* Consider var(--frame-color) */
+      border: 3px solid rgba(0, 0, 0, 0.08);
       border-radius: 22px;
       z-index: 1;
       transition: border-color 0.3s ease;
     }
     .dashboard-tile:hover {
       transform: translateY(-5px) scale(1.03);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* Consider var(--hover-glow) */
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
     }
     .dashboard-tile:hover .tile-frame {
       border-color: var(--dark-bg);
     }
-
-    /* Ensure body background matches other pages if needed */
-    body {
-      background-color: var(--light-gray); /* Ensures background consistency */
-      color: var(--dark-bg);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    main.container {
-       flex: 1; /* Allows footer to stick to bottom */
-    }
-    footer {
-        text-align: center;
-        padding: 1rem 0;
-        color: var(--medium-gray); /* Defined in styles.css, add here if needed */
-    }
-
   </style>
 </head>
 <body>
@@ -188,16 +202,14 @@
     function handleAuthState(user) {
       const authNotice = document.getElementById('authNotice');
       const dashboardGrid = document.getElementById('dashboardGrid');
-      const logoutBtn = document.getElementById('logoutBtn'); // Get logout button
+      const logoutBtn = document.getElementById('logoutBtn');
 
       if (user) {
-        // User is logged in: Show dashboard grid, ensure logout button is visible (it should be by default now)
         authNotice.classList.add('hidden');
         dashboardGrid.classList.remove('hidden');
-        if (logoutBtn) logoutBtn.classList.remove('hidden'); // Ensure it's shown
+        if (logoutBtn) logoutBtn.classList.remove('hidden');
       } else {
-        // User is not logged in: Redirect to index/login page
-        window.location.href = 'index.html'; // Or 'login.html'
+        window.location.href = 'index.html';
       }
     }
 
@@ -206,7 +218,6 @@
       try {
         const auth = firebase.auth();
 
-        // Attach listener AFTER DOM is loaded and element exists
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
@@ -220,30 +231,29 @@
             console.error("Logout button not found!");
         }
 
-
         auth.onAuthStateChanged(user => {
           handleAuthState(user);
-          // Note: No need to toggle nav buttons visibility here anymore as they are fixed
         });
 
       } catch (error) {
         console.error("Auth initialization error:", error);
-        // Redirect if auth fails to initialize
         window.location.href = 'index.html';
       }
     }
 
-    // Ensure Firebase is loaded before initializing auth
     if (typeof firebase !== 'undefined') {
-      // Wait for the DOM to be fully loaded before running the script
       document.addEventListener('DOMContentLoaded', initAuth);
     } else {
         console.error("Firebase SDK not loaded.");
-        // Optionally redirect or show an error message
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('authNotice').textContent = 'Error loading application components. Please try again later.';
-            document.getElementById('authNotice').classList.remove('hidden');
-            document.getElementById('dashboardGrid').classList.add('hidden');
+            const notice = document.getElementById('authNotice');
+            if(notice){
+                 notice.textContent = 'Error loading application components. Please try again later.';
+                 notice.classList.remove('hidden');
+            }
+            const grid = document.getElementById('dashboardGrid');
+            if(grid) grid.classList.add('hidden');
+
         });
     }
   </script>
