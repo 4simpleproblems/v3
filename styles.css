@@ -8,6 +8,9 @@
   --accent: #4d4d4d;
   --error-red: #ff3333;
   --success-green: #33cc33;
+  --frame-color: rgba(0, 0, 0, 0.08);
+  --hover-glow: rgba(26, 26, 26, 0.15);
+  --tile-height: 280px; /* Taller tile height */
 }
 
 * {
@@ -34,49 +37,77 @@ a {
 
 /* ===== LAYOUT ===== */
 .container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 2rem auto;
   padding: 0 2rem;
   flex: 1;
 }
 
-/* ===== HERO CARD ===== */
-.hero-card {
-  background: white;
-  border-radius: 24px;
-  padding: 3rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  border: 1px solid var(--light-gray);
-  text-align: center;
-  max-width: 800px;
-  margin: 2rem auto;
+/* ===== DASHBOARD GRID ===== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+  margin: 3rem 0;
 }
 
-.hero-card h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: var(--dark-bg);
-}
-
-.hero-card p {
-  font-size: 1.2rem;
-  color: var(--medium-gray);
-  margin-bottom: 2rem;
-  font-weight: 300;
-  line-height: 1.6;
-  min-height: 60px;
+.dashboard-tile {
+  position: relative;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
+  background: white;
+  border-radius: 24px; /* More rounded corners */
+  padding: 2.5rem;
+  transition: all 0.35s cubic-bezier(0.16, 0.84, 0.44, 1);
+  text-decoration: none;
+  color: var(--dark-bg);
+  overflow: hidden;
+  height: var(--tile-height);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+  border: 1px solid var(--light-gray);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+.tile-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 3px solid var(--frame-color);
+  border-radius: 22px; /* Slightly less than container for visual effect */
+  transition: all 0.3s ease-out;
+  z-index: -1;
 }
 
-.hero-card p {
-  animation: fadeIn 0.5s ease-out;
+.dashboard-tile:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 36px -8px var(--hover-glow);
+  border-color: var(--dark-bg);
+}
+
+.dashboard-tile:hover .tile-frame {
+  border-color: var(--dark-bg);
+  transform: scale(0.98);
+}
+
+.tile-content {
+  padding: 1rem 0;
+}
+
+.tile-content h3 {
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+  color: var(--dark-bg);
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+.tile-content p {
+  color: var(--medium-gray);
+  line-height: 1.7;
+  font-size: 1rem;
+  font-weight: 300;
 }
 
 /* ===== NAVIGATION ===== */
@@ -84,34 +115,35 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 1.5rem 3rem;
   background-color: var(--darker-bg);
   color: var(--light-text);
   border-bottom: 1px solid var(--accent);
 }
 
 .logo {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  letter-spacing: -1px;
+  letter-spacing: -1.5px;
 }
 
 .nav-buttons {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   align-items: center;
 }
 
 /* ===== BUTTONS ===== */
 .btn {
   display: inline-block;
-  padding: 0.8rem 1.8rem;
+  padding: 1rem 2rem;
   border-radius: 50px;
-  font-size: 0.95rem;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   text-align: center;
   border: 2px solid transparent;
+  font-weight: 500;
 }
 
 .btn.primary {
@@ -121,220 +153,108 @@ a {
 
 .btn.secondary {
   background-color: transparent;
-  color: var(--dark-bg);
-  border-color: var(--dark-bg);
+  color: var(--light-text);
+  border-color: var(--light-text);
 }
 
 .btn:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .btn:active {
   transform: translateY(0);
 }
 
-.btn.full-width {
-  width: 100%;
-  padding: 1rem;
-}
-
-/* ===== GOOGLE AUTH BUTTONS ===== */
-.google-auth {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 0.9rem 1.8rem;
-  border-radius: 50px;
+/* ===== HERO CARD ===== */
+.hero-card {
   background: white;
-  color: var(--dark-bg);
-  border: 2px solid var(--light-gray);
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin: 1rem 0;
-}
-
-.google-auth:hover {
-  background: #f8f8f8;
-  border-color: var(--dark-bg);
-  transform: translateY(-1px);
-}
-
-.google-auth:active {
-  transform: translateY(0);
-}
-
-.google-icon {
-  margin-right: 12px;
-  width: 18px;
-  height: 18px;
-}
-
-.auth-separator {
-  margin: 1.5rem 0;
-  text-align: center;
-  position: relative;
-  color: var(--medium-gray);
-  font-size: 0.9rem;
-}
-
-.auth-separator::before, 
-.auth-separator::after {
-  content: "";
-  display: inline-block;
-  width: 30%;
-  height: 1px;
-  background: var(--light-gray);
-  position: absolute;
-  top: 50%;
-}
-
-.auth-separator::before {
-  left: 0;
-}
-
-.auth-separator::after {
-  right: 0;
-}
-
-/* ===== AUTH PAGES ===== */
-.auth-hero {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 70vh;
-  padding: 2rem 0;
-}
-
-.card {
-  width: 100%;
-  max-width: 450px;
-  background: white;
-  border-radius: 24px;
-  padding: 2.5rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  border-radius: 28px;
+  padding: 4rem;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.1);
   border: 1px solid var(--light-gray);
-}
-
-.card h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  color: var(--dark-bg);
   text-align: center;
+  max-width: 900px;
+  margin: 3rem auto;
 }
 
-.card p {
-  color: var(--medium-gray);
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.auth-form {
-  margin: 2rem 0;
-}
-
-.form-group {
+.hero-card h1 {
+  font-size: 2.8rem;
   margin-bottom: 1.5rem;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 0.9rem 1.8rem;
-  border: 2px solid var(--light-gray);
-  border-radius: 50px;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-}
-
-.form-group input:focus {
-  outline: none;
-  border-color: var(--dark-bg);
-}
-
-.auth-footer {
-  margin-top: 1.5rem;
-  color: var(--medium-gray);
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.auth-footer a {
   color: var(--dark-bg);
-  text-decoration: underline;
+  font-weight: 700;
 }
 
-/* ===== MESSAGES ===== */
-.message {
-  padding: 0.8rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.error {
-  background-color: rgba(255, 51, 51, 0.1);
-  color: var(--error-red);
-}
-
-.success {
-  background-color: rgba(51, 204, 51, 0.1);
-  color: var(--success-green);
-}
-
-/* ===== FOOTER ===== */
-footer {
-  margin-top: auto;
-  text-align: center;
-  padding: 2rem;
-  background-color: var(--darker-bg);
-  color: var(--light-text);
-  font-size: 0.9rem;
-  border-top: 1px solid var(--accent);
-}
-
-/* ===== CTA BUTTONS ===== */
-.cta-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  margin-top: 2rem;
-  flex-wrap: wrap;
+.hero-card p {
+  font-size: 1.3rem;
+  color: var(--medium-gray);
+  margin-bottom: 2.5rem;
+  font-weight: 300;
+  line-height: 1.8;
 }
 
 /* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+  
+  .dashboard-tile {
+    height: 240px;
+    padding: 2rem;
+  }
+}
+
 @media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 1.8rem;
+  }
+  
+  .dashboard-tile {
+    height: 220px;
+    padding: 1.8rem;
+  }
+
   .navbar {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
+    padding: 1.2rem 2rem;
   }
 
-  .card, .hero-card {
-    padding: 2rem 1.5rem;
-  }
-
-  .hero-card h1 {
-    font-size: 2rem;
+  .hero-card {
+    padding: 3rem 2rem;
   }
 }
 
 @media (max-width: 480px) {
-  .btn {
-    padding: 0.7rem 1.5rem;
+  :root {
+    --tile-height: 200px;
   }
-
-  .google-auth {
-    padding: 0.8rem 1.5rem;
+  
+  .container {
+    padding: 0 1.5rem;
   }
-
-  .cta-buttons {
-    flex-direction: column;
-    gap: 1rem;
+  
+  .dashboard-tile {
+    border-radius: 20px;
+    padding: 1.5rem;
   }
-
+  
+  .tile-content h3 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+  
   .hero-card {
     padding: 2rem 1.5rem;
+    border-radius: 20px;
+  }
+  
+  .hero-card h1 {
+    font-size: 2.2rem;
+  }
+  
+  .hero-card p {
+    font-size: 1.1rem;
   }
 }
