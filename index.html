@@ -1,138 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4SP | Home</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    
-    <!-- Inline styles for the middle login button -->
-    <style>
-        :root {
-            --dark-bg: #1a1a1a;
-            --light-text: #f0f0f0;
-            --light-gray: #e0e0e0;
-        }
-        
-        /* Special style for middle login button */
-        .middle-login-btn {
-            background-color: transparent;
-            color: var(--dark-bg);
-            border: 2px solid var(--dark-bg);
-            width: 100%;
-            padding: 1rem;
-            border-radius: 50px;
-            font-size: 1rem;
-            cursor: pointer;
-            text-align: center;
-            font-weight: 500;
-            margin-top: 0.5rem;
-            transition: all 0.25s ease;
-        }
-        
-        .middle-login-btn:hover {
-            background-color: rgba(26, 26, 26, 0.1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4SP | Home</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <!-- Inline styles to override any fading (transition) behavior -->
+  <style>
+    :root {
+      --dark-bg: #1a1a1a;
+      --light-text: #f0f0f0;
+      --light-gray: #e0e0e0;
+    }
+    /* Basic button styles from your external CSS might be here as well. */
+    .btn {
+      display: inline-block;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      border: 2px solid transparent;
+      font-weight: 500;
+    }
+    .btn.primary {
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+    }
+    .btn.secondary {
+      background-color: transparent;
+      color: var(--light-text);
+      border-color: var(--light-text);
+    }
+    /* Remove any transition from buttons in the navigation */
+    .nav-buttons .btn,
+    .nav-buttons .middle-login-btn,
+    .auth-form .middle-login-btn {
+      transition: none !important;
+    }
+    /* Ensure the hidden class remains as intended */
+    .hidden {
+      display: none;
+    }
+
+    /* If you have a specific rule for .middle-login-btn from previous code, override it */
+    .middle-login-btn {
+      background-color: transparent;
+      color: var(--dark-bg);
+      border: 2px solid var(--dark-bg);
+      width: 100%;
+      padding: 1rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      font-weight: 500;
+      margin-top: 0.5rem;
+      transition: none !important;
+    }
+  </style>
 </head>
 <body>
-    <!-- Navbar (unchanged) -->
-    <nav class="navbar">
-        <div class="logo">4SP</div>
-        <div class="nav-buttons">
-            <a href="index.html" class="btn primary">Home</a>
-            <a href="login.html" class="btn secondary" id="loginNavBtn">Login</a>
-            <a href="signup.html" class="btn secondary" id="signupNavBtn">Sign Up</a>
-            <a href="dashboard.html" class="btn secondary hidden" id="dashboardNavBtn">Dashboard</a>
-            <button class="btn primary hidden" id="logoutNavBtn">Logout</button>
-        </div>
-    </nav>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <a href="index.html" class="btn primary">Home</a>
+      <a href="login.html" class="btn secondary" id="loginNavBtn">Login</a>
+      <a href="signup.html" class="btn secondary" id="signupNavBtn">Sign Up</a>
+      <a href="dashboard.html" class="btn secondary hidden" id="dashboardNavBtn">Dashboard</a>
+      <button class="btn primary hidden" id="logoutNavBtn">Logout</button>
+    </div>
+  </nav>
 
-    <!-- Main Content -->
-    <main class="container">
-        <section class="card">
-            <h1>Welcome to 4SP</h1>
-            <p id="randomQuote">Loading your daily inspiration...</p>
-            
-            <div class="auth-form">
-                <a href="signup.html" class="btn primary full-width" id="getStartedBtn">Get Started</a>
-                <div class="auth-separator">or</div>
-                <a href="login.html" class="middle-login-btn" id="loginCtaBtn">Login</a>
-                <a href="dashboard.html" class="btn primary full-width hidden" id="goToDashboardBtn">Go to Dashboard</a>
-            </div>
-        </section>
-    </main>
+  <main class="container">
+    <section class="card">
+      <h1>Welcome to 4SP</h1>
+      <p id="randomQuote">Loading your daily inspiration...</p>
+      
+      <div class="auth-form">
+        <a href="signup.html" class="btn primary full-width" id="getStartedBtn">Get Started</a>
+        <div class="auth-separator">or</div>
+        <a href="login.html" class="middle-login-btn" id="loginCtaBtn">Login</a>
+        <a href="dashboard.html" class="btn primary full-width hidden" id="goToDashboardBtn">Go to Dashboard</a>
+      </div>
+    </section>
+  </main>
 
-    <footer>
-        <p>© 2025 4SP</p>
-    </footer>
+  <footer>
+    <p>© 2025 4SP</p>
+  </footer>
 
-    <script>
-        // Quote display
-        (function() {
-            const quotes = [
-                "A non-collaborative platform for inconvenient people",
-                "Where audio problems meet anyone but me.",
-                "Six or seven problems. Infinite solutions.",
-                "That one teacher hates 6 7",
-                "P*ss Off your teacher.",
-                "I think sounds are funny.",
-            ];
-            document.getElementById('randomQuote').textContent = 
-                quotes[Math.floor(Math.random() * quotes.length)];
-        })();
+  <script>
+    // Display a random quote
+    (function() {
+      const quotes = [
+        "A non-collaborative platform for inconvenient people",
+        "Where audio problems meet anyone but me.",
+        "Six or seven problems. Infinite solutions.",
+        "That one teacher hates 6 7",
+        "P*ss Off your teacher.",
+        "I think sounds are funny.",
+      ];
+      document.getElementById('randomQuote').textContent =
+        quotes[Math.floor(Math.random() * quotes.length)];
+    })();
 
-        // Auth state management (unchanged)
-        function toggleAuthUI(user) {
-            const authElements = document.querySelectorAll('[id$="NavBtn"], [id$="CtaBtn"]');
-            
-            if (user) {
-                document.getElementById('loginNavBtn').classList.add('hidden');
-                document.getElementById('signupNavBtn').classList.add('hidden');
-                document.getElementById('dashboardNavBtn').classList.remove('hidden');
-                document.getElementById('logoutNavBtn').classList.remove('hidden');
-                
-                document.getElementById('getStartedBtn').classList.add('hidden');
-                document.getElementById('loginCtaBtn').classList.add('hidden');
-                document.getElementById('goToDashboardBtn').classList.remove('hidden');
-            } else {
-                document.getElementById('loginNavBtn').classList.remove('hidden');
-                document.getElementById('signupNavBtn').classList.remove('hidden');
-                document.getElementById('dashboardNavBtn').classList.add('hidden');
-                document.getElementById('logoutNavBtn').classList.add('hidden');
-                
-                document.getElementById('getStartedBtn').classList.remove('hidden');
-                document.getElementById('loginCtaBtn').classList.remove('hidden');
-                document.getElementById('goToDashboardBtn').classList.add('hidden');
-            }
-        }
+    // Toggle the authentication UI by showing/hiding elements
+    function toggleAuthUI(user) {
+      if (user) {
+        // Authenticated: Hide unauthenticated buttons
+        document.getElementById('loginNavBtn').classList.add('hidden');
+        document.getElementById('signupNavBtn').classList.add('hidden');
+        document.getElementById('loginCtaBtn').classList.add('hidden');
+        document.getElementById('getStartedBtn').classList.add('hidden');
+        // Show authenticated options
+        document.getElementById('dashboardNavBtn').classList.remove('hidden');
+        document.getElementById('logoutNavBtn').classList.remove('hidden');
+        document.getElementById('goToDashboardBtn').classList.remove('hidden');
+      } else {
+        // Unauthenticated: Show login/signup options
+        document.getElementById('loginNavBtn').classList.remove('hidden');
+        document.getElementById('signupNavBtn').classList.remove('hidden');
+        document.getElementById('loginCtaBtn').classList.remove('hidden');
+        document.getElementById('getStartedBtn').classList.remove('hidden');
+        // Hide authenticated options
+        document.getElementById('dashboardNavBtn').classList.add('hidden');
+        document.getElementById('logoutNavBtn').classList.add('hidden');
+        document.getElementById('goToDashboardBtn').classList.add('hidden');
+      }
+    }
 
-        function initAuth() {
-            try {
-                const auth = firebase.auth();
-                auth.onAuthStateChanged(user => {
-                    toggleAuthUI(user);
-                    document.getElementById('logoutNavBtn').addEventListener('click', () => {
-                        auth.signOut().catch(error => {
-                            console.error("Logout error:", error);
-                        });
-                    });
-                });
-            } catch (error) {
-                console.error("Auth initialization error:", error);
-            }
-        }
+    function initAuth() {
+      try {
+        const auth = firebase.auth();
+        auth.onAuthStateChanged(user => {
+          toggleAuthUI(user);
+          document.getElementById('logoutNavBtn').addEventListener('click', () => {
+            auth.signOut().catch(error => {
+              console.error("Logout error:", error);
+            });
+          });
+        });
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+      }
+    }
 
-        if (typeof firebase !== 'undefined') {
-            document.addEventListener('DOMContentLoaded', initAuth);
-        }
-    </script>
+    if (typeof firebase !== 'undefined') {
+      document.addEventListener('DOMContentLoaded', initAuth);
+    }
+  </script>
 </body>
 </html>
