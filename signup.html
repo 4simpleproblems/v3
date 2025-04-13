@@ -69,16 +69,6 @@
             const signupForm = document.getElementById('signupForm');
             const authMessage = document.getElementById('authMessage');
 
-            // Remove the username input and error elements from the DOM
-            const usernameGroup = document.querySelector('.form-group input[type="text"][placeholder*="Username"]')?.parentNode;
-            if (usernameGroup) {
-                usernameGroup.remove();
-            }
-            const usernameError = document.getElementById('usernameError');
-            if (usernameError) {
-                usernameError.remove();
-            }
-
             signupForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const email = document.getElementById('signupEmail').value;
