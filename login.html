@@ -61,19 +61,16 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const auth = firebase.auth();
-            const authMessage = document.getElementById('authMessage');
             const loginForm = document.getElementById('loginForm');
-            const googleLoginBtn = document.getElementById('googleLoginBtn');
-            const googleProvider = new firebase.auth.GoogleAuthProvider();
+            const authMessage = document.getElementById('authMessage');
 
             loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault(); // Prevent default form submission
+                e.preventDefault();
                 const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPassword').value;
 
                 try {
-                    await auth.signInWithEmailAndPassword(email, password);
+                    await firebase.auth().signInWithEmailAndPassword(email, password);
                     showMessage('Login successful! Redirecting...', 'success');
                     setTimeout(() => window.location.href = 'dashboard.html', 1500);
                 } catch (error) {
@@ -81,9 +78,9 @@
                 }
             });
 
-            googleLoginBtn.addEventListener('click', async () => {
+            document.getElementById('googleLoginBtn').addEventListener('click', async () => {
                 try {
-                    await auth.signInWithPopup(googleProvider);
+                    await firebase.auth().signInWithPopup(firebase.auth().GoogleAuthProvider());
                     showMessage('Google login successful! Redirecting...', 'success');
                     setTimeout(() => window.location.href = 'dashboard.html', 1500);
                 } catch (error) {
@@ -99,7 +96,6 @@
             function handleAuthError(error) {
                 console.error('Login error:', error);
                 let message = error.message;
-
                 if (error.code === 'auth/user-not-found') {
                     message = 'User not found. Please check your email or sign up.';
                 } else if (error.code === 'auth/wrong-password') {
@@ -107,7 +103,6 @@
                 } else {
                     message = 'An error occurred during login: ' + error.message;
                 }
-
                 showMessage(message, 'error');
             }
         });
