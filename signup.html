@@ -9,10 +9,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
     <script src="firebase-config.js"></script>
     <style>
-        /* Add any specific styles for the signup form here if needed */
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -45,7 +44,7 @@
                         <input type="email" id="signupEmail" placeholder="Email" required autocomplete="username">
                     </div>
                     <div class="form-group">
-                        <input type="text" id="signupUsername" placeholder="Username" required minlength="4" maxlength="16">
+                        <input type="text" id="signupUsername" placeholder="Username (4-16 characters)" required minlength="4" maxlength="16">
                         <div id="usernameError" class="error-message"></div>
                     </div>
                     <div class="form-group">
