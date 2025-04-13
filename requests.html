@@ -8,7 +8,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <script src="firebase-config.js"></script>
     <style>
         * {
@@ -107,6 +106,7 @@
         }
 
         input[type="text"],
+        input[type="url"],
         textarea,
         select {
             width: 100%;
@@ -122,52 +122,14 @@
             resize: vertical;
         }
 
-        .radio-group {
+        /* Audio URL Input */
+        .url-input-group {
             display: flex;
-            gap: 1rem;
-        }
-
-        .radio-option {
-            display: flex;
-            align-items: center;
             gap: 0.5rem;
         }
 
-        /* File Upload */
-        .file-upload {
-            position: relative;
-            margin-bottom: 1rem;
-        }
-
-        .file-upload-label {
-            display: block;
-            padding: 2rem;
-            border: 2px dashed var(--dark-gray);
-            border-radius: var(--pill-radius);
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .file-upload-label:hover {
-            border-color: var(--black);
-            background-color: rgba(0,0,0,0.05);
-        }
-
-        .file-upload-input {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .file-info {
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--dark-gray);
+        #audioUrl {
+            flex: 1;
         }
 
         /* Submit Button */
@@ -208,35 +170,16 @@
             border: 1px solid var(--dark-gray);
         }
 
-        /* Audio Preview */
-        #audioPreview {
-            margin-top: 1rem;
-            width: 100%;
-            border-radius: var(--pill-radius);
-            background-color: var(--light-gray);
+        /* Radio Group */
+        .radio-group {
+            display: flex;
+            gap: 1rem;
         }
 
-        /* Progress Bar */
-        .upload-progress {
-            width: 100%;
-            height: 8px;
-            margin-top: 1rem;
-            -webkit-appearance: none;
-            appearance: none;
-            border: none;
-            border-radius: 4px;
-            background-color: var(--light-gray);
-            display: none;
-        }
-
-        .upload-progress::-webkit-progress-bar {
-            background-color: var(--light-gray);
-            border-radius: 4px;
-        }
-
-        .upload-progress::-webkit-progress-value {
-            background-color: var(--black);
-            border-radius: 4px;
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
     </style>
 </head>
@@ -265,16 +208,8 @@
             </div>
 
             <div class="form-group">
-                <label>Audio File</label>
-                <div class="file-upload">
-                    <label for="audioFile" class="file-upload-label">
-                        <strong>Click to upload audio</strong><br>
-                        <span class="file-info">(MP3, WAV, OGG - Max 10MB)</span>
-                    </label>
-                    <input type="file" id="audioFile" class="file-upload-input" accept="audio/*" required>
-                </div>
-                <progress id="uploadProgress" class="upload-progress" value="0" max="100"></progress>
-                <audio id="audioPreview" controls></audio>
+                <label for="audioUrl">Audio URL</label>
+                <input type="url" id="audioUrl" placeholder="https://example.com/sound.mp3" required>
             </div>
 
             <div class="form-group">
@@ -300,50 +235,67 @@
         document.addEventListener('DOMContentLoaded', () => {
             const db = firebase.firestore();
             const auth = firebase.auth();
-            const storage = firebase.storage();
             const requestForm = document.getElementById('requestForm');
-            const audioFileInput = document.getElementById('audioFile');
-            const audioPreview = document.getElementById('audioPreview');
-            const uploadProgress = document.getElementById('uploadProgress');
+            const audioUrlInput = document.getElementById('audioUrl');
             const messageDiv = document.getElementById('message');
             const logoutBtn = document.getElementById('logoutBtn');
-            let audioFile = null;
-
-            // Handle file selection
-            audioFileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                
-                // Reset previous state
-                messageDiv.style.display = 'none';
-                uploadProgress.style.display = 'none';
-                
-                if (file) {
-                    // Check if file is audio
-                    if (!file.type.startsWith('audio/')) {
-                        showMessage('Please upload an audio file (MP3, WAV, OGG)', 'error');
-                        return;
-                    }
-
-                    // Check file size (max 10MB)
-                    if (file.size > 10 * 1024 * 1024) {
-                        showMessage('File too large (max 10MB)', 'error');
-                        return;
-                    }
-
-                    audioFile = file;
-                    const objectURL = URL.createObjectURL(file);
-                    audioPreview.src = objectURL;
-                    document.querySelector('.file-info').textContent = `Selected: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)}MB)`;
-                }
-            });
 
             // Handle form submission
             requestForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
-                if (!audioFile) {
-                    showMessage('Please select an audio file', 'error');
-                    return;
-                }
+                const soundName = document.getElementById('soundName').value;
+                const description = document.getElementById('description').value;
+                const audioUrl = audioUrlInput.value.trim();
+                const contentType = document.querySelector('input[name="contentType"]:checked').value;
+                const userId = auth.currentUser.uid;
 
-                const soundName
+                try {
+                    // Validate URL
+                    new URL(audioUrl);
+
+                    await db.collection('requests').add({
+                        soundName,
+                        description,
+                        audioUrl,
+                        contentType,
+                        status: 'pending',
+                        submittedBy: userId,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    showMessage('Request submitted successfully! <a href="collections.html">View in Collections</a>', 'success');
+                    requestForm.reset();
+                } catch (error) {
+                    showMessage('Error: ' + error.message, 'error');
+                }
+            });
+
+            // Logout
+            logoutBtn.addEventListener('click', () => {
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                });
+            });
+
+            // Auth state listener
+            auth.onAuthStateChanged(user => {
+                if (!user) {
+                    window.location.href = 'index.html';
+                }
+            });
+
+            function showMessage(text, type) {
+                messageDiv.innerHTML = text;
+                messageDiv.className = 'message ' + type;
+                messageDiv.style.display = 'block';
+                
+                // Hide message after 5 seconds
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>
