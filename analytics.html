@@ -106,7 +106,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const auth = firebase.auth();
             const db = firebase.firestore();
-            const adminEmail = '4simpleproblems@gmail.com';  // ***REPLACE WITH YOUR ADMIN EMAIL***
+            const adminEmail = 'admin@example.com';  // ***REPLACE WITH YOUR ADMIN EMAIL***
             const analyticsContent = document.getElementById('analyticsContent');
             const adminContent = document.getElementById('adminContent');
             const authNotice = document.getElementById('authNotice');
@@ -126,13 +126,13 @@
             });
 
             // Authentication State Listener
-            auth.onAuthStateChanged(user => {
+            auth.onAuthStateChanged(async user => {
                 if (user) {
                     // Check if user is admin
                     if (user.email === adminEmail) {
                         authNotice.style.display = 'none';
                         adminContent.style.display = 'block';
-                        loadAnalytics(); // Load data only for admins
+                        await loadAnalytics(); // Load data only for admins
                     } else {
                         // Redirect non-admin users
                         window.location.href = 'dashboard.html';
@@ -146,11 +146,11 @@
             // Function to fetch and display analytics data
             async function loadAnalytics() {
                 try {
-                    // Fetch user count
+                    // **Ensure Rules are set up correctly**
+                    // **Admin Email has Read Permissions**
                     const usersSnapshot = await db.collection('users').get();
                     const userCount = usersSnapshot.size;
 
-                    // Fetch request count
                     const requestsSnapshot = await db.collection('requests').get();
                     const requestCount = requestsSnapshot.size;
 
