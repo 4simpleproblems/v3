@@ -8,22 +8,20 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <script src="firebase-config.js"></script>
     <style>
         * {
             font-family: 'Roboto Mono', monospace !important;
-            text-decoration: none !important; /* Removes all underlines */
+            text-decoration: none !important;
             box-sizing: border-box;
         }
 
         :root {
-            --dark-bg: #1a1a1a;
-            --darker-bg: #0d0d0d;
-            --light-text: #f0f0f0;
-            --light-gray: #e0e0e0;
-            --primary-blue: #626cd6;
-            --error-red: #ff6b6b;
-            --success-green: #4caf50;
+            --black: #000000;
+            --white: #ffffff;
+            --light-gray: #f0f0f0;
+            --dark-gray: #333333;
             --pill-radius: 50px;
             --card-radius: 24px;
         }
@@ -33,17 +31,18 @@
             margin: 0;
             padding: 0;
             min-height: 100vh;
+            color: var(--black);
         }
 
-        /* Navbar (matches collections.html) */
+        /* Navbar */
         .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 1.5rem 3rem;
-            background-color: var(--darker-bg);
-            color: var(--light-text);
-            border-bottom: 1px solid var(--dark-bg);
+            background-color: var(--black);
+            color: var(--white);
+            border-bottom: 1px solid var(--dark-gray);
         }
 
         .logo {
@@ -58,7 +57,7 @@
             align-items: center;
         }
 
-        /* Buttons (underline-free) */
+        /* Buttons */
         .btn {
             display: inline-block;
             padding: 1rem 2rem;
@@ -68,23 +67,23 @@
             text-align: center;
             font-weight: 500;
             transition: all 0.3s ease;
-            border: none;
         }
 
         .btn.primary {
-            background-color: var(--dark-bg);
-            color: var(--light-text);
+            background-color: var(--black);
+            color: var(--white);
+            border: 2px solid var(--black);
         }
 
         .btn.secondary {
             background-color: transparent;
-            color: var(--light-text);
-            border: 2px solid var(--light-text);
+            color: var(--white);
+            border: 2px solid var(--white);
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         /* Form Container */
@@ -92,7 +91,7 @@
             max-width: 700px;
             margin: 2rem auto;
             padding: 2rem;
-            background: white;
+            background: var(--white);
             border-radius: var(--card-radius);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
@@ -107,12 +106,15 @@
             font-weight: 500;
         }
 
-        input, textarea, select {
+        input[type="text"],
+        textarea,
+        select {
             width: 100%;
             padding: 1rem;
-            border: 1px solid var(--light-gray);
+            border: 1px solid var(--dark-gray);
             border-radius: var(--pill-radius);
             font-size: 1rem;
+            background-color: var(--white);
         }
 
         textarea {
@@ -131,11 +133,49 @@
             gap: 0.5rem;
         }
 
+        /* File Upload */
+        .file-upload {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 2rem;
+            border: 2px dashed var(--dark-gray);
+            border-radius: var(--pill-radius);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            border-color: var(--black);
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .file-upload-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+        }
+
+        /* Submit Button */
         .submit-btn {
             width: 100%;
             padding: 1rem;
-            background-color: var(--dark-bg);
-            color: white;
+            background-color: var(--black);
+            color: var(--white);
             border: none;
             border-radius: var(--pill-radius);
             font-size: 1rem;
@@ -144,7 +184,7 @@
         }
 
         .submit-btn:hover {
-            background-color: var(--darker-bg);
+            background-color: var(--dark-gray);
         }
 
         /* Messages */
@@ -157,13 +197,15 @@
         }
 
         .message.success {
-            background-color: rgba(76, 175, 80, 0.2);
-            color: var(--success-green);
+            background-color: rgba(0,0,0,0.1);
+            color: var(--black);
+            border: 1px solid var(--dark-gray);
         }
 
         .message.error {
-            background-color: rgba(255, 107, 107, 0.2);
-            color: var(--error-red);
+            background-color: rgba(0,0,0,0.1);
+            color: var(--black);
+            border: 1px solid var(--dark-gray);
         }
 
         /* Audio Preview */
@@ -171,6 +213,30 @@
             margin-top: 1rem;
             width: 100%;
             border-radius: var(--pill-radius);
+            background-color: var(--light-gray);
+        }
+
+        /* Progress Bar */
+        .upload-progress {
+            width: 100%;
+            height: 8px;
+            margin-top: 1rem;
+            -webkit-appearance: none;
+            appearance: none;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--light-gray);
+            display: none;
+        }
+
+        .upload-progress::-webkit-progress-bar {
+            background-color: var(--light-gray);
+            border-radius: 4px;
+        }
+
+        .upload-progress::-webkit-progress-value {
+            background-color: var(--black);
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -199,8 +265,15 @@
             </div>
 
             <div class="form-group">
-                <label for="audioUrl">Audio URL</label>
-                <input type="url" id="audioUrl" required>
+                <label>Audio File</label>
+                <div class="file-upload">
+                    <label for="audioFile" class="file-upload-label">
+                        <strong>Click to upload audio</strong><br>
+                        <span class="file-info">(MP3, WAV, OGG - Max 10MB)</span>
+                    </label>
+                    <input type="file" id="audioFile" class="file-upload-input" accept="audio/*" required>
+                </div>
+                <progress id="uploadProgress" class="upload-progress" value="0" max="100"></progress>
                 <audio id="audioPreview" controls></audio>
             </div>
 
@@ -227,61 +300,50 @@
         document.addEventListener('DOMContentLoaded', () => {
             const db = firebase.firestore();
             const auth = firebase.auth();
-            const form = document.getElementById('requestForm');
-            const audioUrl = document.getElementById('audioUrl');
+            const storage = firebase.storage();
+            const requestForm = document.getElementById('requestForm');
+            const audioFileInput = document.getElementById('audioFile');
             const audioPreview = document.getElementById('audioPreview');
-            const message = document.getElementById('message');
+            const uploadProgress = document.getElementById('uploadProgress');
+            const messageDiv = document.getElementById('message');
             const logoutBtn = document.getElementById('logoutBtn');
+            let audioFile = null;
 
-            // Audio preview
-            audioUrl.addEventListener('input', () => {
-                if (audioUrl.value) {
-                    audioPreview.src = audioUrl.value;
-                    audioPreview.load();
+            // Handle file selection
+            audioFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                
+                // Reset previous state
+                messageDiv.style.display = 'none';
+                uploadProgress.style.display = 'none';
+                
+                if (file) {
+                    // Check if file is audio
+                    if (!file.type.startsWith('audio/')) {
+                        showMessage('Please upload an audio file (MP3, WAV, OGG)', 'error');
+                        return;
+                    }
+
+                    // Check file size (max 10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        showMessage('File too large (max 10MB)', 'error');
+                        return;
+                    }
+
+                    audioFile = file;
+                    const objectURL = URL.createObjectURL(file);
+                    audioPreview.src = objectURL;
+                    document.querySelector('.file-info').textContent = `Selected: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)}MB)`;
                 }
             });
 
-            // Form submission
-            form.addEventListener('submit', async (e) => {
+            // Handle form submission
+            requestForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
-                try {
-                    await db.collection('requests').add({
-                        soundName: form.soundName.value,
-                        description: form.description.value,
-                        audioUrl: audioUrl.value,
-                        contentType: form.contentType.value,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                        submittedBy: auth.currentUser.uid
-                    });
-
-                    // Success message with link
-                    message.innerHTML = `
-                        Request submitted! 
-                        <a href="collections.html" style="color: var(--primary-blue);">
-                            View in Collections
-                        </a>
-                    `;
-                    message.className = 'message success';
-                    message.style.display = 'block';
-                    
-                    form.reset();
-                    audioPreview.src = '';
-                } catch (error) {
-                    message.textContent = 'Error: ' + error.message;
-                    message.className = 'message error';
-                    message.style.display = 'block';
+                if (!audioFile) {
+                    showMessage('Please select an audio file', 'error');
+                    return;
                 }
-            });
 
-            // Logout
-            logoutBtn.addEventListener('click', () => auth.signOut());
-
-            // Auth state
-            auth.onAuthStateChanged(user => {
-                if (!user) window.location.href = 'index.html';
-            });
-        });
-    </script>
-</body>
-</html>
+                const soundName
