@@ -58,6 +58,7 @@
             border: 2px solid transparent;
             font-weight: 500;
             transition: all 0.3s ease;
+            text-decoration: none; /* Removes underline */
         }
 
         .btn.primary {
@@ -100,6 +101,7 @@
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s ease;
+            text-decoration: none; /* Removes underline */
         }
 
         .filter-btn:hover, .filter-btn.active {
@@ -165,6 +167,32 @@
             max-width: 500px;
             width: 90%;
         }
+
+        .modal-title,
+        .modal-description,
+        body { /* Apply to all text */
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .modal-url {
+            text-decoration: none; /* Remove underline */
+            color: var(--dark-bg);
+        }
+
+        .modal-url:hover {
+            text-decoration: none; /* Keep no underline on hover */
+        }
+
+        /* Removes underlines from everywhere globally */
+        a {
+            text-decoration: none;
+        }
+
+        /* Removes underlines from the button*/
+       #logoutBtn {
+            text-decoration: none;
+        }
+
 
         .hidden {
             display: none;
