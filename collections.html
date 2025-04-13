@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
     <style>
+        /* Global styles to enforce Roboto Mono and remove underlines */
         * {
             font-family: 'Roboto Mono', monospace !important;
             text-decoration: none !important;
@@ -36,7 +37,7 @@
             line-height: 1.5;
         }
 
-        /* Navbar */
+        /* Navbar styles */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -59,7 +60,7 @@
             align-items: center;
         }
 
-        /* Buttons */
+        /* Button styles */
         .btn {
             display: inline-block;
             padding: 1rem 2rem;
@@ -89,7 +90,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        /* Main Layout */
+        /* Main container layout */
         .container {
             max-width: 1200px;
             margin: 2rem auto;
@@ -98,7 +99,7 @@
             gap: 2rem;
         }
 
-        /* Sidebar */
+        /* Sidebar styles */
         .sidebar {
             width: 250px;
         }
@@ -121,7 +122,7 @@
             color: white;
         }
 
-        /* Request Cards */
+        /* Request card styles */
         .requests-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -161,7 +162,7 @@
             color: #8e6c00;
         }
 
-        /* Modal */
+        /* Modal styles */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -196,7 +197,7 @@
             padding: 0.5rem;
         }
 
-        /* Utility Classes */
+        /* Utility classes */
         .hidden {
             display: none;
         }
@@ -214,7 +215,7 @@
         <div class="nav-buttons">
             <a href="index.html" class="btn secondary">Home</a>
             <a href="dashboard.html" class="btn secondary">Dashboard</a>
-            <a href="#" class="btn primary">Collections</a>
+            <a href="collections.html" class="btn primary">Collections</a>
             <button id="logoutBtn" class="btn secondary">Log Out</button>
         </div>
     </nav>
@@ -278,76 +279,134 @@
             let currentFilter = 'all';
             let currentSort = 'newest';
 
-            // Initialize
-            checkAuthState();
-            setupEventListeners();
+            // Function to apply filters and sorting
+            const applyFiltersAndSorting = () => {
+                let filteredRequests = [...allRequests];
 
-            function checkAuthState() {
-                auth.onAuthStateChanged(user => {
+                // Apply filters
+                if (currentFilter === "normal") {
+                    filteredRequests = filteredRequests.filter((request) => request.contentType === "normal");
+                } else if (currentFilter === "explicit") {
+                    filteredRequests = filteredRequests.filter((request) => request.contentType === "explicit");
+                }
+
+                // Sort the filtered requests
+                if (currentSort === "newest") {
+                    filteredRequests.sort((a, b) => b.timestamp - a.timestamp);
+                } else if (currentSort === "oldest") {
+                    filteredRequests.sort((a, b) => a.timestamp - b.timestamp);
+                }
+
+                // Call function to render requests
+                renderRequests(filteredRequests);
+            }
+
+            //Function to render requests
+            const renderRequests = (requests) => {
+                requestsContainer.innerHTML = "";
+
+                if (requests.length === 0) {
+                    const message = document.createElement("p");
+                    message.textContent = "No requests found.";
+                    requestsContainer.appendChild(message);
+                } else {
+                    requests.forEach((request) => {
+                        const card = document.createElement("div");
+                        card.className = "request-card";
+                        card.innerHTML = `
+                            <h3>${request.soundName}</h3>
+                            <p>${request.description}</p>
+                            <div class="request-meta">
+                                <span style="display: block; margin-bottom: 0.5rem;">
+                                    ${new Date(request.timestamp).toLocaleDateString()}
+                                </span>
+                                <span class="badge ${request.contentType === "normal" ? "badge-normal" : "badge-explicit"}">
+                                    ${request.contentType}
+                                </span>
+                            </div>
+                        `;
+                        requestsContainer.appendChild(card);
+                    });
+                }
+            }
+
+            // Function to handle logout
+            const handleLogout = async () => {
+                try {
+                    await auth.signOut();
+                    window.location.href = "index.html";
+                } catch (error) {
+                    console.error("Logout failed:", error);
+                }
+            }
+
+            // Function to handle filter button clicks
+            const handleFilterClick = (filter) => {
+                currentFilter = filter;
+                applyFiltersAndSorting();
+            }
+
+            // Function to handle sort button clicks
+            const handleSortClick = (sort) => {
+                currentSort = sort;
+                applyFiltersAndSorting();
+            }
+
+            // Function to load requests from Firebase
+            const loadRequests = async () => {
+                try {
+                    const snapshot = await db.collection("requests")
+                        .orderBy("timestamp", "desc")
+                        .get();
+
+                    allRequests = snapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                        timestamp: doc.data().timestamp.toDate(),
+                    }));
+
+                    applyFiltersAndSorting();
+
+                } catch (error) {
+                    console.error("Error loading requests:", error);
+                    loadingMessage.textContent = "Failed to load requests. Please try again.";
+                }
+            }
+
+            // Initialize auth state and load requests on page load
+            const initialize = async () => {
+                auth.onAuthStateChanged(async (user) => {
                     if (user) {
-                        loadRequests();
+                        loadingMessage.textContent = "Loading requests...";
+                        await loadRequests();
                     } else {
-                        window.location.href = 'index.html';
+                        window.location.href = "index.html";
                     }
                 });
             }
+            // Add event listeners for filter buttons
+            document.querySelectorAll('.filter-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                     const filter = e.target.dataset.filter
+                    handleFilterClick(filter);
+                })
+            });
 
-            function setupEventListeners() {
-                // Logout
-                logoutBtn.addEventListener('click', () => {
-                    auth.signOut().then(() => {
-                        window.location.href = 'index.html';
-                    });
-                });
+             // Add event listeners for sort buttons
+            document.querySelectorAll('.filter-btn[data-sort]').forEach(button => {
+                button.addEventListener('click', (e) => {
+                     const sort = e.target.dataset.sort
+                    handleSortClick(sort);
+                })
+            });
 
-                // Filter buttons
-                document.querySelectorAll('.filter-btn').forEach(button => {
-                    button.addEventListener('click', () => {
-                        document.querySelectorAll('.filter-btn').forEach(btn => {
-                            btn.classList.remove('active');
-                        });
-                        button.classList.add('active');
+             // Add event listeners for logout buttons
+            document.getElementById("logoutBtn").addEventListener("click", () => {
+                handleLogout();
+            });
 
-                        if (button.dataset.filter) {
-                            currentFilter = button.dataset.filter;
-                        } else if (button.dataset.sort) {
-                            currentSort = button.dataset.sort;
-                        }
-
-                        renderRequests();
-                    });
-                });
-
-                // Modal close
-                modalClose.addEventListener('click', closeModal);
-                modalOverlay.addEventListener('click', (e) => {
-                    if (e.target === modalOverlay) closeModal();
-                });
-            }
-
-            function loadRequests() {
-                db.collection('requests')
-                    .get()
-                    .then(querySnapshot => {
-                        allRequests = [];
-                        querySnapshot.forEach(doc => {
-                            const data = doc.data();
-                            allRequests.push({
-                                id: doc.id,
-                                ...data,
-                                timestamp: data.timestamp?.toDate()
-                            });
-                        });
-                        renderRequests();
-                    })
-                    .catch(error => {
-                        console.error("Error loading requests:", error);
-                        loadingMessage.textContent = "Failed to load requests. Please try again.";
-                    });
-            }
-
-            function renderRequests() {
-                // Filter requests
-                let filteredRequests = allRequests;
-                if (currentFilter === 'normal') {
-                    filteredRequests =
+            initialize();
+        });
+    </script>
+</body>
+</html>
