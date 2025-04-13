@@ -10,7 +10,11 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
     <style>
-        /* ==== MATCHING EXISTING STYLES ==== */
+        * {
+            font-family: 'Roboto Mono', monospace !important;
+            text-decoration: none !important;
+        }
+
         :root {
             --dark-bg: #1a1a1a;
             --darker-bg: #0d0d0d;
@@ -19,18 +23,20 @@
             --light-gray: #e0e0e0;
             --primary-blue: #626cd6;
             --pill-radius: 50px;
+            --card-radius: 24px;
         }
 
         body {
-            font-family: 'Roboto Mono', monospace;
             background-color: var(--light-gray);
             color: var(--dark-bg);
             margin: 0;
             padding: 0;
             min-height: 100vh;
+            font-weight: 400;
+            line-height: 1.5;
         }
 
-        /* Navbar - matches existing */
+        /* Navbar */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -47,7 +53,13 @@
             letter-spacing: -1.5px;
         }
 
-        /* Buttons - matches existing pill style */
+        .nav-buttons {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        /* Buttons */
         .btn {
             display: inline-block;
             padding: 1rem 2rem;
@@ -55,10 +67,10 @@
             font-size: 1rem;
             cursor: pointer;
             text-align: center;
-            border: 2px solid transparent;
             font-weight: 500;
             transition: all 0.3s ease;
-            text-decoration: none; /* Removes underline */
+            position: relative;
+            border: none;
         }
 
         .btn.primary {
@@ -69,14 +81,15 @@
         .btn.secondary {
             background-color: transparent;
             color: var(--light-text);
-            border-color: var(--light-text);
+            border: 2px solid var(--light-text);
         }
 
         .btn:hover {
+            transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        /* Main content layout */
+        /* Main Layout */
         .container {
             max-width: 1200px;
             margin: 2rem auto;
@@ -85,7 +98,7 @@
             gap: 2rem;
         }
 
-        /* Sidebar - pill-shaped filters */
+        /* Sidebar */
         .sidebar {
             width: 250px;
         }
@@ -101,7 +114,6 @@
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s ease;
-            text-decoration: none; /* Removes underline */
         }
 
         .filter-btn:hover, .filter-btn.active {
@@ -109,23 +121,26 @@
             color: white;
         }
 
-        /* Request cards - circular elements */
+        /* Request Cards */
         .requests-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
+            flex: 1;
         }
 
         .request-card {
             background: white;
-            border-radius: 24px;
+            border-radius: var(--card-radius);
             padding: 1.5rem;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
         .request-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
 
         .badge {
@@ -146,7 +161,7 @@
             color: #8e6c00;
         }
 
-        /* Modal - rounded corners */
+        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -162,40 +177,33 @@
 
         .modal-content {
             background: white;
-            border-radius: 24px;
+            border-radius: var(--card-radius);
             padding: 2rem;
             max-width: 500px;
             width: 90%;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+            position: relative;
         }
 
-        .modal-title,
-        .modal-description,
-        body { /* Apply to all text */
-            font-family: 'Roboto Mono', monospace;
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
         }
 
-        .modal-url {
-            text-decoration: none; /* Remove underline */
-            color: var(--dark-bg);
-        }
-
-        .modal-url:hover {
-            text-decoration: none; /* Keep no underline on hover */
-        }
-
-        /* Removes underlines from everywhere globally */
-        a {
-            text-decoration: none;
-        }
-
-        /* Removes underlines from the button*/
-       #logoutBtn {
-            text-decoration: none;
-        }
-
-
+        /* Utility Classes */
         .hidden {
             display: none;
+        }
+
+        #loadingMessage {
+            text-align: center;
+            padding: 2rem;
         }
     </style>
 </head>
@@ -229,7 +237,6 @@
         <section class="main-content">
             <h1>Sound Requests Collection</h1>
             <div id="requestsContainer" class="requests-grid">
-                <!-- Requests will be loaded here -->
                 <p id="loadingMessage">Loading requests...</p>
             </div>
         </section>
@@ -238,12 +245,12 @@
     <!-- Modal -->
     <div id="modalOverlay" class="modal-overlay hidden">
         <div class="modal-content">
-            <button id="modalClose" class="btn secondary">&times;</button>
+            <button id="modalClose" class="modal-close">&times;</button>
             <h2 id="modalTitle"></h2>
             <p id="modalDescription"></p>
             <a id="modalUrl" href="#" target="_blank" class="btn primary">View Link</a>
-            <div class="request-meta">
-                <span id="modalDate"></span>
+            <div class="request-meta" style="margin-top: 1rem;">
+                <span id="modalDate" style="display: block; margin-bottom: 0.5rem;"></span>
                 <span id="modalBadge" class="badge"></span>
             </div>
         </div>
@@ -260,6 +267,11 @@
             const logoutBtn = document.getElementById('logoutBtn');
             const modalOverlay = document.getElementById('modalOverlay');
             const modalClose = document.getElementById('modalClose');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+            const modalUrl = document.getElementById('modalUrl');
+            const modalDate = document.getElementById('modalDate');
+            const modalBadge = document.getElementById('modalBadge');
 
             // State
             let allRequests = [];
@@ -338,35 +350,4 @@
                 // Filter requests
                 let filteredRequests = allRequests;
                 if (currentFilter === 'normal') {
-                    filteredRequests = allRequests.filter(req => req.contentType === 'normal');
-                } else if (currentFilter === 'explicit') {
-                    filteredRequests = allRequests.filter(req => req.contentType === 'explicit');
-                }
-
-                // Sort requests
-                filteredRequests.sort((a, b) => {
-                    return currentSort === 'newest' 
-                        ? b.timestamp - a.timestamp 
-                        : a.timestamp - b.timestamp;
-                });
-
-                // Render cards
-                requestsContainer.innerHTML = '';
-                if (filteredRequests.length === 0) {
-                    requestsContainer.innerHTML = '<p>No requests found matching your filters.</p>';
-                    return;
-                }
-
-                filteredRequests.forEach(request => {
-                    const card = document.createElement('div');
-                    card.className = 'request-card';
-                    card.innerHTML = `
-                        <h3>${request.soundName || 'Untitled Request'}</h3>
-                        <p>${request.description || 'No description provided'}</p>
-                        <div class="request-meta">
-                            <span>${formatDate(request.timestamp)}</span>
-                            <span class="badge ${request.contentType === 'normal' ? 'badge-normal' : 'badge-explicit'}">
-                                ${request.contentType}
-                            </span>
-                        </div>
-                    `;
+                    filteredRequests =
