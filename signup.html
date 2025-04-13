@@ -40,17 +40,11 @@
                 }
 
                 try {
-                    const checkUsername = firebase.functions().httpsCallable('checkUsername'); // Ensure firebase.functions() is used if not modular
-                    const result = await checkUsername({ username: username });
-
-                    if (result.data.exists) {
-                        usernameError.textContent = 'This username is already taken.';
-                        return;
-                    }
-
+                    // **Core Signup Logic**
                     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                     const user = userCredential.user;
 
+                    // **Save Username to Firestore**
                     await db.collection('users').doc(user.uid).set({ username: username });
 
                     showMessage('Account created successfully! Redirecting...', 'success');
@@ -67,10 +61,7 @@
                     const user = result.user;
                     const defaultUsername = user.email.split('@')[0];
 
-                    const checkAndCreateUsername = firebase.functions().httpsCallable('checkAndCreateUsername'); // Ensure firebase.functions() is used if not modular
-                    const usernameResult = await checkAndCreateUsername({ username: defaultUsername });
-
-                    await db.collection('users').doc(user.uid).set({ username: usernameResult.data.username });
+                    await db.collection('users').doc(user.uid).set({ username: defaultUsername });
 
                     showMessage('Google signup successful! Redirecting...', 'success');
                     setTimeout(() => window.location.href = 'dashboard.html', 1500);
@@ -92,10 +83,7 @@
                     const user = result.user;
                     const defaultUsername = user.email.split('@')[0];
 
-                    const checkAndCreateUsername = firebase.functions().httpsCallable('checkAndCreateUsername'); // Ensure firebase.functions() is used if not modular
-                    const usernameResult = await checkAndCreateUsername({ username: defaultUsername });
-
-                    await db.collection('users').doc(user.uid).set({ username: usernameResult.data.username });
+                    await db.collection('users').doc(user.uid).set({ username: defaultUsername });
 
                     showMessage('Google signup successful! Redirecting...', 'success');
                     setTimeout(() => window.location.href = 'dashboard.html', 1500);
@@ -115,10 +103,8 @@
                     message = 'Email already in use. Please login instead.';
                 } else if (error.code === 'auth/weak-password') {
                     message = 'Password should be at least 6 characters';
-                } else if (error.code === 'auth/operation-not-allowed') {
-                    message = 'Google sign-in is not enabled in Firebase Console';
-                } else if (error.code === 'auth/popup-closed-by-user') {
-                    message = 'Sign up was cancelled';
+                } else {
+                    message = 'An error occurred during signup: ' + error.message;
                 }
 
                 showMessage(message, 'error');
