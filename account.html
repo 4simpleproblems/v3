@@ -138,6 +138,46 @@
         #editUsernameBtn {
             cursor: pointer; /* Make it clear it's interactive */
         }
+
+        .additional-info {
+          margin-top: 1rem;
+          padding: 1rem;
+          background-color: var(--card-bg);
+          border-radius: var(--pill-radius);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          border: 1px solid var(--card-border);
+        }
+
+        .additional-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            color: var(--dark-bg);
+        }
+
+        .additional-info p {
+            margin-bottom: 0.5rem;
+            color: var(--info-text);
+        }
+
+        /* New button styles */
+        .account-buttons button.edit-profile {
+            background-color: var(--secondary-action-bg);
+            color: var(--secondary-action-text);
+            border: 2px solid var(--secondary-action-text);
+        }
+
+        .account-buttons button.edit-profile:hover {
+            background-color: #d0d0d0;
+        }
+
+        .account-buttons button.manage-subscriptions {
+            background-color: var(--primary-action);
+        }
+
+        .account-buttons button.manage-subscriptions:hover {
+            background-color: var(--darker-bg);
+        }
+
     </style>
 </head>
 <body>
@@ -154,10 +194,12 @@
     <main class="container">
         <h1>Account Information</h1>
         <div class="account-grid">
+
             <div class="account-info">
                 <h2>User Details</h2>
                 <p id="userEmail">Email: Loading...</p>
                 <p id="creationTime">Created: Loading...</p>
+
                 <div id="usernameSection">
                     <h2>Username</h2>
                     <p id="currentUsername">Loading...</p>
@@ -167,9 +209,19 @@
                     </div>
                     <button id="editUsernameBtn" class="btn secondary small-btn">Change Username</button>
                 </div>
+
+                <div class="additional-info">
+                    <h3>Additional Information</h3>
+                    <p id="lastSignIn">Last Sign-in: Loading...</p>
+                    <p id="userUID">User ID: Loading...</p>
+                    </div>
+
             </div>
+
             <div class="account-buttons">
                 <button id="changePasswordBtn" class="secondary">Change Password</button>
+                <button id="editProfileBtn" class="edit-profile">Edit Profile</button>
+                <button id="manageSubscriptionsBtn" class="manage-subscriptions">Manage Subscriptions</button>
                 <button id="deleteAccountBtn" class="danger">Delete Account</button>
             </div>
         </div>
@@ -183,6 +235,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             const auth = firebase.auth();
             const db = firebase.firestore();
+
+            // Elements from the DOM
             const userEmailElement = document.getElementById('userEmail');
             const creationTimeElement = document.getElementById('creationTime');
             const usernameSection = document.getElementById('usernameSection');
@@ -194,6 +248,10 @@
             const changePasswordBtn = document.getElementById('changePasswordBtn');
             const deleteAccountBtn = document.getElementById('deleteAccountBtn');
             const logoutBtn = document.getElementById('logoutBtn');
+            const lastSignInElement = document.getElementById('lastSignIn');
+            const userUIDElement = document.getElementById('userUID');
+            const editProfileBtn = document.getElementById('editProfileBtn');
+            const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
 
             // Apply pill shape to navigation buttons dynamically
             const navButtons = document.querySelectorAll('.nav-buttons .btn');
@@ -201,12 +259,17 @@
                 button.style.borderRadius = 'var(--pill-radius)';
             });
 
+            // Authentication state listener
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
+                    // Basic user info
                     userEmailElement.textContent = `Email: ${user.email}`;
                     const creationDate = new Date(user.metadata.creationTime);
                     creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
+                    lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
+                    userUIDElement.textContent = `User ID: ${user.uid}`;
 
+                    // Fetch and display username
                     const userDoc = await db.collection('users').doc(user.uid).get();
                     if (userDoc.exists && userDoc.data().username) {
                         currentUsernameElement.textContent = userDoc.data().username;
@@ -217,11 +280,14 @@
                         addUsernameForm.style.display = 'flex'; // Show form if no username
                         editUsernameBtn.style.display = 'none'; // Hide edit button
                     }
+
                 } else {
-                    window.location.href = 'index.html'; // Redirect if not logged in
+                    // Redirect if not logged in
+                    window.location.href = 'index.html';
                 }
             });
 
+            // Edit username functionality
             editUsernameBtn.addEventListener('click', () => {
                 currentUsernameElement.style.display = 'none'; // Hide current username
                 editUsernameBtn.style.display = 'none'; // Hide edit button
@@ -229,6 +295,7 @@
                 newUsernameInput.value = currentUsernameElement.textContent === 'No username set.' ? '' : currentUsernameElement.textContent;
             });
 
+            // Save username functionality
             saveUsernameBtn.addEventListener('click', async () => {
                 const newUsername = newUsernameInput.value.trim();
                 if (newUsername) {
@@ -250,6 +317,7 @@
                 }
             });
 
+            // Change password functionality
             changePasswordBtn.addEventListener('click', () => {
                 const user = auth.currentUser;
                 if (user) {
@@ -266,6 +334,18 @@
                 }
             });
 
+              // Edit profile functionality (placeholder)
+            editProfileBtn.addEventListener('click', () => {
+                alert("Edit profile functionality will be implemented soon!");
+            });
+
+            // Manage subscriptions functionality (placeholder)
+            manageSubscriptionsBtn.addEventListener('click', () => {
+                alert("Manage subscriptions functionality will be implemented soon!");
+            });
+
+
+            // Delete account functionality
             deleteAccountBtn.addEventListener('click', () => {
                 const user = auth.currentUser;
                 if (user && confirm("Are you sure you want to delete your account? This action is irreversible.")) {
@@ -280,6 +360,7 @@
                 }
             });
 
+            // Logout functionality
             logoutBtn.addEventListener('click', async () => {
                 try {
                     await auth.signOut();
