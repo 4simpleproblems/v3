@@ -3,335 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4SP | Sound Requests</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>4SP | Collections</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
     <style>
+        /* ==== MATCHING EXISTING STYLES ==== */
         :root {
-            --primary: #4361ee;
-            --secondary: #f8f9fa;
-            --border: #e9ecef;
-            --text: #212529;
-            --pill-radius: 8px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --dark-bg: #1a1a1a;
+            --darker-bg: #0d0d0d;
+            --light-text: #f0f0f0;
+            --medium-gray: #333333;
+            --light-gray: #e0e0e0;
+            --primary-blue: #626cd6;
+            --pill-radius: 50px;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Roboto Mono', monospace;
+            background-color: var(--light-gray);
+            color: var(--dark-bg);
             margin: 0;
-            background-color: #f5f7fb;
-            color: var(--text);
-        }
-
-        .app-container {
-            display: grid;
-            grid-template-columns: 240px 1fr;
+            padding: 0;
             min-height: 100vh;
         }
 
-        /* Sidebar */
+        /* Navbar - matches existing */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            background-color: var(--darker-bg);
+            color: var(--light-text);
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+        }
+
+        /* Buttons - matches existing pill style */
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: var(--pill-radius);
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: center;
+            border: 2px solid transparent;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn.primary {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--light-text);
+            border-color: var(--light-text);
+        }
+
+        .btn:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Main content layout */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: flex;
+            gap: 2rem;
+        }
+
+        /* Sidebar - pill-shaped filters */
         .sidebar {
-            background: white;
-            border-right: 1px solid var(--border);
-            padding: 24px;
-        }
-
-        .sidebar h2 {
-            font-size: 1.25rem;
-            margin-bottom: 24px;
-            color: var(--primary);
-        }
-
-        .filter-group {
-            margin-bottom: 24px;
+            width: 250px;
         }
 
         .filter-btn {
             display: block;
             width: 100%;
-            padding: 10px 16px;
-            margin-bottom: 8px;
-            background: var(--secondary);
-            border: none;
+            padding: 1rem;
+            margin-bottom: 1rem;
             border-radius: var(--pill-radius);
-            text-align: left;
+            border: none;
+            background-color: white;
             cursor: pointer;
-            transition: all 0.2s;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .filter-btn:hover, .filter-btn.active {
-            background: var(--primary);
+            background-color: var(--dark-bg);
             color: white;
         }
 
-        /* Main Content */
-        .main-content {
-            padding: 32px;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
+        /* Request cards - circular elements */
         .requests-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            gap: 1.5rem;
         }
 
         .request-card {
             background: white;
-            border-radius: var(--pill-radius);
-            padding: 20px;
-            box-shadow: var(--shadow-sm);
-            cursor: pointer;
-            transition: transform 0.2s;
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
         }
 
         .request-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-5px);
         }
 
-        .card-title {
-            margin: 0 0 12px;
-            font-size: 1.1rem;
-            color: var(--primary);
-        }
-
-        .card-description {
-            font-size: 0.9rem;
-            color: #495057;
-            margin-bottom: 16px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: #6c757d;
-        }
-
-        .content-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--pill-radius);
             font-size: 0.75rem;
             font-weight: 500;
         }
 
-        .normal-badge {
-            background: #e6fcf5;
+        .badge-normal {
+            background-color: #e6fcf5;
             color: #087f5b;
         }
 
-        .explicit-badge {
-            background: #fff3bf;
-            color: #e67700;
+        .badge-explicit {
+            background-color: #fff3bf;
+            color: #8e6c00;
         }
 
-        /* Modal */
+        /* Modal - rounded corners */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background-color: rgba(0,0,0,0.5);
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: all;
         }
 
         .modal-content {
             background: white;
-            border-radius: var(--pill-radius);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 500px;
             width: 90%;
-            max-width: 600px;
-            padding: 24px;
-            position: relative;
-            transform: translateY(20px);
-            transition: transform 0.3s;
         }
 
-        .modal-overlay.active .modal-content {
-            transform: translateY(0);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #868e96;
-        }
-
-        .modal-title {
-            margin: 0 0 16px;
-            color: var(--primary);
-            font-size: 1.5rem;
-        }
-
-        .modal-description {
-            margin-bottom: 24px;
-            line-height: 1.6;
-        }
-
-        .modal-url {
-            display: inline-block;
-            margin-bottom: 24px;
-            color: var(--primary);
-            word-break: break-all;
-        }
-
-        .modal-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-            color: #495057;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 0;
-            color: #6c757d;
-            font-size: 1.1rem;
-        }
-
-        @media (max-width: 768px) {
-            .app-container {
-                grid-template-columns: 1fr;
-            }
-            .sidebar {
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-            }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar with filters -->
-        <div class="sidebar">
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn secondary">Home</a>
+            <a href="dashboard.html" class="btn secondary">Dashboard</a>
+            <a href="#" class="btn primary">Collections</a>
+            <button id="logoutBtn" class="btn secondary">Log Out</button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
             <h2>Filters</h2>
-            
-            <div class="filter-group">
-                <h3>Content Type</h3>
-                <button class="filter-btn active" data-filter="all">All Requests</button>
-                <button class="filter-btn" data-filter="normal">Normal Only</button>
-                <button class="filter-btn" data-filter="explicit">Explicit Only</button>
-            </div>
-            
-            <div class="filter-group">
-                <h3>Sort By</h3>
-                <button class="filter-btn" data-sort="newest">Newest First</button>
-                <button class="filter-btn" data-sort="oldest">Oldest First</button>
-            </div>
-        </div>
+            <button class="filter-btn active" data-filter="all">All Requests</button>
+            <button class="filter-btn" data-filter="normal">Normal Only</button>
+            <button class="filter-btn" data-filter="explicit">Explicit Only</button>
 
-        <!-- Main content -->
-        <div class="main-content">
-            <div class="header">
-                <h1>Sound Requests</h1>
-                <div id="requestCount">Loading...</div>
-            </div>
-            
-            <div class="requests-grid" id="requestsContainer">
-                <div class="empty-state">Loading sound requests...</div>
-            </div>
-        </div>
-    </div>
+            <h2>Sort By</h2>
+            <button class="filter-btn" data-sort="newest">Newest First</button>
+            <button class="filter-btn" data-sort="oldest">Oldest First</button>
+        </aside>
 
-    <!-- Request Details Modal -->
-    <div class="modal-overlay" id="modalOverlay">
+        <!-- Content -->
+        <section class="main-content">
+            <h1>Sound Requests Collection</h1>
+            <div id="requestsContainer" class="requests-grid">
+                <!-- Requests will be loaded here -->
+                <p id="loadingMessage">Loading requests...</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal -->
+    <div id="modalOverlay" class="modal-overlay hidden">
         <div class="modal-content">
-            <button class="modal-close" id="modalClose">&times;</button>
-            <h2 class="modal-title" id="modalTitle"></h2>
-            <p class="modal-description" id="modalDescription"></p>
-            <a href="#" target="_blank" class="modal-url" id="modalUrl"></a>
-            <div class="modal-meta">
+            <button id="modalClose" class="btn secondary">&times;</button>
+            <h2 id="modalTitle"></h2>
+            <p id="modalDescription"></p>
+            <a id="modalUrl" href="#" target="_blank" class="btn primary">View Link</a>
+            <div class="request-meta">
                 <span id="modalDate"></span>
-                <span class="content-badge" id="modalBadge"></span>
+                <span id="modalBadge" class="badge"></span>
             </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize Firebase
-            const auth = firebase.auth();
             const db = firebase.firestore();
-            
-            // DOM elements
+            const auth = firebase.auth();
+
+            // DOM Elements
             const requestsContainer = document.getElementById('requestsContainer');
-            const requestCount = document.getElementById('requestCount');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const logoutBtn = document.getElementById('logoutBtn');
             const modalOverlay = document.getElementById('modalOverlay');
             const modalClose = document.getElementById('modalClose');
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            
-            // State variables
+
+            // State
             let allRequests = [];
             let currentFilter = 'all';
             let currentSort = 'newest';
 
-            // Initialize the app
-            init();
-
-            function init() {
-                setupEventListeners();
-                checkAuthState();
-            }
-
-            function setupEventListeners() {
-                // Filter buttons
-                filterButtons.forEach(button => {
-                    button.addEventListener('click', () => {
-                        // Update active state
-                        filterButtons.forEach(btn => btn.classList.remove('active'));
-                        button.classList.add('active');
-                        
-                        // Update filter/sort
-                        if (button.dataset.filter) {
-                            currentFilter = button.dataset.filter;
-                        } else if (button.dataset.sort) {
-                            currentSort = button.dataset.sort;
-                        }
-                        
-                        renderRequests();
-                    });
-                });
-                
-                // Modal close button
-                modalClose.addEventListener('click', closeModal);
-                
-                // Close modal when clicking outside content
-                modalOverlay.addEventListener('click', (e) => {
-                    if (e.target === modalOverlay) {
-                        closeModal();
-                    }
-                });
-            }
+            // Initialize
+            checkAuthState();
+            setupEventListeners();
 
             function checkAuthState() {
                 auth.onAuthStateChanged(user => {
@@ -340,6 +249,39 @@
                     } else {
                         window.location.href = 'index.html';
                     }
+                });
+            }
+
+            function setupEventListeners() {
+                // Logout
+                logoutBtn.addEventListener('click', () => {
+                    auth.signOut().then(() => {
+                        window.location.href = 'index.html';
+                    });
+                });
+
+                // Filter buttons
+                document.querySelectorAll('.filter-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        document.querySelectorAll('.filter-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        button.classList.add('active');
+
+                        if (button.dataset.filter) {
+                            currentFilter = button.dataset.filter;
+                        } else if (button.dataset.sort) {
+                            currentSort = button.dataset.sort;
+                        }
+
+                        renderRequests();
+                    });
+                });
+
+                // Modal close
+                modalClose.addEventListener('click', closeModal);
+                modalOverlay.addEventListener('click', (e) => {
+                    if (e.target === modalOverlay) closeModal();
                 });
             }
 
@@ -360,7 +302,7 @@
                     })
                     .catch(error => {
                         console.error("Error loading requests:", error);
-                        showEmptyState("Failed to load requests. Please try again.");
+                        loadingMessage.textContent = "Failed to load requests. Please try again.";
                     });
             }
 
@@ -375,9 +317,28 @@
 
                 // Sort requests
                 filteredRequests.sort((a, b) => {
-                    if (currentSort === 'newest') {
-                        return b.timestamp - a.timestamp;
-                    } else {
-                        return a.timestamp - b.timestamp;
-                    }
+                    return currentSort === 'newest' 
+                        ? b.timestamp - a.timestamp 
+                        : a.timestamp - b.timestamp;
                 });
+
+                // Render cards
+                requestsContainer.innerHTML = '';
+                if (filteredRequests.length === 0) {
+                    requestsContainer.innerHTML = '<p>No requests found matching your filters.</p>';
+                    return;
+                }
+
+                filteredRequests.forEach(request => {
+                    const card = document.createElement('div');
+                    card.className = 'request-card';
+                    card.innerHTML = `
+                        <h3>${request.soundName || 'Untitled Request'}</h3>
+                        <p>${request.description || 'No description provided'}</p>
+                        <div class="request-meta">
+                            <span>${formatDate(request.timestamp)}</span>
+                            <span class="badge ${request.contentType === 'normal' ? 'badge-normal' : 'badge-explicit'}">
+                                ${request.contentType}
+                            </span>
+                        </div>
+                    `;
