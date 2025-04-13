@@ -6,21 +6,125 @@
     <title>4SP | Sign Up</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <style>
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        .error-message {
-            color: var(--error-red);
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-    </style>
+    <script type="module">
+        import { auth, db, googleProvider } from './firebase-config.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const usernameInput = document.getElementById('signupUsername');
+            const usernameError = document.getElementById('usernameError');
+            const signupForm = document.getElementById('signupForm');
+            const authMessage = document.getElementById('authMessage');
+
+            signupForm.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Prevent default form submission
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+                const confirmPassword = document.getElementById('signupConfirmPassword').value;
+                const username = usernameInput.value.trim();
+
+                if (password !== confirmPassword) {
+                    showMessage('Passwords do not match', 'error');
+                    return;
+                }
+
+                if (!username) {
+                    showMessage('Username cannot be empty', 'error');
+                    return;
+                }
+
+                if (username.length < 4 || username.length > 16) {
+                    usernameError.textContent = 'Username must be between 4 and 16 characters.';
+                    return;
+                } else {
+                    usernameError.textContent = '';
+                }
+
+                try {
+                    const checkUsername = firebase.functions().httpsCallable('checkUsername'); // Ensure firebase.functions() is used if not modular
+                    const result = await checkUsername({ username: username });
+
+                    if (result.data.exists) {
+                        usernameError.textContent = 'This username is already taken.';
+                        return;
+                    }
+
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+
+                    await db.collection('users').doc(user.uid).set({ username: username });
+
+                    showMessage('Account created successfully! Redirecting...', 'success');
+                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
+
+                } catch (error) {
+                    handleAuthError(error);
+                }
+            });
+
+            document.getElementById('googleSignupBtn').addEventListener('click', async () => {
+                try {
+                    const result = await auth.signInWithPopup(googleProvider);
+                    const user = result.user;
+                    const defaultUsername = user.email.split('@')[0];
+
+                    const checkAndCreateUsername = firebase.functions().httpsCallable('checkAndCreateUsername'); // Ensure firebase.functions() is used if not modular
+                    const usernameResult = await checkAndCreateUsername({ username: defaultUsername });
+
+                    await db.collection('users').doc(user.uid).set({ username: usernameResult.data.username });
+
+                    showMessage('Google signup successful! Redirecting...', 'success');
+                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                } catch (error) {
+                    if (error.code === 'auth/popup-blocked') {
+                        try {
+                            await auth.signInWithRedirect(googleProvider);
+                        } catch (redirectError) {
+                            handleAuthError(redirectError);
+                        }
+                    } else {
+                        handleAuthError(error);
+                    }
+                }
+            });
+
+            auth.getRedirectResult().then(async (result) => {
+                if (result?.user) {
+                    const user = result.user;
+                    const defaultUsername = user.email.split('@')[0];
+
+                    const checkAndCreateUsername = firebase.functions().httpsCallable('checkAndCreateUsername'); // Ensure firebase.functions() is used if not modular
+                    const usernameResult = await checkAndCreateUsername({ username: defaultUsername });
+
+                    await db.collection('users').doc(user.uid).set({ username: usernameResult.data.username });
+
+                    showMessage('Google signup successful! Redirecting...', 'success');
+                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                }
+            }).catch(handleAuthError);
+
+            function showMessage(message, type) {
+                authMessage.innerHTML = `<div class="message ${type}">${message}</div>`;
+                authMessage.style.display = 'block';
+            }
+
+            function handleAuthError(error) {
+                console.error('Auth error:', error);
+                let message = error.message;
+
+                if (error.code === 'auth/email-already-in-use') {
+                    message = 'Email already in use. Please login instead.';
+                } else if (error.code === 'auth/weak-password') {
+                    message = 'Password should be at least 6 characters';
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    message = 'Google sign-in is not enabled in Firebase Console';
+                } else if (error.code === 'auth/popup-closed-by-user') {
+                    message = 'Sign up was cancelled';
+                }
+
+                showMessage(message, 'error');
+            }
+        });
+    </script>
 </head>
 <body>
     <nav class="navbar">
@@ -76,132 +180,5 @@
     <footer>
         <p>© 2025 4SP</p>
     </footer>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const auth = firebase.auth();
-            const db = firebase.firestore();
-            const functions = firebase.functions();
-            const googleProvider = new firebase.auth.GoogleAuthProvider();
-            const usernameInput = document.getElementById('signupUsername');
-            const usernameError = document.getElementById('usernameError');
-            const signupForm = document.getElementById('signupForm');
-
-            signupForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = document.getElementById('signupEmail').value;
-                const password = document.getElementById('signupPassword').value;
-                const confirmPassword = document.getElementById('signupConfirmPassword').value;
-                const username = usernameInput.value.trim();
-
-                if (password !== confirmPassword) {
-                    showMessage('Passwords do not match', 'error');
-                    return;
-                }
-
-                if (!username) {
-                    showMessage('Username cannot be empty', 'error');
-                    return;
-                }
-
-                if (username.length < 4 || username.length > 16) {
-                    usernameError.textContent = 'Username must be between 4 and 16 characters.';
-                    return;
-                } else {
-                    usernameError.textContent = '';
-                }
-
-                try {
-                    // Call a Firebase Cloud Function to check username uniqueness
-                    const checkUsername = functions.httpsCallable('checkUsername');
-                    const result = await checkUsername({ username: username });
-
-                    if (result.data.exists) {
-                        usernameError.textContent = 'This username is already taken.';
-                        return;
-                    }
-
-                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                    const user = userCredential.user;
-
-                    // Store the username in the user's document in Firestore
-                    await db.collection('users').doc(user.uid).set({ username: username });
-
-                    showMessage('Account created successfully! Redirecting...', 'success');
-                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
-
-                } catch (error) {
-                    handleAuthError(error);
-                }
-            });
-
-            document.getElementById('googleSignupBtn').addEventListener('click', async () => {
-                try {
-                    const result = await auth.signInWithPopup(googleProvider);
-                    const user = result.user;
-                    const defaultUsername = user.email.split('@')[0];
-
-                    // Call Cloud Function to check and potentially generate a unique username
-                    const checkAndCreateUsername = functions.httpsCallable('checkAndCreateUsername');
-                    const usernameResult = await checkAndCreateUsername({ username: defaultUsername });
-
-                    // Store the unique username in the user's document in Firestore
-                    await db.collection('users').doc(user.uid).set({ username: usernameResult.data.username });
-
-                    showMessage('Google signup successful! Redirecting...', 'success');
-                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
-                } catch (error) {
-                    if (error.code === 'auth/popup-blocked') {
-                        try {
-                            await auth.signInWithRedirect(googleProvider);
-                        } catch (redirectError) {
-                            handleAuthError(redirectError);
-                        }
-                    } else {
-                        handleAuthError(error);
-                    }
-                }
-            });
-
-            auth.getRedirectResult().then(async (result) => {
-                if (result?.user) {
-                    const user = result.user;
-                    const defaultUsername = user.email.split('@')[0];
-
-                    const checkAndCreateUsername = functions.httpsCallable('checkAndCreateUsername');
-                    const usernameResult = await checkAndCreateUsername({ username: defaultUsername });
-
-                    // Store the unique username in the user's document in Firestore
-                    await db.collection('users').doc(user.uid).set({ username: usernameResult.data.username });
-
-                    showMessage('Google signup successful! Redirecting...', 'success');
-                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
-                }
-            }).catch(handleAuthError);
-
-            function showMessage(message, type) {
-                const messageDiv = document.getElementById('authMessage');
-                messageDiv.innerHTML = `<div class="message ${type}">${message}</div>`;
-                messageDiv.style.display = 'block';
-            }
-
-            function handleAuthError(error) {
-                console.error('Auth error:', error);
-                let message = error.message;
-
-                if (error.code === 'auth/email-already-in-use') {
-                    message = 'Email already in use. Please login instead.';
-                } else if (error.code === 'auth/weak-password') {
-                    message = 'Password should be at least 6 characters';
-                } else if (error.code === 'auth/operation-not-allowed') {
-                    message = 'Google sign-in is not enabled in Firebase Console';
-                } else if (error.code === 'auth/popup-closed-by-user') {
-                    message = 'Sign up was cancelled';
-                }
-
-                showMessage(message, 'error');
-            }
-        });
-    </script>
 </body>
 </html>
