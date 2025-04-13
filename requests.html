@@ -10,6 +10,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
     <style>
+        * {
+            font-family: 'Roboto Mono', monospace !important;
+            text-decoration: none !important; /* Removes all underlines */
+            box-sizing: border-box;
+        }
+
         :root {
             --dark-bg: #1a1a1a;
             --darker-bg: #0d0d0d;
@@ -17,13 +23,9 @@
             --light-gray: #e0e0e0;
             --primary-blue: #626cd6;
             --error-red: #ff6b6b;
+            --success-green: #4caf50;
             --pill-radius: 50px;
-            --form-width: 700px;
-        }
-
-        * {
-            font-family: 'Roboto Mono', monospace !important;
-            box-sizing: border-box;
+            --card-radius: 24px;
         }
 
         body {
@@ -33,7 +35,7 @@
             min-height: 100vh;
         }
 
-        /* Navbar */
+        /* Navbar (matches collections.html) */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -41,30 +43,37 @@
             padding: 1.5rem 3rem;
             background-color: var(--darker-bg);
             color: var(--light-text);
+            border-bottom: 1px solid var(--dark-bg);
         }
 
         .logo {
             font-size: 1.8rem;
             font-weight: 700;
+            letter-spacing: -1.5px;
         }
 
         .nav-buttons {
             display: flex;
             gap: 1.5rem;
+            align-items: center;
         }
 
+        /* Buttons (underline-free) */
         .btn {
+            display: inline-block;
             padding: 1rem 2rem;
             border-radius: var(--pill-radius);
             font-size: 1rem;
             cursor: pointer;
+            text-align: center;
+            font-weight: 500;
             transition: all 0.3s ease;
+            border: none;
         }
 
         .btn.primary {
             background-color: var(--dark-bg);
             color: var(--light-text);
-            border: none;
         }
 
         .btn.secondary {
@@ -73,19 +82,19 @@
             border: 2px solid var(--light-text);
         }
 
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
         /* Form Container */
-        .container {
-            max-width: var(--form-width);
+        .form-container {
+            max-width: 700px;
             margin: 2rem auto;
             padding: 2rem;
             background: white;
-            border-radius: var(--pill-radius);
+            border-radius: var(--card-radius);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 2rem;
         }
 
         .form-group {
@@ -98,26 +107,22 @@
             font-weight: 500;
         }
 
-        input[type="text"],
-        textarea,
-        select {
+        input, textarea, select {
             width: 100%;
-            padding: 0.75rem 1rem;
+            padding: 1rem;
             border: 1px solid var(--light-gray);
             border-radius: var(--pill-radius);
             font-size: 1rem;
-            background-color: #f9f9f9;
         }
 
         textarea {
-            resize: vertical;
             min-height: 120px;
+            resize: vertical;
         }
 
         .radio-group {
             display: flex;
             gap: 1rem;
-            align-items: center;
         }
 
         .radio-option {
@@ -126,10 +131,9 @@
             gap: 0.5rem;
         }
 
-        button[type="submit"] {
+        .submit-btn {
             width: 100%;
             padding: 1rem;
-            margin-top: 1rem;
             background-color: var(--dark-bg);
             color: white;
             border: none;
@@ -139,33 +143,34 @@
             transition: all 0.3s ease;
         }
 
-        button[type="submit"]:hover {
+        .submit-btn:hover {
             background-color: var(--darker-bg);
         }
 
+        /* Messages */
         .message {
-            margin-top: 1rem;
             padding: 1rem;
+            margin-top: 1rem;
             border-radius: var(--pill-radius);
             text-align: center;
             display: none;
         }
 
         .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--success-green);
         }
 
         .message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background-color: rgba(255, 107, 107, 0.2);
+            color: var(--error-red);
         }
 
+        /* Audio Preview */
         #audioPreview {
             margin-top: 1rem;
             width: 100%;
+            border-radius: var(--pill-radius);
         }
     </style>
 </head>
@@ -175,27 +180,27 @@
         <div class="nav-buttons">
             <a href="index.html" class="btn secondary">Home</a>
             <a href="dashboard.html" class="btn secondary">Dashboard</a>
-            <a href="requests.html" class="btn primary">Requests</a>
+            <a href="collections.html" class="btn primary">Collections</a>
             <button id="logoutBtn" class="btn secondary">Log Out</button>
         </div>
     </nav>
 
-    <main class="container">
+    <main class="form-container">
         <h1>Request a Sound</h1>
         <form id="requestForm">
             <div class="form-group">
                 <label for="soundName">Sound Name</label>
-                <input type="text" id="soundName" name="soundName" required>
+                <input type="text" id="soundName" required>
             </div>
 
             <div class="form-group">
                 <label for="description">Description</label>
-                <textarea id="description" name="description" required></textarea>
+                <textarea id="description" required></textarea>
             </div>
 
             <div class="form-group">
                 <label for="audioUrl">Audio URL</label>
-                <input type="text" id="audioUrl" name="audioUrl" required>
+                <input type="url" id="audioUrl" required>
                 <audio id="audioPreview" controls></audio>
             </div>
 
@@ -213,7 +218,7 @@
                 </div>
             </div>
 
-            <button type="submit">Submit Request</button>
+            <button type="submit" class="submit-btn">Submit Request</button>
             <div id="message" class="message"></div>
         </form>
     </main>
@@ -222,74 +227,59 @@
         document.addEventListener('DOMContentLoaded', () => {
             const db = firebase.firestore();
             const auth = firebase.auth();
-            const requestForm = document.getElementById('requestForm');
-            const messageDiv = document.getElementById('message');
-            const audioUrlInput = document.getElementById('audioUrl');
+            const form = document.getElementById('requestForm');
+            const audioUrl = document.getElementById('audioUrl');
             const audioPreview = document.getElementById('audioPreview');
+            const message = document.getElementById('message');
             const logoutBtn = document.getElementById('logoutBtn');
 
-            // Preview audio when URL changes
-            audioUrlInput.addEventListener('input', () => {
-                if (audioUrlInput.value) {
-                    audioPreview.src = audioUrlInput.value;
+            // Audio preview
+            audioUrl.addEventListener('input', () => {
+                if (audioUrl.value) {
+                    audioPreview.src = audioUrl.value;
                     audioPreview.load();
                 }
             });
 
-            // Handle form submission
-            requestForm.addEventListener('submit', async (e) => {
+            // Form submission
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
-                const soundName = requestForm.soundName.value;
-                const description = requestForm.description.value;
-                const audioUrl = requestForm.audioUrl.value;
-                const contentType = requestForm.contentType.value;
-
                 try {
-                    // Add to Firestore
                     await db.collection('requests').add({
-                        soundName,
-                        description,
-                        audioUrl,
-                        contentType,
+                        soundName: form.soundName.value,
+                        description: form.description.value,
+                        audioUrl: audioUrl.value,
+                        contentType: form.contentType.value,
                         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                         submittedBy: auth.currentUser.uid
                     });
 
-                    // Show success message with link to collections
-                    messageDiv.innerHTML = `
-                        Request submitted successfully! 
-                        <a href="collections.html" style="color: var(--primary-blue); font-weight: 500;">
+                    // Success message with link
+                    message.innerHTML = `
+                        Request submitted! 
+                        <a href="collections.html" style="color: var(--primary-blue);">
                             View in Collections
                         </a>
                     `;
-                    messageDiv.className = 'message success';
-                    messageDiv.style.display = 'block';
+                    message.className = 'message success';
+                    message.style.display = 'block';
                     
-                    // Reset form
-                    requestForm.reset();
+                    form.reset();
                     audioPreview.src = '';
-
                 } catch (error) {
-                    console.error("Error submitting request:", error);
-                    messageDiv.textContent = "Error: " + error.message;
-                    messageDiv.className = 'message error';
-                    messageDiv.style.display = 'block';
+                    message.textContent = 'Error: ' + error.message;
+                    message.className = 'message error';
+                    message.style.display = 'block';
                 }
             });
 
-            // Handle logout
-            logoutBtn.addEventListener('click', () => {
-                auth.signOut().then(() => {
-                    window.location.href = "index.html";
-                });
-            });
+            // Logout
+            logoutBtn.addEventListener('click', () => auth.signOut());
 
-            // Check auth state
-            auth.onAuthStateChanged((user) => {
-                if (!user) {
-                    window.location.href = "index.html";
-                }
+            // Auth state
+            auth.onAuthStateChanged(user => {
+                if (!user) window.location.href = 'index.html';
             });
         });
     </script>
