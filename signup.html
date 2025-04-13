@@ -124,7 +124,7 @@
                     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                     const user = userCredential.user;
 
-                    // Store the username in Firestore
+                    // Store the username in the user's document in Firestore
                     await db.collection('users').doc(user.uid).set({ username: username });
 
                     showMessage('Account created successfully! Redirecting...', 'success');
@@ -145,6 +145,7 @@
                     const checkAndCreateUsername = functions.httpsCallable('checkAndCreateUsername');
                     const usernameResult = await checkAndCreateUsername({ username: defaultUsername });
 
+                    // Store the unique username in the user's document in Firestore
                     await db.collection('users').doc(user.uid).set({ username: usernameResult.data.username });
 
                     showMessage('Google signup successful! Redirecting...', 'success');
@@ -170,6 +171,7 @@
                     const checkAndCreateUsername = functions.httpsCallable('checkAndCreateUsername');
                     const usernameResult = await checkAndCreateUsername({ username: defaultUsername });
 
+                    // Store the unique username in the user's document in Firestore
                     await db.collection('users').doc(user.uid).set({ username: usernameResult.data.username });
 
                     showMessage('Google signup successful! Redirecting...', 'success');
