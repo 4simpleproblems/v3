@@ -6,10 +6,22 @@
     <title>4SP | Sign Up</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Load Firebase SDKs first -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
     <script src="firebase-config.js"></script>
+    <style>
+        /* Add any specific styles for the signup form here if needed */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .error-message {
+            color: var(--error-red);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -27,10 +39,14 @@
                 <div id="authMessage"></div>
                 <h1>Create Account</h1>
                 <p>Get started with your new account</p>
-                
+
                 <form id="signupForm" class="auth-form">
                     <div class="form-group">
                         <input type="email" id="signupEmail" placeholder="Email" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="signupUsername" placeholder="Username" required minlength="4" maxlength="16">
+                        <div id="usernameError" class="error-message"></div>
                     </div>
                     <div class="form-group">
                         <input type="password" id="signupPassword" placeholder="Password" required autocomplete="new-password">
@@ -65,33 +81,73 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const auth = firebase.auth();
+            const db = firebase.firestore();
+            const functions = firebase.functions();
             const googleProvider = new firebase.auth.GoogleAuthProvider();
-            
-            // Email signup
-            document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            const usernameInput = document.getElementById('signupUsername');
+            const usernameError = document.getElementById('usernameError');
+            const signupForm = document.getElementById('signupForm');
+
+            signupForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const email = document.getElementById('signupEmail').value;
                 const password = document.getElementById('signupPassword').value;
                 const confirmPassword = document.getElementById('signupConfirmPassword').value;
+                const username = usernameInput.value.trim();
 
                 if (password !== confirmPassword) {
                     showMessage('Passwords do not match', 'error');
                     return;
                 }
 
+                if (!username) {
+                    showMessage('Username cannot be empty', 'error');
+                    return;
+                }
+
+                if (username.length < 4 || username.length > 16) {
+                    usernameError.textContent = 'Username must be between 4 and 16 characters.';
+                    return;
+                } else {
+                    usernameError.textContent = '';
+                }
+
                 try {
-                    await auth.createUserWithEmailAndPassword(email, password);
+                    // Call a Firebase Cloud Function to check username uniqueness
+                    const checkUsername = functions.httpsCallable('checkUsername');
+                    const result = await checkUsername({ username: username });
+
+                    if (result.data.exists) {
+                        usernameError.textContent = 'This username is already taken.';
+                        return;
+                    }
+
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+
+                    // Store the username in Firestore
+                    await db.collection('users').doc(user.uid).set({ username: username });
+
                     showMessage('Account created successfully! Redirecting...', 'success');
                     setTimeout(() => window.location.href = 'dashboard.html', 1500);
+
                 } catch (error) {
                     handleAuthError(error);
                 }
             });
 
-            // Google signup with popup/redirect fallback
             document.getElementById('googleSignupBtn').addEventListener('click', async () => {
                 try {
-                    await auth.signInWithPopup(googleProvider);
+                    const result = await auth.signInWithPopup(googleProvider);
+                    const user = result.user;
+                    const defaultUsername = user.email.split('@')[0];
+
+                    // Call Cloud Function to check and potentially generate a unique username
+                    const checkAndCreateUsername = functions.httpsCallable('checkAndCreateUsername');
+                    const usernameResult = await checkAndCreateUsername({ username: defaultUsername });
+
+                    await db.collection('users').doc(user.uid).set({ username: usernameResult.data.username });
+
                     showMessage('Google signup successful! Redirecting...', 'success');
                     setTimeout(() => window.location.href = 'dashboard.html', 1500);
                 } catch (error) {
@@ -107,37 +163,44 @@
                 }
             });
 
-            // Check for redirect result after page load
-            auth.getRedirectResult().then((result) => {
-                if (result.user) {
+            auth.getRedirectResult().then(async (result) => {
+                if (result?.user) {
+                    const user = result.user;
+                    const defaultUsername = user.email.split('@')[0];
+
+                    const checkAndCreateUsername = functions.httpsCallable('checkAndCreateUsername');
+                    const usernameResult = await checkAndCreateUsername({ username: defaultUsername });
+
+                    await db.collection('users').doc(user.uid).set({ username: usernameResult.data.username });
+
                     showMessage('Google signup successful! Redirecting...', 'success');
                     setTimeout(() => window.location.href = 'dashboard.html', 1500);
                 }
             }).catch(handleAuthError);
-        });
 
-        function showMessage(message, type) {
-            const messageDiv = document.getElementById('authMessage');
-            messageDiv.innerHTML = `<div class="message ${type}">${message}</div>`;
-            messageDiv.style.display = 'block';
-        }
-
-        function handleAuthError(error) {
-            console.error('Auth error:', error);
-            let message = error.message;
-            
-            if (error.code === 'auth/email-already-in-use') {
-                message = 'Email already in use. Please login instead.';
-            } else if (error.code === 'auth/weak-password') {
-                message = 'Password should be at least 6 characters';
-            } else if (error.code === 'auth/operation-not-allowed') {
-                message = 'Google sign-in is not enabled in Firebase Console';
-            } else if (error.code === 'auth/popup-closed-by-user') {
-                message = 'Sign up was cancelled';
+            function showMessage(message, type) {
+                const messageDiv = document.getElementById('authMessage');
+                messageDiv.innerHTML = `<div class="message ${type}">${message}</div>`;
+                messageDiv.style.display = 'block';
             }
-            
-            showMessage(message, 'error');
-        }
+
+            function handleAuthError(error) {
+                console.error('Auth error:', error);
+                let message = error.message;
+
+                if (error.code === 'auth/email-already-in-use') {
+                    message = 'Email already in use. Please login instead.';
+                } else if (error.code === 'auth/weak-password') {
+                    message = 'Password should be at least 6 characters';
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    message = 'Google sign-in is not enabled in Firebase Console';
+                } else if (error.code === 'auth/popup-closed-by-user') {
+                    message = 'Sign up was cancelled';
+                }
+
+                showMessage(message, 'error');
+            }
+        });
     </script>
 </body>
 </html>
