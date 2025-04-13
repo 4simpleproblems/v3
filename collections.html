@@ -10,17 +10,16 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
     <style>
-        /* Global styles to enforce Roboto Mono and remove underlines */
         * {
             font-family: 'Roboto Mono', monospace !important;
             text-decoration: none !important;
+            box-sizing: border-box;
         }
 
         :root {
             --dark-bg: #1a1a1a;
             --darker-bg: #0d0d0d;
             --light-text: #f0f0f0;
-            --medium-gray: #333333;
             --light-gray: #e0e0e0;
             --primary-blue: #626cd6;
             --pill-radius: 50px;
@@ -33,11 +32,9 @@
             margin: 0;
             padding: 0;
             min-height: 100vh;
-            font-weight: 400;
-            line-height: 1.5;
         }
 
-        /* Navbar styles */
+        /* Navbar */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -45,38 +42,30 @@
             padding: 1.5rem 3rem;
             background-color: var(--darker-bg);
             color: var(--light-text);
-            border-bottom: 1px solid var(--medium-gray);
         }
 
         .logo {
             font-size: 1.8rem;
             font-weight: 700;
-            letter-spacing: -1.5px;
         }
 
         .nav-buttons {
             display: flex;
             gap: 1.5rem;
-            align-items: center;
         }
 
-        /* Button styles */
         .btn {
-            display: inline-block;
             padding: 1rem 2rem;
             border-radius: var(--pill-radius);
             font-size: 1rem;
             cursor: pointer;
-            text-align: center;
-            font-weight: 500;
             transition: all 0.3s ease;
-            position: relative;
-            border: none;
         }
 
         .btn.primary {
             background-color: var(--dark-bg);
             color: var(--light-text);
+            border: none;
         }
 
         .btn.secondary {
@@ -85,12 +74,7 @@
             border: 2px solid var(--light-text);
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        /* Main container layout */
+        /* Main Layout */
         .container {
             max-width: 1200px;
             margin: 2rem auto;
@@ -99,30 +83,26 @@
             gap: 2rem;
         }
 
-        /* Sidebar styles */
         .sidebar {
             width: 250px;
         }
 
         .filter-btn {
-            display: block;
             width: 100%;
             padding: 1rem;
             margin-bottom: 1rem;
             border-radius: var(--pill-radius);
             border: none;
-            background-color: white;
             cursor: pointer;
-            font-weight: 500;
             transition: all 0.3s ease;
         }
 
-        .filter-btn:hover, .filter-btn.active {
+        .filter-btn.active {
             background-color: var(--dark-bg);
             color: white;
         }
 
-        /* Request card styles */
+        /* Request Cards */
         .requests-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -136,16 +116,9 @@
             padding: 1.5rem;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .request-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
 
         .badge {
-            display: inline-block;
             padding: 0.25rem 0.75rem;
             border-radius: var(--pill-radius);
             font-size: 0.75rem;
@@ -162,46 +135,6 @@
             color: #8e6c00;
         }
 
-        /* Modal styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: var(--card-radius);
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
-            position: relative;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-        }
-
-        /* Utility classes */
-        .hidden {
-            display: none;
-        }
-
         #loadingMessage {
             text-align: center;
             padding: 2rem;
@@ -209,7 +142,6 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons">
@@ -220,9 +152,7 @@
         </div>
     </nav>
 
-    <!-- Main Container -->
     <main class="container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <h2>Filters</h2>
             <button class="filter-btn active" data-filter="all">All Requests</button>
@@ -234,7 +164,6 @@
             <button class="filter-btn" data-sort="oldest">Oldest First</button>
         </aside>
 
-        <!-- Content -->
         <section class="main-content">
             <h1>Sound Requests Collection</h1>
             <div id="requestsContainer" class="requests-grid">
@@ -243,169 +172,103 @@
         </section>
     </main>
 
-    <!-- Modal -->
-    <div id="modalOverlay" class="modal-overlay hidden">
-        <div class="modal-content">
-            <button id="modalClose" class="modal-close">&times;</button>
-            <h2 id="modalTitle"></h2>
-            <p id="modalDescription"></p>
-            <a id="modalUrl" href="#" target="_blank" class="btn primary">View Link</a>
-            <div class="request-meta" style="margin-top: 1rem;">
-                <span id="modalDate" style="display: block; margin-bottom: 0.5rem;"></span>
-                <span id="modalBadge" class="badge"></span>
-            </div>
-        </div>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const db = firebase.firestore();
             const auth = firebase.auth();
-
-            // DOM Elements
             const requestsContainer = document.getElementById('requestsContainer');
-            const loadingMessage = document.getElementById('loadingMessage');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const modalOverlay = document.getElementById('modalOverlay');
-            const modalClose = document.getElementById('modalClose');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalDescription = document.getElementById('modalDescription');
-            const modalUrl = document.getElementById('modalUrl');
-            const modalDate = document.getElementById('modalDate');
-            const modalBadge = document.getElementById('modalBadge');
+            let unsubscribe = null;
 
             // State
             let allRequests = [];
             let currentFilter = 'all';
             let currentSort = 'newest';
 
-            // Function to apply filters and sorting
-            const applyFiltersAndSorting = () => {
-                let filteredRequests = [...allRequests];
+            // Real-time listener setup
+            const setupRealTimeListener = () => {
+                return db.collection("requests")
+                    .orderBy("timestamp", "desc")
+                    .onSnapshot((snapshot) => {
+                        allRequests = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data(),
+                            timestamp: doc.data().timestamp.toDate()
+                        }));
+                        renderRequests();
+                    }, (error) => {
+                        console.error("Listener error:", error);
+                        document.getElementById('loadingMessage').textContent = "Error loading requests";
+                    });
+            };
 
-                // Apply filters
+            // Render filtered/sorted requests
+            const renderRequests = () => {
+                let filteredRequests = [...allRequests];
+                
+                // Apply filter
                 if (currentFilter === "normal") {
-                    filteredRequests = filteredRequests.filter((request) => request.contentType === "normal");
+                    filteredRequests = filteredRequests.filter(req => req.contentType === "normal");
                 } else if (currentFilter === "explicit") {
-                    filteredRequests = filteredRequests.filter((request) => request.contentType === "explicit");
+                    filteredRequests = filteredRequests.filter(req => req.contentType === "explicit");
                 }
 
-                // Sort the filtered requests
+                // Apply sort
                 if (currentSort === "newest") {
                     filteredRequests.sort((a, b) => b.timestamp - a.timestamp);
                 } else if (currentSort === "oldest") {
                     filteredRequests.sort((a, b) => a.timestamp - b.timestamp);
                 }
 
-                // Call function to render requests
-                renderRequests(filteredRequests);
-            }
-
-            //Function to render requests
-            const renderRequests = (requests) => {
-                requestsContainer.innerHTML = "";
-
-                if (requests.length === 0) {
-                    const message = document.createElement("p");
-                    message.textContent = "No requests found.";
-                    requestsContainer.appendChild(message);
-                } else {
-                    requests.forEach((request) => {
-                        const card = document.createElement("div");
-                        card.className = "request-card";
-                        card.innerHTML = `
+                // Render
+                requestsContainer.innerHTML = filteredRequests.length === 0 
+                    ? '<p>No requests found</p>'
+                    : filteredRequests.map(request => `
+                        <div class="request-card">
                             <h3>${request.soundName}</h3>
                             <p>${request.description}</p>
                             <div class="request-meta">
-                                <span style="display: block; margin-bottom: 0.5rem;">
-                                    ${new Date(request.timestamp).toLocaleDateString()}
-                                </span>
+                                <span>${request.timestamp.toLocaleDateString()}</span>
                                 <span class="badge ${request.contentType === "normal" ? "badge-normal" : "badge-explicit"}">
                                     ${request.contentType}
                                 </span>
                             </div>
-                        `;
-                        requestsContainer.appendChild(card);
-                    });
-                }
-            }
+                        </div>
+                    `).join('');
+            };
 
-            // Function to handle logout
-            const handleLogout = async () => {
-                try {
-                    await auth.signOut();
+            // Auth state handler
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    document.getElementById('loadingMessage').textContent = "Loading requests...";
+                    unsubscribe = setupRealTimeListener();
+                } else {
+                    if (unsubscribe) unsubscribe();
                     window.location.href = "index.html";
-                } catch (error) {
-                    console.error("Logout failed:", error);
                 }
-            }
+            });
 
-            // Function to handle filter button clicks
-            const handleFilterClick = (filter) => {
-                currentFilter = filter;
-                applyFiltersAndSorting();
-            }
-
-            // Function to handle sort button clicks
-            const handleSortClick = (sort) => {
-                currentSort = sort;
-                applyFiltersAndSorting();
-            }
-
-            // Function to load requests from Firebase
-            const loadRequests = async () => {
-                try {
-                    const snapshot = await db.collection("requests")
-                        .orderBy("timestamp", "desc")
-                        .get();
-
-                    allRequests = snapshot.docs.map((doc) => ({
-                        id: doc.id,
-                        ...doc.data(),
-                        timestamp: doc.data().timestamp.toDate(),
-                    }));
-
-                    applyFiltersAndSorting();
-
-                } catch (error) {
-                    console.error("Error loading requests:", error);
-                    loadingMessage.textContent = "Failed to load requests. Please try again.";
-                }
-            }
-
-            // Initialize auth state and load requests on page load
-            const initialize = async () => {
-                auth.onAuthStateChanged(async (user) => {
-                    if (user) {
-                        loadingMessage.textContent = "Loading requests...";
-                        await loadRequests();
-                    } else {
-                        window.location.href = "index.html";
-                    }
+            // Event listeners
+            document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    currentFilter = e.target.dataset.filter;
+                    document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    renderRequests();
                 });
-            }
-            // Add event listeners for filter buttons
-            document.querySelectorAll('.filter-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                     const filter = e.target.dataset.filter
-                    handleFilterClick(filter);
-                })
             });
 
-             // Add event listeners for sort buttons
-            document.querySelectorAll('.filter-btn[data-sort]').forEach(button => {
-                button.addEventListener('click', (e) => {
-                     const sort = e.target.dataset.sort
-                    handleSortClick(sort);
-                })
+            document.querySelectorAll('.filter-btn[data-sort]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    currentSort = e.target.dataset.sort;
+                    renderRequests();
+                });
             });
 
-             // Add event listeners for logout buttons
-            document.getElementById("logoutBtn").addEventListener("click", () => {
-                handleLogout();
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                auth.signOut().then(() => {
+                    window.location.href = "index.html";
+                });
             });
-
-            initialize();
         });
     </script>
 </body>
