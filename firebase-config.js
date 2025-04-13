@@ -1,9 +1,4 @@
-// Import the Firebase SDK modules you need
-import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getAnalytics } from 'firebase/analytics'; // Import if you want to use Analytics
-
+// firebase-config.js
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCE8iictKO9DxGiB5YolWq5ZOfVBdqgwaI",
@@ -15,26 +10,15 @@ const firebaseConfig = {
   measurementId: "G-Q1N35C57EV"
 };
 
-// Initialize Firebase App
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const functions = firebase.functions();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-// Initialize Firebase Authentication
-const auth = getAuth(app);
-
-// Initialize Firebase Firestore
-const db = getFirestore(app);
-
-// Initialize Google Auth Provider
-const googleProvider = new GoogleAuthProvider();
-
-// Initialize Firebase Analytics (optional)
-const analytics = getAnalytics(app);
-
-// Set up Auth State Persistence (using browserLocalPersistence for web)
-setPersistence(auth, browserLocalPersistence)
+// Set up auth state persistence
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
   .catch((error) => {
     console.error("Error setting auth persistence:", error);
   });
-
-// Export the initialized Firebase services and provider
-export { app, auth, db, analytics, googleProvider };
