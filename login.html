@@ -81,7 +81,9 @@
 
             document.getElementById('googleLoginBtn').addEventListener('click', async () => {
                 try {
-                    await firebase.auth().signInWithPopup(firebase.auth().GoogleAuthProvider());
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    provider.addScope('email');
+                    await firebase.auth().signInWithPopup(provider);
                     showMessage('Google login successful! Redirecting...', 'success');
                     setTimeout(() => window.location.href = 'dashboard.html', 1500);
                 } catch (error) {
@@ -101,6 +103,10 @@
                     message = 'User not found. Please check your email or sign up.';
                 } else if (error.code === 'auth/wrong-password') {
                     message = 'Incorrect password. Please try again.';
+                } else if (error.code === 'auth/popup-blocked') {
+                    message = 'Popup blocked. Please allow popups for this site.';
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                    message = 'Sign in was cancelled. Please try again.';
                 } else {
                     message = 'An error occurred during login: ' + error.message;
                 }
