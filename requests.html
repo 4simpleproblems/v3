@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | Request a Sound</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        :root {
+            --primary-action: var(--dark-bg);
+            --secondary-action-text: var(--dark-bg);
+            --secondary-action-bg: var(--light-gray);
+            --pill-radius: 30px;  /* Default border-radius for pill shape */
+            --form-width: 10000px;   /* Added: Form Width */
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: var(--light-gray);
+            color: var(--dark-bg);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: var(--form-width);  /* Use form width variable */
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: var(--pill-radius);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--light-gray);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--pill-radius);
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1rem;
+            color: var(--dark-bg);
+            background-color: #f9f9f9;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 120px;
+        }
+
+        button {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: var(--pill-radius);
+            background-color: var(--primary-action);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--darker-bg);
+        }
+
+        .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: var(--pill-radius);
+            text-align: center;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn secondary" style="border-radius: var(--pill-radius);">Home</a>
+            <a href="dashboard.html" class="btn secondary" style="border-radius: var(--pill-radius);">Dashboard</a>
+            <a href="requests.html" class="btn primary" style="border-radius: var(--pill-radius);">Requests</a>
+            <button class="btn secondary" id="logoutBtn" style="border-radius: var(--pill-radius);">Log Out</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1>Request a Sound</h1>
+
+        <form id="requestForm">
+            <div class="form-group">
+                <label for="soundName">Sound Name:</label>
+                <input type="text" id="soundName" name="soundName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="optionalLink">Optional Link (Reference):</label>
+                <input type="text" id="optionalLink" name="optionalLink">
+            </div>
+
+            <button type="submit">Submit Request</button>
+        </form>
+
+        <div id="message" class="message" style="display:none;"></div>
+    </main>
+
+    <footer>
+        <p>© 2025 4SP</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+            const requestForm = document.getElementById('requestForm');
+            const messageDiv = document.getElementById('message');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            // Function to display messages
+            function showMessage(message, type) {
+                messageDiv.textContent = message;
+                messageDiv.className = `message ${type}`;
+                messageDiv.style.display = 'block';
+            }
+
+            // Form submission handler
+            requestForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const soundName = document.getElementById('soundName').value;
+                const description = document.getElementById('description').value;
+                const optionalLink = document.getElementById('optionalLink').value;
+
+                // Basic form validation
+                if (!soundName || !description) {
+                    showMessage('Please fill in all required fields.', 'error');
+                    return;
+                }
+
+                // Get current user
+                const user = auth.currentUser;
+                if (!user) {
+                    showMessage('You must be logged in to make a request.', 'error');
+                    return;
+                }
+
+                try {
+                    // Add request to Firestore
+                    await db.collection('requests').add({
+                        userId: user.uid,
+                        soundName: soundName,
+                        description: description,
+                        optionalLink: optionalLink,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp() // Add timestamp
+                    });
+
+                    showMessage('Request submitted successfully!', 'success');
+                    requestForm.reset(); // Clear the form
+                } catch (error) {
+                    console.error("Error adding request:", error);
+                    showMessage('Failed to submit request. Please try again.', 'error');
+                }
+            });
+
+            // Logout functionality
+            logoutBtn.addEventListener('click', async () => {
+                try {
+                    await auth.signOut();
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error("Logout error:", error);
+                    alert("Could not log out. Please try again.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
