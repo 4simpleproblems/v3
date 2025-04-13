@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | Sound Requests</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #f8f9fa;
+            --border: #e9ecef;
+            --text: #212529;
+            --pill-radius: 8px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background-color: #f5f7fb;
+            color: var(--text);
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 24px;
+        }
+
+        .sidebar h2 {
+            font-size: 1.25rem;
+            margin-bottom: 24px;
+            color: var(--primary);
+        }
+
+        .filter-group {
+            margin-bottom: 24px;
+        }
+
+        .filter-btn {
+            display: block;
+            width: 100%;
+            padding: 10px 16px;
+            margin-bottom: 8px;
+            background: var(--secondary);
+            border: none;
+            border-radius: var(--pill-radius);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 32px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .requests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .request-card {
+            background: white;
+            border-radius: var(--pill-radius);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .request-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            margin: 0 0 12px;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .card-description {
+            font-size: 0.9rem;
+            color: #495057;
+            margin-bottom: 16px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .content-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .normal-badge {
+            background: #e6fcf5;
+            color: #087f5b;
+        }
+
+        .explicit-badge {
+            background: #fff3bf;
+            color: #e67700;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--pill-radius);
+            width: 90%;
+            max-width: 600px;
+            padding: 24px;
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #868e96;
+        }
+
+        .modal-title {
+            margin: 0 0 16px;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .modal-description {
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .modal-url {
+            display: inline-block;
+            margin-bottom: 24px;
+            color: var(--primary);
+            word-break: break-all;
+        }
+
+        .modal-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar with filters -->
+        <div class="sidebar">
+            <h2>Filters</h2>
+            
+            <div class="filter-group">
+                <h3>Content Type</h3>
+                <button class="filter-btn active" data-filter="all">All Requests</button>
+                <button class="filter-btn" data-filter="normal">Normal Only</button>
+                <button class="filter-btn" data-filter="explicit">Explicit Only</button>
+            </div>
+            
+            <div class="filter-group">
+                <h3>Sort By</h3>
+                <button class="filter-btn" data-sort="newest">Newest First</button>
+                <button class="filter-btn" data-sort="oldest">Oldest First</button>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Sound Requests</h1>
+                <div id="requestCount">Loading...</div>
+            </div>
+            
+            <div class="requests-grid" id="requestsContainer">
+                <div class="empty-state">Loading sound requests...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Details Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <p class="modal-description" id="modalDescription"></p>
+            <a href="#" target="_blank" class="modal-url" id="modalUrl"></a>
+            <div class="modal-meta">
+                <span id="modalDate"></span>
+                <span class="content-badge" id="modalBadge"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Firebase
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+            
+            // DOM elements
+            const requestsContainer = document.getElementById('requestsContainer');
+            const requestCount = document.getElementById('requestCount');
+            const modalOverlay = document.getElementById('modalOverlay');
+            const modalClose = document.getElementById('modalClose');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            // State variables
+            let allRequests = [];
+            let currentFilter = 'all';
+            let currentSort = 'newest';
+
+            // Initialize the app
+            init();
+
+            function init() {
+                setupEventListeners();
+                checkAuthState();
+            }
+
+            function setupEventListeners() {
+                // Filter buttons
+                filterButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        // Update active state
+                        filterButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        
+                        // Update filter/sort
+                        if (button.dataset.filter) {
+                            currentFilter = button.dataset.filter;
+                        } else if (button.dataset.sort) {
+                            currentSort = button.dataset.sort;
+                        }
+                        
+                        renderRequests();
+                    });
+                });
+                
+                // Modal close button
+                modalClose.addEventListener('click', closeModal);
+                
+                // Close modal when clicking outside content
+                modalOverlay.addEventListener('click', (e) => {
+                    if (e.target === modalOverlay) {
+                        closeModal();
+                    }
+                });
+            }
+
+            function checkAuthState() {
+                auth.onAuthStateChanged(user => {
+                    if (user) {
+                        loadRequests();
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                });
+            }
+
+            function loadRequests() {
+                db.collection('requests')
+                    .get()
+                    .then(querySnapshot => {
+                        allRequests = [];
+                        querySnapshot.forEach(doc => {
+                            const data = doc.data();
+                            allRequests.push({
+                                id: doc.id,
+                                ...data,
+                                timestamp: data.timestamp?.toDate()
+                            });
+                        });
+                        renderRequests();
+                    })
+                    .catch(error => {
+                        console.error("Error loading requests:", error);
+                        showEmptyState("Failed to load requests. Please try again.");
+                    });
+            }
+
+            function renderRequests() {
+                // Filter requests
+                let filteredRequests = allRequests;
+                if (currentFilter === 'normal') {
+                    filteredRequests = allRequests.filter(req => req.contentType === 'normal');
+                } else if (currentFilter === 'explicit') {
+                    filteredRequests = allRequests.filter(req => req.contentType === 'explicit');
+                }
+
+                // Sort requests
+                filteredRequests.sort((a, b) => {
+                    if (currentSort === 'newest') {
+                        return b.timestamp - a.timestamp;
+                    } else {
+                        return a.timestamp - b.timestamp;
+                    }
+                });
