@@ -5,84 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4SP | Analytics</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
-    <style>
-        /* Shared Styles (match dashboard.html) */
-        body {
-            background-color: #e0e0e0;
-            color: #1a1a1a;
-            font-family: 'Roboto Mono', monospace !important;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 2rem;
-            flex: 1;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 3rem;
-            background-color: #0d0d0d;
-            color: #f0f0f0;
-            border-bottom: 1px solid #0d0d0d;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        .btn {
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none !important;
-            color: inherit !important;
-        }
-
-        .btn.secondary {
-            background-color: transparent;
-            color: #f0f0f0;
-            border: 2px solid #f0f0f0;
-        }
-
-        /* Specific Analytics Styles */
-        .analytics-content {
-            background: white;
-            border-radius: 24px;
-            padding: 2rem;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons">
             <a href="dashboard.html" class="btn secondary">Dashboard</a>
-            <button id="logoutBtn" class="btn secondary">Log Out</button>
+            <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
         </div>
     </nav>
 
@@ -90,14 +23,14 @@
         <div id="analyticsContent" class="analytics-content">
             <h1>Website Analytics</h1>
             <p id="authNotice">Checking Authentication...</p>
-            <div id="adminContent" style="display:none;">
+            <div id="adminContent" class="hidden">
                 <p>Welcome, Admin! Here are your analytics:</p>
                 <ul id="analyticsList">
                     <li>Loading analytics...</li>
                 </ul>
-                <p id="noDataMessage" style="color: red; display: none;">Missing or insufficient permissions.</p>
+                <p id="noDataMessage" class="hidden" style="color: var(--error-red);">Missing or insufficient permissions.</p>
             </div>
-            <p id="errorMessage" style="color: red; display: none;"></p>
+            <p id="errorMessage" class="hidden" style="color: var(--error-red);"></p>
         </div>
     </main>
 
@@ -118,7 +51,7 @@
             // Function to display error messages
             function displayError(message) {
                 errorMessage.textContent = message;
-                errorMessage.style.display = 'block';
+                errorMessage.classList.remove('hidden');
             }
 
             // Logout Function
@@ -137,8 +70,8 @@
                 if (user) {
                     // Check if user is admin
                     if (user.email === adminEmail) {
-                        authNotice.style.display = 'none';
-                        adminContent.style.display = 'block';
+                        authNotice.classList.add('hidden');
+                        adminContent.classList.remove('hidden');
                         await loadAnalytics(); // Load data only for admins
                     } else {
                         // Redirect non-admin users
@@ -155,7 +88,7 @@
                 try {
                     //Show Loading Analytics for all cases.
                     analyticsList.innerHTML = '<li>Loading analytics...</li>';
-                    noDataMessage.style.display = 'none';//Ensure message starts hidden.
+                    noDataMessage.classList.add('hidden');//Ensure message starts hidden.
 
                     // **Ensure Rules are set up correctly**
                     // **Admin Email has Read Permissions**
@@ -171,12 +104,12 @@
                         <li>Total Requests: ${requestCount}</li>
                     `;
 
-                    noDataMessage.style.display = 'none'; // Ensure message hidden if data loads
+                    noDataMessage.classList.add('hidden'); // Ensure message hidden if data loads
                 } catch (error) {
                     console.error('Error fetching analytics:', error);
                     displayError('Error fetching analytics: ' + error.message);
                     analyticsList.innerHTML = ''; // Clear any loading message
-                    noDataMessage.style.display = 'block'; // Show no data message for all error cases
+                    noDataMessage.classList.remove('hidden'); // Show no data message for all error cases
                 }
             }
         });
