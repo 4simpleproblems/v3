@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | Local Sounds</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Style adjustments */
+        .sound-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 50px;
+            color: var(--dark-bg);
+            background-color: var(--light-text);
+        }
+
+        .sound-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .sound-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            background-color: transparent;
+            color: var(--dark-bg);
+            border: 2px solid var(--dark-bg);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+            font-weight: bold;
+        }
+
+        .sound-name {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            font-weight: bold;
+            border: 2px solid var(--dark-bg);
+            background-color: transparent;
+            color: var(--dark-bg);
+            font-family: inherit;
+            border-radius: 50px;
+            margin-right: 0.5rem;
+            text-align: center;
+            min-width: 80px;
+            max-width: 160px;
+        }
+
+        .sound-upload {
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            background-color: transparent;
+            color: var(--dark-bg);
+            font-weight: bold;
+            border: 2px solid var(--dark-bg);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 0.5rem;
+        }
+
+        /* Edit Mode Styles */
+        .edit-mode .sound-name,
+        .edit-mode .sound-upload {
+            display: inline-block;
+        }
+
+        /*edit button*/
+        .edit-button {
+          padding: 0.75rem 1.5rem;
+          border: 2px solid var(--dark-bg);
+          border-radius: 50px;
+          font-size: 1rem;
+          cursor: pointer;
+          text-align: center;
+          font-weight: 500;
+          transition: none !important;
+          background-color: var(--light-text);
+          color: var(--dark-bg);
+        }
+
+        /*delete button*/
+        .delete-button {
+          padding: 0.75rem 1.5rem;
+          border: 2px solid var(--dark-bg);
+          border-radius: 50px;
+          font-size: 1rem;
+          cursor: pointer;
+          text-align: center;
+          font-weight: 500;
+          transition: none !important;
+          background-color: var(--light-text);
+          color: var(--dark-bg);
+        }
+
+        /* Nav-bar-button styles */
+        .nav-buttons .options-dropdown .btn.secondary {
+            margin-right: 1.5rem;
+        }
+
+        #addSoundButton {
+            display: block;
+            margin: 1rem auto;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--dark-bg);
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 500;
+            transition: none !important;
+            background-color: var(--light-text);
+            color: var(--dark-bg);
+        }
+
+        /* Options Dropdown Styles */
+        .options-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .options-button {
+            background-color: transparent;
+            color:  var(--light-text);
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border:none;
+            cursor: pointer;
+            border-radius: 50px;
+        }
+
+        .options-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            padding: 12px 16px;
+            z-index: 1;
+            right: 0;
+            border-radius: 12px;
+            color: black;
+        }
+
+        .options-content label {
+            display: block;
+            margin-bottom: 5px;
+             color: black;
+        }
+
+        .options-dropdown:hover .options-content {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <div class="options-dropdown">
+                <button class="btn secondary">Options</button>
+                <div class="options-content">
+                    <label>
+                        <input type="checkbox" id="soundOverlayCheckbox"> Sound Overlay
+                    </label>
+                    <label>
+                        <input type="checkbox" id="autoClickerCheckbox"> Auto Clicker
+                    </label>
+                </div>
+            </div>
+            <a href="dashboard.html" class="btn secondary">Dashboard</a>
+            <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1>Local Sounds</h1>
+        <p>Upload and play your own local MP3 files.</p>
+
+        <div id="soundButtonsContainer">
+            <!-- Initial Sound Button -->
+            <div class="sound-container" data-sound-id="1">
+                <div class="sound-info">
+                    <button class="sound-button" data-sound-id="1">Sound 1</button>
+                    <input type="text" class="sound-name" data-sound-id="1" placeholder="Sound 1 Name" style="display: none;">
+                    <input type="file" class="sound-upload" data-sound-id="1" accept="audio/mp3" style="display: none;">
+                </div>
+                <div class="button-group">
+                    <button class="edit-button" data-sound-id="1">Edit</button>
+                    <button class="delete-button" data-sound-id="1">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <button id="addSoundButton" class="btn secondary">Add Sound Button</button>
+    </main>
+
+    <footer>
+        <p>© 2025 4SP</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const soundButtonsContainer = document.getElementById('soundButtonsContainer');
+            const addSoundButton = document.getElementById('addSoundButton');
+            let soundCount = 1;
+
+            // Function to create a new sound button
+            function createSoundButton(soundId) {
+                const container = document.createElement('div');
+                container.classList.add('sound-container');
+                container.dataset.soundId = soundId;
+
+                container.innerHTML = `
+                    <div class="sound-info">
+                        <button class="sound-button" data-sound-id="${soundId}">Sound ${soundId}</button>
+                        <input type="text" class="sound-name" data-sound-id="${soundId}" placeholder="Sound ${soundId} Name" style="display: none;">
+                        <input type="file" class="sound-upload" data-sound-id="${soundId}" accept="audio/mp3" style="display: none;">
+                    </div>
+                    <div class="button-group">
+                        <button class="edit-button" data-sound-id="${soundId}">Edit</button>
+                        <button class="delete-button" data-sound-id="${soundId}">Delete</button>
+                    </div>
+                `;
+                return container;
+            }
+
+            // Attach event listeners to a sound button container
+            function attachEventListeners(container) {
+                const soundId = container.dataset.soundId;
+                const button = container.querySelector('.sound-button');
+                const nameInput = container.querySelector('.sound-name');
+                const fileInput = container.querySelector('.sound-upload');
+                const editButton = container.querySelector('.edit-button');
+                const deleteButton = container.querySelector('.delete-button');
+
+                let editMode = false;
+
+                nameInput.addEventListener('input', (e) => {
+                    localStorage.setItem(`sound${soundId}Name`, e.target.value);
+                    button.textContent = e.target.value || `Sound ${soundId}`;
+                });
+
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        localStorage.setItem(`sound${soundId}File`, URL.createObjectURL(file));
+                    }
+                });
+
+                button.addEventListener('click', async (e) => {
+                    const soundFile = localStorage.getItem(`sound${soundId}File`);
+                    if (soundFile) {
+                        try {
+                            const audio = new Audio(soundFile);
+                            await audio.play();
+                        } catch (error) {
+                            alert('Error playing the sound. Please upload the file again.');
+                            localStorage.removeItem(`sound${soundId}File`);
+                        }
+                    } else {
+                        alert('No file uploaded for this sound button.');
+                    }
+                });
+
+                editButton.addEventListener('click', () => {
+                    editMode = !editMode;
+                    container.classList.toggle('edit-mode');
+                    nameInput.style.display = editMode ? 'inline-block' : 'none';
+                    fileInput.style.display = editMode ? 'inline-block' : 'none';
+                });
+
+                deleteButton.addEventListener('click', () => {
+                    container.remove();
+                    localStorage.removeItem(`sound${soundId}Name`);
+                    localStorage.removeItem(`sound${soundId}File`);
+                });
+            }
+
+            // Load saved data from localStorage
+            function loadSavedData() {
+                for (let i = 1; i <= soundCount; i++) {
+                    const container = document.querySelector(`.sound-container[data-sound-id="${i}"]`);
+                    if (container) {
+                        const soundName = localStorage.getItem(`sound${i}Name`);
+                        const soundFile = localStorage.getItem(`sound${i}File`);
+
+                        const button = container.querySelector('.sound-button');
+                        const nameInput = container.querySelector('.sound-name');
+
+                        if (soundName) {
+                            nameInput.value = soundName;
+                            button.textContent = soundName;
+                        }
+                    }
+                }
+            }
+
+            // Add a new sound button
+            addSoundButton.addEventListener('click', () => {
+                soundCount++;
+                const newSoundButton = createSoundButton(soundCount);
+                soundButtonsContainer.appendChild(newSoundButton);
+                attachEventListeners(newSoundButton);
+            });
+
+            // Initialize
+            soundButtonsContainer.querySelectorAll('.sound-container').forEach(attachEventListeners);
+            loadSavedData();
+        });
+    </script>
+</body>
+</html>
