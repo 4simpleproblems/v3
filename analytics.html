@@ -13,7 +13,7 @@
         body {
             background-color: #e0e0e0;
             color: #1a1a1a;
-            font-family: 'Roboto Mono', monospace !important; /* Ensure font is applied */
+            font-family: 'Roboto Mono', monospace !important;
             margin: 0;
             padding: 0;
             min-height: 100vh;
@@ -105,14 +105,15 @@
         document.addEventListener('DOMContentLoaded', () => {
             const auth = firebase.auth();
             const db = firebase.firestore();
-            const adminEmail = '4simpleproblems@gmail.com';  // ***SET ADMIN EMAIL***
+            const adminEmail = '4simpleproblems@gmail.com';
+
             const analyticsContent = document.getElementById('analyticsContent');
             const adminContent = document.getElementById('adminContent');
             const authNotice = document.getElementById('authNotice');
             const logoutBtn = document.getElementById('logoutBtn');
             const analyticsList = document.getElementById('analyticsList');
-            const errorMessage = document.getElementById('errorMessage');
             const noDataMessage = document.getElementById('noDataMessage');
+            const errorMessage = document.getElementById('errorMessage');
 
             // Function to display error messages
             function displayError(message) {
@@ -149,9 +150,13 @@
                 }
             });
 
-             // Function to fetch and display analytics data
-             async function loadAnalytics() {
+            // Function to fetch and display analytics data
+            async function loadAnalytics() {
                 try {
+                    //Show Loading Analytics for all cases.
+                    analyticsList.innerHTML = '<li>Loading analytics...</li>';
+                    noDataMessage.style.display = 'none';//Ensure message starts hidden.
+
                     // **Ensure Rules are set up correctly**
                     // **Admin Email has Read Permissions**
                     const usersSnapshot = await db.collection('users').get();
@@ -165,16 +170,15 @@
                         <li>Total Users: ${userCount}</li>
                         <li>Total Requests: ${requestCount}</li>
                     `;
-                     noDataMessage.style.display = 'none'; // Hide message if data loads
+
+                    noDataMessage.style.display = 'none'; // Ensure message hidden if data loads
                 } catch (error) {
                     console.error('Error fetching analytics:', error);
                     displayError('Error fetching analytics: ' + error.message);
                     analyticsList.innerHTML = ''; // Clear any loading message
-                    noDataMessage.style.display = 'block'; // Show no data message
+                    noDataMessage.style.display = 'block'; // Show no data message for all error cases
                 }
             }
-
-
         });
     </script>
 </body>
