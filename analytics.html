@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
     <style>
-        /* [Same shared styles as before] */
-        /* (Omitting for brevity, ensure they match dashboard.html) */
+        /* Shared Styles (match dashboard.html) */
         body {
             background-color: #e0e0e0;
             color: #1a1a1a;
@@ -71,7 +70,7 @@
             background: white;
             border-radius: 24px;
             padding: 2rem;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
@@ -79,6 +78,7 @@
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="logo">4SP</div>
@@ -97,6 +97,7 @@
                 <ul id="analyticsList">
                     <li>Loading analytics...</li>
                 </ul>
+                <p id="noDataMessage" style="color: red; display: none;">Missing or insufficient permissions.</p>
             </div>
             <p id="errorMessage" style="color: red; display: none;"></p>
         </div>
@@ -106,13 +107,14 @@
         document.addEventListener('DOMContentLoaded', () => {
             const auth = firebase.auth();
             const db = firebase.firestore();
-            const adminEmail = '4simpleproblems@gmail.com';  // ***REPLACE WITH YOUR ADMIN EMAIL***
+            const adminEmail = '4simpleproblems@gmail.com';  // ***SET ADMIN EMAIL***
             const analyticsContent = document.getElementById('analyticsContent');
             const adminContent = document.getElementById('adminContent');
             const authNotice = document.getElementById('authNotice');
             const logoutBtn = document.getElementById('logoutBtn');
             const analyticsList = document.getElementById('analyticsList');
             const errorMessage = document.getElementById('errorMessage');
+            const noDataMessage = document.getElementById('noDataMessage');
 
             // Logout Function
             logoutBtn.addEventListener('click', () => {
@@ -135,7 +137,7 @@
                         await loadAnalytics(); // Load data only for admins
                     } else {
                         // Redirect non-admin users
-                        window.location.href = 'dashboard.html';
+                        window.location.href = 'index.html';
                     }
                 } else {
                     // Redirect unauthorized users
@@ -159,10 +161,12 @@
                         <li>Total Users: ${userCount}</li>
                         <li>Total Requests: ${requestCount}</li>
                     `;
+                    noDataMessage.style.display = 'none'; // Hide message if data loads
                 } catch (error) {
                     console.error('Error fetching analytics:', error);
                     displayError('Error fetching analytics: ' + error.message);
-                    analyticsList.innerHTML = '<li>Error loading analytics. Please try again.</li>';
+                    analyticsList.innerHTML = ''; // Clear any loading message
+                    noDataMessage.style.display = 'block'; // Show no data message
                 }
             }
 
@@ -174,4 +178,5 @@
         });
     </script>
 </body>
+
 </html>
