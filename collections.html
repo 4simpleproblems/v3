@@ -68,6 +68,16 @@
       color: var(--light-text);
       border: 2px solid var(--light-text);
     }
+    /* New style for delete button */
+    .btn.delete {
+      background-color: transparent;
+      border: 2px solid var(--dark-bg);
+      color: var(--dark-bg);
+    }
+    .btn.delete:hover {
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+    }
     /* Main Layout */
     .container {
       max-width: 1200px;
@@ -151,12 +161,11 @@
   <main class="container">
     <aside class="sidebar">
       <h2>Filters</h2>
-      <!-- These buttons are always visible to all users (but later filtering logic will hide deleted ones for non-admins) -->
       <button class="filter-btn active" data-filter="all">All Requests</button>
       <button class="filter-btn" data-filter="normal">Normal Only</button>
       <button class="filter-btn" data-filter="explicit">Explicit Only</button>
-      <!-- This button will be shown only for admin -->
-      <button class="filter-btn" data-filter="deleted" id="deletedFilterBtn" style="display:none;">Deleted Requests</button>
+      <!-- This filter is only for admins -->
+      <button class="filter-btn" data-filter="deleted" id="deletedFilterBtn" style="display:none;">Deleted</button>
 
       <h2>Sort By</h2>
       <button class="filter-btn" data-sort="newest">Newest First</button>
@@ -177,11 +186,11 @@
       const auth = firebase.auth();
       const requestsContainer = document.getElementById('requestsContainer');
       let allRequests = [];
-      let currentFilter = 'all'; // Values: "all", "normal", "explicit", "deleted"
-      let currentSort = 'newest'; // Values: "newest" or "oldest"
-      let isAdmin = false; // flag to know if current user is admin
+      let currentFilter = 'all'; // Options: "all", "normal", "explicit", "deleted"
+      let currentSort = 'newest'; // Options: "newest", "oldest"
+      let isAdmin = false; // Flag for admin status
 
-      // Set up real-time listener
+      // Set up real-time listener to fetch requests
       const setupRealTimeListener = () => {
         return db.collection("requests")
           .orderBy("timestamp", "desc")
@@ -189,7 +198,7 @@
             allRequests = snapshot.docs.map(doc => {
               const data = doc.data();
               // Convert Firestore timestamp if available
-              if(data.timestamp && data.timestamp.toDate) {
+              if (data.timestamp && data.timestamp.toDate) {
                 data.timestamp = data.timestamp.toDate();
               }
               return {
@@ -204,37 +213,33 @@
           });
       };
 
-      // Render the requests based on filters and sort order
+      // Render the requests based on the active filter and sort order
       const renderRequests = () => {
-        let filteredRequests = [...allRequests];
-
-        // Apply filter
-        filteredRequests = filteredRequests.filter(req => {
+        let filteredRequests = allRequests.filter(req => {
+          // For admins, allow filtering by status and content type
           if(isAdmin) {
-            // For admin, filter by selected status if not "all"
-            if(currentFilter === "all") {
+            if (currentFilter === "all") {
               return true;
-            } else if(currentFilter === "deleted") {
+            } else if (currentFilter === "deleted") {
               return req.status === "deleted";
             } else {
               return req.contentType === currentFilter && req.status !== "deleted";
             }
-          } else {
-            // For non-admin users, always hide deleted requests.
-            if(req.status === "deleted") return false;
-            if(currentFilter === "all") {
-              return true;
-            }
-            return req.contentType === currentFilter;
           }
+          // For non-admin users, always hide deleted requests
+          if(req.status === "deleted") return false;
+          if(currentFilter === "all") return true;
+          return req.contentType === currentFilter;
         });
 
-        // Apply sort
-        if (currentSort === "newest") {
-          filteredRequests.sort((a, b) => b.timestamp - a.timestamp);
-        } else if (currentSort === "oldest") {
-          filteredRequests.sort((a, b) => a.timestamp - b.timestamp);
-        }
+        // Apply sort order
+        filteredRequests.sort((a, b) => {
+          if (currentSort === "newest") {
+            return b.timestamp - a.timestamp;
+          } else {
+            return a.timestamp - b.timestamp;
+          }
+        });
 
         // Generate HTML for each request card
         if(filteredRequests.length === 0) {
@@ -243,7 +248,7 @@
         }
 
         requestsContainer.innerHTML = filteredRequests.map(request => {
-          // Base HTML for each card
+          // Base card HTML
           let cardHtml = `
             <div class="request-card" id="card-${request.id}">
               <h3>${request.soundName}</h3>
@@ -257,17 +262,15 @@
               </div>
           `;
 
-          // If the logged in user is admin, add admin action buttons:
+          // Render admin action buttons only if the user is admin
           if(isAdmin) {
             cardHtml += `<div class="admin-actions">`;
-            // For pending requests, show Approve and Deny buttons
-            if(request.status === "pending") {
+            if (request.status === "pending") {
               cardHtml += `<button class="btn primary" onclick="handleAdminAction('${request.id}', 'approved')">Approve</button>
                            <button class="btn primary" onclick="handleAdminAction('${request.id}', 'denied')">Deny</button>`;
             }
-            // Allow delete (mark as deleted) for any request that is not already deleted
             if(request.status !== "deleted") {
-              cardHtml += `<button class="btn secondary" onclick="handleAdminAction('${request.id}', 'deleted')">Delete</button>`;
+              cardHtml += `<button class="btn delete" onclick="handleAdminAction('${request.id}', 'deleted')">Delete</button>`;
             }
             cardHtml += `</div>`;
           }
@@ -277,11 +280,10 @@
         }).join('');
       };
 
-      // Admin action handler: updates the request status based on action
+      // Function for admin actions to update request status
       window.handleAdminAction = (docId, newStatus) => {
         db.collection("requests").doc(docId).update({
           status: newStatus,
-          // Optionally add a timestamp indicating when status was updated
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
           console.log(`Request ${docId} updated to ${newStatus}`);
@@ -290,23 +292,21 @@
         });
       };
 
-      // Auth state handler
+      // Listen for auth state changes and check for admin status
       auth.onAuthStateChanged((user) => {
         if(user) {
-          // Check if the current user is the admin
           isAdmin = (user.email === "4simpleproblems@gmail.com");
-          // If admin, show the "Deleted Requests" filter button
+          // Show the "Deleted" filter button only for admin
           if(isAdmin) {
             document.getElementById('deletedFilterBtn').style.display = 'block';
           }
-          // Start listening for changes
           setupRealTimeListener();
         } else {
           window.location.href = "index.html";
         }
       });
 
-      // Filter buttons event listeners
+      // Event listeners for filter buttons
       document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
         btn.addEventListener('click', (e) => {
           currentFilter = e.target.dataset.filter;
@@ -316,7 +316,7 @@
         });
       });
 
-      // Sort buttons event listeners
+      // Event listeners for sort buttons
       document.querySelectorAll('.filter-btn[data-sort]').forEach(btn => {
         btn.addEventListener('click', (e) => {
           currentSort = e.target.dataset.sort;
@@ -324,7 +324,7 @@
         });
       });
 
-      // Logout button
+      // Logout button logic
       document.getElementById('logoutBtn').addEventListener('click', () => {
         auth.signOut().then(() => {
           window.location.href = "index.html";
