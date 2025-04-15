@@ -258,10 +258,11 @@
             });
         };
 
-        // Render the requests based on the active filter and sort order
-        ckiconst renderRequests = () => {
+// Render the requests based on the active filter and sort order
+        const renderRequests = () => {
+          // (Filtering logic remains the same as before...)
           let filteredRequests = allRequests.filter(req => {
-            // Make sure request object and status exist before cheng
+            // Make sure request object and status exist before checking
             if (!req || typeof req.status === 'undefined') return false;
 
             if(isAdmin) {
@@ -281,7 +282,8 @@
             return req.contentType === currentFilter;
           });
 
-          // Apply sort order (Ensure timestamp exists)
+
+          // (Sorting logic remains the same as before...)
           filteredRequests.sort((a, b) => {
             const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : 0;
             const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : 0;
@@ -292,43 +294,48 @@
             }
           });
 
-          // Generate HTML for each request card
+
+          // (Handling for empty/loading states remains the same...)
           if(filteredRequests.length === 0 && allRequests.length > 0) {
-            // If filters result in no matches, but requests exist
             requestsContainer.innerHTML = '<p>No requests match the current filters.</p>';
           } else if (filteredRequests.length === 0) {
-             // If no requests loaded at all (possible initial state or error)
-             document.getElementById('loadingMessage').style.display = 'block'; // Ensure loading/error msg is visible
+             document.getElementById('loadingMessage').style.display = 'block';
              document.getElementById('loadingMessage').textContent = 'No requests found.';
-             requestsContainer.innerHTML = ''; // Clear any previous cards
+             requestsContainer.innerHTML = '';
           } else {
-              document.getElementById('loadingMessage').style.display = 'none'; // Hide loading message
+              document.getElementById('loadingMessage').style.display = 'none';
+              // --- Generate HTML for each request card ---
               requestsContainer.innerHTML = filteredRequests.map(request => {
-                // --- MODIFICATION START ---
                 // Generate the submitted by ID span only if admin and ID exists
+                // This variable holds the HTML string for the top-right box OR an empty string
                 const submittedByIdHtml = (isAdmin && request.submittedBy)
-                  ? `<span class="submitted-by-id" title="${request.submittedBy}">UID: ${request.submittedBy.substring(0, 8)}...</span>` // Show partial ID, full ID on hover
+                  ? `<span class="submitted-by-id" title="${request.submittedBy}">UID: ${request.submittedBy.substring(0, 8)}...</span>`
                   : '';
-                // --- MODIFICATION END ---
 
                 // Ensure contentType exists or provide default
                 const contentType = request.contentType || 'unknown';
                 const badgeClass = contentType === "normal" ? "badge-normal" : "badge-explicit";
                 const status = request.status || 'unknown';
+                const soundName = request.soundName || 'No Name';
+                const description = request.description || 'No Description';
+                const dateString = request.timestamp instanceof Date ? request.timestamp.toLocaleDateString() : 'No Date';
 
+                // --- *** THE FIX IS HERE *** ---
+                // Construct the card HTML. Ensure NO placeholder text/comments are left inside.
                 let cardHtml = `
                   <div class="request-card" id="card-${request.id}">
-                    ${submittedByIdHtml} {/* <-- Insert the generated ID span here */}
-                    <h3>${request.soundName || 'No Name'}</h3>
-                    <p>${request.description || 'No Description'}</p>
+                    ${submittedByIdHtml} {/* This inserts the span OR empty string */}
+                    <h3>${soundName}</h3>
+                    <p>${description}</p>
                     <div class="request-meta">
-                      <span>${request.timestamp instanceof Date ? request.timestamp.toLocaleDateString() : 'No Date'}</span>
+                      <span>${dateString}</span>
                       <span class="badge ${badgeClass}">
                         ${contentType}
                       </span>
                       <span>| Status: ${status}</span>
                     </div>
                 `;
+                // --- *** END FIX AREA *** ---
 
                 // Render admin action buttons only if the user is admin
                 if(isAdmin) {
@@ -343,11 +350,13 @@
                   cardHtml += `</div>`;
                 }
 
-                cardHtml += `</div>`;
+                cardHtml += `</div>`; // Close request-card div
                 return cardHtml;
               }).join('');
           }
         };
+
+        // (Rest of the script: handleAdminAction, auth listener, button listeners, etc. remain the same)
 
         // Function for admin actions to update request status
         window.handleAdminAction = (docId, newStatus) => {
