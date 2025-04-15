@@ -1,275 +1,336 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4SP | Collections</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <style>
-        * {
-            font-family: 'Roboto Mono', monospace !important;
-            text-decoration: none !important;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --dark-bg: #1a1a1a;
-            --darker-bg: #0d0d0d;
-            --light-text: #f0f0f0;
-            --light-gray: #e0e0e0;
-            --primary-blue: #626cd6;
-            --pill-radius: 50px;
-            --card-radius: 24px;
-        }
-
-        body {
-            background-color: var(--light-gray);
-            color: var(--dark-bg);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-        }
-
-        /* Navbar */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 3rem;
-            background-color: var(--darker-bg);
-            color: var(--light-text);
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 1.5rem;
-        }
-
-        .btn {
-            padding: 1rem 2rem;
-            border-radius: var(--pill-radius);
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn.primary {
-            background-color: var(--dark-bg);
-            color: var(--light-text);
-            border: none;
-        }
-
-        .btn.secondary {
-            background-color: transparent;
-            color: var(--light-text);
-            border: 2px solid var(--light-text);
-        }
-
-        /* Main Layout */
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-            display: flex;
-            gap: 2rem;
-        }
-
-        .sidebar {
-            width: 250px;
-        }
-
-        .filter-btn {
-            width: 100%;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: var(--pill-radius);
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .filter-btn.active {
-            background-color: var(--dark-bg);
-            color: white;
-        }
-
-        /* Request Cards */
-        .requests-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            flex: 1;
-        }
-
-        .request-card {
-            background: white;
-            border-radius: var(--card-radius);
-            padding: 1.5rem;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-
-        .badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: var(--pill-radius);
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .badge-normal {
-            background-color: #e6fcf5;
-            color: #087f5b;
-        }
-
-        .badge-explicit {
-            background-color: #fff3bf;
-            color: #8e6c00;
-        }
-
-        #loadingMessage {
-            text-align: center;
-            padding: 2rem;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4SP | Collections</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    * {
+      font-family: 'Roboto Mono', monospace !important;
+      text-decoration: none !important;
+      box-sizing: border-box;
+    }
+    :root {
+      --dark-bg: #1a1a1a;
+      --darker-bg: #0d0d0d;
+      --light-text: #f0f0f0;
+      --light-gray: #e0e0e0;
+      --primary-blue: #626cd6;
+      --pill-radius: 50px;
+      --card-radius: 24px;
+    }
+    body {
+      background-color: var(--light-gray);
+      color: var(--dark-bg);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    /* Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background-color: var(--darker-bg);
+      color: var(--light-text);
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    .nav-buttons {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .btn {
+      padding: 1rem 2rem;
+      border-radius: var(--pill-radius);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn.primary {
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      border: none;
+    }
+    .btn.secondary {
+      background-color: transparent;
+      color: var(--light-text);
+      border: 2px solid var(--light-text);
+    }
+    /* Main Layout */
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      display: flex;
+      gap: 2rem;
+    }
+    .sidebar {
+      width: 250px;
+    }
+    .filter-btn {
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: var(--pill-radius);
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .filter-btn.active {
+      background-color: var(--dark-bg);
+      color: white;
+    }
+    /* Request Cards */
+    .requests-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      flex: 1;
+    }
+    .request-card {
+      background: white;
+      border-radius: var(--card-radius);
+      padding: 1.5rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--pill-radius);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .badge-normal {
+      background-color: #e6fcf5;
+      color: #087f5b;
+    }
+    .badge-explicit {
+      background-color: #fff3bf;
+      color: #8e6c00;
+    }
+    /* Admin action buttons */
+    .admin-actions {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .admin-actions .btn {
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+    }
+    #loadingMessage {
+      text-align: center;
+      padding: 2rem;
+    }
+  </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">4SP</div>
-        <div class="nav-buttons">
-            <a href="index.html" class="btn secondary">Home</a>
-            <a href="dashboard.html" class="btn secondary">Dashboard</a>
-            <a href="collections.html" class="btn primary">Collections</a>
-            <button id="logoutBtn" class="btn secondary">Log Out</button>
-        </div>
-    </nav>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <a href="index.html" class="btn secondary">Home</a>
+      <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      <a href="collections.html" class="btn primary">Collections</a>
+      <button id="logoutBtn" class="btn secondary">Log Out</button>
+    </div>
+  </nav>
 
-    <main class="container">
-        <aside class="sidebar">
-            <h2>Filters</h2>
-            <button class="filter-btn active" data-filter="all">All Requests</button>
-            <button class="filter-btn" data-filter="normal">Normal Only</button>
-            <button class="filter-btn" data-filter="explicit">Explicit Only</button>
+  <main class="container">
+    <aside class="sidebar">
+      <h2>Filters</h2>
+      <!-- These buttons are always visible to all users (but later filtering logic will hide deleted ones for non-admins) -->
+      <button class="filter-btn active" data-filter="all">All Requests</button>
+      <button class="filter-btn" data-filter="normal">Normal Only</button>
+      <button class="filter-btn" data-filter="explicit">Explicit Only</button>
+      <!-- This button will be shown only for admin -->
+      <button class="filter-btn" data-filter="deleted" id="deletedFilterBtn" style="display:none;">Deleted Requests</button>
 
-            <h2>Sort By</h2>
-            <button class="filter-btn" data-sort="newest">Newest First</button>
-            <button class="filter-btn" data-sort="oldest">Oldest First</button>
-        </aside>
+      <h2>Sort By</h2>
+      <button class="filter-btn" data-sort="newest">Newest First</button>
+      <button class="filter-btn" data-sort="oldest">Oldest First</button>
+    </aside>
 
-        <section class="main-content">
-            <h1>Sound Requests Collection</h1>
-            <div id="requestsContainer" class="requests-grid">
-                <p id="loadingMessage">Loading requests...</p>
-            </div>
-        </section>
-    </main>
+    <section class="main-content">
+      <h1>Sound Requests Collection</h1>
+      <div id="requestsContainer" class="requests-grid">
+        <p id="loadingMessage">Loading requests...</p>
+      </div>
+    </section>
+  </main>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const db = firebase.firestore();
-            const auth = firebase.auth();
-            const requestsContainer = document.getElementById('requestsContainer');
-            let unsubscribe = null;
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+      const requestsContainer = document.getElementById('requestsContainer');
+      let allRequests = [];
+      let currentFilter = 'all'; // Values: "all", "normal", "explicit", "deleted"
+      let currentSort = 'newest'; // Values: "newest" or "oldest"
+      let isAdmin = false; // flag to know if current user is admin
 
-            // State
-            let allRequests = [];
-            let currentFilter = 'all';
-            let currentSort = 'newest';
-
-            // Real-time listener setup
-            const setupRealTimeListener = () => {
-                return db.collection("requests")
-                    .orderBy("timestamp", "desc")
-                    .onSnapshot((snapshot) => {
-                        allRequests = snapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data(),
-                            timestamp: doc.data().timestamp.toDate()
-                        }));
-                        renderRequests();
-                    }, (error) => {
-                        console.error("Listener error:", error);
-                        document.getElementById('loadingMessage').textContent = "Error loading requests";
-                    });
-            };
-
-            // Render filtered/sorted requests
-            const renderRequests = () => {
-                let filteredRequests = [...allRequests];
-                
-                // Apply filter
-                if (currentFilter === "normal") {
-                    filteredRequests = filteredRequests.filter(req => req.contentType === "normal");
-                } else if (currentFilter === "explicit") {
-                    filteredRequests = filteredRequests.filter(req => req.contentType === "explicit");
-                }
-
-                // Apply sort
-                if (currentSort === "newest") {
-                    filteredRequests.sort((a, b) => b.timestamp - a.timestamp);
-                } else if (currentSort === "oldest") {
-                    filteredRequests.sort((a, b) => a.timestamp - b.timestamp);
-                }
-
-                // Render
-                requestsContainer.innerHTML = filteredRequests.length === 0 
-                    ? '<p>No requests found</p>'
-                    : filteredRequests.map(request => `
-                        <div class="request-card">
-                            <h3>${request.soundName}</h3>
-                            <p>${request.description}</p>
-                            <div class="request-meta">
-                                <span>${request.timestamp.toLocaleDateString()}</span>
-                                <span class="badge ${request.contentType === "normal" ? "badge-normal" : "badge-explicit"}">
-                                    ${request.contentType}
-                                </span>
-                            </div>
-                        </div>
-                    `).join('');
-            };
-
-            // Auth state handler
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    document.getElementById('loadingMessage').textContent = "Loading requests...";
-                    unsubscribe = setupRealTimeListener();
-                } else {
-                    if (unsubscribe) unsubscribe();
-                    window.location.href = "index.html";
-                }
+      // Set up real-time listener
+      const setupRealTimeListener = () => {
+        return db.collection("requests")
+          .orderBy("timestamp", "desc")
+          .onSnapshot((snapshot) => {
+            allRequests = snapshot.docs.map(doc => {
+              const data = doc.data();
+              // Convert Firestore timestamp if available
+              if(data.timestamp && data.timestamp.toDate) {
+                data.timestamp = data.timestamp.toDate();
+              }
+              return {
+                id: doc.id,
+                ...data
+              };
             });
+            renderRequests();
+          }, (error) => {
+            console.error("Listener error:", error);
+            document.getElementById('loadingMessage').textContent = "Error loading requests";
+          });
+      };
 
-            // Event listeners
-            document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    currentFilter = e.target.dataset.filter;
-                    document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
-                    e.target.classList.add('active');
-                    renderRequests();
-                });
-            });
+      // Render the requests based on filters and sort order
+      const renderRequests = () => {
+        let filteredRequests = [...allRequests];
 
-            document.querySelectorAll('.filter-btn[data-sort]').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    currentSort = e.target.dataset.sort;
-                    renderRequests();
-                });
-            });
-
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                auth.signOut().then(() => {
-                    window.location.href = "index.html";
-                });
-            });
+        // Apply filter
+        filteredRequests = filteredRequests.filter(req => {
+          if(isAdmin) {
+            // For admin, filter by selected status if not "all"
+            if(currentFilter === "all") {
+              return true;
+            } else if(currentFilter === "deleted") {
+              return req.status === "deleted";
+            } else {
+              return req.contentType === currentFilter && req.status !== "deleted";
+            }
+          } else {
+            // For non-admin users, always hide deleted requests.
+            if(req.status === "deleted") return false;
+            if(currentFilter === "all") {
+              return true;
+            }
+            return req.contentType === currentFilter;
+          }
         });
-    </script>
+
+        // Apply sort
+        if (currentSort === "newest") {
+          filteredRequests.sort((a, b) => b.timestamp - a.timestamp);
+        } else if (currentSort === "oldest") {
+          filteredRequests.sort((a, b) => a.timestamp - b.timestamp);
+        }
+
+        // Generate HTML for each request card
+        if(filteredRequests.length === 0) {
+          requestsContainer.innerHTML = '<p>No requests found</p>';
+          return;
+        }
+
+        requestsContainer.innerHTML = filteredRequests.map(request => {
+          // Base HTML for each card
+          let cardHtml = `
+            <div class="request-card" id="card-${request.id}">
+              <h3>${request.soundName}</h3>
+              <p>${request.description}</p>
+              <div class="request-meta">
+                <span>${request.timestamp ? request.timestamp.toLocaleDateString() : ''}</span>
+                <span class="badge ${request.contentType === "normal" ? "badge-normal" : "badge-explicit"}">
+                  ${request.contentType}
+                </span>
+                <span> | Status: ${request.status}</span>
+              </div>
+          `;
+
+          // If the logged in user is admin, add admin action buttons:
+          if(isAdmin) {
+            cardHtml += `<div class="admin-actions">`;
+            // For pending requests, show Approve and Deny buttons
+            if(request.status === "pending") {
+              cardHtml += `<button class="btn primary" onclick="handleAdminAction('${request.id}', 'approved')">Approve</button>
+                           <button class="btn primary" onclick="handleAdminAction('${request.id}', 'denied')">Deny</button>`;
+            }
+            // Allow delete (mark as deleted) for any request that is not already deleted
+            if(request.status !== "deleted") {
+              cardHtml += `<button class="btn secondary" onclick="handleAdminAction('${request.id}', 'deleted')">Delete</button>`;
+            }
+            cardHtml += `</div>`;
+          }
+
+          cardHtml += `</div>`;
+          return cardHtml;
+        }).join('');
+      };
+
+      // Admin action handler: updates the request status based on action
+      window.handleAdminAction = (docId, newStatus) => {
+        db.collection("requests").doc(docId).update({
+          status: newStatus,
+          // Optionally add a timestamp indicating when status was updated
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+          console.log(`Request ${docId} updated to ${newStatus}`);
+        }).catch(error => {
+          console.error("Error updating request:", error);
+        });
+      };
+
+      // Auth state handler
+      auth.onAuthStateChanged((user) => {
+        if(user) {
+          // Check if the current user is the admin
+          isAdmin = (user.email === "4simpleproblems@gmail.com");
+          // If admin, show the "Deleted Requests" filter button
+          if(isAdmin) {
+            document.getElementById('deletedFilterBtn').style.display = 'block';
+          }
+          // Start listening for changes
+          setupRealTimeListener();
+        } else {
+          window.location.href = "index.html";
+        }
+      });
+
+      // Filter buttons event listeners
+      document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          currentFilter = e.target.dataset.filter;
+          document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          renderRequests();
+        });
+      });
+
+      // Sort buttons event listeners
+      document.querySelectorAll('.filter-btn[data-sort]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          currentSort = e.target.dataset.sort;
+          renderRequests();
+        });
+      });
+
+      // Logout button
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        auth.signOut().then(() => {
+          window.location.href = "index.html";
+        });
+      });
+    });
+  </script>
 </body>
 </html>
