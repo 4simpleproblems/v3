@@ -216,7 +216,6 @@
       // Render the requests based on the active filter and sort order
       const renderRequests = () => {
         let filteredRequests = allRequests.filter(req => {
-          // For admins, allow filtering by status and content type
           if(isAdmin) {
             if (currentFilter === "all") {
               return true;
@@ -226,7 +225,7 @@
               return req.contentType === currentFilter && req.status !== "deleted";
             }
           }
-          // For non-admin users, always hide deleted requests
+          // For non-admin users, always hide requests with status "deleted"
           if(req.status === "deleted") return false;
           if(currentFilter === "all") return true;
           return req.contentType === currentFilter;
@@ -248,7 +247,6 @@
         }
 
         requestsContainer.innerHTML = filteredRequests.map(request => {
-          // Base card HTML
           let cardHtml = `
             <div class="request-card" id="card-${request.id}">
               <h3>${request.soundName}</h3>
