@@ -74,7 +74,7 @@
         border: 2px solid var(--dark-bg);
         color: var(--dark-bg);
       }
-      .btn.delete:hover {.
+      .btn.delete:hover {
         background-color: var(--dark-bg);
         color: var(--light-text);
       }
@@ -265,36 +265,36 @@
 
         // Render the requests based on the active filter and sort order
         const renderRequests = () => {
-          // Start with a fresh array for filtered requests
-          let filteredRequests = [];
+          let filteredRequests = [...allRequests]; // Start with a copy of all requests
 
-          // Handle the deleted filter case separately
+          // First, apply the deleted filter logic
           if (currentFilter === 'deleted' && isAdmin) {
-            // Only show deleted items when on the "deleted" filter AND user is admin
-            filteredRequests = allRequests.filter(req => req.status === 'deleted');
+            // Only show deleted items if specifically filtering for them AND user is admin
+            filteredRequests = allRequests.filter((req) => req.status === 'deleted');
           } else {
-            // For ALL other filters (all, normal, explicit), EXCLUDE deleted items
-            const nonDeletedRequests = allRequests.filter(req => req.status !== 'deleted');
+            // For ALL other filter types, first remove any deleted items
+            filteredRequests = allRequests.filter((req) => req.status !== 'deleted');
             
-            // Then apply the content type filter
-            if (currentFilter === 'normal') {
-              filteredRequests = nonDeletedRequests.filter(req => req.contentType === 'normal');
-            } else if (currentFilter === 'explicit') {
-              filteredRequests = nonDeletedRequests.filter(req => req.contentType === 'explicit');
-            } else {
-              // currentFilter === 'all', show all non-deleted items
-              filteredRequests = nonDeletedRequests;
+            // Then apply the content type filter if not "all"
+            if (currentFilter !== 'all') {
+              filteredRequests = filteredRequests.filter(
+                (req) => req.contentType === currentFilter
+              );
             }
           }
 
-          // Apply sorting to the filtered results
+          // Sort the filtered requests
           filteredRequests.sort((a, b) => {
             const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : 0;
             const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : 0;
-            return currentSort === 'newest' ? timeB - timeA : timeA - timeB;
+            if (currentSort === 'newest') {
+              return timeB - timeA;
+            } else {
+              return timeA - timeB;
+            }
           });
 
-          // Handle empty results
+          // (Handling for empty/loading states remains the same...)
           if (filteredRequests.length === 0 && allRequests.length > 0) {
             requestsContainer.innerHTML =
               '<p>No requests match the current filters.</p>';
@@ -305,11 +305,11 @@
             requestsContainer.innerHTML = '';
           } else {
             document.getElementById('loadingMessage').style.display = 'none';
-            
-            // Generate HTML for each request card
+            // --- Generate HTML for each request card ---
             requestsContainer.innerHTML = filteredRequests
               .map((request) => {
                 // Generate the submitted by ID span only if admin and ID exists
+                // This variable holds the HTML string for the top-right box OR an empty string
                 const submittedByIdHtml =
                   isAdmin && request.submittedBy
                     ? `<span class="submitted-by-id" title="${request.submittedBy}">UID: ${request.submittedBy.substring(
@@ -383,6 +383,8 @@
               alert(`Failed to update request: ${error.message}`); // Give feedback
             });
         };
+
+        let unsubscribe;
 
         // Listen for auth state changes and check for admin status
         auth.onAuthStateChanged((user) => {
