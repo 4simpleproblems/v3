@@ -218,7 +218,8 @@
         let filteredRequests = allRequests.filter(req => {
           if(isAdmin) {
             if (currentFilter === "all") {
-              return true;
+              // Modified here: "All Requests" now excludes deleted ones for admins too
+              return req.status !== "deleted";
             } else if (currentFilter === "deleted") {
               return req.status === "deleted";
             } else {
