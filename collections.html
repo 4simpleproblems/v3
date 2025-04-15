@@ -136,9 +136,9 @@
       /* --- End NEW STYLE --- */
 
       .request-meta {
-         margin-top: 1rem; /* Add some space above meta */
-         font-size: 0.85rem;
-         color: #555;
+        margin-top: 1rem; /* Add some space above meta */
+        font-size: 0.85rem;
+        color: #555;
       }
       .request-meta span {
         margin-right: 0.5rem; /* Space between meta items */
@@ -229,102 +229,120 @@
           if (window.firestoreListener) {
             window.firestoreListener(); // Call the unsubscribe function
           }
-
-          window.firestoreListener = db.collection("requests") // Assign unsubscribe function
-            .orderBy("timestamp", "desc")
-            .onSnapshot((snapshot) => {
-              allRequests = snapshot.docs.map(doc => {
-                const data = doc.data();
-                // Convert Firestore timestamp if available
-                if (data.timestamp && data.timestamp.toDate) {
-                  data.timestamp = data.timestamp.toDate();
-                } else {
+          window.firestoreListener = db
+            .collection('requests') // Assign unsubscribe function
+            .orderBy('timestamp', 'desc')
+            .onSnapshot(
+              (snapshot) => {
+                allRequests = snapshot.docs.map((doc) => {
+                  const data = doc.data();
+                  // Convert Firestore timestamp if available
+                  if (data.timestamp && data.timestamp.toDate) {
+                    data.timestamp = data.timestamp.toDate();
+                  } else {
                     // Provide a default date if timestamp is missing, for sorting
                     data.timestamp = new Date(0);
+                  }
+                  return {
+                    id: doc.id,
+                    ...data,
+                  };
+                });
+                renderRequests();
+              },
+              (error) => {
+                console.error('Listener error:', error);
+                if (error.code === 'permission-denied') {
+                  document.getElementById('loadingMessage').textContent =
+                    'Error: Insufficient permissions to load requests.';
+                } else {
+                  document.getElementById('loadingMessage').textContent =
+                    'Error loading requests.';
                 }
-                return {
-                  id: doc.id,
-                  ...data
-                };
-              });
-              renderRequests();
-            }, (error) => {
-              console.error("Listener error:", error);
-              if (error.code === 'permission-denied') {
-                 document.getElementById('loadingMessage').textContent = "Error: Insufficient permissions to load requests.";
-              } else {
-                 document.getElementById('loadingMessage').textContent = "Error loading requests.";
               }
-            });
+            );
         };
 
-// Render the requests based on the active filter and sort order
+        // Render the requests based on the active filter and sort order
         const renderRequests = () => {
           // (Filtering logic remains the same as before...)
-          let filteredRequests = allRequests.filter(req => {
+          let filteredRequests = allRequests.filter((req) => {
             // Make sure request object and status exist before checking
             if (!req || typeof req.status === 'undefined') return false;
 
-            if(isAdmin) {
-              if (currentFilter === "all") {
+            if (isAdmin) {
+              if (currentFilter === 'all') {
                 return true; // Admin sees all unless filtering deleted
-              } else if (currentFilter === "deleted") {
-                return req.status === "deleted"; // Admin sees only deleted
+              } else if (currentFilter === 'deleted') {
+                return req.status === 'deleted'; // Admin sees only deleted
               } else {
-                 // Admin sees non-deleted matching content type
-                return req.contentType === currentFilter && req.status !== "deleted";
+                // Admin sees non-deleted matching content type
+                return (
+                  req.contentType === currentFilter && req.status !== 'deleted'
+                );
               }
             }
             // For non-admin users, always hide requests with status "deleted"
-            if(req.status === "deleted") return false;
-            if(currentFilter === "all") return true; // Non-admin sees all non-deleted
-             // Non-admin sees non-deleted matching content type
+            if (req.status === 'deleted') return false;
+            if (currentFilter === 'all') return true; // Non-admin sees all non-deleted
+            // Non-admin sees non-deleted matching content type
             return req.contentType === currentFilter;
           });
 
-
           // (Sorting logic remains the same as before...)
           filteredRequests.sort((a, b) => {
-            const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : 0;
-            const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : 0;
-            if (currentSort === "newest") {
+            const timeA =
+              a.timestamp instanceof Date ? a.timestamp.getTime() : 0;
+            const timeB =
+              b.timestamp instanceof Date ? b.timestamp.getTime() : 0;
+            if (currentSort === 'newest') {
               return timeB - timeA;
             } else {
               return timeA - timeB;
             }
           });
 
-
           // (Handling for empty/loading states remains the same...)
-          if(filteredRequests.length === 0 && allRequests.length > 0) {
-            requestsContainer.innerHTML = '<p>No requests match the current filters.</p>';
+          if (filteredRequests.length === 0 && allRequests.length > 0) {
+            requestsContainer.innerHTML =
+              '<p>No requests match the current filters.</p>';
           } else if (filteredRequests.length === 0) {
-             document.getElementById('loadingMessage').style.display = 'block';
-             document.getElementById('loadingMessage').textContent = 'No requests found.';
-             requestsContainer.innerHTML = '';
+            document.getElementById('loadingMessage').style.display = 'block';
+            document.getElementById('loadingMessage').textContent =
+              'No requests found.';
+            requestsContainer.innerHTML = '';
           } else {
-              document.getElementById('loadingMessage').style.display = 'none';
-              // --- Generate HTML for each request card ---
-              requestsContainer.innerHTML = filteredRequests.map(request => {
+            document.getElementById('loadingMessage').style.display = 'none';
+            // --- Generate HTML for each request card ---
+            requestsContainer.innerHTML = filteredRequests
+              .map((request) => {
                 // Generate the submitted by ID span only if admin and ID exists
                 // This variable holds the HTML string for the top-right box OR an empty string
-                const submittedByIdHtml = (isAdmin && request.submittedBy)
-                  ? `<span class="submitted-by-id" title="${request.submittedBy}">UID: ${request.submittedBy.substring(0, 8)}...</span>`
-                  : '';
+                const submittedByIdHtml =
+                  isAdmin && request.submittedBy
+                    ? `<span class="submitted-by-id" title="${request.submittedBy}">UID: ${request.submittedBy.substring(
+                        0,
+                        8
+                      )}...</span>`
+                    : '';
 
                 // Ensure contentType exists or provide default
                 const contentType = request.contentType || 'unknown';
-                const badgeClass = contentType === "normal" ? "badge-normal" : "badge-explicit";
+                const badgeClass =
+                  contentType === 'normal' ? 'badge-normal' : 'badge-explicit';
                 const status = request.status || 'unknown';
                 const soundName = request.soundName || 'No Name';
                 const description = request.description || 'No Description';
-                const dateString = request.timestamp instanceof Date ? request.timestamp.toLocaleDateString() : 'No Date';
+                const dateString =
+                  request.timestamp instanceof Date
+                    ? request.timestamp.toLocaleDateString()
+                    : 'No Date';
 
                 // --- *** THE FIX IS HERE *** ---
                 // Construct the card HTML. Ensure NO placeholder text/comments are left inside.
                 let cardHtml = `
                   <div class="request-card" id="card-${request.id}">
-                    ${submittedByIdHtml} {/* This inserts the span OR empty string */}
+                    ${submittedByIdHtml}
                     <h3>${soundName}</h3>
                     <p>${description}</p>
                     <div class="request-meta">
@@ -338,13 +356,13 @@
                 // --- *** END FIX AREA *** ---
 
                 // Render admin action buttons only if the user is admin
-                if(isAdmin) {
+                if (isAdmin) {
                   cardHtml += `<div class="admin-actions">`;
-                  if (status === "pending") {
+                  if (status === 'pending') {
                     cardHtml += `<button class="btn primary" onclick="handleAdminAction('${request.id}', 'approved')">Approve</button>
                                  <button class="btn primary" onclick="handleAdminAction('${request.id}', 'denied')">Deny</button>`;
                   }
-                  if(status !== "deleted") {
+                  if (status !== 'deleted') {
                     cardHtml += `<button class="btn delete" onclick="handleAdminAction('${request.id}', 'deleted')">Delete</button>`;
                   }
                   cardHtml += `</div>`;
@@ -352,7 +370,8 @@
 
                 cardHtml += `</div>`; // Close request-card div
                 return cardHtml;
-              }).join('');
+              })
+              .join('');
           }
         };
 
@@ -362,85 +381,97 @@
         window.handleAdminAction = (docId, newStatus) => {
           if (!isAdmin) return; // Prevent non-admins triggering this somehow
 
-          db.collection("requests").doc(docId).update({
-            status: newStatus,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }).then(() => {
-            console.log(`Request ${docId} updated to ${newStatus}`);
-            // The real-time listener will automatically re-render
-          }).catch(error => {
-            console.error("Error updating request:", error);
-            alert(`Failed to update request: ${error.message}`); // Give feedback
-          });
+          db.collection('requests')
+            .doc(docId)
+            .update({
+              status: newStatus,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            })
+            .then(() => {
+              console.log(`Request ${docId} updated to ${newStatus}`);
+              // The real-time listener will automatically re-render
+            })
+            .catch((error) => {
+              console.error('Error updating request:', error);
+              alert(`Failed to update request: ${error.message}`); // Give feedback
+            });
         };
 
         // Listen for auth state changes and check for admin status
         auth.onAuthStateChanged((user) => {
           const deletedFilterBtn = document.getElementById('deletedFilterBtn');
-          if(user) {
+          if (user) {
             // Check admin status (using email for this example)
-            isAdmin = (user.email === "4simpleproblems@gmail.com");
+            isAdmin = user.email === '4simpleproblems@gmail.com';
 
             // Show/Hide admin-specific UI elements
-            if(isAdmin && deletedFilterBtn) {
+            if (isAdmin && deletedFilterBtn) {
               deletedFilterBtn.style.display = 'block';
             } else if (deletedFilterBtn) {
               deletedFilterBtn.style.display = 'none';
-               // If user was admin, filtered to deleted, then logged out/in as non-admin, reset filter
+              // If user was admin, filtered to deleted, then logged out/in as non-admin, reset filter
               if (currentFilter === 'deleted') {
-                  currentFilter = 'all';
-                  // Optionally, visually update the filter buttons here
-                  document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
-                  document.querySelector('.filter-btn[data-filter="deleted"]').classList.remove('active');
+                currentFilter = 'all';
+                // Optionally, visually update the filter buttons here
+                document
+                  .querySelector('.filter-btn[data-filter="all"]')
+                  .classList.add('active');
+                document
+                  .querySelector('.filter-btn[data-filter="deleted"]')
+                  .classList.remove('active');
               }
             }
 
             // Setup listener now that we know the user state (and admin status)
             setupRealTimeListener();
-
           } else {
             isAdmin = false; // Ensure admin flag is off if logged out
             if (deletedFilterBtn) deletedFilterBtn.style.display = 'none'; // Hide admin button
-             // Detach listener if user logs out
+            // Detach listener if user logs out
             if (window.firestoreListener) {
-                window.firestoreListener();
-                window.firestoreListener = null; // Clear reference
+              window.firestoreListener();
+              window.firestoreListener = null;
             }
-            allRequests = []; // Clear requests data
-            renderRequests(); // Clear the UI or show logged out message
-            // Redirect to login page
-            window.location.href = "index.html";
+            // Clear the request list
+            requestsContainer.innerHTML =
+              '<p id="loadingMessage">Please log in to view requests.</p>';
           }
         });
 
-        // Event listeners for filter buttons
-        document.querySelectorAll('.sidebar .filter-btn[data-filter]').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            currentFilter = e.target.dataset.filter;
-            document.querySelectorAll('.sidebar .filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
+        // FILTERS
+        document.querySelectorAll('.filter-btn').forEach((button) => {
+          button.addEventListener('click', function () {
+            // Remove active class from other buttons
+            document
+              .querySelectorAll('.filter-btn')
+              .forEach((btn) => btn.classList.remove('active'));
+            // Set this button to active
+            this.classList.add('active');
+
+            const filterType = this.dataset.filter;
+            const sortType = this.dataset.sort;
+
+            if (filterType) {
+              currentFilter = filterType;
+            }
+            if (sortType) {
+              currentSort = sortType;
+            }
+
             renderRequests();
           });
         });
 
-        // Event listeners for sort buttons
-        document.querySelectorAll('.sidebar .filter-btn[data-sort]').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-             // Visually indicate active sort (optional)
-             document.querySelectorAll('.sidebar .filter-btn[data-sort]').forEach(b => b.classList.remove('active')); // Example: remove active class from others
-             e.target.classList.add('active'); // Example: add active class to clicked one
-
-            currentSort = e.target.dataset.sort;
-            renderRequests(); // Re-render with new sort order
-          });
-        });
-
-        // Logout button logic
+        // Logout Functionality
         document.getElementById('logoutBtn').addEventListener('click', () => {
-          auth.signOut().catch(error => {
-              console.error("Logout failed:", error); // Handle potential errors
-          });
-          // onAuthStateChanged will handle the redirect
+          auth.signOut()
+            .then(() => {
+              console.log('User signed out');
+              // The auth listener will handle UI updates
+            })
+            .catch((error) => {
+              console.error('Sign out error', error);
+            });
         });
       });
     </script>
