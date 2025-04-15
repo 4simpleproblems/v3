@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | Soundboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Updated Styles */
+        .sound-section {
+            margin-bottom: 2rem;
+        }
+
+        .sound-section h2 {
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+            padding-bottom: 0.25rem;
+            /* Spacing for the line */
+            border-bottom: 2px solid var(--dark-bg);
+            /* Line under the text */
+            width: 100%;
+            /* Line takes the full width */
+        }
+
+        .sound-section #soundButtonsContainer {
+            display: flex;
+            flex-wrap: wrap;
+            /* Allow buttons to wrap to the next line */
+            justify-content: flex-start;
+            /* Align buttons to the start (left) */
+            padding: 1rem;
+            /* Padding around buttons */
+            gap: 2rem;
+            /* Increased spacing between buttons */
+            width: 100%;
+            /* Take up full width */
+        }
+
+        #soundButtonsContainer.explicit,
+        #soundButtonsContainer.normal {
+            padding: 1rem;
+            /* Add padding to individual containers if needed */
+            gap: 2rem;
+            /* Ensure gap applies to the specific containers */
+        }
+
+        .sound-button {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: var(--light-text);
+            color: var(--dark-bg);
+            border: 2px solid var(--dark-bg);
+            cursor: pointer;
+            font-size: 0.7rem;
+            /* Slightly smaller font size */
+            font-weight: bold;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            /* Added transform for animation */
+            padding: 0.5rem;
+            /* Add a little padding to the button */
+        }
+
+        .sound-button:hover {
+            background-color: var(--light-gray);
+        }
+
+        .sound-button:active {
+            transform: scale(0.9);
+            /* Scale down slightly when clicked */
+        }
+
+        /* Options Dropdown Styles */
+        .options-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .options-button {
+            background-color: transparent;
+            color: var(--light-text);
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border: 2px solid var(--light-text); /* Match button style */
+            border-radius: 50px; /* Match button style */
+            cursor: pointer;
+        }
+
+        .options-content {
+            display: none;
+            position: absolute;
+            background-color: var(--darker-bg);
+            min-width: 250px;
+            border: 2px solid var(--light-text);
+            padding: 1rem;
+            z-index: 1;
+            right: 0;
+            border-radius: 30px;
+            color: var(--light-text);
+        }
+
+        .options-content label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--light-text);
+        }
+
+        .options-content input[type="checkbox"] {
+            margin-right: 0.5rem;
+            vertical-align: middle;
+            /* Darker Checkboxes */
+            background-color: var(--darker-bg);
+            border: 2px solid var(--light-text);
+
+            /* Style to make them visible */
+            appearance: none; /* Remove default appearance */
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            position: relative;
+            border-radius: 5px;
+        }
+
+        .options-content input[type="checkbox"]:checked {
+            background-color: var(--white-text); /* Change to your preferred "checked" color */
+        }
+
+        .options-content input[type="checkbox"]:focus {
+            outline: white;
+            box-shadow: 0 0 10px var(white); /* Add a shadow for focus state */
+        }
+
+        .options-content input[type="number"] {
+            margin-right: 0.5rem;
+            vertical-align: middle;
+            background-color: var(--light-text);
+            color: var(--dark-bg);
+        }
+
+        .options-content #autoClickDelayLabel {
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        .options-content #autoClickDelay {
+            width: 60px;
+            padding: 0.25rem;
+            border-radius: 30px;
+            border: 2px solid var(--light-text);
+            background-color: var(--darker-bg);
+            color: var(--light-text);
+        }
+
+        /* Show options on hover */
+        .options-dropdown:hover .options-content {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <div class="options-dropdown">
+                <button class="btn secondary">Options</button>
+                <div class="options-content">
+                    <label>
+                        <input type="checkbox" id="soundOverlayCheckbox">Sound Overlay
+                    </label>
+                    <label>
+                        <input type="checkbox" id="autoClickerCheckbox">Auto Clicker
+                    </label>
+                    <label id="autoClickDelayLabel" style="display: none;">
+                        Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="100">
+                    </label>
+                </div>
+            </div>
+            <a href="dashboard.html" class="btn secondary">Dashboard</a>
+            <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1>Soundboard</h1>
+        <p>Click the circles to play a sound!</p>
+
+        <div class="sound-section">
+            <h2>Normal Sounds</h2>
+            <div id="normalSoundsContainer" class="soundButtonsContainer normal">
+            </div>
+        </div>
+
+        <div class="sound-section">
+            <h2>Explicit Sounds</h2>
+            <div id="explicitSoundsContainer" class="soundButtonsContainer explicit">
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>© 2025 4SP</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const normalSoundsContainer = document.getElementById('normalSoundsContainer');
+            const explicitSoundsContainer = document.getElementById('explicitSoundsContainer');
+            const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
+            const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
+            const autoClickDelayInput = document.getElementById('autoClickDelay');
+            const autoClickDelayLabel = document.getElementById('autoClickDelayLabel');
+            let playingAudios = [];
+            let autoClickInterval;
+            let currentlyHoveredButton = null;
+
+            function stopAllAudios() {
+                playingAudios.forEach(audio => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                });
+                playingAudios = [];
+            }
+
+            soundOverlayCheckbox.addEventListener('change', () => {
+                if (!soundOverlayCheckbox.checked) {
+                    stopAllAudios();
+                }
+            });
+
+            autoClickerCheckbox.addEventListener('change', () => {
+                if (autoClickerCheckbox.checked) {
+                    autoClickDelayLabel.style.display = 'block';
+                    startAutoClicker();
+                } else {
+                    autoClickDelayLabel.style.display = 'none';
+                    stopAutoClicker();
+                }
+            });
+
+            function startAutoClicker() {
+                stopAutoClicker(); // Clear any existing interval
+                const delay = parseInt(autoClickDelayInput.value, 10);
+
+                if (currentlyHoveredButton && autoClickerCheckbox.checked) {
+                    autoClickInterval = setInterval(() => {
+                        // Add active class to trigger animation
+                        currentlyHoveredButton.classList.add('sound-button:active');
+                        // Remove active class after a short delay to reset animation
+                        setTimeout(() => {
+                            currentlyHoveredButton.classList.remove('sound-button:active');
+                        }, 100); // Adjust the delay as needed
+                        currentlyHoveredButton.click();
+                    }, delay);
+                }
+            }
+
+            function stopAutoClicker() {
+                clearInterval(autoClickInterval);
+                autoClickInterval = null;
+            }
+
+            autoClickDelayInput.addEventListener('change', () => {
+                if (autoClickerCheckbox.checked) {
+                    startAutoClicker(); // Restart the auto-clicker with the new delay
+                }
+            });
+
+            async function loadSoundsFromDirectory(directory, container) {
+                try {
+                    const response = await fetch(directory);
+                    const files = await response.text();
+                    const fileList = files.split('\n').filter(file => file.endsWith('.mp3'));
+
+                    fileList.forEach(file => {
+                        const soundName = file.replace('.mp3', '').replace(/_/g, ' '); //Replaces underscores with spaces
+                        const soundPath = `${directory}/${file}`;
+                        const button = document.createElement('button');
+                        button.classList.add('sound-button');
+                        button.textContent = soundName;
+
+                        button.addEventListener('click', () => {
+                            if (!soundOverlayCheckbox.checked) {
+                                stopAllAudios();
+                            }
+
+                            const audio = new Audio(soundPath);
+                            audio.addEventListener('ended', () => {
+                                playingAudios = playingAudios.filter(a => a !== audio);
+                            });
+                            playingAudios.push(audio);
+                            audio.play();
+                        });
+                        button.addEventListener('mouseenter', () => {
+                            currentlyHoveredButton = button;
+                            if (autoClickerCheckbox.checked) {
+                                startAutoClicker();
+                            }
+                        });
+
+                        button.addEventListener('mouseleave', () => {
+                            currentlyHoveredButton = null;
+                            stopAutoClicker();
+                        });
+
+                        container.appendChild(button);
+                    });
+                } catch (error) {
+                    console.error('Error loading sounds:', error);
+                }
+            }
+
+            // Function to create placeholder buttons
+            function createPlaceholderButtons(numButtons, container) {
+                for (let i = 1; i <= numButtons; i++) {
+                    const button = document.createElement('button');
+                    button.classList.add('sound-button');
+                    button.textContent = `Sound ${i + 1}`; // Better naming scheme
+
+                    button.addEventListener('click', () => {
+                        // Removed the alert
+                    });
+                    button.addEventListener('mouseenter', () => {
+                        currentlyHoveredButton = button;
+                        if (autoClickerCheckbox.checked) {
+                            startAutoClicker();
+                        }
+                    });
+
+                    button.addEventListener('mouseleave', () => {
+                        currentlyHoveredButton = null;
+                        stopAutoClicker();
+                    });
+
+                    container.appendChild(button);
+                }
+            }
+
+            // Call loadSoundsFromDirectory functions first
+            loadSoundsFromDirectory('NormalSounds', normalSoundsContainer);
+            loadSoundsFromDirectory('ExplicitSounds', explicitSoundsContainer);
+
+            // Create placeholder buttons
+            createPlaceholderButtons(10, normalSoundsContainer);
+            createPlaceholderButtons(10, explicitSoundsContainer);
+        });
+    </script>
+</body>
+
+</html>
