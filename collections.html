@@ -265,30 +265,17 @@
 
         // Render the requests based on the active filter and sort order
         const renderRequests = () => {
-          // (Filtering logic remains the same as before...)
           let filteredRequests = [...allRequests]; // Start with a copy of all requests
 
-          if (isAdmin) {
-            if (currentFilter === 'deleted') {
-              filteredRequests = allRequests.filter(
-                (req) => req.status === 'deleted'
-              );
-            } else if (currentFilter !== 'all') {
-              filteredRequests = allRequests.filter(
-                (req) =>
-                  req.contentType === currentFilter && req.status !== 'deleted'
-              );
-            } else {
-              // currentFilter === "all"
-              filteredRequests = allRequests.filter(
-                (req) => req.status !== 'deleted'
-              ); // Exclude deleted requests unless specifically filtered for
-            }
+          // First, apply the deleted filter logic
+          if (currentFilter === 'deleted' && isAdmin) {
+            // Only show deleted items if specifically filtering for them AND user is admin
+            filteredRequests = allRequests.filter((req) => req.status === 'deleted');
           } else {
-            // Non-admin
-            filteredRequests = allRequests.filter(
-              (req) => req.status !== 'deleted'
-            );
+            // For ALL other filter types, first remove any deleted items
+            filteredRequests = allRequests.filter((req) => req.status !== 'deleted');
+            
+            // Then apply the content type filter if not "all"
             if (currentFilter !== 'all') {
               filteredRequests = filteredRequests.filter(
                 (req) => req.contentType === currentFilter
@@ -296,12 +283,10 @@
             }
           }
 
-          // (Sorting logic remains the same as before...)
+          // Sort the filtered requests
           filteredRequests.sort((a, b) => {
-            const timeA =
-              a.timestamp instanceof Date ? a.timestamp.getTime() : 0;
-            const timeB =
-              b.timestamp instanceof Date ? b.timestamp.getTime() : 0;
+            const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : 0;
+            const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : 0;
             if (currentSort === 'newest') {
               return timeB - timeA;
             } else {
@@ -345,8 +330,6 @@
                     ? request.timestamp.toLocaleDateString()
                     : 'No Date';
 
-                // --- *** THE FIX IS HERE *** ---
-                // Construct the card HTML. Ensure NO placeholder text/comments are left inside.
                 let cardHtml = `
                   <div class="request-card" id="card-${request.id}">
                     ${submittedByIdHtml}
@@ -360,7 +343,6 @@
                       <span>| Status: ${status}</span>
                     </div>
                 `;
-                // --- *** END FIX AREA *** ---
 
                 // Render admin action buttons only if the user is admin
                 if (isAdmin) {
@@ -381,8 +363,6 @@
               .join('');
           }
         };
-
-        // (Rest of the script: handleAdminAction, auth listener, button listeners, etc. remain the same)
 
         // Function for admin actions to update request status
         window.handleAdminAction = (docId, newStatus) => {
