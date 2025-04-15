@@ -266,28 +266,35 @@
         // Render the requests based on the active filter and sort order
         const renderRequests = () => {
           // (Filtering logic remains the same as before...)
-          let filteredRequests = allRequests.filter((req) => {
-            // Make sure request object and status exist before checking
-            if (!req || typeof req.status === 'undefined') return false;
+          let filteredRequests = [...allRequests]; // Start with a copy of all requests
 
-            if (isAdmin) {
-              if (currentFilter === 'all') {
-                return true; // Admin sees all unless filtering deleted
-              } else if (currentFilter === 'deleted') {
-                return req.status === 'deleted'; // Admin sees only deleted
-              } else {
-                // Admin sees non-deleted matching content type
-                return (
+          if (isAdmin) {
+            if (currentFilter === 'deleted') {
+              filteredRequests = allRequests.filter(
+                (req) => req.status === 'deleted'
+              );
+            } else if (currentFilter !== 'all') {
+              filteredRequests = allRequests.filter(
+                (req) =>
                   req.contentType === currentFilter && req.status !== 'deleted'
-                );
-              }
+              );
+            } else {
+              // currentFilter === "all"
+              filteredRequests = allRequests.filter(
+                (req) => req.status !== 'deleted'
+              ); // Exclude deleted requests unless specifically filtered for
             }
-            // For non-admin users, always hide requests with status "deleted"
-            if (req.status === 'deleted') return false;
-            if (currentFilter === 'all') return true; // Non-admin sees all non-deleted
-            // Non-admin sees non-deleted matching content type
-            return req.contentType === currentFilter;
-          });
+          } else {
+            // Non-admin
+            filteredRequests = allRequests.filter(
+              (req) => req.status !== 'deleted'
+            );
+            if (currentFilter !== 'all') {
+              filteredRequests = filteredRequests.filter(
+                (req) => req.contentType === currentFilter
+              );
+            }
+          }
 
           // (Sorting logic remains the same as before...)
           filteredRequests.sort((a, b) => {
@@ -396,6 +403,8 @@
               alert(`Failed to update request: ${error.message}`); // Give feedback
             });
         };
+
+        let unsubscribe;
 
         // Listen for auth state changes and check for admin status
         auth.onAuthStateChanged((user) => {
