@@ -464,10 +464,11 @@
 
         // Logout Functionality
         document.getElementById('logoutBtn').addEventListener('click', () => {
-          auth.signOut()
+          auth
+            .signOut()
             .then(() => {
               console.log('User signed out');
-              // The auth listener will handle UI updates
+              window.location.href = 'index.html'; // Redirect to index.html
             })
             .catch((error) => {
               console.error('Sign out error', error);
