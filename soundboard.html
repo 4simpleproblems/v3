@@ -78,19 +78,20 @@
     }
 
     .options-content {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
+      display: none; /* Hidden by default */
+      position: absolute;
       background-color: var(--darker-bg);
-      width: 100%;
-      height: 100%;
-      z-index: 3;
+      min-width: 250px;
       border: 2px solid var(--light-text);
       padding: 1rem;
-      color: var(--light-text);
+      z-index: 2;
+      right: 0;
       border-radius: 30px;
-      overflow: auto;
+      color: var(--light-text);
+    }
+
+    .options-content.active {
+      display: block; /* Display the options content when active */
     }
 
     .options-content label {
@@ -154,7 +155,7 @@
       width: 100%;
       height: 100%;
       background-color: rgba(0, 0, 0, 0.5);
-      z-index: 2;
+      z-index: 1;
     }
 
     /* Active State for Overlay */
