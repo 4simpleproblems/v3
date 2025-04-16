@@ -26,25 +26,38 @@
       flex-wrap: wrap;
       justify-content: flex-start;
       padding: 1rem;
-      gap: 2rem;
+      gap: 1.5rem;
       width: 100%;
     }
 
+    /* Updated Sound Button Style - Text Box Style */
     .sound-button {
-      width: 100px;
+      min-width: 100px;
       height: 100px;
-      border-radius: 50%;
+      border-radius: 50px; /* Rounded corners instead of perfect circle */
       background-color: var(--light-text);
       color: var(--dark-bg);
       border: 2px solid var(--dark-bg);
       cursor: pointer;
-      font-size: 0.7rem;
+      font-size: 0.85rem;
       font-weight: bold;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      padding: 0 1.5rem;
       transition: background-color 0.3s ease, transform 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 250px; /* Maximum width to prevent extremely long buttons */
+      word-wrap: break-word;
+      hyphens: auto;
+    }
+
+    /* Make shorter text still appear circular */
+    .sound-button.short-text {
+      width: 100px;
       padding: 0.5rem;
+      border-radius: 50%; /* Perfect circle for short text */
     }
 
     .sound-button:hover {
@@ -52,7 +65,7 @@
     }
 
     .sound-button:active {
-      transform: scale(0.9);
+      transform: scale(0.95);
     }
 
     /* Options Dropdown Styles - Enhanced */
@@ -265,7 +278,7 @@
 
   <main class="container">
     <h1>Soundboard</h1>
-    <p>Click the circles to play a sound!</p>
+    <p>Click the buttons to play a sound!</p>
 
     <div class="status-message" id="statusMessage"></div>
 
@@ -437,13 +450,18 @@
         closeOptionsMenu();
       }
 
-      // Create a sound button for the soundboard
+      // Create a sound button for the soundboard with adaptive styling
       function createSoundButton(folder, fileName, container) {
         const soundName = fileName.replace('.mp3', '').replace(/_/g, ' ');
         const soundPath = `${folder}/${fileName}`;
         const button = document.createElement('button');
         button.classList.add('sound-button');
         button.textContent = soundName;
+        
+        // Add special class for short text to maintain circle shape
+        if (soundName.length < 10) {
+          button.classList.add('short-text');
+        }
 
         button.addEventListener('click', () => {
           if (!soundOverlayCheckbox.checked) {
