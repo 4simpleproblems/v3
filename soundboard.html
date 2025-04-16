@@ -254,7 +254,7 @@
           
           <div class="keyboard-shortcuts">
             <p><strong>Keyboard Shortcuts:</strong></p>
-            <p>Shift + C: Clear all sounds</p>
+            <p>Shift + C: Mute & clear all sounds</p>
           </div>
         </div>
       </div>
@@ -327,24 +327,54 @@
         overlay.classList.remove('active');
       }
 
-      // Stop all playing sounds
-      function stopAllAudios() {
-        if (playingAudios.length === 0) return; // Don't show message if no sounds are playing
-        
+      // Immediately mute all sounds without stopping them
+      function muteAllSounds() {
         playingAudios.forEach(audio => {
-          audio.pause();
-          audio.currentTime = 0;
+          audio.volume = 0;
         });
-        playingAudios = [];
       }
 
-      // Clear all sounds function (only stops playing sounds)
-      function clearAllSounds() {
+      // Stop all playing sounds (with optional delay)
+      function stopAllAudios(delay = 0) {
+        if (playingAudios.length === 0) return; // Don't proceed if no sounds are playing
+        
+        if (delay > 0) {
+          // First mute them immediately
+          muteAllSounds();
+          
+          // Then stop them after the delay
+          setTimeout(() => {
+            playingAudios.forEach(audio => {
+              audio.pause();
+              audio.currentTime = 0;
+            });
+            playingAudios = [];
+          }, delay);
+        } else {
+          // Stop them immediately
+          playingAudios.forEach(audio => {
+            audio.pause();
+            audio.currentTime = 0;
+          });
+          playingAudios = [];
+        }
+      }
+
+      // Clear all sounds function (mutes immediately, then stops)
+      function clearAllSounds(instantMute = false) {
         const wasPlaying = playingAudios.length > 0;
-        stopAllAudios();
         
         if (wasPlaying) {
-          showStatus('All sounds stopped', 'success');
+          if (instantMute) {
+            // Mute immediately, then stop after a short delay
+            muteAllSounds();
+            stopAllAudios(100); // Small delay to ensure smooth transition
+            showStatus('All sounds muted and cleared', 'success');
+          } else {
+            // Normal stop
+            stopAllAudios();
+            showStatus('All sounds stopped', 'success');
+          }
         }
         
         closeOptionsMenu();
@@ -488,12 +518,14 @@
       applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
 
       // Clear all sounds button
-      clearAllSoundsBtn.addEventListener('click', clearAllSounds);
+      clearAllSoundsBtn.addEventListener('click', function() {
+        clearAllSounds(false); // Normal clear without instant mute
+      });
       
-      // Keyboard shortcut: Shift+C to clear all sounds
+      // Keyboard shortcut: Shift+C to instantly mute and clear all sounds
       document.addEventListener('keydown', function(e) {
         if (e.shiftKey && e.key.toLowerCase() === 'c') {
-          clearAllSounds();
+          clearAllSounds(true); // With instant mute
         }
       });
 
