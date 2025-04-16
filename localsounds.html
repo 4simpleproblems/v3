@@ -344,6 +344,22 @@
     .overlay.active {
       display: block;
     }
+    
+    /* Apply button for autoclicker delay */
+    #applyDelayBtn {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--light-text);
+      border-radius: 30px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--light-text);
+      cursor: pointer;
+      margin-left: 4px;
+      font-size: 0.8rem;
+    }
+    
+    #applyDelayBtn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
   </style>
 </head>
 
@@ -364,6 +380,7 @@
             </label>
             <label id="autoClickDelayLabel" style="display: none;">
               Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="100" />
+              <button id="applyDelayBtn">Apply</button>
             </label>
           </div>
           
@@ -424,6 +441,7 @@
       const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
       const autoClickDelayLabel = document.getElementById('autoClickDelayLabel');
       const autoClickDelayInput = document.getElementById('autoClickDelay');
+      const applyDelayBtn = document.getElementById('applyDelayBtn');
       const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
       const optionsButton = document.querySelector('.options-button');
       const optionsContent = document.querySelector('.options-content');
@@ -450,6 +468,30 @@
         }, 3000);
       }
 
+      // Close options menu and overlay
+      function closeOptionsMenu() {
+        optionsContent.classList.remove('active');
+        overlay.classList.remove('active');
+      }
+
+      // Apply autoclicker delay setting and close menu
+      function applyAutoClickerDelay() {
+        const delay = parseInt(autoClickDelayInput.value, 10) || 1000;
+        if (delay < 100) {
+          autoClickDelayInput.value = 100; // Minimum delay
+        }
+        
+        localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
+        
+        // Restart autoclicker if active
+        if (autoClickerCheckbox.checked && currentlyHoveredButton) {
+          startAutoClicker();
+        }
+        
+        showStatus(`Auto clicker delay set to ${autoClickDelayInput.value}ms`, 'success');
+        closeOptionsMenu();
+      }
+
       // Validate audio file type
       function isValidAudioFile(file) {
         const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/x-wav', 'audio/webm'];
@@ -469,6 +511,7 @@
       // Clear all sounds (only stops playing sounds, doesn't delete files)
       function clearAllSounds() {
         stopAllAudios();
+        closeOptionsMenu();
       }
 
       // Auto clicker functions
@@ -732,6 +775,7 @@
           stopAllAudios();
         }
         localStorage.setItem('soundOverlay', this.checked);
+        closeOptionsMenu();
       });
       
       // Auto Clicker checkbox
@@ -749,13 +793,16 @@
         localStorage.setItem('autoClicker', this.checked);
       });
       
-      // Auto Clicker delay input
-      autoClickDelayInput.addEventListener('change', function() {
-        localStorage.setItem('autoClickDelay', this.value);
-        if (autoClickerCheckbox.checked && currentlyHoveredButton) {
-          startAutoClicker();
+      // Auto Clicker delay input - handle Enter key press
+      autoClickDelayInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          applyAutoClickerDelay();
         }
       });
+      
+      // Auto Clicker delay apply button
+      applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
 
       // Add a new sound button
       addSoundButton.addEventListener('click', function() {
@@ -784,8 +831,7 @@
 
       // Close options when clicking overlay
       overlay.addEventListener('click', function() {
-        optionsContent.classList.remove('active');
-        overlay.classList.remove('active');
+        closeOptionsMenu();
       });
       
       // Logout button
