@@ -96,26 +96,13 @@
       max-width: 240px;
     }
 
-    /* File upload styling */
-    .file-input-wrapper {
-      position: relative;
-      display: inline-block;
-      margin-right: 0.5rem;
+    /* Hidden file input */
+    .sound-upload {
+      display: none;
     }
 
-    .file-input-wrapper input[type="file"] {
-      position: absolute;
-      left: 0;
-      top: 0;
-      opacity: 0;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-      z-index: 2;
-    }
-
-    .custom-file-upload {
-      display: inline-block;
+    /* Upload button styling */
+    .upload-button {
       padding: 0.5rem 1rem;
       border: 2px solid var(--dark-bg);
       border-radius: 50px;
@@ -126,15 +113,23 @@
       text-align: center;
       transition: background-color 0.3s ease;
       min-width: 180px;
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .custom-file-upload:hover {
+    .upload-button:hover {
       background-color: var(--light-gray);
+    }
+
+    .upload-button:active {
+      transform: scale(0.95);
     }
 
     /* Edit Mode Styles */
     .edit-mode .sound-name,
-    .edit-mode .file-input-wrapper {
+    .edit-mode .upload-button {
       display: inline-block;
     }
 
@@ -395,17 +390,13 @@
     <div class="sound-section">
       <h2>My Sound Library</h2>
       <div id="soundButtonsContainer">
-        <!-- Initial Sound Button - Note we're using <label> for better click handling -->
+        <!-- Initial Sound Button with MUCH simpler upload mechanism -->
         <div class="sound-container" data-sound-id="1">
           <div class="sound-info">
             <button class="sound-button" data-sound-id="1">Sound 1</button>
             <input type="text" class="sound-name" data-sound-id="1" placeholder="Sound Name (24 chars max)" maxlength="24" style="display: none;">
-            <div class="file-input-wrapper" style="display: none;">
-              <label class="custom-file-upload">
-                Select Audio File
-                <input type="file" class="sound-upload" data-sound-id="1" accept="audio/*">
-              </label>
-            </div>
+            <button class="upload-button" data-sound-id="1" style="display: none;">Select Audio File</button>
+            <input type="file" class="sound-upload" data-sound-id="1" accept="audio/*" style="display: none;">
           </div>
           <div class="button-group">
             <button class="edit-button" data-sound-id="1">Edit</button>
@@ -499,12 +490,12 @@
               const button = container.querySelector('.sound-button');
               const nameInput = container.querySelector('.sound-name');
               const fileUpload = container.querySelector('.sound-upload');
-              const customFileUpload = container.querySelector('.custom-file-upload');
+              const uploadButton = container.querySelector('.upload-button');
               
               button.textContent = 'Sound 1';
               nameInput.value = '';
               fileUpload.value = '';
-              customFileUpload.textContent = 'Select Audio File';
+              uploadButton.textContent = 'Select Audio File';
             }
           });
           
@@ -544,12 +535,8 @@
           <div class="sound-info">
             <button class="sound-button" data-sound-id="${soundId}">Sound ${soundId}</button>
             <input type="text" class="sound-name" data-sound-id="${soundId}" placeholder="Sound Name (24 chars max)" maxlength="24" style="display: none;">
-            <div class="file-input-wrapper" style="display: none;">
-              <label class="custom-file-upload">
-                Select Audio File
-                <input type="file" class="sound-upload" data-sound-id="${soundId}" accept="audio/*">
-              </label>
-            </div>
+            <button class="upload-button" data-sound-id="${soundId}" style="display: none;">Select Audio File</button>
+            <input type="file" class="sound-upload" data-sound-id="${soundId}" accept="audio/*" style="display: none;">
           </div>
           <div class="button-group">
             <button class="edit-button" data-sound-id="${soundId}">Edit</button>
@@ -569,10 +556,9 @@
         const button = container.querySelector('.sound-button');
         const nameInput = container.querySelector('.sound-name');
         const fileInput = container.querySelector('.sound-upload');
+        const uploadButton = container.querySelector('.upload-button');
         const editButton = container.querySelector('.edit-button');
         const deleteButton = container.querySelector('.delete-button');
-        const fileInputWrapper = container.querySelector('.file-input-wrapper');
-        const customFileUpload = container.querySelector('.custom-file-upload');
         
         // Save changes for sound name and update button text
         nameInput.addEventListener('input', function() {
@@ -581,9 +567,13 @@
           button.textContent = truncatedName || `Sound ${soundId}`;
         });
 
-        // IMPORTANT: Fixed file upload event listener
-        fileInput.addEventListener('change', function(event) {
-          console.log("File input change detected");
+        // SIMPLE SOLUTION: Click on upload button triggers file input click
+        uploadButton.addEventListener('click', function() {
+          fileInput.click();
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
           const file = this.files[0];
           
           if (file) {
@@ -593,19 +583,19 @@
               localStorage.setItem(`sound${soundId}File`, objectURL);
               localStorage.setItem(`sound${soundId}FileName`, file.name);
               
-              // Update the label text with file name
-              customFileUpload.textContent = file.name.length > 20 
-                ? file.name.substring(0, 17) + '...' 
+              // Update the button text with file name
+              uploadButton.textContent = file.name.length > 18 
+                ? file.name.substring(0, 15) + '...' 
                 : file.name;
               
               showStatus(`File "${file.name}" uploaded successfully`, 'success');
             } else {
               this.value = '';
-              customFileUpload.textContent = 'Select Audio File';
+              uploadButton.textContent = 'Select Audio File';
               showStatus('Please upload only audio files (MP3, WAV, OGG)', 'error');
             }
           } else {
-            customFileUpload.textContent = 'Select Audio File';
+            uploadButton.textContent = 'Select Audio File';
           }
         });
 
@@ -656,17 +646,17 @@
         editButton.addEventListener('click', function() {
           const isEditMode = container.classList.toggle('edit-mode');
           nameInput.style.display = isEditMode ? 'inline-block' : 'none';
-          fileInputWrapper.style.display = isEditMode ? 'inline-block' : 'none';
+          uploadButton.style.display = isEditMode ? 'inline-block' : 'none';
           
           // Load saved filename if available
           if (isEditMode) {
             const savedFileName = localStorage.getItem(`sound${soundId}FileName`);
             if (savedFileName) {
-              customFileUpload.textContent = savedFileName.length > 20 
-                ? savedFileName.substring(0, 17) + '...' 
+              uploadButton.textContent = savedFileName.length > 18
+                ? savedFileName.substring(0, 15) + '...' 
                 : savedFileName;
             } else {
-              customFileUpload.textContent = 'Select Audio File';
+              uploadButton.textContent = 'Select Audio File';
             }
           }
         });
@@ -736,7 +726,7 @@
           const soundId = container.dataset.soundId;
           const button = container.querySelector('.sound-button');
           const nameInput = container.querySelector('.sound-name');
-          const customFileUpload = container.querySelector('.custom-file-upload');
+          const uploadButton = container.querySelector('.upload-button');
           
           const soundName = localStorage.getItem(`sound${soundId}Name`);
           const fileName = localStorage.getItem(`sound${soundId}FileName`);
@@ -747,11 +737,11 @@
           }
           
           if (fileName) {
-            customFileUpload.textContent = fileName.length > 20 
-              ? fileName.substring(0, 17) + '...' 
+            uploadButton.textContent = fileName.length > 18
+              ? fileName.substring(0, 15) + '...' 
               : fileName;
           } else {
-            customFileUpload.textContent = 'Select Audio File';
+            uploadButton.textContent = 'Select Audio File';
           }
         });
         
