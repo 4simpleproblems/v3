@@ -463,47 +463,12 @@
           audio.currentTime = 0;
         });
         playingAudios = [];
+        showStatus('All sounds stopped', 'success');
       }
 
-      // Clear all sounds from localStorage and UI
+      // Clear all sounds (only stops playing sounds, doesn't delete files)
       function clearAllSounds() {
-        if (confirm('Are you sure you want to clear all sounds? This cannot be undone.')) {
-          // Stop any playing audio
-          stopAllAudios();
-          
-          // Remove all sound data from localStorage
-          for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.match(/^sound\d+(Name|File|FileName)$/)) {
-              localStorage.removeItem(key);
-              i--; // Adjust index since removing items shifts the array
-            }
-          }
-          
-          // Clear all sound containers except the first one
-          const containers = document.querySelectorAll('.sound-container');
-          containers.forEach((container, index) => {
-            if (index > 0) {
-              container.remove();
-            } else {
-              // Reset the first container
-              const button = container.querySelector('.sound-button');
-              const nameInput = container.querySelector('.sound-name');
-              const fileUpload = container.querySelector('.sound-upload');
-              const uploadButton = container.querySelector('.upload-button');
-              
-              button.textContent = 'Sound 1';
-              nameInput.value = '';
-              fileUpload.value = '';
-              uploadButton.textContent = 'Select Audio File';
-            }
-          });
-          
-          // Reset sound count
-          soundCount = 1;
-          
-          showStatus('All sounds have been cleared', 'success');
-        }
+        stopAllAudios();
       }
 
       // Auto clicker functions
@@ -663,27 +628,25 @@
 
         // Delete sound button and remove associated localStorage items
         deleteButton.addEventListener('click', function() {
-          if (confirm(`Are you sure you want to delete "${button.textContent}"?`)) {
-            // Stop sound if it's playing
-            playingAudios.forEach(audio => {
-              try {
-                const soundFile = localStorage.getItem(`sound${soundId}File`);
-                if (soundFile && audio.src === soundFile) {
-                  audio.pause();
-                  audio.currentTime = 0;
-                  playingAudios = playingAudios.filter(a => a !== audio);
-                }
-              } catch (e) {
-                console.error("Error stopping audio:", e);
+          // Stop sound if it's playing
+          playingAudios.forEach(audio => {
+            try {
+              const soundFile = localStorage.getItem(`sound${soundId}File`);
+              if (soundFile && audio.src === soundFile) {
+                audio.pause();
+                audio.currentTime = 0;
+                playingAudios = playingAudios.filter(a => a !== audio);
               }
-            });
-            
-            localStorage.removeItem(`sound${soundId}Name`);
-            localStorage.removeItem(`sound${soundId}File`);
-            localStorage.removeItem(`sound${soundId}FileName`);
-            container.remove();
-            showStatus(`Sound "${button.textContent}" deleted`, 'success');
-          }
+            } catch (e) {
+              console.error("Error stopping audio:", e);
+            }
+          });
+          
+          localStorage.removeItem(`sound${soundId}Name`);
+          localStorage.removeItem(`sound${soundId}File`);
+          localStorage.removeItem(`sound${soundId}FileName`);
+          container.remove();
+          showStatus(`Sound deleted successfully`, 'success');
         });
       }
 
