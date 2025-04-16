@@ -24,7 +24,7 @@
       /* Line takes the full width */
     }
 
-    .sound-section #soundButtonsContainer {
+    .soundButtonsContainer {
       display: flex;
       flex-wrap: wrap;
       /* Allow buttons to wrap to the next line */
@@ -38,12 +38,10 @@
       /* Take up full width */
     }
 
-    #soundButtonsContainer.explicit,
-    #soundButtonsContainer.normal {
+    .soundButtonsContainer.explicit,
+    .soundButtonsContainer.normal {
       padding: 1rem;
-      /* Add padding to individual containers if needed */
       gap: 2rem;
-      /* Ensure gap applies to the specific containers */
     }
 
     .sound-button {
@@ -87,9 +85,7 @@
       padding: 0.75rem 1.5rem;
       font-size: 1rem;
       border: 2px solid var(--light-text);
-      /* Match button style */
       border-radius: 50px;
-      /* Match button style */
       cursor: pointer;
     }
 
@@ -115,12 +111,9 @@
     .options-content input[type="checkbox"] {
       margin-right: 0.5rem;
       vertical-align: middle;
-      /* Darker Checkboxes */
       background-color: var(--darker-bg);
       border: 2px solid var(--light-text);
-      /* Style to make them visible */
       appearance: none;
-      /* Remove default appearance */
       width: 16px;
       height: 16px;
       cursor: pointer;
@@ -133,13 +126,11 @@
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
-      /* Optionally, you can also change the border color if needed */
     }
 
     .options-content input[type="checkbox"]:focus {
       outline: white;
       box-shadow: 0 0 10px var(white);
-      /* Add a shadow for focus state */
     }
 
     .options-content input[type="number"] {
@@ -256,11 +247,10 @@
 
         if (currentlyHoveredButton && autoClickerCheckbox.checked) {
           autoClickInterval = setInterval(() => {
-            // Add active class to trigger animation
-            currentlyHoveredButton.classList.add('sound-button:active');
-            // Remove active class after a short delay to reset animation
+            // Trigger the button animation effect by toggling the active class
+            currentlyHoveredButton.classList.add('sound-button-active');
             setTimeout(() => {
-              currentlyHoveredButton.classList.remove('sound-button:active');
+              currentlyHoveredButton.classList.remove('sound-button-active');
             }, 100);
             currentlyHoveredButton.click();
           }, delay);
@@ -280,13 +270,16 @@
 
       async function loadSoundsFromDirectory(directory, container) {
         try {
+          // Fetch a listing from the directory (this requires proper server support)
           const response = await fetch(directory);
           const files = await response.text();
-          const fileList = files.split('\n').filter(file => file.endsWith('.mp3'));
+          // Split the text into individual filenames, filtering for ".mp3" files
+          const fileList = files.split('\n').filter(file => file.trim().endsWith('.mp3'));
 
           fileList.forEach(file => {
-            const soundName = file.replace('.mp3', '').replace(/_/g, ' ');
-            const soundPath = `${directory}/${file}`;
+            // Create a more human-friendly name by removing the .mp3 extension and replacing underscores with spaces.
+            const soundName = file.trim().replace('.mp3', '').replace(/_/g, ' ');
+            const soundPath = `${directory}/${file.trim()}`;
             const button = document.createElement('button');
             button.classList.add('sound-button');
             button.textContent = soundName;
@@ -319,11 +312,11 @@
             container.appendChild(button);
           });
         } catch (error) {
-          console.error('Error loading sounds:', error);
+          console.error('Error loading sounds from ' + directory + ':', error);
         }
       }
 
-      // Load sound buttons from directories
+      // Load sound buttons from the two directories
       loadSoundsFromDirectory('NormalSounds', normalSoundsContainer);
       loadSoundsFromDirectory('ExplicitSounds', explicitSoundsContainer);
     });
