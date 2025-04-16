@@ -36,6 +36,10 @@
         --username-btn-font-weight: normal;
         --username-btn-box-shadow: none;
         --username-btn-margin: 0.5rem 0 0 0;
+        
+        /* Validation colors */
+        --validation-error: #ff6b6b;
+        --validation-success: #51cf66;
     }
 
     body {
@@ -112,8 +116,14 @@
 
     .username-input-group {
         display: flex;
+        flex-direction: column;
         gap: 0.5rem;
         margin-bottom: 1rem;
+    }
+
+    .username-input-group .input-wrapper {
+        display: flex;
+        gap: 0.5rem;
     }
 
     .username-input-group input {
@@ -123,6 +133,19 @@
         border-radius: var(--pill-radius);
         color: var(--dark-bg);
         background-color: var(--card-bg);
+    }
+
+    .username-input-group input:focus {
+        outline: none;
+        border-color: var(--primary-action);
+    }
+
+    .username-input-group input.invalid {
+        border-color: var(--validation-error);
+    }
+
+    .username-input-group input.valid {
+        border-color: var(--validation-success);
     }
 
     .username-input-group button {
@@ -138,6 +161,22 @@
 
     .username-input-group button:hover {
         background-color: var(--darker-bg);
+    }
+
+    .username-input-group button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .username-helper-text {
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        color: var(--info-text);
+    }
+
+    .username-helper-text.error {
+        color: var(--validation-error);
     }
 
     .btn.secondary.small-btn {
@@ -232,8 +271,11 @@
                     <h2>Username</h2>
                     <p id="currentUsername">Loading...</p>
                     <div class="username-input-group" id="addUsernameForm">
-                        <input type="text" id="newUsername" placeholder="Enter Username">
-                        <button id="saveUsernameBtn">Save</button>
+                        <div class="input-wrapper">
+                            <input type="text" id="newUsername" placeholder="Enter Username" minlength="4" maxlength="16">
+                            <button id="saveUsernameBtn" disabled>Save</button>
+                        </div>
+                        <p class="username-helper-text">Username must be 4-16 characters</p>
                     </div>
                     <button id="editUsernameBtn" class="username-change-btn">Change Username</button>
                 </div>
@@ -272,6 +314,7 @@
           const newUsernameInput = document.getElementById('newUsername');
           const saveUsernameBtn = document.getElementById('saveUsernameBtn');
           const editUsernameBtn = document.getElementById('editUsernameBtn');
+          const usernameHelperText = document.querySelector('.username-helper-text');
           const changePasswordBtn = document.getElementById('changePasswordBtn');
           const deleteAccountBtn = document.getElementById('deleteAccountBtn');
           const logoutBtn = document.getElementById('logoutBtn');
@@ -283,6 +326,45 @@
           // Apply pill shape styling to nav buttons (if not already applied via CSS)
           document.querySelectorAll('.nav-buttons .btn').forEach(button => {
               button.style.borderRadius = 'var(--pill-radius)';
+          });
+
+          // Username validation function
+          function validateUsername(username) {
+              if (username.length < 4) {
+                  return { valid: false, message: 'Username must be at least 4 characters' };
+              } else if (username.length > 16) {
+                  return { valid: false, message: 'Username cannot exceed 16 characters' };
+              }
+              return { valid: true, message: 'Username is valid' };
+          }
+
+          // Username input validation event
+          newUsernameInput.addEventListener('input', () => {
+              const username = newUsernameInput.value.trim();
+              const validation = validateUsername(username);
+              
+              // Update UI based on validation
+              if (validation.valid) {
+                  newUsernameInput.classList.remove('invalid');
+                  newUsernameInput.classList.add('valid');
+                  usernameHelperText.textContent = 'Username is valid';
+                  usernameHelperText.classList.remove('error');
+                  saveUsernameBtn.disabled = false;
+              } else {
+                  newUsernameInput.classList.remove('valid');
+                  newUsernameInput.classList.add('invalid');
+                  usernameHelperText.textContent = validation.message;
+                  usernameHelperText.classList.add('error');
+                  saveUsernameBtn.disabled = true;
+              }
+              
+              // Handle empty input case
+              if (username === '') {
+                  newUsernameInput.classList.remove('valid', 'invalid');
+                  usernameHelperText.textContent = 'Username must be 4-16 characters';
+                  usernameHelperText.classList.remove('error');
+                  saveUsernameBtn.disabled = true;
+              }
           });
 
           // Listen for authentication state changes
@@ -317,13 +399,22 @@
               currentUsernameElement.style.display = 'none';
               editUsernameBtn.style.display = 'none';
               addUsernameForm.style.display = 'flex';
-              newUsernameInput.value = currentUsernameElement.textContent === 'No username set.' ? '' : currentUsernameElement.textContent;
+              const currentUsername = currentUsernameElement.textContent === 'No username set.' ? '' : currentUsernameElement.textContent;
+              newUsernameInput.value = currentUsername;
+              
+              // Trigger validation for the current username
+              if (currentUsername) {
+                  const event = new Event('input', { bubbles: true });
+                  newUsernameInput.dispatchEvent(event);
+              }
           });
 
           // Save the new username to Firestore for the user
           saveUsernameBtn.addEventListener('click', async () => {
               const newUsername = newUsernameInput.value.trim();
-              if (newUsername) {
+              const validation = validateUsername(newUsername);
+              
+              if (validation.valid) {
                   const user = auth.currentUser;
                   if (user) {
                       try {
@@ -333,13 +424,19 @@
                           currentUsernameElement.style.display = 'block';
                           addUsernameForm.style.display = 'none';
                           editUsernameBtn.style.display = 'inline-block';
+                          
+                          // Reset validation state
+                          newUsernameInput.classList.remove('valid', 'invalid');
+                          usernameHelperText.textContent = 'Username must be 4-16 characters';
+                          usernameHelperText.classList.remove('error');
                       } catch (error) {
                           console.error("Error saving username:", error);
                           alert("Could not save username. Please try again.");
                       }
                   }
               } else {
-                  alert("Username cannot be empty.");
+                  usernameHelperText.textContent = validation.message;
+                  usernameHelperText.classList.add('error');
               }
           });
 
