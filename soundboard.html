@@ -55,7 +55,7 @@
       transform: scale(0.9);
     }
 
-    /* Options Dropdown Styles */
+    /* Options Dropdown Styles - Enhanced */
     .options-dropdown {
       position: relative;
       display: inline-block;
@@ -91,6 +91,7 @@
     .options-content label {
       display: block;
       margin-bottom: 0.5rem;
+      color: var(--light-text);
     }
 
     .options-content input[type="checkbox"] {
@@ -127,6 +128,57 @@
       color: var(--light-text);
     }
 
+    /* Options Sections */
+    .options-section {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .options-section:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .options-section h3 {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      color: var(--light-text);
+      opacity: 0.8;
+    }
+
+    /* Keyboard shortcuts info */
+    .keyboard-shortcuts {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .keyboard-shortcuts p {
+      margin: 0.25rem 0;
+      font-size: 0.85rem;
+      color: var(--light-text);
+      opacity: 0.8;
+    }
+
+    /* Apply button for autoclicker delay */
+    #applyDelayBtn {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--light-text);
+      border-radius: 30px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--light-text);
+      cursor: pointer;
+      margin-left: 4px;
+      font-size: 0.8rem;
+    }
+    
+    #applyDelayBtn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
     .overlay {
       display: none;
       position: fixed;
@@ -141,6 +193,36 @@
     .overlay.active {
       display: block;
     }
+    
+    /* Status message */
+    .status-message {
+      display: none;
+      padding: 0.5rem 1rem;
+      margin: 0.5rem auto;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      background-color: rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 80%;
+    }
+
+    .status-message.success {
+      background-color: rgba(0, 255, 0, 0.1);
+      color: green;
+      border: 1px solid green;
+    }
+
+    .status-message.error {
+      background-color: rgba(255, 0, 0, 0.1);
+      color: red;
+      border: 1px solid red;
+    }
+
+    .status-message.info {
+      background-color: rgba(0, 0, 255, 0.1);
+      color: blue;
+      border: 1px solid blue;
+    }
   </style>
 </head>
 
@@ -151,15 +233,29 @@
       <div class="options-dropdown">
         <button class="btn secondary options-button">Options</button>
         <div class="options-content">
-          <label>
-            <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
-          </label>
-          <label>
-            <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
-          </label>
-          <label id="autoClickDelayLabel" style="display: none;">
-            Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="100" />
-          </label>
+          <div class="options-section">
+            <h3>Playback Options</h3>
+            <label>
+              <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
+            </label>
+            <label>
+              <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
+            </label>
+            <label id="autoClickDelayLabel" style="display: none;">
+              Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" />
+              <button id="applyDelayBtn">Apply</button>
+            </label>
+          </div>
+          
+          <div class="options-section">
+            <h3>Management</h3>
+            <button id="clearAllSoundsBtn" class="btn secondary" style="width: 100%; margin-top: 0.5rem; background-color: rgba(255, 0, 0, 0.2); color: var(--light-text); border: 1px solid var(--light-text);">Clear All Sounds</button>
+          </div>
+          
+          <div class="keyboard-shortcuts">
+            <p><strong>Keyboard Shortcuts:</strong></p>
+            <p>Shift + C: Clear all sounds</p>
+          </div>
         </div>
       </div>
       <a href="dashboard.html" class="btn secondary">Dashboard</a>
@@ -170,6 +266,8 @@
   <main class="container">
     <h1>Soundboard</h1>
     <p>Click the circles to play a sound!</p>
+
+    <div class="status-message" id="statusMessage"></div>
 
     <div class="sound-section">
       <h2>Normal Sounds</h2>
@@ -190,49 +288,81 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // DOM Elements
       const normalSoundsContainer = document.getElementById('normalSoundsContainer');
       const explicitSoundsContainer = document.getElementById('explicitSoundsContainer');
       const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
       const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
       const autoClickDelayInput = document.getElementById('autoClickDelay');
       const autoClickDelayLabel = document.getElementById('autoClickDelayLabel');
+      const applyDelayBtn = document.getElementById('applyDelayBtn');
       const overlay = document.getElementById('overlay');
       const optionsButton = document.querySelector('.options-button');
       const optionsContent = document.querySelector('.options-content');
+      const statusMessage = document.getElementById('statusMessage');
+      const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
 
+      // State variables
       let playingAudios = [];
       let autoClickInterval;
+      let requestAnimationFrameId = null;
       let currentlyHoveredButton = null;
 
+      // Show status message
+      function showStatus(message, type = 'info') {
+        statusMessage.textContent = message;
+        statusMessage.className = 'status-message ' + type;
+        statusMessage.style.display = 'block';
+        
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+          statusMessage.style.display = 'none';
+        }, 3000);
+      }
+
+      // Close options menu and overlay
+      function closeOptionsMenu() {
+        optionsContent.classList.remove('active');
+        overlay.classList.remove('active');
+      }
+
+      // Stop all playing sounds
       function stopAllAudios() {
         playingAudios.forEach(audio => {
           audio.pause();
           audio.currentTime = 0;
         });
         playingAudios = [];
+        showStatus('All sounds stopped', 'success');
       }
 
-      soundOverlayCheckbox.addEventListener('change', () => {
-        if (!soundOverlayCheckbox.checked) {
-          stopAllAudios();
-        }
-      });
+      // Clear all sounds function (only stops playing sounds)
+      function clearAllSounds() {
+        stopAllAudios();
+        closeOptionsMenu();
+      }
 
-      autoClickerCheckbox.addEventListener('change', () => {
-        if (autoClickerCheckbox.checked) {
-          autoClickDelayLabel.style.display = 'block';
-          startAutoClicker();
-        } else {
-          autoClickDelayLabel.style.display = 'none';
-          stopAutoClicker();
+      // Fast clicking function using requestAnimationFrame for 0ms delay
+      function fastClicker() {
+        if (currentlyHoveredButton && autoClickerCheckbox.checked) {
+          currentlyHoveredButton.click();
+          requestAnimationFrameId = requestAnimationFrame(fastClicker);
         }
-      });
+      }
 
+      // Auto clicker functions
       function startAutoClicker() {
         stopAutoClicker();
-        const delay = parseInt(autoClickDelayInput.value, 10);
+        const delay = parseInt(autoClickDelayInput.value, 10) || 0;
 
-        if (currentlyHoveredButton && autoClickerCheckbox.checked) {
+        if (!currentlyHoveredButton || !autoClickerCheckbox.checked) return;
+
+        // Use requestAnimationFrame for "instant" clicking (0ms)
+        if (delay === 0) {
+          requestAnimationFrameId = requestAnimationFrame(fastClicker);
+        } else {
+          // Use setInterval for timed clicking
           autoClickInterval = setInterval(() => {
             currentlyHoveredButton.click();
           }, delay);
@@ -240,16 +370,38 @@
       }
 
       function stopAutoClicker() {
-        clearInterval(autoClickInterval);
-        autoClickInterval = null;
+        if (autoClickInterval) {
+          clearInterval(autoClickInterval);
+          autoClickInterval = null;
+        }
+        
+        if (requestAnimationFrameId) {
+          cancelAnimationFrame(requestAnimationFrameId);
+          requestAnimationFrameId = null;
+        }
       }
 
-      autoClickDelayInput.addEventListener('change', () => {
-        if (autoClickerCheckbox.checked) {
+      // Apply autoclicker delay setting and close menu
+      function applyAutoClickerDelay() {
+        const delay = parseInt(autoClickDelayInput.value, 10);
+        
+        // Allow 0ms delay (instant clicking)
+        if (isNaN(delay) || delay < 0) {
+          autoClickDelayInput.value = 0;
+        }
+        
+        localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
+        
+        // Restart autoclicker if active
+        if (autoClickerCheckbox.checked && currentlyHoveredButton) {
           startAutoClicker();
         }
-      });
+        
+        showStatus(`Auto clicker delay set to ${autoClickDelayInput.value}ms`, 'success');
+        closeOptionsMenu();
+      }
 
+      // Create a sound button for the soundboard
       function createSoundButton(folder, fileName, container) {
         const soundName = fileName.replace('.mp3', '').replace(/_/g, ' ');
         const soundPath = `${folder}/${fileName}`;
@@ -261,12 +413,21 @@
           if (!soundOverlayCheckbox.checked) {
             stopAllAudios();
           }
-          const audio = new Audio(soundPath);
-          audio.addEventListener('ended', () => {
-            playingAudios = playingAudios.filter(a => a !== audio);
-          });
-          playingAudios.push(audio);
-          audio.play();
+          
+          try {
+            const audio = new Audio(soundPath);
+            audio.addEventListener('ended', () => {
+              playingAudios = playingAudios.filter(a => a !== audio);
+            });
+            playingAudios.push(audio);
+            audio.play().catch(error => {
+              console.error("Error playing sound:", error);
+              showStatus('Error playing the sound', 'error');
+            });
+          } catch (error) {
+            console.error("Error creating audio:", error);
+            showStatus('Error playing the sound', 'error');
+          }
         });
 
         button.addEventListener('mouseenter', () => {
@@ -277,34 +438,119 @@
         });
 
         button.addEventListener('mouseleave', () => {
-          currentlyHoveredButton = null;
-          stopAutoClicker();
+          if (currentlyHoveredButton === button) {
+            currentlyHoveredButton = null;
+            stopAutoClicker();
+          }
         });
 
         container.appendChild(button);
       }
 
-      fetch('SoundboardSN.json')
-        .then(response => response.json())
-        .then(data => {
-          (data.NormalSounds || []).forEach(file => {
-            createSoundButton('NormalSounds', file, normalSoundsContainer);
-          });
-          (data.ExplicitSounds || []).forEach(file => {
-            createSoundButton('ExplicitSounds', file, explicitSoundsContainer);
-          });
-        })
-        .catch(error => console.error('Error loading sound manifest:', error));
+      // Event Listeners
+      
+      // Sound Overlay checkbox
+      soundOverlayCheckbox.addEventListener('change', function() {
+        if (!this.checked) {
+          stopAllAudios();
+        }
+        localStorage.setItem('soundOverlay', this.checked);
+      });
+      
+      // Auto Clicker checkbox
+      autoClickerCheckbox.addEventListener('change', function() {
+        autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
+        
+        if (this.checked) {
+          if (currentlyHoveredButton) {
+            startAutoClicker();
+          }
+        } else {
+          stopAutoClicker();
+        }
+        
+        localStorage.setItem('autoClicker', this.checked);
+      });
+      
+      // Auto Clicker delay input - handle Enter key press
+      autoClickDelayInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          applyAutoClickerDelay();
+        }
+      });
+      
+      // Auto Clicker delay apply button
+      applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
 
-      optionsButton.addEventListener('click', () => {
+      // Clear all sounds button
+      clearAllSoundsBtn.addEventListener('click', clearAllSounds);
+      
+      // Keyboard shortcut: Shift+C to clear all sounds
+      document.addEventListener('keydown', function(e) {
+        if (e.shiftKey && e.key.toLowerCase() === 'c') {
+          clearAllSounds();
+        }
+      });
+
+      // Options menu toggle
+      optionsButton.addEventListener('click', function(e) {
+        e.stopPropagation();
         optionsContent.classList.toggle('active');
         overlay.classList.toggle('active');
       });
 
-      overlay.addEventListener('click', () => {
-        optionsContent.classList.remove('active');
-        overlay.classList.remove('active');
+      // Close options when clicking overlay
+      overlay.addEventListener('click', function() {
+        closeOptionsMenu();
       });
+      
+      // Logout button
+      logoutBtn.addEventListener('click', function() {
+        window.location.href = 'index.html';
+      });
+
+      // Load user preferences from localStorage
+      function loadUserPreferences() {
+        // Sound overlay preference
+        if (localStorage.getItem('soundOverlay') === 'true') {
+          soundOverlayCheckbox.checked = true;
+        }
+        
+        // Auto clicker preference
+        if (localStorage.getItem('autoClicker') === 'true') {
+          autoClickerCheckbox.checked = true;
+          autoClickDelayLabel.style.display = 'block';
+        }
+        
+        // Auto clicker delay preference
+        const savedDelay = localStorage.getItem('autoClickDelay');
+        if (savedDelay !== null) {
+          autoClickDelayInput.value = savedDelay;
+        }
+      }
+
+      // Fetch and load sounds
+      fetch('SoundboardSN.json')
+        .then(response => response.json())
+        .then(data => {
+          // Create normal sound buttons
+          (data.NormalSounds || []).forEach(file => {
+            createSoundButton('NormalSounds', file, normalSoundsContainer);
+          });
+          
+          // Create explicit sound buttons
+          (data.ExplicitSounds || []).forEach(file => {
+            createSoundButton('ExplicitSounds', file, explicitSoundsContainer);
+          });
+          
+          // Load preferences after sounds are loaded
+          loadUserPreferences();
+        })
+        .catch(error => {
+          console.error('Error loading sound manifest:', error);
+          showStatus('Error loading sounds. Please try refreshing the page.', 'error');
+        });
     });
   </script>
 </body>
