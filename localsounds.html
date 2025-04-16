@@ -48,10 +48,6 @@
       background-color: var(--light-gray);
     }
 
-    .sound-container:active {
-      transform: scale(0.99);
-    }
-
     .sound-info {
       flex: 1;
       display: flex;
@@ -144,8 +140,8 @@
     }
 
     .delete-button {
-      color: var(--danger-action);
-      border-color: var(--danger-action);
+      color: var(--danger-action, #ff0000);
+      border-color: var(--danger-action, #ff0000);
     }
 
     .delete-button:hover {
@@ -163,12 +159,12 @@
       text-align: center;
       font-weight: 500;
       transition: background-color 0.3s ease, transform 0.1s ease;
-      background-color: var(--light-text);
-      color: var(--dark-bg);
+      background-color: var(--dark-bg);
+      color: var(--light-text);
     }
 
     #addSoundButton:hover {
-      background-color: var(--light-gray);
+      background-color: var(--darker-bg);
     }
 
     #addSoundButton:active {
@@ -228,10 +224,7 @@
     }
 
     .options-content input[type="checkbox"]:checked {
-      background-image: url('checkmark.png');
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
+      background-color: var(--light-text);
     }
 
     .options-content #autoClickDelayLabel {
@@ -322,6 +315,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // DOM Elements
       const soundButtonsContainer = document.getElementById('soundButtonsContainer');
       const addSoundButton = document.getElementById('addSoundButton');
       const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
@@ -333,12 +327,13 @@
       const overlay = document.getElementById('overlay');
       const logoutBtn = document.getElementById('logoutBtn');
       
+      // State variables
       let soundCount = 1;
       let playingAudios = [];  // Track currently playing audio objects
       let currentlyHoveredButton = null;
       let autoClickInterval;
 
-      // Utility: Stop all currently playing audios and clear the array
+      // Utility: Stop all currently playing audios
       function stopAllAudios() {
         playingAudios.forEach(audio => {
           audio.pause();
@@ -347,5 +342,263 @@
         playingAudios = [];
       }
 
-      // Monitor Sound Overlay checkbox changes:
-      // If turning it off, stop
+      // Auto clicker functions
+      function startAutoClicker() {
+        stopAutoClicker();
+        const delay = parseInt(autoClickDelayInput.value, 10) || 1000;
+
+        if (currentlyHoveredButton && autoClickerCheckbox.checked) {
+          autoClickInterval = setInterval(() => {
+            currentlyHoveredButton.click();
+          }, delay);
+        }
+      }
+
+      function stopAutoClicker() {
+        if (autoClickInterval) {
+          clearInterval(autoClickInterval);
+          autoClickInterval = null;
+        }
+      }
+
+      // Function to create a new sound button
+      function createSoundButton(soundId) {
+        const container = document.createElement('div');
+        container.classList.add('sound-container');
+        container.dataset.soundId = soundId;
+
+        container.innerHTML = `
+          <div class="sound-info">
+            <button class="sound-button" data-sound-id="${soundId}">Sound ${soundId}</button>
+            <input type="text" class="sound-name" data-sound-id="${soundId}" placeholder="Sound ${soundId} Name" style="display: none;">
+            <input type="file" class="sound-upload" data-sound-id="${soundId}" accept="audio/mp3" style="display: none;">
+          </div>
+          <div class="button-group">
+            <button class="edit-button" data-sound-id="${soundId}">Edit</button>
+            <button class="delete-button" data-sound-id="${soundId}">Delete</button>
+          </div>
+        `;
+        
+        // Attach event listeners directly to the new container
+        attachEventListeners(container);
+        
+        return container;
+      }
+
+      // Attach event listeners to a sound button container
+      function attachEventListeners(container) {
+        const soundId = container.dataset.soundId;
+        const button = container.querySelector('.sound-button');
+        const nameInput = container.querySelector('.sound-name');
+        const fileInput = container.querySelector('.sound-upload');
+        const editButton = container.querySelector('.edit-button');
+        const deleteButton = container.querySelector('.delete-button');
+        
+        // Save changes for sound name and update button text
+        nameInput.addEventListener('input', function() {
+          localStorage.setItem(`sound${soundId}Name`, this.value);
+          button.textContent = this.value || `Sound ${soundId}`;
+        });
+
+        // Upload file and save its URL reference
+        fileInput.addEventListener('change', function() {
+          const file = this.files[0];
+          if (file) {
+            const objectURL = URL.createObjectURL(file);
+            localStorage.setItem(`sound${soundId}File`, objectURL);
+            console.log("File uploaded and saved for Sound " + soundId);
+          }
+        });
+
+        // Click event to play the sound
+        button.addEventListener('click', function() {
+          const soundFile = localStorage.getItem(`sound${soundId}File`);
+          if (soundFile) {
+            // If Sound Overlay is off, stop any other sounds
+            if (!soundOverlayCheckbox.checked) {
+              stopAllAudios();
+            }
+            try {
+              const audio = new Audio(soundFile);
+              // When the sound ends, remove it from our tracking array
+              audio.addEventListener('ended', () => {
+                playingAudios = playingAudios.filter(a => a !== audio);
+              });
+              playingAudios.push(audio);
+              audio.play().catch(error => {
+                console.error("Error playing sound:", error);
+                alert('Error playing the sound. Please upload the file again.');
+              });
+            } catch (error) {
+              console.error("Error creating audio:", error);
+              alert('Error playing the sound. Please upload the file again.');
+            }
+          } else {
+            alert('No file uploaded for this sound button.');
+          }
+        });
+
+        // Auto Clicker: Handle hovering for continuous clicking
+        button.addEventListener('mouseenter', function() {
+          currentlyHoveredButton = this;
+          if (autoClickerCheckbox.checked) {
+            startAutoClicker();
+          }
+        });
+        
+        button.addEventListener('mouseleave', function() {
+          if (currentlyHoveredButton === this) {
+            currentlyHoveredButton = null;
+            stopAutoClicker();
+          }
+        });
+
+        // Toggle Edit Mode
+        editButton.addEventListener('click', function() {
+          const isEditMode = container.classList.toggle('edit-mode');
+          nameInput.style.display = isEditMode ? 'inline-block' : 'none';
+          fileInput.style.display = isEditMode ? 'inline-block' : 'none';
+        });
+
+        // Delete sound button and remove associated localStorage items
+        deleteButton.addEventListener('click', function() {
+          localStorage.removeItem(`sound${soundId}Name`);
+          localStorage.removeItem(`sound${soundId}File`);
+          container.remove();
+        });
+      }
+
+      // Load saved sound names
+      function loadSavedData() {
+        // Find highest sound ID in localStorage by checking for pattern
+        let highestId = 1;
+        
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.match(/^sound(\d+)(Name|File)$/)) {
+            const id = parseInt(key.match(/^sound(\d+)(Name|File)$/)[1]);
+            if (!isNaN(id) && id > highestId) {
+              highestId = id;
+            }
+          }
+        }
+        
+        // Update sound count based on highest ID found
+        soundCount = highestId;
+        
+        // Create containers for any saved sounds
+        for (let i = 1; i <= soundCount; i++) {
+          // Skip the first one since it's already in the HTML
+          if (i === 1) continue;
+          
+          const hasSound = localStorage.getItem(`sound${i}Name`) || localStorage.getItem(`sound${i}File`);
+          
+          if (hasSound) {
+            // Only create if this container doesn't already exist
+            if (!document.querySelector(`.sound-container[data-sound-id="${i}"]`)) {
+              const newContainer = createSoundButton(i);
+              soundButtonsContainer.appendChild(newContainer);
+            }
+          }
+        }
+        
+        // Update all containers with saved data
+        document.querySelectorAll('.sound-container').forEach(container => {
+          const soundId = container.dataset.soundId;
+          const button = container.querySelector('.sound-button');
+          const nameInput = container.querySelector('.sound-name');
+          const soundName = localStorage.getItem(`sound${soundId}Name`);
+          
+          if (soundName) {
+            nameInput.value = soundName;
+            button.textContent = soundName;
+          }
+        });
+        
+        // Load user preferences
+        if (localStorage.getItem('soundOverlay') === 'true') {
+          soundOverlayCheckbox.checked = true;
+        }
+        
+        if (localStorage.getItem('autoClicker') === 'true') {
+          autoClickerCheckbox.checked = true;
+          autoClickDelayLabel.style.display = 'block';
+        }
+        
+        const savedDelay = localStorage.getItem('autoClickDelay');
+        if (savedDelay) {
+          autoClickDelayInput.value = savedDelay;
+        }
+      }
+
+      // Event Listeners for UI Controls
+      
+      // Sound Overlay checkbox
+      soundOverlayCheckbox.addEventListener('change', function() {
+        if (!this.checked) {
+          stopAllAudios();
+        }
+        localStorage.setItem('soundOverlay', this.checked);
+      });
+      
+      // Auto Clicker checkbox
+      autoClickerCheckbox.addEventListener('change', function() {
+        autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
+        
+        if (this.checked) {
+          if (currentlyHoveredButton) {
+            startAutoClicker();
+          }
+        } else {
+          stopAutoClicker();
+        }
+        
+        localStorage.setItem('autoClicker', this.checked);
+      });
+      
+      // Auto Clicker delay input
+      autoClickDelayInput.addEventListener('change', function() {
+        localStorage.setItem('autoClickDelay', this.value);
+        if (autoClickerCheckbox.checked && currentlyHoveredButton) {
+          startAutoClicker();
+        }
+      });
+
+      // Add a new sound button
+      addSoundButton.addEventListener('click', function() {
+        soundCount++;
+        const newSoundButton = createSoundButton(soundCount);
+        soundButtonsContainer.appendChild(newSoundButton);
+      });
+
+      // Options menu toggle
+      optionsButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        optionsContent.classList.toggle('active');
+        overlay.classList.toggle('active');
+      });
+
+      // Close options when clicking overlay
+      overlay.addEventListener('click', function() {
+        optionsContent.classList.remove('active');
+        overlay.classList.remove('active');
+      });
+      
+      // Logout button
+      logoutBtn.addEventListener('click', function() {
+        window.location.href = 'index.html';
+      });
+
+      // Attach event listeners to initial sound container
+      const initialContainer = document.querySelector('.sound-container[data-sound-id="1"]');
+      if (initialContainer) {
+        attachEventListeners(initialContainer);
+      }
+      
+      // Load saved data
+      loadSavedData();
+    });
+  </script>
+</body>
+
+</html>
