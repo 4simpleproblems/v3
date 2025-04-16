@@ -96,10 +96,6 @@
       max-width: 240px;
     }
 
-    .sound-upload {
-      display: none;
-    }
-
     /* File upload styling */
     .file-input-wrapper {
       position: relative;
@@ -399,14 +395,16 @@
     <div class="sound-section">
       <h2>My Sound Library</h2>
       <div id="soundButtonsContainer">
-        <!-- Initial Sound Button -->
+        <!-- Initial Sound Button - Note we're using <label> for better click handling -->
         <div class="sound-container" data-sound-id="1">
           <div class="sound-info">
             <button class="sound-button" data-sound-id="1">Sound 1</button>
             <input type="text" class="sound-name" data-sound-id="1" placeholder="Sound Name (24 chars max)" maxlength="24" style="display: none;">
             <div class="file-input-wrapper" style="display: none;">
-              <button class="custom-file-upload">Select Audio File</button>
-              <input type="file" class="sound-upload" data-sound-id="1" accept="audio/*">
+              <label class="custom-file-upload">
+                Select Audio File
+                <input type="file" class="sound-upload" data-sound-id="1" accept="audio/*">
+              </label>
             </div>
           </div>
           <div class="button-group">
@@ -547,8 +545,10 @@
             <button class="sound-button" data-sound-id="${soundId}">Sound ${soundId}</button>
             <input type="text" class="sound-name" data-sound-id="${soundId}" placeholder="Sound Name (24 chars max)" maxlength="24" style="display: none;">
             <div class="file-input-wrapper" style="display: none;">
-              <button class="custom-file-upload">Select Audio File</button>
-              <input type="file" class="sound-upload" data-sound-id="${soundId}" accept="audio/*">
+              <label class="custom-file-upload">
+                Select Audio File
+                <input type="file" class="sound-upload" data-sound-id="${soundId}" accept="audio/*">
+              </label>
             </div>
           </div>
           <div class="button-group">
@@ -581,17 +581,19 @@
           button.textContent = truncatedName || `Sound ${soundId}`;
         });
 
-        // Upload file and save its URL reference
-        fileInput.addEventListener('change', function() {
+        // IMPORTANT: Fixed file upload event listener
+        fileInput.addEventListener('change', function(event) {
+          console.log("File input change detected");
           const file = this.files[0];
           
           if (file) {
+            console.log("File selected:", file.name, file.type);
             if (isValidAudioFile(file)) {
               const objectURL = URL.createObjectURL(file);
               localStorage.setItem(`sound${soundId}File`, objectURL);
               localStorage.setItem(`sound${soundId}FileName`, file.name);
               
-              // Update the button text with file name
+              // Update the label text with file name
               customFileUpload.textContent = file.name.length > 20 
                 ? file.name.substring(0, 17) + '...' 
                 : file.name;
@@ -846,6 +848,9 @@
       
       // Load saved data
       loadSavedData();
+      
+      // Debug message to show initialization complete
+      console.log("LocalSounds initialization complete");
     });
   </script>
 </body>
