@@ -12,6 +12,7 @@
     .sound-section {
       margin-bottom: 2rem;
     }
+
     .sound-section h2 {
       margin-bottom: 0.5rem;
       font-size: 1.5rem;
@@ -19,6 +20,7 @@
       border-bottom: 2px solid var(--dark-bg);
       width: 100%;
     }
+
     .soundButtonsContainer {
       display: flex;
       flex-wrap: wrap;
@@ -27,11 +29,13 @@
       gap: 2rem;
       width: 100%;
     }
+
     .soundButtonsContainer.explicit,
     .soundButtonsContainer.normal {
       padding: 1rem;
       gap: 2rem;
     }
+
     .sound-button {
       width: 100px;
       height: 100px;
@@ -48,17 +52,21 @@
       transition: background-color 0.3s ease, transform 0.1s ease;
       padding: 0.5rem;
     }
+
     .sound-button:hover {
       background-color: var(--light-gray);
     }
+
     .sound-button:active {
       transform: scale(0.9);
     }
+
     /* Options Dropdown Styles */
     .options-dropdown {
       position: relative;
       display: inline-block;
     }
+
     .options-button {
       background-color: transparent;
       color: var(--light-text);
@@ -68,6 +76,7 @@
       border-radius: 50px;
       cursor: pointer;
     }
+
     .options-content {
       display: none;
       position: absolute;
@@ -75,16 +84,18 @@
       min-width: 250px;
       border: 2px solid var(--light-text);
       padding: 1rem;
-      z-index: 1;
+      z-index: 2;
       right: 0;
       border-radius: 30px;
       color: var(--light-text);
     }
+
     .options-content label {
       display: block;
       margin-bottom: 0.5rem;
       color: var(--light-text);
     }
+
     .options-content input[type="checkbox"] {
       margin-right: 0.5rem;
       vertical-align: middle;
@@ -97,26 +108,31 @@
       position: relative;
       border-radius: 5px;
     }
+
     .options-content input[type="checkbox"]:checked {
       background-image: url('checkmark.png');
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
     }
+
     .options-content input[type="checkbox"]:focus {
       outline: white;
       box-shadow: 0 0 10px var(white);
     }
+
     .options-content input[type="number"] {
       margin-right: 0.5rem;
       vertical-align: middle;
       background-color: var(--light-text);
       color: var(--dark-bg);
     }
+
     .options-content #autoClickDelayLabel {
       margin-top: 0.5rem;
       display: block;
     }
+
     .options-content #autoClickDelay {
       width: 60px;
       padding: 0.25rem;
@@ -125,7 +141,21 @@
       background-color: var(--darker-bg);
       color: var(--light-text);
     }
-    .options-dropdown:hover .options-content {
+
+    /* Dark Background Overlay */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1;
+    }
+
+    /* Active State for Overlay */
+    .overlay.active {
       display: block;
     }
   </style>
@@ -136,7 +166,7 @@
     <div class="logo">4SP</div>
     <div class="nav-buttons">
       <div class="options-dropdown">
-        <button class="btn secondary">Options</button>
+        <button class="btn secondary options-button">Options</button>
         <div class="options-content">
           <label>
             <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
@@ -173,6 +203,9 @@
     <p>© 2025 4SP</p>
   </footer>
 
+  <!-- Darkened Overlay -->
+  <div class="overlay" id="overlay"></div>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const normalSoundsContainer = document.getElementById('normalSoundsContainer');
@@ -181,6 +214,10 @@
       const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
       const autoClickDelayInput = document.getElementById('autoClickDelay');
       const autoClickDelayLabel = document.getElementById('autoClickDelayLabel');
+      const overlay = document.getElementById('overlay');
+      const optionsButton = document.querySelector('.options-button');
+      const optionsContent = document.querySelector('.options-content');
+
       let playingAudios = [];
       let autoClickInterval;
       let currentlyHoveredButton = null;
@@ -281,6 +318,16 @@
           });
         })
         .catch(error => console.error('Error loading sound manifest:', error));
+
+      optionsButton.addEventListener('click', () => {
+        optionsContent.classList.toggle('active');
+        overlay.classList.toggle('active');
+      });
+
+      overlay.addEventListener('click', () => {
+        optionsContent.classList.remove('active');
+        overlay.classList.remove('active');
+      });
     });
   </script>
 </body>
