@@ -67,8 +67,10 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 120px;
+      max-width: 200px;
+      min-width: 160px;
       font-weight: bold;
+      text-align: center;
     }
 
     .sound-button:hover {
@@ -90,25 +92,53 @@
       border-radius: 50px;
       margin-right: 0.5rem;
       text-align: center;
-      min-width: 80px;
-      max-width: 160px;
+      min-width: 180px;
+      max-width: 240px;
     }
 
     .sound-upload {
-      padding: 0.75rem 1.5rem;
+      display: none;
+    }
+
+    /* File upload styling */
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .custom-file-upload {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border: 2px solid var(--dark-bg);
       border-radius: 50px;
       background-color: transparent;
       color: var(--dark-bg);
       font-weight: bold;
-      border: 2px solid var(--dark-bg);
       cursor: pointer;
+      text-align: center;
       transition: background-color 0.3s ease;
-      margin-right: 0.5rem;
+      min-width: 180px;
+    }
+
+    .custom-file-upload:hover {
+      background-color: var(--light-gray);
     }
 
     /* Edit Mode Styles */
     .edit-mode .sound-name,
-    .edit-mode .sound-upload {
+    .edit-mode .file-input-wrapper {
       display: inline-block;
     }
 
@@ -171,6 +201,36 @@
       transform: scale(0.95);
     }
 
+    /* Status message */
+    .status-message {
+      display: none;
+      padding: 0.5rem 1rem;
+      margin: 0.5rem auto;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      background-color: rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 80%;
+    }
+
+    .status-message.success {
+      background-color: rgba(0, 255, 0, 0.1);
+      color: green;
+      border: 1px solid green;
+    }
+
+    .status-message.error {
+      background-color: rgba(255, 0, 0, 0.1);
+      color: red;
+      border: 1px solid red;
+    }
+
+    .status-message.info {
+      background-color: rgba(0, 0, 255, 0.1);
+      color: blue;
+      border: 1px solid blue;
+    }
+
     /* Options Dropdown Styles - matching soundboard.html */
     .options-dropdown {
       position: relative;
@@ -224,7 +284,10 @@
     }
 
     .options-content input[type="checkbox"]:checked {
-      background-color: var(--light-text);
+      background-image: url('checkmark.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
     }
 
     .options-content #autoClickDelayLabel {
@@ -239,6 +302,40 @@
       border: 2px solid var(--light-text);
       background-color: var(--darker-bg);
       color: var(--light-text);
+    }
+
+    .options-section {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .options-section:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .options-section h3 {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      color: var(--light-text);
+      opacity: 0.8;
+    }
+
+    /* Keyboard shortcuts info */
+    .keyboard-shortcuts {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .keyboard-shortcuts p {
+      margin: 0.25rem 0;
+      font-size: 0.85rem;
+      color: var(--light-text);
+      opacity: 0.8;
     }
 
     /* Overlay for options menu */
@@ -266,15 +363,28 @@
       <div class="options-dropdown">
         <button class="btn secondary options-button">Options</button>
         <div class="options-content">
-          <label>
-            <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
-          </label>
-          <label>
-            <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
-          </label>
-          <label id="autoClickDelayLabel" style="display: none;">
-            Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="100" />
-          </label>
+          <div class="options-section">
+            <h3>Playback Options</h3>
+            <label>
+              <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
+            </label>
+            <label>
+              <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
+            </label>
+            <label id="autoClickDelayLabel" style="display: none;">
+              Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="100" />
+            </label>
+          </div>
+          
+          <div class="options-section">
+            <h3>Management</h3>
+            <button id="clearAllSoundsBtn" class="btn secondary" style="width: 100%; margin-top: 0.5rem; background-color: rgba(255, 0, 0, 0.2); color: var(--light-text); border: 1px solid var(--light-text);">Clear All Sounds</button>
+          </div>
+          
+          <div class="keyboard-shortcuts">
+            <p><strong>Keyboard Shortcuts:</strong></p>
+            <p>Shift + C: Clear all sounds</p>
+          </div>
         </div>
       </div>
       <a href="dashboard.html" class="btn secondary">Dashboard</a>
@@ -284,7 +394,7 @@
 
   <main class="container">
     <h1>Local Sounds</h1>
-    <p>Upload and play your own local MP3 files.</p>
+    <p>Upload and play your own local audio files (MP3, WAV, OGG).</p>
 
     <div class="sound-section">
       <h2>My Sound Library</h2>
@@ -293,8 +403,11 @@
         <div class="sound-container" data-sound-id="1">
           <div class="sound-info">
             <button class="sound-button" data-sound-id="1">Sound 1</button>
-            <input type="text" class="sound-name" data-sound-id="1" placeholder="Sound 1 Name" style="display: none;">
-            <input type="file" class="sound-upload" data-sound-id="1" accept="audio/mp3" style="display: none;">
+            <input type="text" class="sound-name" data-sound-id="1" placeholder="Sound Name (24 chars max)" maxlength="24" style="display: none;">
+            <div class="file-input-wrapper" style="display: none;">
+              <button class="custom-file-upload">Select Audio File</button>
+              <input type="file" class="sound-upload" data-sound-id="1" accept="audio/*">
+            </div>
           </div>
           <div class="button-group">
             <button class="edit-button" data-sound-id="1">Edit</button>
@@ -304,6 +417,7 @@
       </div>
 
       <button id="addSoundButton">Add Sound Button</button>
+      <div class="status-message" id="statusMessage"></div>
     </div>
   </main>
 
@@ -326,12 +440,32 @@
       const optionsContent = document.querySelector('.options-content');
       const overlay = document.getElementById('overlay');
       const logoutBtn = document.getElementById('logoutBtn');
+      const statusMessage = document.getElementById('statusMessage');
+      const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
       
       // State variables
       let soundCount = 1;
       let playingAudios = [];  // Track currently playing audio objects
       let currentlyHoveredButton = null;
       let autoClickInterval;
+
+      // Show status message
+      function showStatus(message, type = 'info') {
+        statusMessage.textContent = message;
+        statusMessage.className = 'status-message ' + type;
+        statusMessage.style.display = 'block';
+        
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+          statusMessage.style.display = 'none';
+        }, 3000);
+      }
+
+      // Validate audio file type
+      function isValidAudioFile(file) {
+        const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/x-wav', 'audio/webm'];
+        return file && (validTypes.includes(file.type) || file.type.startsWith('audio/'));
+      }
 
       // Utility: Stop all currently playing audios
       function stopAllAudios() {
@@ -340,6 +474,47 @@
           audio.currentTime = 0;
         });
         playingAudios = [];
+      }
+
+      // Clear all sounds from localStorage and UI
+      function clearAllSounds() {
+        if (confirm('Are you sure you want to clear all sounds? This cannot be undone.')) {
+          // Stop any playing audio
+          stopAllAudios();
+          
+          // Remove all sound data from localStorage
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.match(/^sound\d+(Name|File|FileName)$/)) {
+              localStorage.removeItem(key);
+              i--; // Adjust index since removing items shifts the array
+            }
+          }
+          
+          // Clear all sound containers except the first one
+          const containers = document.querySelectorAll('.sound-container');
+          containers.forEach((container, index) => {
+            if (index > 0) {
+              container.remove();
+            } else {
+              // Reset the first container
+              const button = container.querySelector('.sound-button');
+              const nameInput = container.querySelector('.sound-name');
+              const fileUpload = container.querySelector('.sound-upload');
+              const customFileUpload = container.querySelector('.custom-file-upload');
+              
+              button.textContent = 'Sound 1';
+              nameInput.value = '';
+              fileUpload.value = '';
+              customFileUpload.textContent = 'Select Audio File';
+            }
+          });
+          
+          // Reset sound count
+          soundCount = 1;
+          
+          showStatus('All sounds have been cleared', 'success');
+        }
       }
 
       // Auto clicker functions
@@ -370,8 +545,11 @@
         container.innerHTML = `
           <div class="sound-info">
             <button class="sound-button" data-sound-id="${soundId}">Sound ${soundId}</button>
-            <input type="text" class="sound-name" data-sound-id="${soundId}" placeholder="Sound ${soundId} Name" style="display: none;">
-            <input type="file" class="sound-upload" data-sound-id="${soundId}" accept="audio/mp3" style="display: none;">
+            <input type="text" class="sound-name" data-sound-id="${soundId}" placeholder="Sound Name (24 chars max)" maxlength="24" style="display: none;">
+            <div class="file-input-wrapper" style="display: none;">
+              <button class="custom-file-upload">Select Audio File</button>
+              <input type="file" class="sound-upload" data-sound-id="${soundId}" accept="audio/*">
+            </div>
           </div>
           <div class="button-group">
             <button class="edit-button" data-sound-id="${soundId}">Edit</button>
@@ -393,20 +571,39 @@
         const fileInput = container.querySelector('.sound-upload');
         const editButton = container.querySelector('.edit-button');
         const deleteButton = container.querySelector('.delete-button');
+        const fileInputWrapper = container.querySelector('.file-input-wrapper');
+        const customFileUpload = container.querySelector('.custom-file-upload');
         
         // Save changes for sound name and update button text
         nameInput.addEventListener('input', function() {
-          localStorage.setItem(`sound${soundId}Name`, this.value);
-          button.textContent = this.value || `Sound ${soundId}`;
+          const truncatedName = this.value.substring(0, 24);
+          localStorage.setItem(`sound${soundId}Name`, truncatedName);
+          button.textContent = truncatedName || `Sound ${soundId}`;
         });
 
         // Upload file and save its URL reference
         fileInput.addEventListener('change', function() {
           const file = this.files[0];
+          
           if (file) {
-            const objectURL = URL.createObjectURL(file);
-            localStorage.setItem(`sound${soundId}File`, objectURL);
-            console.log("File uploaded and saved for Sound " + soundId);
+            if (isValidAudioFile(file)) {
+              const objectURL = URL.createObjectURL(file);
+              localStorage.setItem(`sound${soundId}File`, objectURL);
+              localStorage.setItem(`sound${soundId}FileName`, file.name);
+              
+              // Update the button text with file name
+              customFileUpload.textContent = file.name.length > 20 
+                ? file.name.substring(0, 17) + '...' 
+                : file.name;
+              
+              showStatus(`File "${file.name}" uploaded successfully`, 'success');
+            } else {
+              this.value = '';
+              customFileUpload.textContent = 'Select Audio File';
+              showStatus('Please upload only audio files (MP3, WAV, OGG)', 'error');
+            }
+          } else {
+            customFileUpload.textContent = 'Select Audio File';
           }
         });
 
@@ -427,14 +624,14 @@
               playingAudios.push(audio);
               audio.play().catch(error => {
                 console.error("Error playing sound:", error);
-                alert('Error playing the sound. Please upload the file again.');
+                showStatus('Error playing the sound. Please upload the file again.', 'error');
               });
             } catch (error) {
               console.error("Error creating audio:", error);
-              alert('Error playing the sound. Please upload the file again.');
+              showStatus('Error playing the sound. Please upload the file again.', 'error');
             }
           } else {
-            alert('No file uploaded for this sound button.');
+            showStatus('No audio file uploaded for this sound button.', 'error');
           }
         });
 
@@ -457,14 +654,44 @@
         editButton.addEventListener('click', function() {
           const isEditMode = container.classList.toggle('edit-mode');
           nameInput.style.display = isEditMode ? 'inline-block' : 'none';
-          fileInput.style.display = isEditMode ? 'inline-block' : 'none';
+          fileInputWrapper.style.display = isEditMode ? 'inline-block' : 'none';
+          
+          // Load saved filename if available
+          if (isEditMode) {
+            const savedFileName = localStorage.getItem(`sound${soundId}FileName`);
+            if (savedFileName) {
+              customFileUpload.textContent = savedFileName.length > 20 
+                ? savedFileName.substring(0, 17) + '...' 
+                : savedFileName;
+            } else {
+              customFileUpload.textContent = 'Select Audio File';
+            }
+          }
         });
 
         // Delete sound button and remove associated localStorage items
         deleteButton.addEventListener('click', function() {
-          localStorage.removeItem(`sound${soundId}Name`);
-          localStorage.removeItem(`sound${soundId}File`);
-          container.remove();
+          if (confirm(`Are you sure you want to delete "${button.textContent}"?`)) {
+            // Stop sound if it's playing
+            playingAudios.forEach(audio => {
+              try {
+                const soundFile = localStorage.getItem(`sound${soundId}File`);
+                if (soundFile && audio.src === soundFile) {
+                  audio.pause();
+                  audio.currentTime = 0;
+                  playingAudios = playingAudios.filter(a => a !== audio);
+                }
+              } catch (e) {
+                console.error("Error stopping audio:", e);
+              }
+            });
+            
+            localStorage.removeItem(`sound${soundId}Name`);
+            localStorage.removeItem(`sound${soundId}File`);
+            localStorage.removeItem(`sound${soundId}FileName`);
+            container.remove();
+            showStatus(`Sound "${button.textContent}" deleted`, 'success');
+          }
         });
       }
 
@@ -475,8 +702,8 @@
         
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key && key.match(/^sound(\d+)(Name|File)$/)) {
-            const id = parseInt(key.match(/^sound(\d+)(Name|File)$/)[1]);
+          if (key && key.match(/^sound(\d+)(Name|File|FileName)$/)) {
+            const id = parseInt(key.match(/^sound(\d+)(Name|File|FileName)$/)[1]);
             if (!isNaN(id) && id > highestId) {
               highestId = id;
             }
@@ -507,11 +734,22 @@
           const soundId = container.dataset.soundId;
           const button = container.querySelector('.sound-button');
           const nameInput = container.querySelector('.sound-name');
+          const customFileUpload = container.querySelector('.custom-file-upload');
+          
           const soundName = localStorage.getItem(`sound${soundId}Name`);
+          const fileName = localStorage.getItem(`sound${soundId}FileName`);
           
           if (soundName) {
             nameInput.value = soundName;
             button.textContent = soundName;
+          }
+          
+          if (fileName) {
+            customFileUpload.textContent = fileName.length > 20 
+              ? fileName.substring(0, 17) + '...' 
+              : fileName;
+          } else {
+            customFileUpload.textContent = 'Select Audio File';
           }
         });
         
@@ -569,6 +807,17 @@
         soundCount++;
         const newSoundButton = createSoundButton(soundCount);
         soundButtonsContainer.appendChild(newSoundButton);
+        showStatus(`New sound button added`, 'success');
+      });
+
+      // Clear all sounds button
+      clearAllSoundsBtn.addEventListener('click', clearAllSounds);
+      
+      // Keyboard shortcut: Shift+C to clear all sounds
+      document.addEventListener('keydown', function(e) {
+        if (e.shiftKey && e.key.toLowerCase() === 'c') {
+          clearAllSounds();
+        }
       });
 
       // Options menu toggle
