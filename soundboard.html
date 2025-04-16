@@ -12,38 +12,26 @@
     .sound-section {
       margin-bottom: 2rem;
     }
-
     .sound-section h2 {
       margin-bottom: 0.5rem;
       font-size: 1.5rem;
       padding-bottom: 0.25rem;
-      /* Spacing for the line */
       border-bottom: 2px solid var(--dark-bg);
-      /* Line under the text */
       width: 100%;
-      /* Line takes the full width */
     }
-
     .soundButtonsContainer {
       display: flex;
       flex-wrap: wrap;
-      /* Allow buttons to wrap to the next line */
       justify-content: flex-start;
-      /* Align buttons to the start (left) */
       padding: 1rem;
-      /* Padding around buttons */
       gap: 2rem;
-      /* Increased spacing between buttons */
       width: 100%;
-      /* Take up full width */
     }
-
     .soundButtonsContainer.explicit,
     .soundButtonsContainer.normal {
       padding: 1rem;
       gap: 2rem;
     }
-
     .sound-button {
       width: 100px;
       height: 100px;
@@ -53,32 +41,24 @@
       border: 2px solid var(--dark-bg);
       cursor: pointer;
       font-size: 0.7rem;
-      /* Slightly smaller font size */
       font-weight: bold;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       transition: background-color 0.3s ease, transform 0.1s ease;
-      /* Added transform for animation */
       padding: 0.5rem;
-      /* Add a little padding to the button */
     }
-
     .sound-button:hover {
       background-color: var(--light-gray);
     }
-
     .sound-button:active {
       transform: scale(0.9);
-      /* Scale down slightly when clicked */
     }
-
     /* Options Dropdown Styles */
     .options-dropdown {
       position: relative;
       display: inline-block;
     }
-
     .options-button {
       background-color: transparent;
       color: var(--light-text);
@@ -88,7 +68,6 @@
       border-radius: 50px;
       cursor: pointer;
     }
-
     .options-content {
       display: none;
       position: absolute;
@@ -101,13 +80,11 @@
       border-radius: 30px;
       color: var(--light-text);
     }
-
     .options-content label {
       display: block;
       margin-bottom: 0.5rem;
       color: var(--light-text);
     }
-
     .options-content input[type="checkbox"] {
       margin-right: 0.5rem;
       vertical-align: middle;
@@ -120,31 +97,26 @@
       position: relative;
       border-radius: 5px;
     }
-
     .options-content input[type="checkbox"]:checked {
       background-image: url('checkmark.png');
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
     }
-
     .options-content input[type="checkbox"]:focus {
       outline: white;
       box-shadow: 0 0 10px var(white);
     }
-
     .options-content input[type="number"] {
       margin-right: 0.5rem;
       vertical-align: middle;
       background-color: var(--light-text);
       color: var(--dark-bg);
     }
-
     .options-content #autoClickDelayLabel {
       margin-top: 0.5rem;
       display: block;
     }
-
     .options-content #autoClickDelay {
       width: 60px;
       padding: 0.25rem;
@@ -153,8 +125,6 @@
       background-color: var(--darker-bg);
       color: var(--light-text);
     }
-
-    /* Show options on hover */
     .options-dropdown:hover .options-content {
       display: block;
     }
@@ -190,14 +160,12 @@
 
     <div class="sound-section">
       <h2>Normal Sounds</h2>
-      <div id="normalSoundsContainer" class="soundButtonsContainer normal">
-      </div>
+      <div id="normalSoundsContainer" class="soundButtonsContainer normal"></div>
     </div>
 
     <div class="sound-section">
       <h2>Explicit Sounds</h2>
-      <div id="explicitSoundsContainer" class="soundButtonsContainer explicit">
-      </div>
+      <div id="explicitSoundsContainer" class="soundButtonsContainer explicit"></div>
     </div>
   </main>
 
@@ -247,7 +215,6 @@
 
         if (currentlyHoveredButton && autoClickerCheckbox.checked) {
           autoClickInterval = setInterval(() => {
-            // Trigger the button animation effect by toggling the active class
             currentlyHoveredButton.classList.add('sound-button-active');
             setTimeout(() => {
               currentlyHoveredButton.classList.remove('sound-button-active');
@@ -268,57 +235,52 @@
         }
       });
 
-      async function loadSoundsFromDirectory(directory, container) {
-        try {
-          // Fetch a listing from the directory (this requires proper server support)
-          const response = await fetch(directory);
-          const files = await response.text();
-          // Split the text into individual filenames, filtering for ".mp3" files
-          const fileList = files.split('\n').filter(file => file.trim().endsWith('.mp3'));
+      function createSoundButton(folder, fileName, container) {
+        const soundName = fileName.replace('.mp3', '').replace(/_/g, ' ');
+        const soundPath = `${folder}/${fileName}`;
+        const button = document.createElement('button');
+        button.classList.add('sound-button');
+        button.textContent = soundName;
 
-          fileList.forEach(file => {
-            // Create a more human-friendly name by removing the .mp3 extension and replacing underscores with spaces.
-            const soundName = file.trim().replace('.mp3', '').replace(/_/g, ' ');
-            const soundPath = `${directory}/${file.trim()}`;
-            const button = document.createElement('button');
-            button.classList.add('sound-button');
-            button.textContent = soundName;
-
-            button.addEventListener('click', () => {
-              if (!soundOverlayCheckbox.checked) {
-                stopAllAudios();
-              }
-
-              const audio = new Audio(soundPath);
-              audio.addEventListener('ended', () => {
-                playingAudios = playingAudios.filter(a => a !== audio);
-              });
-              playingAudios.push(audio);
-              audio.play();
-            });
-
-            button.addEventListener('mouseenter', () => {
-              currentlyHoveredButton = button;
-              if (autoClickerCheckbox.checked) {
-                startAutoClicker();
-              }
-            });
-
-            button.addEventListener('mouseleave', () => {
-              currentlyHoveredButton = null;
-              stopAutoClicker();
-            });
-
-            container.appendChild(button);
+        button.addEventListener('click', () => {
+          if (!soundOverlayCheckbox.checked) {
+            stopAllAudios();
+          }
+          const audio = new Audio(soundPath);
+          audio.addEventListener('ended', () => {
+            playingAudios = playingAudios.filter(a => a !== audio);
           });
-        } catch (error) {
-          console.error('Error loading sounds from ' + directory + ':', error);
-        }
+          playingAudios.push(audio);
+          audio.play();
+        });
+
+        button.addEventListener('mouseenter', () => {
+          currentlyHoveredButton = button;
+          if (autoClickerCheckbox.checked) {
+            startAutoClicker();
+          }
+        });
+
+        button.addEventListener('mouseleave', () => {
+          currentlyHoveredButton = null;
+          stopAutoClicker();
+        });
+
+        container.appendChild(button);
       }
 
-      // Load sound buttons from the two directories
-      loadSoundsFromDirectory('NormalSounds', normalSoundsContainer);
-      loadSoundsFromDirectory('ExplicitSounds', explicitSoundsContainer);
+      // Load the sound file list from the JSON file named SoundboardSN.json
+      fetch('SoundboardSN.json')
+        .then(response => response.json())
+        .then(data => {
+          (data.NormalSounds || []).forEach(file => {
+            createSoundButton('NormalSounds', file, normalSoundsContainer);
+          });
+          (data.ExplicitSounds || []).forEach(file => {
+            createSoundButton('ExplicitSounds', file, explicitSoundsContainer);
+          });
+        })
+        .catch(error => console.error('Error loading sound manifest:', error));
     });
   </script>
 </body>
