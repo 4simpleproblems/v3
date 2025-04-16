@@ -30,12 +30,6 @@
       width: 100%;
     }
 
-    .soundButtonsContainer.explicit,
-    .soundButtonsContainer.normal {
-      padding: 1rem;
-      gap: 2rem;
-    }
-
     .sound-button {
       width: 100px;
       height: 100px;
@@ -90,10 +84,13 @@
       color: var(--light-text);
     }
 
+    .options-content.active {
+      display: block;
+    }
+
     .options-content label {
       display: block;
       margin-bottom: 0.5rem;
-      color: var(--light-text);
     }
 
     .options-content input[type="checkbox"] {
@@ -116,18 +113,6 @@
       background-position: center;
     }
 
-    .options-content input[type="checkbox"]:focus {
-      outline: white;
-      box-shadow: 0 0 10px var(white);
-    }
-
-    .options-content input[type="number"] {
-      margin-right: 0.5rem;
-      vertical-align: middle;
-      background-color: var(--light-text);
-      color: var(--dark-bg);
-    }
-
     .options-content #autoClickDelayLabel {
       margin-top: 0.5rem;
       display: block;
@@ -142,9 +127,8 @@
       color: var(--light-text);
     }
 
-    /* Dark Background Overlay */
     .overlay {
-      display: block;
+      display: none;
       position: fixed;
       top: 0;
       left: 0;
@@ -152,13 +136,10 @@
       height: 100%;
       background-color: rgba(0, 0, 0, 0.5);
       z-index: 1;
-      opacity: 0; /* Initially hidden */
-      transition: opacity 0.3s ease-in-out; /* Smooth transition for fading */
     }
 
-    /* Active State for Overlay */
     .overlay.active {
-      opacity: 1; /* Fully visible when active */
+      display: block;
     }
   </style>
 </head>
@@ -205,7 +186,6 @@
     <p>© 2025 4SP</p>
   </footer>
 
-  <!-- Darkened Overlay -->
   <div class="overlay" id="overlay"></div>
 
   <script>
@@ -249,15 +229,11 @@
       });
 
       function startAutoClicker() {
-        stopAutoClicker(); // Clear any existing interval
+        stopAutoClicker();
         const delay = parseInt(autoClickDelayInput.value, 10);
 
         if (currentlyHoveredButton && autoClickerCheckbox.checked) {
           autoClickInterval = setInterval(() => {
-            currentlyHoveredButton.classList.add('sound-button-active');
-            setTimeout(() => {
-              currentlyHoveredButton.classList.remove('sound-button-active');
-            }, 100);
             currentlyHoveredButton.click();
           }, delay);
         }
@@ -308,7 +284,6 @@
         container.appendChild(button);
       }
 
-      // Load the sound file list from the JSON file named SoundboardSN.json
       fetch('SoundboardSN.json')
         .then(response => response.json())
         .then(data => {
