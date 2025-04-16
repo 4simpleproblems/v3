@@ -22,6 +22,20 @@
         --card-bg: white;
         --card-border: var(--light-gray);
         --pill-radius: 50px;
+        
+        /* Custom username button variables */
+        --username-btn-padding: 0.5rem 1rem;
+        --username-btn-font-size: 0.9rem;
+        --username-btn-border-radius: var(--pill-radius);
+        --username-btn-bg-color: var(--secondary-action-bg);
+        --username-btn-text-color: var(--secondary-action-text);
+        --username-btn-border: 2px solid var(--secondary-action-text);
+        --username-btn-hover-bg: #d0d0d0;
+        --username-btn-transition: all 0.3s ease;
+        --username-btn-cursor: pointer;
+        --username-btn-font-weight: normal;
+        --username-btn-box-shadow: none;
+        --username-btn-margin: 0.5rem 0 0 0;
     }
 
     body {
@@ -136,8 +150,24 @@
         display: none;
     }
 
-    #editUsernameBtn {
-        cursor: pointer;
+    /* Custom username change button styling */
+    .username-change-btn {
+        padding: var(--username-btn-padding);
+        font-size: var(--username-btn-font-size);
+        border-radius: var(--username-btn-border-radius);
+        background-color: var(--username-btn-bg-color);
+        color: var(--username-btn-text-color);
+        border: var(--username-btn-border);
+        cursor: var(--username-btn-cursor);
+        transition: var(--username-btn-transition);
+        font-weight: var(--username-btn-font-weight);
+        box-shadow: var(--username-btn-box-shadow);
+        margin: var(--username-btn-margin);
+        text-align: center;
+    }
+
+    .username-change-btn:hover {
+        background-color: var(--username-btn-hover-bg);
     }
 
     .additional-info {
@@ -205,7 +235,7 @@
                         <input type="text" id="newUsername" placeholder="Enter Username">
                         <button id="saveUsernameBtn">Save</button>
                     </div>
-                    <button id="editUsernameBtn" class="btn secondary small-btn">Change Username</button>
+                    <button id="editUsernameBtn" class="username-change-btn">Change Username</button>
                 </div>
 
                 <div class="additional-info">
