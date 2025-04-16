@@ -68,7 +68,7 @@
       transform: scale(0.95);
     }
 
-    /* Options Dropdown Styles - Enhanced */
+    /* Options Dropdown Styles - Enhanced with more pronounced animations */
     .options-dropdown {
       position: relative;
       display: inline-block;
@@ -84,6 +84,29 @@
       cursor: pointer;
     }
 
+    /* Options Menu Fade Animation */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+    }
+
     .options-content {
       display: none;
       position: absolute;
@@ -97,8 +120,14 @@
       color: var(--light-text);
     }
 
-    .options-content.active {
+    .options-content.fade-in {
       display: block;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .options-content.fade-out {
+      display: block;
+      animation: fadeOut 0.3s ease forwards;
     }
 
     .options-content label {
@@ -192,6 +221,77 @@
       background-color: rgba(255, 255, 255, 0.2);
     }
 
+    /* Enhanced Clear all sounds button with much more satisfying pop effect */
+    #clearAllSoundsBtn {
+      width: 100%;
+      margin-top: 0.5rem;
+      background-color: rgba(255, 0, 0, 0.2);
+      color: var(--light-text);
+      border: 1px solid var(--light-text);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Clear button pop animation */
+    @keyframes buttonPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      75% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+
+    /* Ripple effect */
+    @keyframes ripple {
+      0% {
+        transform: scale(0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    #clearAllSoundsBtn.active {
+      animation: buttonPop 0.4s ease-in-out;
+      background-color: rgba(255, 0, 0, 0.4);
+    }
+
+    /* Ripple container to prevent glitches */
+    .ripple-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.4);
+      width: 100px;
+      height: 100px;
+      margin-top: -50px;
+      margin-left: -50px;
+      animation: ripple 0.6s ease-out;
+      pointer-events: none;
+    }
+
+    /* Animated overlay fade effect */
+    @keyframes fadeInOverlay {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeOutOverlay {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
     .overlay {
       display: none;
       position: fixed;
@@ -203,11 +303,39 @@
       z-index: 1;
     }
 
-    .overlay.active {
+    .overlay.fade-in {
       display: block;
+      animation: fadeInOverlay 0.3s ease forwards;
+    }
+
+    .overlay.fade-out {
+      display: block;
+      animation: fadeOutOverlay 0.3s ease forwards;
     }
     
-    /* Status message */
+    /* Status message with enhanced fade animation */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOutDown {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    }
+
     .status-message {
       display: none;
       padding: 0.5rem 1rem;
@@ -217,6 +345,16 @@
       background-color: rgba(0, 0, 0, 0.1);
       text-align: center;
       max-width: 80%;
+    }
+
+    .status-message.fade-in {
+      display: block;
+      animation: fadeInUp 0.3s ease forwards;
+    }
+
+    .status-message.fade-out {
+      display: block;
+      animation: fadeOutDown 0.3s ease forwards;
     }
 
     .status-message.success {
@@ -245,7 +383,7 @@
     <div class="nav-buttons">
       <div class="options-dropdown">
         <button class="btn secondary options-button">Options</button>
-        <div class="options-content">
+        <div class="options-content" id="optionsMenu">
           <div class="options-section">
             <h3>Playback Options</h3>
             <label>
@@ -262,7 +400,10 @@
           
           <div class="options-section">
             <h3>Management</h3>
-            <button id="clearAllSoundsBtn" class="btn secondary" style="width: 100%; margin-top: 0.5rem; background-color: rgba(255, 0, 0, 0.2); color: var(--light-text); border: 1px solid var(--light-text);">Clear All Sounds</button>
+            <button id="clearAllSoundsBtn" class="btn secondary">
+              Clear All Sounds
+              <div class="ripple-container"></div>
+            </button>
           </div>
           
           <div class="keyboard-shortcuts">
@@ -311,9 +452,10 @@
       const applyDelayBtn = document.getElementById('applyDelayBtn');
       const overlay = document.getElementById('overlay');
       const optionsButton = document.querySelector('.options-button');
-      const optionsContent = document.querySelector('.options-content');
+      const optionsMenu = document.getElementById('optionsMenu');
       const statusMessage = document.getElementById('statusMessage');
       const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
+      const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
       const logoutBtn = document.getElementById('logoutBtn');
 
       // State variables
@@ -321,23 +463,133 @@
       let autoClickInterval;
       let requestAnimationFrameId = null;
       let currentlyHoveredButton = null;
+      let statusMessageTimeout = null;
+      let menuIsOpen = false;
+      let isRippling = false; // Flag to prevent multiple ripples
 
-      // Show status message - now only used for clearing sounds
+      // Enhanced show status message with proper fade animation
       function showStatus(message, type = 'info') {
+        // Clear any existing timeout
+        if (statusMessageTimeout) {
+          clearTimeout(statusMessageTimeout);
+          statusMessage.classList.remove('fade-in', 'fade-out');
+        }
+        
+        // Set the message and prepare to show it
         statusMessage.textContent = message;
         statusMessage.className = 'status-message ' + type;
-        statusMessage.style.display = 'block';
         
-        // Auto-hide after 3 seconds
-        setTimeout(() => {
-          statusMessage.style.display = 'none';
-        }, 3000);
+        // First check if already displayed, if so remove it briefly
+        if (statusMessage.style.display === 'block') {
+          statusMessage.classList.add('fade-out');
+          
+          setTimeout(() => {
+            statusMessage.classList.remove('fade-out');
+            statusMessage.style.display = 'none';
+            
+            // Then show the new message after a brief pause
+            setTimeout(() => {
+              statusMessage.style.display = 'block';
+              statusMessage.classList.add('fade-in');
+              
+              // Set timeout to hide the message
+              statusMessageTimeout = setTimeout(() => {
+                statusMessage.classList.remove('fade-in');
+                statusMessage.classList.add('fade-out');
+                
+                // When fadeout animation finishes, hide the element
+                setTimeout(() => {
+                  statusMessage.style.display = 'none';
+                  statusMessage.classList.remove('fade-out');
+                }, 300);
+              }, 3000);
+            }, 50);
+          }, 300);
+        } else {
+          // If not displayed, show it directly
+          statusMessage.style.display = 'block';
+          statusMessage.classList.add('fade-in');
+          
+          // Set timeout to hide the message
+          statusMessageTimeout = setTimeout(() => {
+            statusMessage.classList.remove('fade-in');
+            statusMessage.classList.add('fade-out');
+            
+            // When fadeout animation finishes, hide the element
+            setTimeout(() => {
+              statusMessage.style.display = 'none';
+              statusMessage.classList.remove('fade-out');
+            }, 300);
+          }, 3000);
+        }
       }
 
-      // Close options menu and overlay
+      // Open options menu with fade effect
+      function openOptionsMenu() {
+        if (menuIsOpen) return;
+        
+        menuIsOpen = true;
+        
+        // Show overlay with fade-in
+        overlay.style.display = 'block';
+        overlay.classList.add('fade-in');
+        
+        // Show menu with fade-in
+        optionsMenu.style.display = 'block';
+        optionsMenu.classList.add('fade-in');
+      }
+
+      // Close options menu with fade effect
       function closeOptionsMenu() {
-        optionsContent.classList.remove('active');
-        overlay.classList.remove('active');
+        if (!menuIsOpen) return;
+        
+        menuIsOpen = false;
+        
+        // Fade out the overlay
+        overlay.classList.remove('fade-in');
+        overlay.classList.add('fade-out');
+        
+        // Fade out the menu
+        optionsMenu.classList.remove('fade-in');
+        optionsMenu.classList.add('fade-out');
+        
+        // After animation completes, hide elements and reset classes
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          overlay.classList.remove('fade-out');
+          
+          optionsMenu.style.display = 'none';
+          optionsMenu.classList.remove('fade-out');
+        }, 300);
+      }
+
+      // Fixed create ripple effect to prevent glitches
+      function createRipple(event) {
+        // Prevent multiple ripples
+        if (isRippling) return;
+        isRippling = true;
+        
+        const rect = clearAllSoundsBtn.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        
+        // Create a ripple element
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        
+        // Clear any existing ripples first
+        rippleContainer.innerHTML = '';
+        
+        // Add ripple to container
+        rippleContainer.appendChild(ripple);
+        
+        // Set timeout to remove ripple and reset flag
+        setTimeout(() => {
+          ripple.remove();
+          isRippling = false;
+        }, 600);
       }
 
       // Immediately mute all sounds without stopping them
@@ -390,7 +642,10 @@
           }
         }
         
-        closeOptionsMenu();
+        // Only close menu when using keyboard shortcut
+        if (instantMute) {
+          closeOptionsMenu();
+        }
       }
 
       // Fast clicking function using requestAnimationFrame for 0ms delay
@@ -535,8 +790,19 @@
       // Auto Clicker delay apply button
       applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
 
-      // Clear all sounds button
-      clearAllSoundsBtn.addEventListener('click', function() {
+      // Clear all sounds button with enhanced pop effect & ripple
+      clearAllSoundsBtn.addEventListener('click', function(event) {
+        // Create ripple effect
+        createRipple(event);
+        
+        // Add animation class
+        this.classList.add('active');
+        
+        // Remove animation class after animation completes
+        setTimeout(() => {
+          this.classList.remove('active');
+        }, 400);
+        
         clearAllSounds(false); // Normal clear without instant mute
       });
       
@@ -547,11 +813,15 @@
         }
       });
 
-      // Options menu toggle
+      // Options menu toggle with enhanced fade effect
       optionsButton.addEventListener('click', function(e) {
         e.stopPropagation();
-        optionsContent.classList.toggle('active');
-        overlay.classList.toggle('active');
+        
+        if (menuIsOpen) {
+          closeOptionsMenu();
+        } else {
+          openOptionsMenu();
+        }
       });
 
       // Close options when clicking overlay
