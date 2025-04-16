@@ -198,7 +198,7 @@
     .status-message {
       display: none;
       padding: 0.5rem 1rem;
-      margin: 0.5rem auto;
+      margin: 1rem auto;
       border-radius: 50px;
       font-size: 0.9rem;
       background-color: rgba(0, 0, 0, 0.1);
@@ -309,7 +309,7 @@
       let requestAnimationFrameId = null;
       let currentlyHoveredButton = null;
 
-      // Show status message
+      // Show status message - now only used for clearing sounds
       function showStatus(message, type = 'info') {
         statusMessage.textContent = message;
         statusMessage.className = 'status-message ' + type;
@@ -329,17 +329,24 @@
 
       // Stop all playing sounds
       function stopAllAudios() {
+        if (playingAudios.length === 0) return; // Don't show message if no sounds are playing
+        
         playingAudios.forEach(audio => {
           audio.pause();
           audio.currentTime = 0;
         });
         playingAudios = [];
-        showStatus('All sounds stopped', 'success');
       }
 
       // Clear all sounds function (only stops playing sounds)
       function clearAllSounds() {
+        const wasPlaying = playingAudios.length > 0;
         stopAllAudios();
+        
+        if (wasPlaying) {
+          showStatus('All sounds stopped', 'success');
+        }
+        
         closeOptionsMenu();
       }
 
@@ -397,7 +404,6 @@
           startAutoClicker();
         }
         
-        showStatus(`Auto clicker delay set to ${autoClickDelayInput.value}ms`, 'success');
         closeOptionsMenu();
       }
 
@@ -422,11 +428,9 @@
             playingAudios.push(audio);
             audio.play().catch(error => {
               console.error("Error playing sound:", error);
-              showStatus('Error playing the sound', 'error');
             });
           } catch (error) {
             console.error("Error creating audio:", error);
-            showStatus('Error playing the sound', 'error');
           }
         });
 
@@ -549,7 +553,6 @@
         })
         .catch(error => {
           console.error('Error loading sound manifest:', error);
-          showStatus('Error loading sounds. Please try refreshing the page.', 'error');
         });
     });
   </script>
