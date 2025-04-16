@@ -1,119 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4SP | Analytics</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4SP | Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Firebase scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">4SP</div>
-        <div class="nav-buttons">
-            <a href="dashboard.html" class="btn secondary">Dashboard</a>
-            <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div id="analyticsContent" class="analytics-content">
+      <h1>Website Analytics</h1>
+      <p id="authNotice">Checking Authentication...</p>
+      <div id="adminContent" class="hidden">
+        <p>Welcome, Admin! Here are your analytics:</p>
+        <ul id="analyticsList">
+          <li>Loading analytics...</li>
+        </ul>
+        <div id="chartSection">
+          <h2>Analytics Chart</h2>
+          <canvas id="analyticsChart" width="400" height="200"></canvas>
         </div>
-    </nav>
+        <p id="noDataMessage" class="hidden" style="color: var(--error-red);">
+          Missing or insufficient permissions.
+        </p>
+      </div>
+      <p id="errorMessage" class="hidden" style="color: var(--error-red);"></p>
+    </div>
+  </main>
 
-    <main class="container">
-        <div id="analyticsContent" class="analytics-content">
-            <h1>Website Analytics</h1>
-            <p id="authNotice">Checking Authentication...</p>
-            <div id="adminContent" class="hidden">
-                <p>Welcome, Admin! Here are your analytics:</p>
-                <ul id="analyticsList">
-                    <li>Loading analytics...</li>
-                </ul>
-                <p id="noDataMessage" class="hidden" style="color: var(--error-red);">Missing or insufficient permissions.</p>
-            </div>
-            <p id="errorMessage" class="hidden" style="color: var(--error-red);"></p>
-        </div>
-    </main>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // References from firebase-config.js
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      const adminEmail = "4simpleproblems@gmail.com";
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const auth = firebase.auth();
-            const db = firebase.firestore();
-            const adminEmail = '4simpleproblems@gmail.com';
+      const analyticsContent = document.getElementById("analyticsContent");
+      const adminContent = document.getElementById("adminContent");
+      const authNotice = document.getElementById("authNotice");
+      const logoutBtn = document.getElementById("logoutBtn");
+      const analyticsList = document.getElementById("analyticsList");
+      const noDataMessage = document.getElementById("noDataMessage");
+      const errorMessage = document.getElementById("errorMessage");
 
-            const analyticsContent = document.getElementById('analyticsContent');
-            const adminContent = document.getElementById('adminContent');
-            const authNotice = document.getElementById('authNotice');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const analyticsList = document.getElementById('analyticsList');
-            const noDataMessage = document.getElementById('noDataMessage');
-            const errorMessage = document.getElementById('errorMessage');
+      // Display error messages in the UI.
+      function displayError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("hidden");
+      }
 
-            // Function to display error messages
-            function displayError(message) {
-                errorMessage.textContent = message;
-                errorMessage.classList.remove('hidden');
-            }
+      // Logout functionality.
+      logoutBtn.addEventListener("click", () => {
+        auth
+          .signOut()
+          .then(() => {
+            console.log("User signed out");
+            window.location.href = "index.html"; // Redirect to index page.
+          })
+          .catch((error) => {
+            console.error("Sign out error:", error);
+            displayError("Sign out error: " + error.message);
+          });
+      });
 
-            // Logout Function
-            logoutBtn.addEventListener('click', () => {
-                auth.signOut().then(() => {
-                    console.log('User signed out');
-                    window.location.href = 'index.html'; // Redirect to index
-                }).catch((error) => {
-                    console.error('Sign out error:', error);
-                    displayError('Sign out error: ' + error.message);
-                });
-            });
+      // Listen for Authentication State changes.
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          // Allow access only to admin users based on email.
+          if (user.email === adminEmail) {
+            authNotice.classList.add("hidden");
+            adminContent.classList.remove("hidden");
+            await loadAnalytics(); // Load analytics data for admin.
+          } else {
+            window.location.href = "index.html"; // Redirect non-admin users.
+          }
+        } else {
+          window.location.href = "index.html"; // Redirect unauthorized users.
+        }
+      });
 
-            // Authentication State Listener
-            auth.onAuthStateChanged(async user => {
-                if (user) {
-                    // Check if user is admin
-                    if (user.email === adminEmail) {
-                        authNotice.classList.add('hidden');
-                        adminContent.classList.remove('hidden');
-                        await loadAnalytics(); // Load data only for admins
-                    } else {
-                        // Redirect non-admin users
-                        window.location.href = 'index.html';
-                    }
-                } else {
-                    // Redirect unauthorized users
-                    window.location.href = 'index.html';
+      // Fetch and display analytics data from Firestore.
+      async function loadAnalytics() {
+        try {
+          // Show basic analytics loading state.
+          analyticsList.innerHTML = '<li>Loading analytics...</li>';
+          noDataMessage.classList.add("hidden");
+
+          // Fetch total users and requests.
+          const usersSnapshot = await db.collection("users").get();
+          const userCount = usersSnapshot.size;
+
+          const requestsSnapshot = await db.collection("requests").get();
+          const requestCount = requestsSnapshot.size;
+
+          analyticsList.innerHTML = `
+            <li>Total Users: ${userCount}</li>
+            <li>Total Requests: ${requestCount}</li>
+          `;
+
+          // Retrieve additional historical data.
+          // Assuming a "dailyAnalytics" collection with each document containing:
+          // { date: "YYYY-MM-DD", users: number, requests: number }
+          const dailySnapshot = await db
+            .collection("dailyAnalytics")
+            .orderBy("date")
+            .get();
+
+          let dates = [];
+          let dailyUsers = [];
+          let dailyRequests = [];
+
+          dailySnapshot.forEach((doc) => {
+            const data = doc.data();
+            dates.push(data.date);
+            dailyUsers.push(data.users);
+            dailyRequests.push(data.requests);
+          });
+
+          // Render the analytics chart if historical data is available.
+          if (dates.length > 0) {
+            renderAnalyticsChart(dates, dailyUsers, dailyRequests);
+          } else {
+            document.getElementById("chartSection").innerHTML =
+              '<p>No historical data available for chart.</p>';
+          }
+
+          noDataMessage.classList.add("hidden");
+        } catch (error) {
+          console.error("Error fetching analytics:", error);
+          displayError("Error fetching analytics: " + error.message);
+          analyticsList.innerHTML = "";
+          noDataMessage.classList.remove("hidden");
+        }
+      }
+
+      // Render the analytics chart using Chart.js.
+      function renderAnalyticsChart(labels, usersData, requestsData) {
+        const ctx = document.getElementById("analyticsChart").getContext("2d");
+
+        new Chart(ctx, {
+          type: "line", // Change chart type as needed (e.g., "bar", "pie").
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Daily Users",
+                data: usersData,
+                borderColor: "rgba(98,108,214,1)", // Primary blue color.
+                backgroundColor: "rgba(98,108,214,0.2)",
+                fill: true,
+                tension: 0.4
+              },
+              {
+                label: "Daily Requests",
+                data: requestsData,
+                borderColor: "rgba(255,51,51,1)", // Error red color.
+                backgroundColor: "rgba(255,51,51,0.2)",
+                fill: true,
+                tension: 0.4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "Date"
                 }
-            });
-
-            // Function to fetch and display analytics data
-            async function loadAnalytics() {
-                try {
-                    //Show Loading Analytics for all cases.
-                    analyticsList.innerHTML = '<li>Loading analytics...</li>';
-                    noDataMessage.classList.add('hidden');//Ensure message starts hidden.
-
-                    // **Ensure Rules are set up correctly**
-                    // **Admin Email has Read Permissions**
-                    const usersSnapshot = await db.collection('users').get();
-                    const userCount = usersSnapshot.size;
-
-                    const requestsSnapshot = await db.collection('requests').get();
-                    const requestCount = requestsSnapshot.size;
-
-                    // Display analytics
-                    analyticsList.innerHTML = `
-                        <li>Total Users: ${userCount}</li>
-                        <li>Total Requests: ${requestCount}</li>
-                    `;
-
-                    noDataMessage.classList.add('hidden'); // Ensure message hidden if data loads
-                } catch (error) {
-                    console.error('Error fetching analytics:', error);
-                    displayError('Error fetching analytics: ' + error.message);
-                    analyticsList.innerHTML = ''; // Clear any loading message
-                    noDataMessage.classList.remove('hidden'); // Show no data message for all error cases
-                }
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: "Count"
+                },
+                beginAtZero: true
+              }
             }
+          }
         });
-    </script>
+      }
+    });
+  </script>
 </body>
 </html>
