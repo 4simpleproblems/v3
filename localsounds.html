@@ -379,7 +379,7 @@
               <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
             </label>
             <label id="autoClickDelayLabel" style="display: none;">
-              Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="100" />
+              Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" />
               <button id="applyDelayBtn">Apply</button>
             </label>
           </div>
@@ -455,6 +455,7 @@
       let playingAudios = [];  // Track currently playing audio objects
       let currentlyHoveredButton = null;
       let autoClickInterval;
+      let requestAnimationFrameId = null;
 
       // Show status message
       function showStatus(message, type = 'info') {
@@ -476,9 +477,11 @@
 
       // Apply autoclicker delay setting and close menu
       function applyAutoClickerDelay() {
-        const delay = parseInt(autoClickDelayInput.value, 10) || 1000;
-        if (delay < 100) {
-          autoClickDelayInput.value = 100; // Minimum delay
+        const delay = parseInt(autoClickDelayInput.value, 10);
+        
+        // Allow 0ms delay (instant clicking)
+        if (isNaN(delay) || delay < 0) {
+          autoClickDelayInput.value = 0;
         }
         
         localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
@@ -514,12 +517,26 @@
         closeOptionsMenu();
       }
 
+      // Fast clicking function using requestAnimationFrame for 0ms delay
+      function fastClicker() {
+        if (currentlyHoveredButton && autoClickerCheckbox.checked) {
+          currentlyHoveredButton.click();
+          requestAnimationFrameId = requestAnimationFrame(fastClicker);
+        }
+      }
+
       // Auto clicker functions
       function startAutoClicker() {
         stopAutoClicker();
-        const delay = parseInt(autoClickDelayInput.value, 10) || 1000;
+        const delay = parseInt(autoClickDelayInput.value, 10) || 0;
 
-        if (currentlyHoveredButton && autoClickerCheckbox.checked) {
+        if (!currentlyHoveredButton || !autoClickerCheckbox.checked) return;
+
+        // Use requestAnimationFrame for "instant" clicking (0ms)
+        if (delay === 0) {
+          requestAnimationFrameId = requestAnimationFrame(fastClicker);
+        } else {
+          // Use setInterval for timed clicking
           autoClickInterval = setInterval(() => {
             currentlyHoveredButton.click();
           }, delay);
@@ -530,6 +547,11 @@
         if (autoClickInterval) {
           clearInterval(autoClickInterval);
           autoClickInterval = null;
+        }
+        
+        if (requestAnimationFrameId) {
+          cancelAnimationFrame(requestAnimationFrameId);
+          requestAnimationFrameId = null;
         }
       }
 
@@ -762,7 +784,7 @@
         }
         
         const savedDelay = localStorage.getItem('autoClickDelay');
-        if (savedDelay) {
+        if (savedDelay !== null) {
           autoClickDelayInput.value = savedDelay;
         }
       }
@@ -775,7 +797,6 @@
           stopAllAudios();
         }
         localStorage.setItem('soundOverlay', this.checked);
-        closeOptionsMenu();
       });
       
       // Auto Clicker checkbox
