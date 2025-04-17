@@ -1,19 +1,194 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <title>Google Auth Test</title>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="firebase-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4SP | Local Sounds</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== Imported Animations from Soundboard ===== */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+    @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeOutOverlay { from { opacity: 1; } to { opacity: 0; } }
+    @keyframes buttonPop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 75% { transform: scale(0.95); } 100% { transform: scale(1); } }
+    @keyframes ripple { 0% { transform: scale(0); opacity: 0.5; } 100% { transform: scale(4); opacity: 0; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeOutDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(20px); } }
+
+    /* Overlay Animations */
+    .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1; }
+    .overlay.fade-in { display: block; animation: fadeInOverlay 0.3s ease forwards; }
+    .overlay.fade-out { display: block; animation: fadeOutOverlay 0.3s ease forwards; }
+
+    /* Options Menu Animations */
+    .options-content { display: none; position: absolute; background-color: var(--darker-bg); min-width: 250px; border: 2px solid var(--light-text); padding: 1rem; z-index: 2; right: 0; border-radius: 30px; color: var(--light-text); }
+    .options-content.fade-in { display: block; animation: fadeIn 0.3s ease forwards; }
+    .options-content.fade-out { display: block; animation: fadeOut 0.3s ease forwards; }
+
+    /* Clear All Sounds Button Effects */
+    #clearAllSoundsBtn { width: 100%; margin-top: 0.5rem; background-color: rgba(255,0,0,0.2); color: var(--light-text); border: 1px solid var(--light-text); position: relative; overflow: hidden; }
+    #clearAllSoundsBtn.active { animation: buttonPop 0.4s ease-in-out; background-color: rgba(255,0,0,0.4); }
+    .ripple-container { position: absolute; top:0; left:0; right:0; bottom:0; overflow:hidden; border-radius:inherit; pointer-events:none; }
+    .ripple { position:absolute; border-radius:50%; background-color:rgba(255,255,255,0.4); width:100px; height:100px; margin-top:-50px; margin-left:-50px; animation:ripple 0.6s ease-out; pointer-events:none; }
+
+    /* Status Message Animations */
+    .status-message { display:none; padding:0.5rem 1rem; margin:0.5rem auto; border-radius:50px; font-size:0.9rem; text-align:center; max-width:80%; position:relative; }
+    .status-message.fade-in { display:block; animation:fadeInUp 0.3s ease forwards; }
+    .status-message.fade-out { display:block; animation:fadeOutDown 0.3s ease forwards; }
+    .status-message.success { background-color:rgba(0,255,0,0.1); color:var(--success-green); border:1px solid var(--success-green); }
+    .status-message.error   { background-color:rgba(255,0,0,0.1); color:var(--error-red); border:1px solid var(--error-red); }
+    .status-message.info    { background-color:rgba(0,0,255,0.1); color:#0000ff; border:1px solid #0000ff; }
+  </style>
 </head>
+
 <body>
-  <button id="googleBtn">Sign In with Google</button>
-  
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <div class="options-dropdown">
+        <button class="btn secondary options-button">Options</button>
+        <div class="options-content" id="optionsMenu">
+          <div class="options-section">
+            <h3>Playback Options</h3>
+            <label><input type="checkbox" id="soundOverlayCheckbox" /> Sound Overlay</label>
+            <label><input type="checkbox" id="autoClickerCheckbox" /> Auto Clicker</label>
+            <label id="autoClickDelayLabel" style="display:none;">Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" /><button id="applyDelayBtn">Apply</button></label>
+          </div>
+          <div class="options-section">
+            <h3>Management</h3>
+            <button id="clearAllSoundsBtn" class="btn secondary">Clear All Sounds<div class="ripple-container"></div></button>
+          </div>
+          <div class="keyboard-shortcuts">
+            <p><strong>Keyboard Shortcuts:</strong></p>
+            <p>Shift + C: Clear all sounds</p>
+          </div>
+        </div>
+      </div>
+      <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h1>Local Sounds</h1>
+    <p>Upload and play your own local audio files (MP3, WAV, OGG).</p>
+
+    <div class="sound-section">
+      <h2>My Sound Library</h2>
+      <div id="soundButtonsContainer"></div>
+      <button id="addSoundButton">Add Sound Button</button>
+      <div class="status-message" id="statusMessage"></div>
+    </div>
+  </main>
+
+  <footer><p>© 2025 4SP</p></footer>
+  <div class="overlay" id="overlay"></div>
+
   <script>
-    document.getElementById('googleBtn').addEventListener('click', () => {
-      firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
-        .then(() => console.log('Success!'))
-        .catch(e => console.error('Error:', e));
+    document.addEventListener('DOMContentLoaded', () => {
+      // DOM Elements
+      const soundButtonsContainer = document.getElementById('soundButtonsContainer');
+      const addSoundButton       = document.getElementById('addSoundButton');
+      const optionsButton        = document.querySelector('.options-button');
+      const optionsMenu          = document.getElementById('optionsMenu');
+      const overlay              = document.getElementById('overlay');
+      const clearAllSoundsBtn    = document.getElementById('clearAllSoundsBtn');
+      const statusMessage        = document.getElementById('statusMessage');
+      const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
+      const autoClickerCheckbox  = document.getElementById('autoClickerCheckbox');
+      const autoClickDelayInput  = document.getElementById('autoClickDelay');
+      const autoClickDelayLabel  = document.getElementById('autoClickDelayLabel');
+      const applyDelayBtn        = document.getElementById('applyDelayBtn');
+      const logoutBtn            = document.getElementById('logoutBtn');
+
+      // State
+      let soundCount = 1;
+      let playingAudios = [];
+      let currentlyHoveredButton = null;
+      let autoClickInterval = null;
+      let requestAnimationFrameId = null;
+      let menuIsOpen = false;
+      let rippleInProgress = false;
+      let statusTimeout = null;
+
+      // Animated status message
+      function showStatus(msg, type='info') {
+        clearTimeout(statusTimeout);
+        statusMessage.className = 'status-message ' + type;
+        statusMessage.textContent = msg;
+        statusMessage.classList.remove('fade-out');
+        statusMessage.classList.add('fade-in');
+        statusMessage.style.display = 'block';
+        statusTimeout = setTimeout(() => {
+          statusMessage.classList.remove('fade-in');
+          statusMessage.classList.add('fade-out');
+          setTimeout(() => { statusMessage.style.display='none'; statusMessage.classList.remove('fade-out'); }, 300);
+        }, 3000);
+      }
+
+      // Options menu open/close with fade
+      function openOptions() {
+        if(menuIsOpen) return;
+        menuIsOpen = true;
+        overlay.style.display='block'; overlay.classList.add('fade-in');
+        optionsMenu.style.display='block'; optionsMenu.classList.add('fade-in');
+      }
+      function closeOptions() {
+        if(!menuIsOpen) return;
+        menuIsOpen = false;
+        overlay.classList.remove('fade-in'); overlay.classList.add('fade-out');
+        optionsMenu.classList.remove('fade-in'); optionsMenu.classList.add('fade-out');
+        setTimeout(() => { overlay.style.display='none'; overlay.classList.remove('fade-out'); optionsMenu.style.display='none'; optionsMenu.classList.remove('fade-out'); }, 300);
+      }
+      optionsButton.addEventListener('click', e => { e.stopPropagation(); menuIsOpen ? closeOptions() : openOptions(); });
+      overlay.addEventListener('click', closeOptions);
+
+      // Ripple & pop on clear all
+      clearAllSoundsBtn.addEventListener('click', e => {
+        if(rippleInProgress) return;
+        rippleInProgress = true;
+        const rect = clearAllSoundsBtn.getBoundingClientRect();
+        const x = e.clientX - rect.left, y = e.clientY - rect.top;
+        const ripple = document.createElement('span'); ripple.className='ripple'; ripple.style.left=x+'px'; ripple.style.top=y+'px';
+        clearAllSoundsBtn.querySelector('.ripple-container').appendChild(ripple);
+        clearAllSoundsBtn.classList.add('active');
+        setTimeout(() => { ripple.remove(); rippleInProgress=false; }, 600);
+        setTimeout(() => clearAllSoundsBtn.classList.remove('active'), 400);
+        stopAllAudios(); showStatus('All sounds stopped','success');
+      });
+
+      // Stop all playing audio
+      function stopAllAudios() { playingAudios.forEach(a=>{ a.pause(); a.currentTime=0; }); playingAudios=[]; }
+
+      // Auto-clicker logic
+      function fastClicker() { if(currentlyHoveredButton&&autoClickerCheckbox.checked){ currentlyHoveredButton.click(); requestAnimationFrameId = requestAnimationFrame(fastClicker); }}
+      function startAutoClicker() { stopAutoClicker(); const delay = parseInt(autoClickDelayInput.value,10)||0; if(!currentlyHoveredButton||!autoClickerCheckbox.checked) return; if(delay===0) requestAnimationFrameId=requestAnimationFrame(fastClicker); else autoClickInterval=setInterval(()=>currentlyHoveredButton.click(),delay); }
+      function stopAutoClicker(){ if(autoClickInterval) clearInterval(autoClickInterval); if(requestAnimationFrameId) cancelAnimationFrame(requestAnimationFrameId); autoClickInterval=null; requestAnimationFrameId=null; }
+
+      // Apply delay btn
+      applyDelayBtn.addEventListener('click',()=>{ let d=parseInt(autoClickDelayInput.value,10); if(isNaN(d)||d<0)d=0; autoClickDelayInput.value=d; localStorage.setItem('autoClickDelay',d); if(autoClickerCheckbox.checked&&currentlyHoveredButton) startAutoClicker(); showStatus(`Auto clicker delay set to ${d}ms`,'success'); closeOptions(); });
+      autoClickDelayInput.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); applyDelayBtn.click(); }});
+
+      // Toggle preferences
+      soundOverlayCheckbox.addEventListener('change',function(){ if(!this.checked) stopAllAudios(); localStorage.setItem('soundOverlay',this.checked); });
+      autoClickerCheckbox.addEventListener('change',function(){ autoClickDelayLabel.style.display=this.checked?'block':'none'; if(this.checked&&currentlyHoveredButton) startAutoClicker(); else stopAutoClicker(); localStorage.setItem('autoClicker', this.checked); });
+
+      // Original Local Sounds CRUD & persistence
+      function isValidAudioFile(file) { const valid=['audio/mpeg','audio/mp3','audio/wav','audio/ogg','audio/x-wav','audio/webm']; return file&&(valid.includes(file.type)||file.type.startsWith('audio/')); }
+      function createSoundButton(id){ const c=document.createElement('div'); c.className='sound-container'; c.dataset.soundId=id; c.innerHTML=`<div class="sound-info"><button class="sound-button" data-sound-id="${id}">Sound ${id}</button><input type="text" class="sound-name" data-sound-id="${id}" placeholder="Sound Name (24 chars max)" maxlength="24" style="display:none;"><button class="upload-button" data-sound-id="${id}" style="display:none;">Select Audio File</button><input type="file" class="sound-upload" data-sound-id="${id}" accept="audio/*" style="display:none;"></div><div class="button-group"><button class="edit-button" data-sound-id="${id}">Edit</button><button class="delete-button" data-sound-id="${id}">Delete</button></div>`; attachEventListeners(c); return c; }
+      function attachEventListeners(container){ const id=container.dataset.soundId; const btn=container.querySelector('.sound-button'), nameIn=container.querySelector('.sound-name'), uploadBtn=container.querySelector('.upload-button'), fileIn=container.querySelector('.sound-upload'), editBtn=container.querySelector('.edit-button'), delBtn=container.querySelector('.delete-button'); nameIn.addEventListener('input',function(){const v=this.value.substring(0,24);localStorage.setItem(`sound${id}Name`,v);btn.textContent=v||`Sound ${id}`;}); uploadBtn.addEventListener('click',()=>fileIn.click()); fileIn.addEventListener('change',function(){const file=this.files[0]; if(file&&isValidAudioFile(file)){const url=URL.createObjectURL(file);localStorage.setItem(`sound${id}File`,url);localStorage.setItem(`sound${id}FileName`,file.name);uploadBtn.textContent=file.name.length>18?file.name.substring(0,15)+'...':file.name;showStatus(`File "${file.name}" uploaded successfully`,'success');}else{this.value='';uploadBtn.textContent='Select Audio File';showStatus('Please upload only audio files (MP3, WAV, OGG)','error');}}); btn.addEventListener('click',function(){const f=localStorage.getItem(`sound${id}File`); if(f){ if(!soundOverlayCheckbox.checked) stopAllAudios(); try{const a=new Audio(f);a.addEventListener('ended',()=>playingAudios=playingAudios.filter(x=>x!==a));playingAudios.push(a);a.play().catch(()=>{showStatus('Error playing the sound. Please re-upload.','error');});}catch{showStatus('Error playing the sound. Please re-upload.','error');}}else showStatus('No audio file uploaded for this sound button.','error');}); btn.addEventListener('mouseenter',function(){currentlyHoveredButton=this; if(autoClickerCheckbox.checked) startAutoClicker();}); btn.addEventListener('mouseleave',function(){if(currentlyHoveredButton===this){currentlyHoveredButton=null;stopAutoClicker();}}); editBtn.addEventListener('click',function(){const edit=container.classList.toggle('edit-mode'); nameIn.style.display=edit?'inline-block':'none'; uploadBtn.style.display=edit?'inline-block':'none'; if(edit){const sf=localStorage.getItem(`sound${id}FileName`);uploadBtn.textContent=sf? sf.length>18?sf.substring(0,15)+'...':sf : 'Select Audio File';}}); delBtn.addEventListener('click',function(){playingAudios.forEach(a=>{try{if(a.src===localStorage.getItem(`sound${id}File`)){a.pause();a.currentTime=0;playingAudios=playingAudios.filter(x=>x!==a);} }catch{} });['Name','File','FileName'].forEach(s=>localStorage.removeItem(`sound${id}${s}`));container.remove();showStatus('Sound deleted successfully','success');}); }
+      function loadSavedData(){let max=1;for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=k.match(/^sound(\d+)(Name|File|FileName)$/);if(m){const id=parseInt(m[1]);if(id>max)max=id;}}soundCount=max; for(let i=1;i<=soundCount;i++){if(i===1)continue;const has=localStorage.getItem(`sound${i}Name`)||localStorage.getItem(`sound${i}File`); if(has&&!document.querySelector(`.sound-container[data-sound-id='${i}']`)){soundButtonsContainer.appendChild(createSoundButton(i));}} document.querySelectorAll('.sound-container').forEach(c=>{const id=c.dataset.soundId,btn=c.querySelector('.sound-button'),nameIn=c.querySelector('.sound-name'),uploadBtn=c.querySelector('.upload-button');const nm=localStorage.getItem(`sound${id}Name`),fn=localStorage.getItem(`sound${id}FileName`);if(nm){nameIn.value=nm;btn.textContent=nm;} if(fn)uploadBtn.textContent=fn.length>18?fn.substring(0,15)+'...':fn; else uploadBtn.textContent='Select Audio File';}); if(localStorage.getItem('soundOverlay')==='true')soundOverlayCheckbox.checked=true; if(localStorage.getItem('autoClicker')==='true'){autoClickerCheckbox.checked=true;autoClickDelayLabel.style.display='block';} const sd=localStorage.getItem('autoClickDelay'); if(sd!==null)autoClickDelayInput.value=sd; }
+
+      // UI Event Listeners
+      document.addEventListener('keydown',e=>{ if(e.shiftKey&&e.key.toLowerCase()==='c'){ stopAllAudios(); closeOptions(); showStatus('All sounds muted and cleared','success'); }});
+      addSoundButton.addEventListener('click',()=>{soundCount++; soundButtonsContainer.appendChild(createSoundButton(soundCount)); showStatus('New sound button added','success');});
+      logoutBtn.addEventListener('click',()=> window.location.href='index.html');
+
+      // Initialize
+      soundButtonsContainer.appendChild(createSoundButton(1)); loadSavedData(); console.log('LocalSounds initialization complete');
     });
   </script>
 </body>
