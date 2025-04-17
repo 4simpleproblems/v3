@@ -122,16 +122,6 @@
             resize: vertical;
         }
 
-        /* Audio URL Input */
-        .url-input-group {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        #audioUrl {
-            flex: 1;
-        }
-
         /* Submit Button */
         .submit-btn {
             width: 100%;
@@ -199,17 +189,17 @@
         <form id="requestForm">
             <div class="form-group">
                 <label for="soundName">Sound Name</label>
-                <input type="text" id="soundName" required>
+                <input type="text" id="soundName" required maxlength="20">
             </div>
 
             <div class="form-group">
                 <label for="description">Description</label>
-                <textarea id="description" required></textarea>
+                <textarea id="description" required maxlength="40"></textarea>
             </div>
 
             <div class="form-group">
-                <label for="audioUrl">Audio URL</label>
-                <input type="url" id="audioUrl" placeholder="https://example.com/sound.mp3" required>
+                <label for="audioUrl">Audio URL (optional)</label>
+                <input type="url" id="audioUrl" placeholder="https://example.com/sound.mp3">
             </div>
 
             <div class="form-group">
@@ -236,28 +226,28 @@
             const db = firebase.firestore();
             const auth = firebase.auth();
             const requestForm = document.getElementById('requestForm');
-            const audioUrlInput = document.getElementById('audioUrl');
             const messageDiv = document.getElementById('message');
             const logoutBtn = document.getElementById('logoutBtn');
 
-            // Handle form submission
             requestForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
-                const soundName = document.getElementById('soundName').value;
-                const description = document.getElementById('description').value;
-                const audioUrl = audioUrlInput.value.trim();
+                const soundName = document.getElementById('soundName').value.trim();
+                const description = document.getElementById('description').value.trim();
+                const audioUrlField = document.getElementById('audioUrl');
+                const audioUrl = audioUrlField.value.trim();
                 const contentType = document.querySelector('input[name="contentType"]:checked').value;
                 const userId = auth.currentUser.uid;
 
                 try {
-                    // Validate URL
-                    new URL(audioUrl);
+                    // Validate URL only if provided
+                    if (audioUrl) {
+                        new URL(audioUrl);
+                    }
 
                     await db.collection('requests').add({
                         soundName,
                         description,
-                        audioUrl,
+                        audioUrl: audioUrl || null,
                         contentType,
                         status: 'pending',
                         submittedBy: userId,
@@ -271,14 +261,12 @@
                 }
             });
 
-            // Logout
             logoutBtn.addEventListener('click', () => {
                 auth.signOut().then(() => {
                     window.location.href = 'index.html';
                 });
             });
 
-            // Auth state listener
             auth.onAuthStateChanged(user => {
                 if (!user) {
                     window.location.href = 'index.html';
@@ -289,8 +277,6 @@
                 messageDiv.innerHTML = text;
                 messageDiv.className = 'message ' + type;
                 messageDiv.style.display = 'block';
-                
-                // Hide message after 5 seconds
                 setTimeout(() => {
                     messageDiv.style.display = 'none';
                 }, 5000);
