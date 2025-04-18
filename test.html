@@ -1,195 +1,870 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4SP | Local Sounds</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
-  <style>
-    /* ===== Imported Animations from Soundboard ===== */
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
-    @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes fadeOutOverlay { from { opacity: 1; } to { opacity: 0; } }
-    @keyframes buttonPop { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 75% { transform: scale(0.95); } 100% { transform: scale(1); } }
-    @keyframes ripple { 0% { transform: scale(0); opacity: 0.5; } 100% { transform: scale(4); opacity: 0; } }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeOutDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(20px); } }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | Account</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        /* Page-specific styles, can be combined with your styles.css if desired */
+        :root {
+            --primary-action: var(--dark-bg);
+            --secondary-action-text: var(--dark-bg);
+            --secondary-action-bg: var(--light-gray);
+            --danger-action: var(--error-red);
+            --info-text: var(--medium-gray);
+            --card-bg: white;
+            --card-border: var(--light-gray);
+            --pill-radius: 50px;
 
-    /* Overlay Animations */
-    .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1; }
-    .overlay.fade-in { display: block; animation: fadeInOverlay 0.3s ease forwards; }
-    .overlay.fade-out { display: block; animation: fadeOutOverlay 0.3s ease forwards; }
+            /* Custom username button variables */
+            --username-btn-padding: 0.5rem 1rem;
+            --username-btn-font-size: 0.9rem;
+            --username-btn-border-radius: var(--pill-radius);
+            --username-btn-bg-color: var(--secondary-action-bg);
+            --username-btn-text-color: var(--secondary-action-text);
+            --username-btn-border: 2px solid var(--secondary-action-text);
+            --username-btn-hover-bg: #d0d0d0;
+            --username-btn-transition: all 0.3s ease;
+            --username-btn-cursor: pointer;
+            --username-btn-font-weight: normal;
+            --username-btn-box-shadow: none;
+            --username-btn-margin: 0.5rem 0 0 0;
 
-    /* Options Menu Animations */
-    .options-content { display: none; position: absolute; background-color: var(--darker-bg); min-width: 250px; border: 2px solid var(--light-text); padding: 1rem; z-index: 2; right: 0; border-radius: 30px; color: var(--light-text); }
-    .options-content.fade-in { display: block; animation: fadeIn 0.3s ease forwards; }
-    .options-content.fade-out { display: block; animation: fadeOut 0.3s ease forwards; }
+            /* Validation colors */
+            --validation-error: #ff6b6b;
+            --validation-success: #51cf66;
 
-    /* Clear All Sounds Button Effects */
-    #clearAllSoundsBtn { width: 100%; margin-top: 0.5rem; background-color: rgba(255,0,0,0.2); color: var(--light-text); border: 1px solid var(--light-text); position: relative; overflow: hidden; }
-    #clearAllSoundsBtn.active { animation: buttonPop 0.4s ease-in-out; background-color: rgba(255,0,0,0.4); }
-    .ripple-container { position: absolute; top:0; left:0; right:0; bottom:0; overflow:hidden; border-radius:inherit; pointer-events:none; }
-    .ripple { position:absolute; border-radius:50%; background-color:rgba(255,255,255,0.4); width:100px; height:100px; margin-top:-50px; margin-left:-50px; animation:ripple 0.6s ease-out; pointer-events:none; }
+            /* New pop-up variables */
+            --popup-bg: var(--card-bg);
+            --popup-border: var(--card-border);
+            --popup-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            --popup-padding: 1rem;
+            --popup-margin-top: 0.5rem;
+            --popup-radius: 10px; /* Slightly less rounded than buttons/cards */
+            --popup-transition-duration: 0.3s;
+        }
 
-    /* Status Message Animations */
-    .status-message { display:none; padding:0.5rem 1rem; margin:0.5rem auto; border-radius:50px; font-size:0.9rem; text-align:center; max-width:80%; position:relative; }
-    .status-message.fade-in { display:block; animation:fadeInUp 0.3s ease forwards; }
-    .status-message.fade-out { display:block; animation:fadeOutDown 0.3s ease forwards; }
-    .status-message.success { background-color:rgba(0,255,0,0.1); color:var(--success-green); border:1px solid var(--success-green); }
-    .status-message.error   { background-color:rgba(255,0,0,0.1); color:var(--error-red); border:1px solid var(--error-red); }
-    .status-message.info    { background-color:rgba(0,0,255,0.1); color:#0000ff; border:1px solid #0000ff; }
-  </style>
+        body {
+            background-color: var(--light-gray);
+            color: var(--dark-bg);
+        }
+
+        .account-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .account-info {
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            border-radius: var(--pill-radius);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--card-border);
+        }
+
+        .account-info h2 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: var(--dark-bg);
+        }
+
+        .account-info p {
+            margin-bottom: 0.75rem;
+            color: var(--info-text);
+        }
+
+        .account-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1.5rem;
+        }
+
+        /* Wrapper for button and its pop-up */
+        .popup-wrapper {
+            position: relative; /* Needed for absolute positioning of the pop-up */
+        }
+
+        .account-buttons button {
+            padding: 1rem 1.5rem;
+            border-radius: var(--pill-radius);
+            border: none;
+            background-color: var(--primary-action);
+            color: var(--light-text);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            width: 100%; /* Make buttons full width in the flex container */
+        }
+
+        .account-buttons button:hover {
+            background-color: var(--darker-bg);
+        }
+
+        .account-buttons button.secondary {
+            background-color: var(--secondary-action-bg);
+            color: var(--secondary-action-text);
+            border: 2px solid var(--secondary-action-text);
+        }
+
+        .account-buttons button.secondary:hover {
+            background-color: #d0d0d0;
+        }
+
+        .account-buttons button.danger {
+            background-color: var(--danger-action);
+        }
+
+        .account-buttons button.danger:hover {
+            background-color: #cc0000;
+        }
+
+        .username-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .username-input-group .input-wrapper {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .username-input-group input {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--pill-radius);
+            color: var(--dark-bg);
+            background-color: var(--card-bg);
+        }
+
+        .username-input-group input:focus {
+            outline: none;
+            border-color: var(--primary-action);
+        }
+
+        .username-input-group input.invalid {
+            border-color: var(--validation-error);
+        }
+
+        .username-input-group input.valid {
+            border-color: var(--validation-success);
+        }
+
+        .username-input-group button {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--pill-radius);
+            border: none;
+            background-color: var(--primary-action);
+            color: var(--light-text);
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .username-input-group button:hover {
+            background-color: var(--darker-bg);
+        }
+
+        .username-input-group button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .username-helper-text {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+            color: var(--info-text);
+        }
+
+        .username-helper-text.error {
+            color: var(--validation-error);
+        }
+
+        .btn.secondary.small-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border-radius: var(--pill-radius);
+        }
+
+        #addUsernameForm {
+            display: none;
+        }
+
+        /* Custom username change button styling */
+        .username-change-btn {
+            padding: var(--username-btn-padding);
+            font-size: var(--username-btn-font-size);
+            border-radius: var(--username-btn-border-radius);
+            background-color: var(--username-btn-bg-color);
+            color: var(--username-btn-text-color);
+            border: var(--username-btn-border);
+            cursor: var(--username-btn-cursor);
+            transition: var(--username-btn-transition);
+            font-weight: var(--username-btn-font-weight);
+            box-shadow: var(--username-btn-box-shadow);
+            margin: var(--username-btn-margin);
+            text-align: center;
+        }
+
+        .username-change-btn:hover {
+            background-color: var(--username-btn-hover-bg);
+        }
+
+        .additional-info {
+          margin-top: 1rem;
+          padding: 1rem;
+          background-color: var(--card-bg);
+          border-radius: var(--pill-radius);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          border: 1px solid var(--card-border);
+        }
+
+        .additional-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            color: var(--dark-bg);
+        }
+
+        .additional-info p {
+            margin-bottom: 0.5rem;
+            color: var(--info-text);
+        }
+
+        .account-buttons button.edit-profile {
+            background-color: var(--secondary-action-bg);
+            color: var(--secondary-action-text);
+            border: 2px solid var(--secondary-action-text);
+        }
+
+        .account-buttons button.edit-profile:hover {
+            background-color: #d0d0d0;
+        }
+
+        .account-buttons button.manage-subscriptions {
+            background-color: var(--primary-action);
+        }
+
+        .account-buttons button.manage-subscriptions:hover {
+            background-color: var(--darker-bg);
+        }
+
+        /* --- Pop-up Styles --- */
+        .popup-menu {
+            position: absolute;
+            top: 100%; /* Position below the button */
+            left: 0;
+            right: 0;
+            z-index: 10; /* Ensure it's on top */
+            background-color: var(--popup-bg);
+            border: 1px solid var(--popup-border);
+            border-radius: var(--popup-radius);
+            box-shadow: var(--popup-box-shadow);
+            padding: var(--popup-padding);
+            margin-top: var(--popup-margin-top);
+            display: none; /* Hidden by default */
+            opacity: 0; /* Start transparent for fade-in */
+            visibility: hidden; /* Hidden by default for transitions */
+            transition: opacity var(--popup-transition-duration) ease, visibility var(--popup-transition-duration) ease;
+        }
+
+        .popup-menu.active {
+            display: block; /* Make it block to participate in layout */
+            opacity: 1; /* Fade in */
+            visibility: visible; /* Make it visible */
+            transition: opacity var(--popup-transition-duration) ease; /* Only need opacity transition for showing */
+        }
+
+        .popup-menu h3 {
+            margin-top: 0;
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+            color: var(--dark-bg);
+        }
+
+        .popup-menu label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+            color: var(--info-text);
+        }
+
+        .popup-menu input[type="password"] {
+            width: calc(100% - 20px); /* Adjust for padding */
+            padding: 0.8rem 10px;
+            margin-bottom: 0.8rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            font-size: 1rem;
+            color: var(--dark-bg);
+            background-color: var(--card-bg);
+        }
+
+         .popup-menu input[type="password"].invalid {
+            border-color: var(--validation-error);
+        }
+
+        .popup-menu input[type="password"]:focus {
+             outline: none;
+             border-color: var(--primary-action);
+        }
+
+        .popup-menu .popup-buttons {
+            display: flex;
+            gap: 0.5rem; /* Space between popup buttons */
+            justify-content: flex-end; /* Align buttons to the right */
+            margin-top: 1rem;
+        }
+
+        .popup-menu .popup-buttons button {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            border-radius: var(--pill-radius); /* Match main buttons */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: auto; /* Override 100% width from parent rule */
+        }
+
+        .popup-menu .popup-buttons button.confirm {
+            background-color: var(--primary-action);
+            color: var(--light-text);
+            border: none;
+        }
+
+        .popup-menu .popup-buttons button.confirm:hover {
+            background-color: var(--darker-bg);
+        }
+
+         .popup-menu .popup-buttons button.confirm:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+
+        .popup-menu .popup-buttons button.cancel {
+            background-color: var(--secondary-action-bg);
+            color: var(--secondary-action-text);
+            border: 2px solid var(--secondary-action-text);
+        }
+
+        .popup-menu .popup-buttons button.cancel:hover {
+             background-color: #d0d0d0;
+        }
+
+        .popup-menu .popup-buttons button.danger-confirm {
+            background-color: var(--danger-action);
+            color: var(--light-text);
+            border: none;
+        }
+
+        .popup-menu .popup-buttons button.danger-confirm:hover {
+            background-color: #cc0000;
+        }
+
+         .popup-menu .popup-buttons button.danger-confirm:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .popup-error {
+            color: var(--validation-error);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+    </style>
 </head>
-
 <body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <div class="options-dropdown">
-        <button class="btn secondary options-button">Options</button>
-        <div class="options-content" id="optionsMenu">
-          <div class="options-section">
-            <h3>Playback Options</h3>
-            <label><input type="checkbox" id="soundOverlayCheckbox" /> Sound Overlay</label>
-            <label><input type="checkbox" id="autoClickerCheckbox" /> Auto Clicker</label>
-            <label id="autoClickDelayLabel" style="display:none;">Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" /><button id="applyDelayBtn">Apply</button></label>
-          </div>
-          <div class="options-section">
-            <h3>Management</h3>
-            <button id="clearAllSoundsBtn" class="btn secondary">Clear All Sounds<div class="ripple-container"></div></button>
-          </div>
-          <div class="keyboard-shortcuts">
-            <p><strong>Keyboard Shortcuts:</strong></p>
-            <p>Shift + C: Clear all sounds</p>
-          </div>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn secondary" style="border-radius: var(--pill-radius);">Home</a>
+            <a href="dashboard.html" class="btn secondary" style="border-radius: var(--pill-radius);">Dashboard</a>
+            <a href="account.html" class="btn primary" style="border-radius: var(--pill-radius);">Account</a>
+            <button class="btn secondary" id="logoutBtn" style="border-radius: var(--pill-radius);">Log Out</button>
         </div>
-      </div>
-      <a href="dashboard.html" class="btn secondary">Dashboard</a>
-      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
-    </div>
-  </nav>
+    </nav>
 
-  <main class="container">
-    <h1>Local Sounds</h1>
-    <p>Upload and play your own local audio files (MP3, WAV, OGG).</p>
+    <main class="container">
+        <h1>Account Information</h1>
+        <div class="account-grid">
+            <div class="account-info">
+                <h2>User Details</h2>
+                <p id="userEmail">Email: Loading...</p>
+                <p id="creationTime">Created: Loading...</p>
 
-    <div class="sound-section">
-      <h2>My Sound Library</h2>
-      <div id="soundButtonsContainer"></div>
-      <button id="addSoundButton">Add Sound Button</button>
-      <div class="status-message" id="statusMessage"></div>
-    </div>
-  </main>
+                <div id="usernameSection">
+                    <h2>Username</h2>
+                    <p id="currentUsername">Loading...</p>
+                    <div class="username-input-group" id="addUsernameForm">
+                        <div class="input-wrapper">
+                            <input type="text" id="newUsername" placeholder="Enter Username" minlength="4" maxlength="16">
+                            <button id="saveUsernameBtn" disabled>Save</button>
+                        </div>
+                        <p class="username-helper-text">Username must be 4-16 characters</p>
+                    </div>
+                    <button id="editUsernameBtn" class="username-change-btn">Change Username</button>
+                </div>
 
-  <footer><p>© 2025 4SP</p></footer>
-  <div class="overlay" id="overlay"></div>
+                <div class="additional-info">
+                    <h3>Additional Information</h3>
+                    <p id="lastSignIn">Last Sign-in: Loading...</p>
+                    <p id="userUID">User ID: Loading...</p>
+                </div>
+            </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // DOM Elements
-      const soundButtonsContainer = document.getElementById('soundButtonsContainer');
-      const addSoundButton       = document.getElementById('addSoundButton');
-      const optionsButton        = document.querySelector('.options-button');
-      const optionsMenu          = document.getElementById('optionsMenu');
-      const overlay              = document.getElementById('overlay');
-      const clearAllSoundsBtn    = document.getElementById('clearAllSoundsBtn');
-      const statusMessage        = document.getElementById('statusMessage');
-      const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
-      const autoClickerCheckbox  = document.getElementById('autoClickerCheckbox');
-      const autoClickDelayInput  = document.getElementById('autoClickDelay');
-      const autoClickDelayLabel  = document.getElementById('autoClickDelayLabel');
-      const applyDelayBtn        = document.getElementById('applyDelayBtn');
-      const logoutBtn            = document.getElementById('logoutBtn');
+            <div class="account-buttons">
+                <div class="popup-wrapper">
+                    <button id="changePasswordBtn" class="secondary">Change Password</button>
+                    <div id="changePasswordPopup" class="popup-menu">
+                        <h3>Change Password</h3>
+                        <label for="currentPasswordChange">Current Password:</label>
+                        <input type="password" id="currentPasswordChange" placeholder="Enter current password">
 
-      // State
-      let soundCount = 1;
-      let playingAudios = [];
-      let currentlyHoveredButton = null;
-      let autoClickInterval = null;
-      let requestAnimationFrameId = null;
-      let menuIsOpen = false;
-      let rippleInProgress = false;
-      let statusTimeout = null;
+                        <label for="newPasswordChange">New Password:</label>
+                        <input type="password" id="newPasswordChange" placeholder="Enter new password">
+                         <div class="popup-error" id="changePasswordError"></div>
+                        <div class="popup-buttons">
+                            <button class="cancel">Cancel</button>
+                            <button class="confirm" id="confirmPasswordChangeBtn" disabled>Change</button>
+                        </div>
+                    </div>
+                </div>
 
-      // Animated status message
-      function showStatus(msg, type='info') {
-        clearTimeout(statusTimeout);
-        statusMessage.className = 'status-message ' + type;
-        statusMessage.textContent = msg;
-        statusMessage.classList.remove('fade-out');
-        statusMessage.classList.add('fade-in');
-        statusMessage.style.display = 'block';
-        statusTimeout = setTimeout(() => {
-          statusMessage.classList.remove('fade-in');
-          statusMessage.classList.add('fade-out');
-          setTimeout(() => { statusMessage.style.display='none'; statusMessage.classList.remove('fade-out'); }, 300);
-        }, 3000);
-      }
+                 <div class="popup-wrapper">
+                     <button id="editProfileBtn" class="edit-profile">Edit Profile</button>
+                     </div>
 
-      // Options menu open/close with fade
-      function openOptions() {
-        if(menuIsOpen) return;
-        menuIsOpen = true;
-        overlay.style.display='block'; overlay.classList.add('fade-in');
-        optionsMenu.style.display='block'; optionsMenu.classList.add('fade-in');
-      }
-      function closeOptions() {
-        if(!menuIsOpen) return;
-        menuIsOpen = false;
-        overlay.classList.remove('fade-in'); overlay.classList.add('fade-out');
-        optionsMenu.classList.remove('fade-in'); optionsMenu.classList.add('fade-out');
-        setTimeout(() => { overlay.style.display='none'; overlay.classList.remove('fade-out'); optionsMenu.style.display='none'; optionsMenu.classList.remove('fade-out'); }, 300);
-      }
-      optionsButton.addEventListener('click', e => { e.stopPropagation(); menuIsOpen ? closeOptions() : openOptions(); });
-      overlay.addEventListener('click', closeOptions);
+                 <div class="popup-wrapper">
+                     <button id="manageSubscriptionsBtn" class="manage-subscriptions">Manage Subscriptions</button>
+                     </div>
 
-      // Ripple & pop on clear all
-      clearAllSoundsBtn.addEventListener('click', e => {
-        if(rippleInProgress) return;
-        rippleInProgress = true;
-        const rect = clearAllSoundsBtn.getBoundingClientRect();
-        const x = e.clientX - rect.left, y = e.clientY - rect.top;
-        const ripple = document.createElement('span'); ripple.className='ripple'; ripple.style.left=x+'px'; ripple.style.top=y+'px';
-        clearAllSoundsBtn.querySelector('.ripple-container').appendChild(ripple);
-        clearAllSoundsBtn.classList.add('active');
-        setTimeout(() => { ripple.remove(); rippleInProgress=false; }, 600);
-        setTimeout(() => clearAllSoundsBtn.classList.remove('active'), 400);
-        stopAllAudios(); showStatus('All sounds stopped','success');
-      });
+                <div class="popup-wrapper">
+                    <button id="deleteAccountBtn" class="danger">Delete Account</button>
+                    <div id="deleteAccountPopup" class="popup-menu">
+                        <h3>Confirm Account Deletion</h3>
+                        <p>This action is permanent and cannot be undone. To confirm, please enter your current password.</p>
+                        <label for="currentPasswordDelete">Current Password:</label>
+                        <input type="password" id="currentPasswordDelete" placeholder="Enter current password">
+                        <div class="popup-error" id="deleteAccountError"></div>
+                        <div class="popup-buttons">
+                            <button class="cancel">Cancel</button>
+                            <button class="danger-confirm" id="confirmDeleteAccountBtn" disabled>Delete Account</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
-      // Stop all playing audio
-      function stopAllAudios() { playingAudios.forEach(a=>{ a.pause(); a.currentTime=0; }); playingAudios=[]; }
+    <footer>
+        <p>© 2025 4SP</p>
+    </footer>
 
-      // Auto-clicker logic
-      function fastClicker() { if(currentlyHoveredButton&&autoClickerCheckbox.checked){ currentlyHoveredButton.click(); requestAnimationFrameId = requestAnimationFrame(fastClicker); }}
-      function startAutoClicker() { stopAutoClicker(); const delay = parseInt(autoClickDelayInput.value,10)||0; if(!currentlyHoveredButton||!autoClickerCheckbox.checked) return; if(delay===0) requestAnimationFrameId=requestAnimationFrame(fastClicker); else autoClickInterval=setInterval(()=>currentlyHoveredButton.click(),delay); }
-      function stopAutoClicker(){ if(autoClickInterval) clearInterval(autoClickInterval); if(requestAnimationFrameId) cancelAnimationFrame(requestAnimationFrameId); autoClickInterval=null; requestAnimationFrameId=null; }
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get Firebase Auth and Firestore references from firebase-config.js initialization
+            const auth = firebase.auth();
+            const db = firebase.firestore();
 
-      // Apply delay btn
-      applyDelayBtn.addEventListener('click',()=>{ let d=parseInt(autoClickDelayInput.value,10); if(isNaN(d)||d<0)d=0; autoClickDelayInput.value=d; localStorage.setItem('autoClickDelay',d); if(autoClickerCheckbox.checked&&currentlyHoveredButton) startAutoClicker(); showStatus(`Auto clicker delay set to ${d}ms`,'success'); closeOptions(); });
-      autoClickDelayInput.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); applyDelayBtn.click(); }});
+            // DOM elements for account display
+            const userEmailElement = document.getElementById('userEmail');
+            const creationTimeElement = document.getElementById('creationTime');
+            const currentUsernameElement = document.getElementById('currentUsername');
+            const addUsernameForm = document.getElementById('addUsernameForm');
+            const newUsernameInput = document.getElementById('newUsername');
+            const saveUsernameBtn = document.getElementById('saveUsernameBtn');
+            const editUsernameBtn = document.getElementById('editUsernameBtn');
+            const usernameHelperText = document.querySelector('.username-helper-text');
+            const changePasswordBtn = document.getElementById('changePasswordBtn');
+            const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const lastSignInElement = document.getElementById('lastSignIn');
+            const userUIDElement = document.getElementById('userUID');
+            const editProfileBtn = document.getElementById('editProfileBtn');
+            const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
 
-      // Toggle preferences
-      soundOverlayCheckbox.addEventListener('change',function(){ if(!this.checked) stopAllAudios(); localStorage.setItem('soundOverlay',this.checked); });
-      autoClickerCheckbox.addEventListener('change',function(){ autoClickDelayLabel.style.display=this.checked?'block':'none'; if(this.checked&&currentlyHoveredButton) startAutoClicker(); else stopAutoClicker(); localStorage.setItem('autoClicker', this.checked); });
+            // DOM elements for Popups
+            const changePasswordPopup = document.getElementById('changePasswordPopup');
+            const currentPasswordChangeInput = document.getElementById('currentPasswordChange');
+            const newPasswordChangeInput = document.getElementById('newPasswordChange');
+            const confirmPasswordChangeBtn = document.getElementById('confirmPasswordChangeBtn');
+            const changePasswordErrorElement = document.getElementById('changePasswordError');
 
-      // Original Local Sounds CRUD & persistence
-      function isValidAudioFile(file) { const valid=['audio/mpeg','audio/mp3','audio/wav','audio/ogg','audio/x-wav','audio/webm']; return file&&(valid.includes(file.type)||file.type.startsWith('audio/')); }
-      function createSoundButton(id){ const c=document.createElement('div'); c.className='sound-container'; c.dataset.soundId=id; c.innerHTML=`<div class="sound-info"><button class="sound-button" data-sound-id="${id}">Sound ${id}</button><input type="text" class="sound-name" data-sound-id="${id}" placeholder="Sound Name (24 chars max)" maxlength="24" style="display:none;"><button class="upload-button" data-sound-id="${id}" style="display:none;">Select Audio File</button><input type="file" class="sound-upload" data-sound-id="${id}" accept="audio/*" style="display:none;"></div><div class="button-group"><button class="edit-button" data-sound-id="${id}">Edit</button><button class="delete-button" data-sound-id="${id}">Delete</button></div>`; attachEventListeners(c); return c; }
-      function attachEventListeners(container){ const id=container.dataset.soundId; const btn=container.querySelector('.sound-button'), nameIn=container.querySelector('.sound-name'), uploadBtn=container.querySelector('.upload-button'), fileIn=container.querySelector('.sound-upload'), editBtn=container.querySelector('.edit-button'), delBtn=container.querySelector('.delete-button'); nameIn.addEventListener('input',function(){const v=this.value.substring(0,24);localStorage.setItem(`sound${id}Name`,v);btn.textContent=v||`Sound ${id}`;}); uploadBtn.addEventListener('click',()=>fileIn.click()); fileIn.addEventListener('change',function(){const file=this.files[0]; if(file&&isValidAudioFile(file)){const url=URL.createObjectURL(file);localStorage.setItem(`sound${id}File`,url);localStorage.setItem(`sound${id}FileName`,file.name);uploadBtn.textContent=file.name.length>18?file.name.substring(0,15)+'...':file.name;showStatus(`File "${file.name}" uploaded successfully`,'success');}else{this.value='';uploadBtn.textContent='Select Audio File';showStatus('Please upload only audio files (MP3, WAV, OGG)','error');}}); btn.addEventListener('click',function(){const f=localStorage.getItem(`sound${id}File`); if(f){ if(!soundOverlayCheckbox.checked) stopAllAudios(); try{const a=new Audio(f);a.addEventListener('ended',()=>playingAudios=playingAudios.filter(x=>x!==a));playingAudios.push(a);a.play().catch(()=>{showStatus('Error playing the sound. Please re-upload.','error');});}catch{showStatus('Error playing the sound. Please re-upload.','error');}}else showStatus('No audio file uploaded for this sound button.','error');}); btn.addEventListener('mouseenter',function(){currentlyHoveredButton=this; if(autoClickerCheckbox.checked) startAutoClicker();}); btn.addEventListener('mouseleave',function(){if(currentlyHoveredButton===this){currentlyHoveredButton=null;stopAutoClicker();}}); editBtn.addEventListener('click',function(){const edit=container.classList.toggle('edit-mode'); nameIn.style.display=edit?'inline-block':'none'; uploadBtn.style.display=edit?'inline-block':'none'; if(edit){const sf=localStorage.getItem(`sound${id}FileName`);uploadBtn.textContent=sf? sf.length>18?sf.substring(0,15)+'...':sf : 'Select Audio File';}}); delBtn.addEventListener('click',function(){playingAudios.forEach(a=>{try{if(a.src===localStorage.getItem(`sound${id}File`)){a.pause();a.currentTime=0;playingAudios=playingAudios.filter(x=>x!==a);} }catch{} });['Name','File','FileName'].forEach(s=>localStorage.removeItem(`sound${id}${s}`));container.remove();showStatus('Sound deleted successfully','success');}); }
-      function loadSavedData(){let max=1;for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=k.match(/^sound(\d+)(Name|File|FileName)$/);if(m){const id=parseInt(m[1]);if(id>max)max=id;}}soundCount=max; for(let i=1;i<=soundCount;i++){if(i===1)continue;const has=localStorage.getItem(`sound${i}Name`)||localStorage.getItem(`sound${i}File`); if(has&&!document.querySelector(`.sound-container[data-sound-id='${i}']`)){soundButtonsContainer.appendChild(createSoundButton(i));}} document.querySelectorAll('.sound-container').forEach(c=>{const id=c.dataset.soundId,btn=c.querySelector('.sound-button'),nameIn=c.querySelector('.sound-name'),uploadBtn=c.querySelector('.upload-button');const nm=localStorage.getItem(`sound${id}Name`),fn=localStorage.getItem(`sound${id}FileName`);if(nm){nameIn.value=nm;btn.textContent=nm;} if(fn)uploadBtn.textContent=fn.length>18?fn.substring(0,15)+'...':fn; else uploadBtn.textContent='Select Audio File';}); if(localStorage.getItem('soundOverlay')==='true')soundOverlayCheckbox.checked=true; if(localStorage.getItem('autoClicker')==='true'){autoClickerCheckbox.checked=true;autoClickDelayLabel.style.display='block';} const sd=localStorage.getItem('autoClickDelay'); if(sd!==null)autoClickDelayInput.value=sd; }
+            const deleteAccountPopup = document.getElementById('deleteAccountPopup');
+            const currentPasswordDeleteInput = document.getElementById('currentPasswordDelete');
+            const confirmDeleteAccountBtn = document.getElementById('confirmDeleteAccountBtn');
+            const deleteAccountErrorElement = document.getElementById('deleteAccountError');
 
-      // UI Event Listeners
-      document.addEventListener('keydown',e=>{ if(e.shiftKey&&e.key.toLowerCase()==='c'){ stopAllAudios(); closeOptions(); showStatus('All sounds muted and cleared','success'); }});
-      addSoundButton.addEventListener('click',()=>{soundCount++; soundButtonsContainer.appendChild(createSoundButton(soundCount)); showStatus('New sound button added','success');});
-      logoutBtn.addEventListener('click',()=> window.location.href='index.html');
+            // Get all cancel buttons within any popup
+            const cancelButtons = document.querySelectorAll('.popup-menu .cancel');
 
-      // Initialize
-      soundButtonsContainer.appendChild(createSoundButton(1)); loadSavedData(); console.log('LocalSounds initialization complete');
-    });
-  </script>
+            // Apply pill shape styling to nav buttons (if not already applied via CSS)
+            document.querySelectorAll('.nav-buttons .btn').forEach(button => {
+                button.style.borderRadius = 'var(--pill-radius)';
+            });
+
+            // Username validation function (existing)
+            function validateUsername(username) {
+                if (username.length < 4) {
+                    return { valid: false, message: 'Username must be at least 4 characters' };
+                } else if (username.length > 16) {
+                    return { valid: false, message: 'Username cannot exceed 16 characters' };
+                }
+                return { valid: true, message: 'Username is valid' };
+            }
+
+             // Password validation function (simple check for new password)
+             function validatePassword(password) {
+                 // Example: require at least 6 characters
+                 if (password.length < 6) {
+                     return { valid: false, message: 'Password must be at least 6 characters.' };
+                 }
+                 return { valid: true, message: '' };
+             }
+
+
+            // Function to show a popup
+            function showPopup(popupElement) {
+                 // Hide any other active popups first
+                 hideAllPopups();
+                 // Clear input fields and errors in the target popup
+                 const inputs = popupElement.querySelectorAll('input[type="password"]');
+                 inputs.forEach(input => input.value = '');
+                 const errorElement = popupElement.querySelector('.popup-error');
+                 if (errorElement) {
+                     errorElement.textContent = '';
+                 }
+                 popupElement.classList.add('active'); // This triggers display and opacity changes
+            }
+
+             // Function to hide a popup
+            function hidePopup(popupElement) {
+                 popupElement.classList.remove('active'); // This triggers opacity change
+                 // After transition, set display to none to prevent it interfering with layout/clicks
+                 // A short timeout ensures the opacity transition completes
+                 setTimeout(() => {
+                      if (!popupElement.classList.contains('active')) { // Ensure it wasn't reactivated during timeout
+                           popupElement.style.display = 'none';
+                           popupElement.style.visibility = 'hidden';
+                      }
+                 }, var_config_popup_transition_duration * 1000 || 300); // Use CSS var or default
+            }
+
+            // Function to hide all popups
+            function hideAllPopups() {
+                document.querySelectorAll('.popup-menu.active').forEach(popup => {
+                    hidePopup(popup);
+                });
+            }
+
+            // Get CSS variable value for transition duration
+            const style = getComputedStyle(document.documentElement);
+            const var_config_popup_transition_duration = parseFloat(style.getPropertyValue('--popup-transition-duration'));
+
+
+            // Close popups when clicking outside (optional but good UX)
+            document.addEventListener('click', (event) => {
+                 if (!event.target.closest('.popup-wrapper') && !event.target.closest('.popup-menu')) {
+                     hideAllPopups();
+                 }
+            });
+
+
+            // Listen for authentication state changes (existing)
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // Display basic user info
+                    userEmailElement.textContent = `Email: ${user.email}`;
+                    const creationDate = new Date(user.metadata.creationTime);
+                    creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
+                    lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
+                    userUIDElement.textContent = `User ID: ${user.uid}`;
+
+                    // Attempt to fetch existing username from Firestore
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    if (userDoc.exists && userDoc.data().username) {
+                        currentUsernameElement.textContent = userDoc.data().username;
+                        addUsernameForm.style.display = 'none';
+                        editUsernameBtn.style.display = 'inline-block';
+                    } else {
+                        currentUsernameElement.textContent = 'No username set.';
+                        addUsernameForm.style.display = 'flex';
+                        editUsernameBtn.style.display = 'none';
+                    }
+                } else {
+                    // Redirect to home if not signed in
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // Allow editing the username (existing)
+            editUsernameBtn.addEventListener('click', () => {
+                hideAllPopups(); // Hide popups when changing username
+                currentUsernameElement.style.display = 'none';
+                editUsernameBtn.style.display = 'none';
+                addUsernameForm.style.display = 'flex';
+                const currentUsername = currentUsernameElement.textContent === 'No username set.' ? '' : currentUsernameElement.textContent;
+                newUsernameInput.value = currentUsername;
+
+                // Trigger validation for the current username
+                if (currentUsername) {
+                    const event = new Event('input', { bubbles: true });
+                    newUsernameInput.dispatchEvent(event);
+                }
+            });
+
+            // Save the new username to Firestore for the user (existing)
+            saveUsernameBtn.addEventListener('click', async () => {
+                const newUsername = newUsernameInput.value.trim();
+                const validation = validateUsername(newUsername);
+
+                if (validation.valid) {
+                    const user = auth.currentUser;
+                    if (user) {
+                        try {
+                            // Save or update the username for this user
+                            await db.collection('users').doc(user.uid).set({ username: newUsername }, { merge: true });
+                            currentUsernameElement.textContent = newUsername;
+                            currentUsernameElement.style.display = 'block';
+                            addUsernameForm.style.display = 'none';
+                            editUsernameBtn.style.display = 'inline-block';
+
+                            // Reset validation state
+                            newUsernameInput.classList.remove('valid', 'invalid');
+                            usernameHelperText.textContent = 'Username must be 4-16 characters';
+                            usernameHelperText.classList.remove('error');
+                            saveUsernameBtn.disabled = true;
+                        } catch (error) {
+                            console.error("Error saving username:", error);
+                            alert("Could not save username. Please try again."); // Using alert as this isn't the focus of the popup changes
+                        }
+                    }
+                } else {
+                    usernameHelperText.textContent = validation.message;
+                    usernameHelperText.classList.add('error');
+                }
+            });
+
+            // --- Password Change Popup Logic ---
+            changePasswordBtn.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent click from immediately closing the popup via document listener
+                showPopup(changePasswordPopup);
+            });
+
+            // Enable/disable Confirm Change button based on input
+            currentPasswordChangeInput.addEventListener('input', toggleChangePasswordButtonState);
+            newPasswordChangeInput.addEventListener('input', toggleChangePasswordButtonState);
+
+            function toggleChangePasswordButtonState() {
+                 const currentPass = currentPasswordChangeInput.value.trim();
+                 const newPass = newPasswordChangeInput.value.trim();
+                 const isNewPassValid = validatePassword(newPass).valid;
+                 confirmPasswordChangeBtn.disabled = !currentPass || !newPass || !isNewPassValid;
+
+                  // Basic validation feedback for new password while typing
+                 if (newPass && !isNewPassValid) {
+                     newPasswordChangeInput.classList.add('invalid');
+                      changePasswordErrorElement.textContent = validatePassword(newPass).message;
+                      changePasswordErrorElement.style.color = 'var(--validation-error)';
+                 } else {
+                     newPasswordChangeInput.classList.remove('invalid');
+                     if (changePasswordErrorElement.textContent === validatePassword(newPass).message) {
+                          changePasswordErrorElement.textContent = ''; // Clear only if it was the password validation error
+                     }
+                 }
+            }
+
+
+            confirmPasswordChangeBtn.addEventListener('click', async () => {
+                const user = auth.currentUser;
+                if (!user) return; // Should not happen if button is visible, but good practice
+
+                const currentPassword = currentPasswordChangeInput.value;
+                const newPassword = newPasswordChangeInput.value;
+                 const changeErrorDisplay = changePasswordErrorElement;
+
+                changeErrorDisplay.textContent = ''; // Clear previous errors
+                 confirmPasswordChangeBtn.disabled = true; // Prevent double clicking
+
+                try {
+                    // Reauthenticate the user with their current password
+                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+                    await user.reauthenticateWithCredential(credential);
+
+                    // If reauthentication succeeds, update the password
+                    const newPassValidation = validatePassword(newPassword);
+                    if (!newPassValidation.valid) {
+                         changeErrorDisplay.textContent = newPassValidation.message;
+                         newPasswordChangeInput.classList.add('invalid');
+                         confirmPasswordChangeBtn.disabled = false;
+                         return;
+                    }
+
+                    await user.updatePassword(newPassword);
+
+                    changeErrorDisplay.textContent = 'Password updated successfully!';
+                    changeErrorDisplay.style.color = 'var(--validation-success)'; // Use success color
+                    currentPasswordChangeInput.value = ''; // Clear inputs
+                    newPasswordChangeInput.value = '';
+                    newPasswordChangeInput.classList.remove('invalid'); // Clear invalid state
+                    confirmPasswordChangeBtn.disabled = false; // Re-enable button (or hide popup)
+
+                    // Optionally hide the popup after a short delay to show success message
+                    setTimeout(() => {
+                         hidePopup(changePasswordPopup);
+                         changeErrorDisplay.textContent = ''; // Clear success message after hiding
+                         newPasswordChangeInput.classList.remove('invalid'); // Ensure invalid state is cleared on hide
+                    }, 2000);
+
+
+                } catch (error) {
+                    console.error("Error changing password:", error);
+                    let errorMessage = "Failed to change password. Please try again.";
+
+                    if (error.code === 'auth/wrong-password') {
+                        errorMessage = "Incorrect current password.";
+                        currentPasswordChangeInput.classList.add('invalid');
+                    } else if (error.code === 'auth/requires-recent-login') {
+                        errorMessage = "Please log in again recently to change your password.";
+                    } else if (error.code === 'auth/weak-password') {
+                         errorMessage = "New password is too weak."; // Firebase provides this for updatePassword too
+                          newPasswordChangeInput.classList.add('invalid');
+                    } else if (error.code === 'auth/invalid-email') {
+                         // This shouldn't happen if user is authenticated via email/password, but handle defensively
+                         errorMessage = "Invalid user email.";
+                    }
+
+                    changeErrorDisplay.textContent = errorMessage;
+                    changeErrorDisplay.style.color = 'var(--validation-error)';
+                    confirmPasswordChangeBtn.disabled = false; // Re-enable button
+                }
+            });
+
+
+            // --- Delete Account Popup Logic ---
+            deleteAccountBtn.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent click from immediately closing the popup via document listener
+                showPopup(deleteAccountPopup);
+            });
+
+            // Enable/disable Confirm Delete button based on current password input
+            currentPasswordDeleteInput.addEventListener('input', () => {
+                confirmDeleteAccountBtn.disabled = !currentPasswordDeleteInput.value.trim();
+                 currentPasswordDeleteInput.classList.remove('invalid'); // Clear invalid state on input
+                 deleteAccountErrorElement.textContent = ''; // Clear error on input
+            });
+
+            confirmDeleteAccountBtn.addEventListener('click', async () => {
+                const user = auth.currentUser;
+                if (!user) return; // Should not happen if button is visible
+
+                const currentPassword = currentPasswordDeleteInput.value;
+                 const deleteErrorDisplay = deleteAccountErrorElement;
+
+                deleteErrorDisplay.textContent = ''; // Clear previous errors
+                 confirmDeleteAccountBtn.disabled = true; // Prevent double clicking
+
+
+                try {
+                    // Reauthenticate the user with their current password
+                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+                    await user.reauthenticateWithCredential(credential);
+
+                    // If reauthentication succeeds, delete the account
+                    await user.delete();
+
+                    // Account deleted, redirect to home
+                    alert("Account deleted successfully. Redirecting to home."); // Still using alert for final confirmation/info
+                    window.location.href = 'index.html';
+
+                } catch (error) {
+                    console.error("Error deleting account:", error);
+                     let errorMessage = "Failed to delete account. Please try again.";
+
+                     if (error.code === 'auth/wrong-password') {
+                         errorMessage = "Incorrect current password.";
+                         currentPasswordDeleteInput.classList.add('invalid');
+                     } else if (error.code === 'auth/requires-recent-login') {
+                          errorMessage = "Please log in again recently to delete your account.";
+                     } else if (error.code === 'auth/invalid-email') {
+                         // Should not happen for email/password auth, but handle
+                         errorMessage = "Invalid user email.";
+                     }
+
+
+                    deleteErrorDisplay.textContent = errorMessage;
+                    deleteErrorDisplay.style.color = 'var(--validation-error)';
+                    confirmDeleteAccountBtn.disabled = false; // Re-enable button
+                }
+            });
+
+            // --- Cancel Button Logic (for all popups) ---
+             cancelButtons.forEach(button => {
+                 button.addEventListener('click', (event) => {
+                     event.stopPropagation(); // Prevent document click listener from interfering
+                     const popup = button.closest('.popup-menu');
+                     if (popup) {
+                         hidePopup(popup);
+                         // Clear inputs and errors when cancelling
+                         const inputs = popup.querySelectorAll('input[type="password"]');
+                         inputs.forEach(input => {
+                             input.value = '';
+                             input.classList.remove('invalid');
+                         });
+                         const errorElement = popup.querySelector('.popup-error');
+                         if (errorElement) {
+                             errorElement.textContent = '';
+                         }
+                          // Re-disable confirm button on cancel
+                         if(popup.id === 'changePasswordPopup') toggleChangePasswordButtonState();
+                         if(popup.id === 'deleteAccountPopup') confirmDeleteAccountBtn.disabled = true;
+
+                     }
+                 });
+             });
+
+
+            // Placeholder for edit profile functionality (existing)
+            editProfileBtn.addEventListener('click', () => {
+                hideAllPopups(); // Hide other popups
+                alert("Edit profile functionality will be implemented soon!");
+            });
+
+            // Placeholder for manage subscriptions functionality (existing)
+            manageSubscriptionsBtn.addEventListener('click', () => {
+                hideAllPopups(); // Hide other popups
+                alert("Manage subscriptions functionality will be implemented soon!");
+            });
+
+
+            // Logout the user on button click (existing)
+            logoutBtn.addEventListener('click', async () => {
+                 hideAllPopups(); // Hide other popups
+                try {
+                    await auth.signOut();
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error("Logout error:", error);
+                    alert("Could not log out. Please try again."); // Still using alert for this
+                }
+            });
+        });
+    </script>
 </body>
 </html>
