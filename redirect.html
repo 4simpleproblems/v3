@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4SP | Redirect Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+
+    <style>
+        /* Styles specific to the redirect page, adopting principles from the Soundboard page */
+        /* Uses variables defined in styles.css */
+
+        body {
+            /* Ensure body uses main background and text color from styles.css variables */
+            background-color: var(--darker-bg); /* Or --dark-bg depending on your preference */
+            color: var(--light-text);
+            font-family: 'Roboto Mono', monospace; /* Ensure font is consistent */
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            /* Adopt container styling, adjust width for this page */
+            max-width: 600px; /* Adjusted width for the form */
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: var(--dark-bg);
+            border-radius: 28px; /* Using 28px from dashboard/auth styles */
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1); /* Using shadow from dashboard/auth styles */
+            border: 1px solid var(--medium-gray); /* Using medium gray border */
+            text-align: center; /* Center content */
+            flex: 1;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--light-text); /* Ensure heading color is consistent */
+        }
+
+        p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: var(--light-gray); /* Use a lighter text for paragraphs */
+        }
+
+        input[type="text"] {
+            /* Styling based on input fields in other examples */
+            width: calc(100% - 1.5rem); /* Adjusted width to fit padding */
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 50px; /* Rounded shape */
+            border: 2px solid var(--medium-gray); /* Border color */
+            background-color: var(--darker-bg); /* Darker background for input */
+            color: var(--light-text);
+            font-family: inherit;
+            font-size: 1rem;
+            box-sizing: border-box;
+            outline: none;
+            text-align: center; /* Center text in input */
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--light-text);
+            box-shadow: 0 0 0 3px rgba(240, 240, 240, 0.1); /* Light glow on focus */
+        }
+
+        button {
+            /* Styling based on button styles in other examples */
+            display: inline-block; /* Ensure padding and width work */
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: center;
+            border: 2px solid var(--light-text); /* Secondary button style */
+            background-color: transparent; /* Secondary button style */
+            color: var(--light-text); /* Secondary button style */
+            font-weight: 500; /* Match button font weight */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        button:hover {
+            background-color: rgba(240, 240, 240, 0.1); /* Subtle hover effect */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: scale(0.98); /* Slight press effect */
+        }
+
+
+        /* Status Message */
+        .status-message {
+            /* Styling based on status messages in other examples */
+            display: none;
+            padding: 0.75rem 1.5rem; /* Increased padding */
+            margin: 1.5rem auto; /* Increased margin */
+            border-radius: 50px; /* Fully rounded */
+            font-size: 0.9rem;
+            text-align: center;
+            max-width: 90%; /* Wider message */
+            border: 1px solid transparent; /* Default transparent border */
+            opacity: 0; /* Start hidden for animation */
+            transform: translateY(20px); /* Start below for animation */
+            transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth transition */
+        }
+
+        .status-message.fade-in {
+             display: block; /* Ensure display is block when animating */
+             opacity: 1;
+             transform: translateY(0);
+         }
+
+         .status-message.fade-out {
+             opacity: 0;
+             transform: translateY(20px);
+         }
+
+
+        .status-message.success {
+            background-color: rgba(51, 204, 51, 0.1);
+            color: var(--success-green);
+            border-color: var(--success-green);
+        }
+
+        .status-message.error {
+            background-color: rgba(255, 51, 51, 0.1);
+            color: var(--error-red);
+            border-color: var(--error-red);
+        }
+
+        .status-message.info {
+            background-color: rgba(62, 108, 214, 0.1); /* Using a blueish tint */
+            color: var(--primary-blue); /* Assuming primary-blue for info */
+            border-color: var(--primary-blue);
+        }
+
+        /* Navigation bar styles - Assumed from styles.css and other HTML */
+        .navbar {
+            background-color: var(--darker-bg);
+            color: var(--light-text);
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid var(--accent);
+        }
+
+        .navbar .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+         /* Footer Styles */
+         footer {
+            text-align: center;
+            padding: 1rem;
+            color: var(--medium-gray);
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+
+        /* Utility for hiding content before login */
+        .content-hidden {
+            display: none;
+        }
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Your Firebase Configuration
+        // Replace with your project's config object
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID" // Optional
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="dashboard.html" class="btn secondary">Dashboard</a>
+            <button class="btn secondary" id="logoutBtn">Log Out</button>
+        </div>
+    </nav>
+
+    <main class="container content-hidden" id="mainContent">
+        <h1>Redirect Settings</h1>
+        <p>Enter the website URL you want to redirect to when you press Shift + X:</p>
+
+        <input type="text" id="websiteUrl" placeholder="e.g., google.com or https://example.com" />
+        <button id="applyButton">Apply</button>
+
+        <div class="status-message" id="statusMessage"></div>
+    </main>
+
+     <div class="container" id="authMessageContainer" style="display: none;">
+        <h1>Access Denied</h1>
+        <p>You need to be logged in to manage your redirect settings.</p>
+        <a href="login.html" class="btn primary">Go to Login</a>
+        </div>
+
+    <footer>
+        <p>© 2025 4SP</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const websiteUrlInput = document.getElementById('websiteUrl');
+            const applyButton = document.getElementById('applyButton');
+            const statusMessage = document.getElementById('statusMessage');
+            const mainContent = document.getElementById('mainContent');
+            const authMessageContainer = document.getElementById('authMessageContainer');
+            const logoutBtn = document.getElementById('logoutBtn'); // Assuming a logout button exists
+
+             // Enhanced show status message with proper fade animation
+             function showStatusMessage(message, type = 'info') {
+                 // Clear any existing timeout
+                 if (statusMessage.dataset.timeoutId) {
+                     clearTimeout(statusMessage.dataset.timeoutId);
+                     delete statusMessage.dataset.timeoutId;
+                 }
+
+                 // Remove existing animation classes immediately
+                 statusMessage.classList.remove('fade-in', 'fade-out', 'success', 'error', 'info');
+
+                 // Set the message and type class
+                 statusMessage.textContent = message;
+                 statusMessage.classList.add(type);
+
+                 // Show and trigger fade-in animation
+                 statusMessage.style.display = 'block';
+                 requestAnimationFrame(() => { // Use rAF to ensure display:block is applied before animation
+                     statusMessage.classList.add('fade-in');
+                 });
+
+
+                 // Set timeout to hide the message
+                 const timeoutId = setTimeout(() => {
+                     statusMessage.classList.remove('fade-in');
+                     statusMessage.classList.add('fade-out');
+
+                     // When fadeout animation finishes, hide the element
+                     statusMessage.addEventListener('transitionend', function handleTransitionEnd() {
+                         if (statusMessage.classList.contains('fade-out')) {
+                              statusMessage.style.display = 'none';
+                              statusMessage.classList.remove('fade-out'); // Clean up class
+                              statusMessage.removeEventListener('transitionend', handleTransitionEnd);
+                         }
+                     });
+
+                 }, 3000); // Message visible for 3 seconds
+
+                 statusMessage.dataset.timeoutId = timeoutId.toString(); // Store timeout ID
+             }
+
+
+            // Function to format URL (add https:// if missing)
+            function formatUrl(url) {
+                if (!url) return '';
+                url = url.trim();
+                // Check if it starts with http:// or https:// (case-insensitive)
+                if (!/^[a-zA-Z]+:\/\//i.test(url)) {
+                    return `https://${url}`;
+                }
+                return url;
+            }
+
+            // Listen for authentication state changes
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // User is signed in
+                    console.log("User logged in:", user.uid);
+                    mainContent.classList.remove('content-hidden');
+                    authMessageContainer.style.display = 'none';
+                    if (logoutBtn) {
+                        logoutBtn.style.display = 'inline-block'; // Show logout button
+                    }
+
+
+                    // Load existing settings
+                    const userSettingsRef = db.collection('users').doc(user.uid).collection('settings').doc('redirect');
+                    try {
+                        const doc = await userSettingsRef.get();
+                        if (doc.exists && doc.data().redirectUrl) {
+                            websiteUrlInput.value = doc.data().redirectUrl;
+                            console.log("Loaded saved URL:", doc.data().redirectUrl);
+                        } else {
+                            // Set default if no setting exists
+                            websiteUrlInput.value = 'https://google.com';
+                            console.log("No saved URL found, defaulting to google.com");
+                        }
+                    } catch (error) {
+                        console.error("Error loading settings:", error);
+                        showStatusMessage('Error loading saved URL. Please try again.', 'error');
+                        websiteUrlInput.value = 'https://google.com'; // Default anyway
+                    }
+
+                    // Add event listener for the Apply button
+                    // Ensure listener is only added ONCE after user is authenticated
+                    if (!applyButton.dataset.listenerAttached) {
+                         applyButton.dataset.listenerAttached = 'true'; // Mark as attached
+
+                         applyButton.addEventListener('click', async () => {
+                             let url = websiteUrlInput.value;
+
+                             if (!url) {
+                                 showStatusMessage('Please enter a website URL.', 'info');
+                                 return;
+                             }
+
+                             url = formatUrl(url); // Format the URL
+
+                             try {
+                                 // Basic validation using URL constructor
+                                 new URL(url);
+
+                                 // Save to Firestore
+                                 await userSettingsRef.set({
+                                     redirectUrl: url
+                                 }, {
+                                     merge: true
+                                 }); // Use merge: true to avoid overwriting other settings
+
+                                 console.log("URL saved successfully:", url);
+                                 showStatusMessage('Settings saved successfully!', 'success');
+
+                             } catch (error) {
+                                 console.error("Error saving URL:", error);
+                                 if (error instanceof TypeError) { // URL constructor throws TypeError for invalid URLs
+                                     showStatusMessage('Invalid URL format. Please enter a valid website address.', 'error');
+                                 } else {
+                                     showStatusMessage('Error saving settings. Please try again.', 'error');
+                                 }
+                             }
+                         });
+                    }
+
+
+                     // Add logout functionality (assuming you have Firebase Auth setup)
+                    if (logoutBtn && !logoutBtn.dataset.listenerAttached) {
+                         logoutBtn.dataset.listenerAttached = 'true'; // Mark as attached
+                         logoutBtn.addEventListener('click', async () => {
+                            try {
+                                await auth.signOut();
+                                console.log("User logged out");
+                                // Redirect to login page or home page after logout
+                                window.location.href = 'login.html'; // Adjust as needed
+                            } catch (error) {
+                                console.error("Error logging out:", error);
+                                showStatusMessage('Error logging out. Please try again.', 'error');
+                            }
+                        });
+                    }
+
+
+                } else {
+                    // User is signed out
+                    console.log("No user logged in.");
+                    mainContent.classList.add('content-hidden');
+                    authMessageContainer.style.display = 'block';
+                     if (logoutBtn) {
+                        logoutBtn.style.display = 'none'; // Hide logout button if not logged in
+                    }
+                     // Ensure button listener is removed or doesn't fire if not logged in
+                     // The onAuthStateChanged structure handles this naturally, but being explicit is good.
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
