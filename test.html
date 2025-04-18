@@ -206,12 +206,18 @@
         .username-helper-text {
             font-size: 0.8rem;
             margin-top: 0.25rem;
+            /* Default color */
             color: var(--info-text);
         }
 
         .username-helper-text.error {
             color: var(--validation-error);
         }
+         /* Added style for success message */
+        .username-helper-text.success {
+             color: var(--validation-success);
+        }
+
 
         .btn.secondary.small-btn {
             padding: 0.5rem 1rem;
@@ -758,21 +764,29 @@
                 const currentUsername = currentUsernameElement.textContent === 'No username set.' ? '' : currentUsernameElement.textContent;
                 newUsernameInput.value = currentUsername;
 
-                // Trigger validation for the current username
-                if (currentUsername) {
-                    const event = new Event('input', { bubbles: true });
-                    newUsernameInput.dispatchEvent(event);
-                } else {
-                     // If no current username, ensure save is disabled initially
-                     saveUsernameBtn.disabled = true;
-                }
+                // Clear previous status/errors and reset text
+                 usernameHelperText.textContent = 'Username must be 4-16 characters';
+                 usernameHelperText.classList.remove('error', 'success'); // IMPORTANT: clear error/success classes
+
+
+                // Trigger validation for the current username (or empty)
+                const event = new Event('input', { bubbles: true });
+                newUsernameInput.dispatchEvent(event); // Always dispatch to set initial button state correctly
+
             });
 
-            // Save the new username to Firestore for the user (existing)
+            // Save the new username to Firestore for the user - MODIFIED LOGIC FOR FEEDBACK
             saveUsernameBtn.addEventListener('click', async () => {
-                 hideAllPopups(); // Hide popups just in case
+                 // hideAllPopups(); // Decided to keep form open for feedback on save attempt
                 const newUsername = newUsernameInput.value.trim();
                 const validation = validateUsername(newUsername);
+
+                // Clear previous status/errors before trying to save
+                usernameHelperText.textContent = 'Saving...'; // Indicate saving state
+                usernameHelperText.classList.remove('error', 'success');
+                usernameHelperText.style.color = 'var(--info-text)'; // Use info color for saving
+
+                saveUsernameBtn.disabled = true; // Disable while saving
 
                 if (validation.valid) {
                     const user = auth.currentUser;
@@ -780,29 +794,61 @@
                         try {
                             // Save or update the username for this user
                             await db.collection('users').doc(user.uid).set({ username: newUsername }, { merge: true });
+
+                            // Success feedback
+                            usernameHelperText.textContent = 'Username saved successfully!';
+                            usernameHelperText.classList.remove('error');
+                            usernameHelperText.classList.add('success');
+
+                            // Update display after successful save
                             currentUsernameElement.textContent = newUsername;
                             currentUsernameElement.style.display = 'block';
                             addUsernameForm.style.display = 'none';
                             editUsernameBtn.style.display = 'inline-block';
 
-                            // Reset validation state
+                            // Reset input and validation state after successful save and hiding form
+                            newUsernameInput.value = '';
                             newUsernameInput.classList.remove('valid', 'invalid');
-                            usernameHelperText.textContent = 'Username must be 4-16 characters';
-                            usernameHelperText.classList.remove('error');
-                            saveUsernameBtn.disabled = true;
-                            // Optionally show success message, but not the focus here
+                             // Helper text reset will happen next time form is opened or stays as success briefly
+
                         } catch (error) {
                             console.error("Error saving username:", error);
-                            alert("Could not save username. Please try again."); // Using alert as this isn't the focus of the popup changes
+                            // Display error in helper text
+                            let errorMessage = `Error saving username: ${error.message}`;
+                            if (error.code === 'firestore/permission-denied') {
+                                 errorMessage = 'Permission denied. Check Firestore security rules or user authentication.';
+                            } else if (error.code === 'firestore/unavailable') {
+                                 errorMessage = 'Firestore is unavailable. Check your connection.';
+                            }
+                            // Add more specific error handling based on potential Firestore errors
+
+                            usernameHelperText.textContent = errorMessage;
+                            usernameHelperText.classList.remove('success');
+                            usernameHelperText.classList.add('error');
+                             // Maybe mark input invalid? Depends on error type, let's not by default
+                             // newUsernameInput.classList.add('invalid');
+
+                             saveUsernameBtn.disabled = false; // Re-enable button on failure
                         }
+                    } else {
+                         // Should not happen if auth state is managed, but good practice
+                         usernameHelperText.textContent = 'User not authenticated.';
+                         usernameHelperText.classList.remove('success');
+                         usernameHelperText.classList.add('error');
+                         saveUsernameBtn.disabled = false;
                     }
                 } else {
+                    // This case should ideally be prevented by button disabled state,
+                    // but handle defensively: Re-display validation error
                     usernameHelperText.textContent = validation.message;
+                    usernameHelperText.classList.remove('success');
                     usernameHelperText.classList.add('error');
+                     newUsernameInput.classList.add('invalid');
+                     saveUsernameBtn.disabled = false; // Re-enable if disabled erroneously
                 }
             });
 
-            // --- Cancel Username Button Logic ---
+            // Update cancel button to clear error/success states (existing but ensuring cleanup)
             cancelUsernameBtn.addEventListener('click', () => {
                  // Hide the username change form
                  addUsernameForm.style.display = 'none';
@@ -815,7 +861,7 @@
                  newUsernameInput.value = '';
                  newUsernameInput.classList.remove('valid', 'invalid');
                  usernameHelperText.textContent = 'Username must be 4-16 characters'; // Reset helper text
-                 usernameHelperText.classList.remove('error');
+                 usernameHelperText.classList.remove('error', 'success'); // IMPORTANT: Clear error/success classes
                  saveUsernameBtn.disabled = true; // Disable save button
             });
 
