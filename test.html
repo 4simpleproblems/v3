@@ -138,8 +138,14 @@
 
         .username-input-group .input-wrapper {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.5rem; /* Gap between input and buttons */
         }
+
+        .username-input-group .username-buttons {
+            display: flex;
+            gap: 0.5rem; /* Gap between save and cancel buttons */
+        }
+
 
         .username-input-group input {
             flex-grow: 1;
@@ -172,6 +178,8 @@
             cursor: pointer;
             font-size: 0.9rem;
             text-align: center;
+             /* Ensure username buttons don't stretch like account action buttons */
+            width: auto;
         }
 
         .username-input-group button:hover {
@@ -183,6 +191,17 @@
             cursor: not-allowed;
             opacity: 0.7;
         }
+
+         /* Style for the new cancel button */
+        .username-input-group button.cancel-username {
+            background-color: var(--secondary-action-bg);
+            color: var(--secondary-action-text);
+            border: 2px solid var(--secondary-action-text);
+        }
+         .username-input-group button.cancel-username:hover {
+            background-color: #d0d0d0;
+         }
+
 
         .username-helper-text {
             font-size: 0.8rem;
@@ -290,7 +309,7 @@
             z-index: 10; /* Ensure it's on top */
             background-color: var(--popup-bg);
             border: 2px solid var(--popup-border); /* Match soundboard menu border style */
-            border-radius: 30px; /* Changed from var(--popup-radius) to 30px */
+            border-radius: 30px; /* Hardcoded to 30px as requested */
             box-shadow: var(--popup-box-shadow);
             padding: var(--popup-padding);
             margin-top: var(--popup-margin-top);
@@ -340,7 +359,7 @@
             padding: 0.8rem 10px;
             margin-bottom: 0.8rem;
             border: 1px solid var(--light-gray); /* Use light gray border for input */
-            border-radius: 15px; /* Standard input border radius */
+            border-radius: 5px; /* Standard input border radius */
             font-size: 1rem;
             color: var(--dark-bg); /* Use dark text for input value */
             background-color: var(--card-bg); /* Use card background for input */
@@ -474,7 +493,8 @@
                     <div class="username-input-group" id="addUsernameForm">
                         <div class="input-wrapper">
                             <input type="text" id="newUsername" placeholder="Enter Username" minlength="4" maxlength="16">
-                            <button id="saveUsernameBtn" disabled>Save</button>
+                             <div class="username-buttons"> <button id="saveUsernameBtn" disabled>Save</button>
+                                <button id="cancelUsernameBtn" class="secondary cancel-username">Cancel</button> </div>
                         </div>
                         <p class="username-helper-text">Username must be 4-16 characters</p>
                     </div>
@@ -561,7 +581,11 @@
             const editProfileBtn = document.getElementById('editProfileBtn');
             const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
 
-            // DOM elements for Popups
+            // New DOM element for Cancel Username button
+            const cancelUsernameBtn = document.getElementById('cancelUsernameBtn');
+
+
+            // DOM elements for Popups (existing)
             const changePasswordPopup = document.getElementById('changePasswordPopup');
             const currentPasswordChangeInput = document.getElementById('currentPasswordChange');
             const newPasswordChangeInput = document.getElementById('newPasswordChange');
@@ -573,18 +597,18 @@
             const confirmDeleteAccountBtn = document.getElementById('confirmDeleteAccountBtn');
             const deleteAccountErrorElement = document.getElementById('deleteAccountError');
 
-            // Overlay element
+            // Overlay element (existing)
             const overlay = document.getElementById('overlay');
 
-            // Get all cancel buttons within any popup
+            // Get all cancel buttons within any popup (existing)
             const cancelButtons = document.querySelectorAll('.popup-menu .cancel');
 
-             // Get CSS variable for animation duration
+             // Get CSS variable for animation duration (existing)
             const style = getComputedStyle(document.documentElement);
             const animationDuration = parseFloat(style.getPropertyValue('--animation-duration')) * 1000; // Convert to ms
 
 
-            // Apply pill shape styling to nav buttons (if not already applied via CSS)
+            // Apply pill shape styling to nav buttons (if not already applied via CSS) (existing)
             document.querySelectorAll('.nav-buttons .btn').forEach(button => {
                 button.style.borderRadius = 'var(--pill-radius)';
             });
@@ -599,7 +623,7 @@
                 return { valid: true, message: 'Username is valid' };
             }
 
-             // Password validation function (simple check for new password)
+             // Password validation function (simple check for new password) (existing)
              function validatePassword(password) {
                  // Example: require at least 6 characters
                  if (password.length < 6) {
@@ -609,7 +633,7 @@
              }
 
 
-            // Function to show a popup with animation
+            // Function to show a popup with animation (existing)
             function showPopup(popupElement) {
                  // Hide any other active popups first
                  hideAllPopups();
@@ -641,7 +665,7 @@
                  if(popupElement.id === 'deleteAccountPopup') confirmDeleteAccountBtn.disabled = true; // Disable delete button initially
             }
 
-             // Function to hide a popup with animation
+             // Function to hide a popup with animation (existing)
             function hidePopup(popupElement) {
                  // Apply fade-out animation classes
                  popupElement.classList.remove('fade-in-up');
@@ -664,7 +688,7 @@
                  }, animationDuration); // Match CSS animation duration
             }
 
-            // Function to hide all popups and the overlay
+            // Function to hide all popups and the overlay (existing)
             function hideAllPopups() {
                 document.querySelectorAll('.popup-menu.fade-in-up').forEach(popup => {
                     hidePopup(popup);
@@ -683,7 +707,7 @@
             }
 
 
-            // Close popups when clicking outside
+            // Close popups when clicking outside (existing)
             document.addEventListener('click', (event) => {
                  // Check if the click is outside any popup-wrapper AND the overlay is active
                  // Check if the click target is the overlay itself
@@ -738,6 +762,9 @@
                 if (currentUsername) {
                     const event = new Event('input', { bubbles: true });
                     newUsernameInput.dispatchEvent(event);
+                } else {
+                     // If no current username, ensure save is disabled initially
+                     saveUsernameBtn.disabled = true;
                 }
             });
 
@@ -775,13 +802,31 @@
                 }
             });
 
-            // --- Password Change Popup Logic ---
+            // --- Cancel Username Button Logic ---
+            cancelUsernameBtn.addEventListener('click', () => {
+                 // Hide the username change form
+                 addUsernameForm.style.display = 'none';
+
+                 // Show the current username and the edit button
+                 currentUsernameElement.style.display = 'block';
+                 editUsernameBtn.style.display = 'inline-block';
+
+                 // Clear the input field and reset validation/button state
+                 newUsernameInput.value = '';
+                 newUsernameInput.classList.remove('valid', 'invalid');
+                 usernameHelperText.textContent = 'Username must be 4-16 characters'; // Reset helper text
+                 usernameHelperText.classList.remove('error');
+                 saveUsernameBtn.disabled = true; // Disable save button
+            });
+
+
+            // --- Password Change Popup Logic --- (existing)
             changePasswordBtn.addEventListener('click', (event) => {
                 event.stopPropagation(); // Prevent click from immediately closing the popup via document listener
                 showPopup(changePasswordPopup);
             });
 
-            // Enable/disable Confirm Change button based on input
+            // Enable/disable Confirm Change button based on input (existing)
             currentPasswordChangeInput.addEventListener('input', toggleChangePasswordButtonState);
             newPasswordChangeInput.addEventListener('input', toggleChangePasswordButtonState);
 
@@ -888,13 +933,13 @@
             });
 
 
-            // --- Delete Account Popup Logic ---
+            // --- Delete Account Popup Logic --- (existing)
             deleteAccountBtn.addEventListener('click', (event) => {
                 event.stopPropagation(); // Prevent click from immediately closing the popup via document listener
                 showPopup(deleteAccountPopup);
             });
 
-            // Enable/disable Confirm Delete button based on current password input
+            // Enable/disable Confirm Delete button based on current password input (existing)
             currentPasswordDeleteInput.addEventListener('input', () => {
                 confirmDeleteAccountBtn.disabled = !currentPasswordDeleteInput.value.trim();
                  currentPasswordDeleteInput.classList.remove('invalid'); // Clear invalid state on input
@@ -948,7 +993,7 @@
                 }
             });
 
-            // --- Cancel Button Logic (for all popups) ---
+            // --- Cancel Button Logic (for all popups) --- (existing)
              cancelButtons.forEach(button => {
                  button.addEventListener('click', (event) => {
                      event.stopPropagation(); // Prevent document click listener from interfering
