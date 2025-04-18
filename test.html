@@ -20,7 +20,7 @@
             --info-text: var(--medium-gray);
             --card-bg: white;
             --card-border: var(--light-gray);
-            --pill-radius: 30px;
+            --pill-radius: 50px;
 
             /* Custom username button variables */
             --username-btn-padding: 0.5rem 1rem;
@@ -47,7 +47,7 @@
             --popup-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Slightly darker shadow */
             --popup-padding: 1.2rem; /* Slightly more padding */
             --popup-margin-top: 0.6rem; /* Slightly more margin */
-            --popup-radius: 10px; /* Match soundboard options radius */
+            /* --popup-radius: 10px; */ /* Removed or updated below */
             --animation-duration: 0.3s; /* Match soundboard animation duration */
         }
 
@@ -290,7 +290,7 @@
             z-index: 10; /* Ensure it's on top */
             background-color: var(--popup-bg);
             border: 2px solid var(--popup-border); /* Match soundboard menu border style */
-            border-radius: var(--popup-radius);
+            border-radius: 30px; /* Changed from var(--popup-radius) to 30px */
             box-shadow: var(--popup-box-shadow);
             padding: var(--popup-padding);
             margin-top: var(--popup-margin-top);
@@ -340,7 +340,7 @@
             padding: 0.8rem 10px;
             margin-bottom: 0.8rem;
             border: 1px solid var(--light-gray); /* Use light gray border for input */
-            border-radius: 12px; /* Standard input border radius */
+            border-radius: 5px; /* Standard input border radius */
             font-size: 1rem;
             color: var(--dark-bg); /* Use dark text for input value */
             background-color: var(--card-bg); /* Use card background for input */
@@ -672,7 +672,13 @@
                  // If any popup was active, the overlay hide is handled by hidePopup
                  // If no popup was active but overlay somehow visible, this ensures it hides
                  if (overlay.style.display === 'block' && !overlay.classList.contains('fade-in-overlay')) {
-                      hidePopup({ classList: { remove: () => {}, add: () => {} }, style: {}, querySelectorAll: () => [] }); // Dummy popup element
+                      // Create a temporary object that mimics a popup element for the hidePopup logic
+                      const dummyPopup = {
+                           classList: { remove: (cls) => {}, add: (cls) => {}, contains: (cls) => cls === 'fade-out-down' },
+                           style: { display: 'block' }, // Simulate it being visible
+                           querySelector: (selector) => null // No internal elements to clear
+                       };
+                      hidePopup(dummyPopup);
                  }
             }
 
@@ -680,10 +686,13 @@
             // Close popups when clicking outside
             document.addEventListener('click', (event) => {
                  // Check if the click is outside any popup-wrapper AND the overlay is active
+                 // Check if the click target is the overlay itself
                  const isClickInsidePopupWrapper = event.target.closest('.popup-wrapper');
+                 const isClickOnOverlay = event.target === overlay;
                  const isOverlayActive = overlay.style.display === 'block';
 
-                 if (!isClickInsidePopupWrapper && isOverlayActive) {
+                 // If the overlay is active and the click is outside a popup-wrapper OR directly on the overlay
+                 if (isOverlayActive && (!isClickInsidePopupWrapper || isClickOnOverlay)) {
                      hideAllPopups();
                  }
             });
