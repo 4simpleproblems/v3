@@ -40,6 +40,11 @@
                     <div class="form-group">
                         <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required autocomplete="new-password">
                     </div>
+                    <!-- Add Username Field -->
+                    <div class="form-group">
+                        <input type="text" id="signupUsername" placeholder="Username" required minlength="4" maxlength="16">
+                        <p class="username-helper-text">Username must be 4-16 characters</p>
+                    </div>
                     <button type="submit" class="btn primary full-width">Create Account</button>
                 </form>
 
@@ -77,8 +82,47 @@
             });
 
             const auth = firebase.auth();
+            const db = firebase.firestore();
             const signupForm = document.getElementById('signupForm');
             const authMessage = document.getElementById('authMessage');
+            const usernameInput = document.getElementById('signupUsername'); // Get Username Input Field
+            const usernameHelperText = document.querySelector('.username-helper-text');
+
+            // Username validation function
+            function validateUsername(username) {
+                if (username.length < 4) {
+                    return { valid: false, message: 'Username must be at least 4 characters' };
+                } else if (username.length > 16) {
+                    return { valid: false, message: 'Username cannot exceed 16 characters' };
+                }
+                return { valid: true, message: 'Username is valid' };
+            }
+
+            // Username input validation event
+            usernameInput.addEventListener('input', () => {
+                const username = usernameInput.value.trim();
+                const validation = validateUsername(username);
+
+                // Update UI based on validation
+                if (validation.valid) {
+                    usernameInput.classList.remove('invalid');
+                    usernameInput.classList.add('valid');
+                    usernameHelperText.textContent = 'Username is valid';
+                    usernameHelperText.classList.remove('error');
+                } else {
+                    usernameInput.classList.remove('valid');
+                    usernameInput.classList.add('invalid');
+                    usernameHelperText.textContent = validation.message;
+                    usernameHelperText.classList.add('error');
+                }
+
+                // Handle empty input case
+                if (username === '') {
+                    usernameInput.classList.remove('valid', 'invalid');
+                    usernameHelperText.textContent = 'Username must be 4-16 characters';
+                    usernameHelperText.classList.remove('error');
+                }
+            });
 
             // Email/password signup
             signupForm.addEventListener('submit', async (e) => {
@@ -87,6 +131,7 @@
                 const email = document.getElementById('signupEmail').value;
                 const password = document.getElementById('signupPassword').value;
                 const confirmPassword = document.getElementById('signupConfirmPassword').value;
+                const username = usernameInput.value.trim();
 
                 // Client-side validation
                 if (password !== confirmPassword) {
@@ -99,8 +144,22 @@
                     return;
                 }
 
+                 // Validate Username
+                const usernameValidation = validateUsername(username);
+                if (!usernameValidation.valid) {
+                    showMessage(usernameValidation.message, 'error');
+                    return;
+                }
+
                 try {
                     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+
+                    // Save username to Firestore
+                    await db.collection('users').doc(user.uid).set({
+                        username: username,
+                        email: email // save the email for convenience and future use.
+                    });
                     
                     // Optional: Send email verification
                     // await userCredential.user.sendEmailVerification();
@@ -123,10 +182,25 @@
                     });
 
                     const result = await auth.signInWithPopup(provider);
-                    
-                    // Optional: Access Google OAuth token
-                    // const credential = result.credential;
-                    // const token = credential.accessToken;
+                    const user = result.user;
+
+                    // Automatically generate a username from Google profile
+                    let username = generateUsernameFromGoogle(user);
+
+                    // Ensure uniqueness by checking Firestore
+                    const usernameRef = db.collection('usernames').doc(username);
+                    const usernameDoc = await usernameRef.get();
+
+                    if(usernameDoc.exists){
+                         const usersSnapshot = await db.collection('users').get();
+                         username = `NONAME-${usersSnapshot.size + 1}`;
+                    }
+
+                    // Save username to Firestore
+                    await db.collection('users').doc(user.uid).set({
+                        username: username,
+                        email: user.email // save the email for convenience and future use.
+                    });
                     
                     showMessage('Google signup successful! Redirecting...', 'success');
                     setTimeout(() => window.location.href = 'dashboard.html', 1500);
@@ -134,6 +208,13 @@
                     handleAuthError(error);
                 }
             });
+
+             function generateUsernameFromGoogle(user) {
+                // Use displayName or email prefix, sanitized and lowercased
+                let base = user.displayName || user.email.split('@')[0];
+                base = base.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+                return base;
+            }
 
             // Helper functions
             function showMessage(message, type) {
