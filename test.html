@@ -34,7 +34,7 @@
       --modal-text-color: #f0f0f0;
       --modal-input-bg: #f0f0f0;
       --modal-input-text-color: #000;
-      --primary-red: #ff1212; /* Add a primary red color */
+      --primary-red: #ff1212;
     }
 
     body {
@@ -219,16 +219,12 @@
       height: 100%;
       overflow: auto;
       background-color: var(--modal-bg);
-      animation: fadeIn 0.3s ease;
+      opacity: 0; /* Make the modal initially invisible */
+      transition: opacity 0.3s ease; /* Add transition for opacity */
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
+    .modal.fade-out {
+      opacity: 0; /* Fade-out class sets opacity to 0 */
     }
 
     /* Modal Content/Box */
@@ -236,25 +232,14 @@
       background-color: var(--modal-content-bg);
       margin: 10% auto;
       padding: 2rem;
-      border: 1px solid var(--primary-red);  /* Red border */
+      border: 1px solid var(--primary-red);
       width: 90%;
       max-width: 500px;
       border-radius: var(--pill-radius);
       position: relative;
       color: var(--modal-text-color);
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-      animation: slideIn 0.3s ease;
-    }
-
-    @keyframes slideIn {
-      from {
-        transform: translateY(-50px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+      transition: transform 0.3s ease, opacity 0.3s ease; /* Add transition to the content */
     }
 
     /* The Close Button */
@@ -304,8 +289,8 @@
 
     .password-confirmation-form input[type="password"]:focus {
       outline: none;
-      border-color: var(--primary-red); /* Red focus */
-      box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3); /* Red focus shadow */
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3);
     }
 
     .password-confirmation-form button {
@@ -317,15 +302,15 @@
       text-align: center;
       border: none;
       font-weight: 500;
-      background-color: var(--primary-red); /* Red button */
+      background-color: var(--primary-red);
       color: var(--light-text);
       transition: all 0.2s ease;
       margin-top: 0.5rem;
     }
 
     .password-confirmation-form button:hover {
-      box-shadow: 0 4px 12px rgba(255, 18, 18, 0.3); /* Red shadow */
-      background-color: #cc0c0c; /* Darker red hover */
+      box-shadow: 0 4px 12px rgba(255, 18, 18, 0.3);
+      background-color: #cc0c0c;
     }
 
     .modal h2 {
@@ -429,11 +414,19 @@
           modalDescription.textContent = 'Are you sure you want to delete your account? This action is irreversible.';
         }
 
+        passwordModal.classList.remove('fade-out');
         passwordModal.style.display = 'block';
+        setTimeout(() => {
+            passwordModal.style.opacity = 1;
+          }, 10);
       };
 
       const closeModalFn = () => {
-        passwordModal.style.display = 'none';
+         passwordModal.classList.add('fade-out');
+            passwordModal.style.opacity = 0;
+        setTimeout(() => {
+          passwordModal.style.display = 'none';
+        }, 300);
       };
 
       changePasswordBtn.addEventListener('click', () => {
