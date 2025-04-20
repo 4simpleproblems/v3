@@ -7,11 +7,13 @@
   <title>4SP | Account</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Firebase libraries using compat versions -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <style>
+    /* Page-specific styles, can be combined with your styles.css if desired */
     :root {
       --primary-action: var(--dark-bg);
       --secondary-action-text: var(--dark-bg);
@@ -28,12 +30,19 @@
       --card-border: var(--light-gray);
       --pill-radius: 50px;
       --modal-bg: rgba(0, 0, 0, 0.7);
+      /* Adjust the background darkness of the pop-up */
       --modal-content-bg: #1a1a1a;
+      /* The background color of the pop-up */
       --modal-content-border: #f0f0f0;
+      /* The border color of the pop-up */
       --modal-text-color: #f0f0f0;
+      /* General text color for the pop-up */
       --modal-input-bg: #f0f0f0;
+      /* The background color of the input boxes */
       --modal-input-text-color: #000;
+      /* The text color inside the input boxes */
       --primary-red: #ff1212;
+      /* The main red color (used for buttons and such) */
     }
 
     body {
@@ -221,6 +230,10 @@
       transition: opacity 0.3s ease, height 0.3s ease;
     }
 
+    .modal.fade-in {
+      opacity: 1; /* Make the modal visible */
+    }
+
     .modal.fade-out {
       opacity: 0;
       pointer-events: none;
@@ -303,15 +316,15 @@
       text-align: center;
       border: none;
       font-weight: 500;
-      background-color: var(--primary-red);
+      /* Match delete account button style */
+      background-color: var(--danger-action);
       color: var(--light-text);
       transition: all 0.2s ease;
       margin-top: 0.5rem;
     }
 
     .password-confirmation-form button:hover {
-      box-shadow: 0 4px 12px rgba(255, 18, 18, 0.3);
-      background-color: #cc0c0c;
+      background-color: #cc0000;
     }
 
     .modal h2 {
@@ -328,7 +341,8 @@
 
     /* New Styles for Change Password Section */
     .change-password-form {
-      display: flex;
+      display: none;
+      /* Initially hidden */
       flex-direction: column;
       gap: 1.5rem;
       margin-top: 1.5rem;
@@ -357,11 +371,6 @@
       outline: none;
       border-color: var(--primary-red);
       box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3);
-    }
-
-    /* Initially Hide the Change Password Form */
-    .change-password-form {
-      display: none;
     }
   </style>
 </head>
@@ -403,31 +412,30 @@
   <footer>
     <p>© 2025 4SP</p>
   </footer>
-
   <div id="passwordModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2 id="modalTitle">Confirm Password</h2>
-      <p id="modalDescription">Please enter your current password to continue.</p>
-      <form class="password-confirmation-form" id="passwordConfirmationForm">
-        <div>
-          <label for="currentPassword">Current Password:</label>
-          <input type="password" id="currentPassword" name="currentPassword" required>
-        </div>
-        <button type="submit">Confirm</button>
+  <div class="modal-content">
+  <span class="close">&times;</span>
+    <h2 id="modalTitle">Confirm Password</h2>
+     <p id="modalDescription">Please enter your current password to continue.</p>
+     <form class="password-confirmation-form" id="passwordConfirmationForm">
+       <div>
+         <label for="currentPassword">Current Password:</label>
+         <input type="password" id="currentPassword" name="currentPassword" required>
+       </div>
+       <button type="submit">Confirm</button>
       </form>
-      <form class="change-password-form" id="changePasswordForm">
-        <div>
-          <label for="newPassword">New Password:</label>
-          <input type="password" id="newPassword" name="newPassword" required>
-        </div>
-        <div>
-          <label for="confirmPassword">Confirm New Password:</label>
-          <input type="password" id="confirmPassword" name="confirmPassword" required>
-        </div>
-        <button type="submit">Change Password</button>
-      </form>
-    </div>
+     <form class="change-password-form" id="changePasswordForm">
+      <div>
+        <label for="newPassword">New Password:</label>
+        <input type="password" id="newPassword" name="newPassword" required>
+      </div>
+       <div>
+         <label for="confirmPassword">Confirm New Password:</label>
+         <input type="password" id="confirmPassword" name="confirmPassword" required>
+      </div>
+       <button type="submit">Change Password</button>
+     </form>
+  </div>
   </div>
 
   <script>
@@ -461,145 +469,159 @@
 
       const openModal = (action) => {
         currentAction = action;
+        passwordModal.classList.remove('fade-out'); // Remove fade-out class
+         passwordModal.style.display = 'block'; // Make sure it is displayed
+          modalContent.style.height = 'auto';
 
-        if (action === 'changePassword') {
+        // Use a small delay to allow the CSS transition to occur
+          setTimeout(() => {
+          passwordModal.classList.add('fade-in'); // Add fade-in class after display
+           passwordModal.style.opacity = 1; // Set opacity
+         }, 10);
+
+       if (action === 'changePassword') {
           modalTitle.textContent = 'Confirm Password';
           modalDescription.textContent = 'Please enter your current password to change your password.';
           passwordConfirmationForm.style.display = 'flex'; // Show password confirmation
-          changePasswordForm.style.display = 'none';       // Hide change password form
-           // Set initial height of the modal
-            modalContent.style.height = 'auto';
-        } else if (action === 'deleteAccount') {
-          modalTitle.textContent = 'Confirm Delete Account';
-          modalDescription.textContent = 'Are you sure you want to delete your account? This action is irreversible.';
+          changePasswordForm.style.display = 'none'; // Hide change password form
+
+          } else if (action === 'deleteAccount') {
+              modalTitle.textContent = 'Confirm Delete Account';
+              modalDescription.textContent = 'Are you sure you want to delete your account? This action is irreversible.';
+             passwordConfirmationForm.querySelector('button').style.backgroundColor = "var(--danger-action)"
+         passwordConfirmationForm.querySelector('button').style.color = "var(--light-text)"
+
         }
-
-        passwordModal.classList.remove('fade-out');
-        passwordModal.style.display = 'block';
-          passwordModal.style.opacity = 1;
-
-      };
+        console.log("Opened Modal");
+       };
 
       const closeModalFn = (modal) => {
+          console.log("Close");
+         modal.classList.remove('fade-in');
         modal.classList.add('fade-out');
-          modal.style.opacity = 0;
-           setTimeout(() => {
+
+         modal.style.opacity = 0;
+
             modal.style.display = 'none';
-             modal.classList.remove('fade-out');
-           }, 300);
-        };
 
-      changePasswordBtn.addEventListener('click', () => {
-          openModal('changePassword');
+         };
+
+    changePasswordBtn.addEventListener('click', () => {
+     openModal('changePassword');
+    });
+
+   deleteAccountBtn.addEventListener('click', () => {
+     openModal('deleteAccount');
+   });
+
+   closeModalButtons.forEach(button => {
+     button.addEventListener('click', () => {
+        const modal = button.closest('.modal');
+        closeModalFn(modal);
+     });
+    });
+
+     window.addEventListener('click', (event) => {
+         if (event.target.classList.contains('modal')) {
+           closeModalFn(event.target);
+         }
       });
 
-      deleteAccountBtn.addEventListener('click', () => {
-         openModal('deleteAccount');
-      });
+    passwordConfirmationForm.addEventListener('submit', async (e) => {
+       e.preventDefault();
+       const password = currentPasswordInput.value;
 
-      closeModalButtons.forEach(button => {
-         button.addEventListener('click', () => {
-         const modal = button.closest('.modal');
-          closeModalFn(modal);
-         });
-       });
+    if (!password) {
+      alert('Please enter your password.');
+      return;
+     }
 
-       window.addEventListener('click', (event) => {
-          if (event.target.classList.contains('modal')) {
-             closeModalFn(event.target);
+    try {
+       const user = auth.currentUser;
+       const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+       await user.reauthenticateWithCredential(credential);
+         closeModalFn(passwordModal);
+          if (currentAction === 'changePassword') {
+
+            modalTitle.textContent = 'Change Password';
+            modalDescription.textContent = 'Please enter your new password.';
+             passwordConfirmationForm.style.display = 'none';
+              changePasswordForm.style.display = 'flex';
+        } else if (currentAction === 'deleteAccount') {
+          await user.delete();
+            alert('Account deleted successfully.');
+            window.location.href = 'index.html';
           }
-        });
+       } catch (error) {
+         alert('Authentication failed. Please check your password.');
+         console.error('Authentication Error:', error);
+       } finally {
+          passwordModal.classList.remove("fade-in");
+        passwordConfirmationForm.style.display = "none"
 
-       passwordConfirmationForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const password = currentPasswordInput.value;
+     }
+    });
 
-           if (!password) {
-            alert('Please enter your password.');
-            return;
-           }
+ changePasswordForm.addEventListener('submit', async (e) => {
+   e.preventDefault();
+     const newPassword = newPasswordInput.value;
+     const confirmNewPassword = confirmPasswordInput.value;
 
-        try {
-           const user = auth.currentUser;
-           const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
-            await user.reauthenticateWithCredential(credential);
+     if (newPassword !== confirmNewPassword) {
+        alert('New passwords do not match. Please try again.');
+        return;
+      }
 
-               if (currentAction === 'changePassword') {
-                  passwordConfirmationForm.style.display = 'none';
-                  changePasswordForm.style.display = 'flex'; // Show change password form
-                   modalTitle.textContent = 'Change Password';
-                  modalDescription.textContent = 'Please enter your new password.';
-                  
-                  // Adjust the modal height
-                  modalContent.style.height = 'auto'; // Adjust to content
-               } else if (currentAction === 'deleteAccount') {
-                await user.delete();
-              alert('Account deleted successfully.');
-              window.location.href = 'index.html';
-            }
-           } catch (error) {
-                alert('Authentication failed. Please check your password.');
-                console.error('Authentication Error:', error);
-           }
-         });
+  if (newPassword.length < 6) {
+        alert('Password needs to be at least 6 characters')
+        return;
+     }
 
-        changePasswordForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const newPassword = newPasswordInput.value;
-          const confirmNewPassword = confirmPasswordInput.value;
-
-        if (newPassword !== confirmNewPassword) {
-          alert('New passwords do not match. Please try again.');
-          return;
-        }
-        if (newPassword.length < 6) {
-          alert('Password needs to be at least 6 characters')
-          return;
-        }
-        try {
-          const user = auth.currentUser;
-          await user.updatePassword(newPassword);
-          alert('Password changed successfully!');
-           window.location.reload();
-        } catch (error) {
-          console.error('Password change error:', error);
+    try {
+        const user = auth.currentUser;
+        await user.updatePassword(newPassword);
+        alert('Password changed successfully!');
+        window.location.reload();
+    } catch (error) {
+         console.error('Password change error:', error);
            alert('Failed to change password. Please try again later.');
-        } finally {
-          closeModalFn(passwordModal);
+     } finally {
+            closeModalFn(passwordModal)
+
+     }
+    });
+
+    editProfileBtn.addEventListener('click', () => {
+    alert('Edit Profile functionality is not implemented yet.');
+     });
+
+     manageSubscriptionsBtn.addEventListener('click', () => {
+       alert('Manage Subscriptions functionality is not implemented yet.');
+     });
+
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await auth.signOut();
+         window.location.href = 'index.html';
+      } catch (error) {
+        console.error('Logout Error:', error);
+          alert('Failed to log out. Please try again.');
+      }
+    });
+
+     auth.onAuthStateChanged(async (user) => {
+      if (user) {
+         userEmailElement.textContent = `Email: ${user.email}`;
+            const creationDate = new Date(user.metadata.creationTime);
+            creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
+
+        lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
+            userUIDElement.textContent = `User ID: ${user.uid}`;
+        } else {
+             window.location.href = 'index.html';
         }
-      });
-
- editProfileBtn.addEventListener('click', () => {
-   alert('Edit Profile functionality is not implemented yet.');
- });
-
- manageSubscriptionsBtn.addEventListener('click', () => {
-   alert('Manage Subscriptions functionality is not implemented yet.');
- });
-
- logoutBtn.addEventListener('click', async () => {
-   try {
-    await auth.signOut();
-    window.location.href = 'index.html';
-   } catch (error) {
-     console.error('Logout Error:', error);
-     alert('Failed to log out. Please try again.');
-   }
- });
-
-  auth.onAuthStateChanged(async (user) => {
-    if (user) {
-     userEmailElement.textContent = `Email: ${user.email}`;
-     const creationDate = new Date(user.metadata.creationTime);
-     creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
-
-    lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
-    userUIDElement.textContent = `User ID: ${user.uid}`;
- } else {
-  window.location.href = 'index.html';
- }
- });
- });
-</script>
+        });
+   });
+  </script>
 </body>
 </html>
