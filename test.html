@@ -34,6 +34,7 @@
       --modal-text-color: #f0f0f0;
       --modal-input-bg: #f0f0f0;
       --modal-input-text-color: #000;
+      --primary-red: #ff1212; /* Add a primary red color */
     }
 
     body {
@@ -235,7 +236,7 @@
       background-color: var(--modal-content-bg);
       margin: 10% auto;
       padding: 2rem;
-      border: 1px solid var(--modal-content-border);
+      border: 1px solid var(--primary-red);  /* Red border */
       width: 90%;
       max-width: 500px;
       border-radius: var(--pill-radius);
@@ -303,8 +304,8 @@
 
     .password-confirmation-form input[type="password"]:focus {
       outline: none;
-      border-color: var(--primary-blue);
-      box-shadow: 0 0 0 2px rgba(98, 108, 214, 0.3);
+      border-color: var(--primary-red); /* Red focus */
+      box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3); /* Red focus shadow */
     }
 
     .password-confirmation-form button {
@@ -316,15 +317,15 @@
       text-align: center;
       border: none;
       font-weight: 500;
-      background-color: var(--primary-blue);
+      background-color: var(--primary-red); /* Red button */
       color: var(--light-text);
       transition: all 0.2s ease;
       margin-top: 0.5rem;
     }
 
     .password-confirmation-form button:hover {
-      box-shadow: 0 4px 12px rgba(98, 108, 214, 0.3);
-      background-color: #5561c7;
+      box-shadow: 0 4px 12px rgba(255, 18, 18, 0.3); /* Red shadow */
+      background-color: #cc0c0c; /* Darker red hover */
     }
 
     .modal h2 {
