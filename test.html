@@ -130,7 +130,7 @@
     /* New styles for account page */
     .account-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 2fr 1fr; /* Increased width of the information frame */
         gap: 2rem;
         margin-top: 2rem;
     }
@@ -192,7 +192,6 @@
     .account-buttons button.danger {
         background-color: var(--error-red);
         color: var(--light-text);
-        border: none;
     }
 
     .account-buttons button.danger:hover {
@@ -314,160 +313,6 @@
         margin-bottom: 0.5rem;
         color: var(--info-text);
     }
-
-    /* Styles for the modal/popup */
-    .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-    }
-
-    /* Modal Content/Box */
-    .modal-content {
-        background-color: #fefefe;
-        margin: 15% auto; /* 15% from the top and centered */
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%; /* Could be more or less, depending on screen size */
-        border-radius: var(--pill-radius);
-        position: relative;
-    }
-
-    /* The Close Button */
-    .close {
-        position: absolute;
-        top: 0;
-        right: 0;
-        color: #aaa;
-        font-size: 28px;
-        font-weight: bold;
-        padding: 10px;
-    }
-
-    .close:hover,
-    .close:focus {
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    /* Style for the password confirmation form */
-    .password-confirmation-form {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .password-confirmation-form label {
-        font-weight: bold;
-        color: var(--dark-bg);
-    }
-
-    .password-confirmation-form input[type="password"] {
-        padding: 0.75rem 1rem;
-        font-size: 1rem;
-        border: 1px solid var(--light-gray);
-        border-radius: var(--pill-radius);
-        color: var(--dark-bg);
-        background-color: var(--card-bg);
-    }
-
-    .password-confirmation-form input[type="password"]:focus {
-        outline: none;
-        border-color: var(--primary-action);
-    }
-
-    .password-confirmation-form button {
-      display: inline-block;
-      padding: 1rem 2rem;
-      border-radius: var(--pill-radius);
-      font-size: 1rem;
-      cursor: pointer;
-      text-align: center;
-      border: 2px solid transparent;
-      font-weight: 500;
-      /* Apply base button styles */
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-    }
-
-    .password-confirmation-form button:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    .account-options-box {
-        padding: 1.5rem;
-        background-color: var(--card-bg);
-        border-radius: var(--pill-radius);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-        border: 1px solid var(--light-gray);
-        margin-bottom: 2rem;
-    }
-
-    .account-options-box h2 {
-        font-size: 1.4rem;
-        margin-bottom: 1rem;
-        color: var(--dark-bg);
-        text-align: center;
-    }
-
-    .account-options-box button {
-      width: 100%;
-      padding: 1rem 1.5rem;
-      border-radius: var(--pill-radius);
-      border: none;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      text-align: center;
-      margin-bottom: 0.5rem;
-      display: inline-block;
-      border: 2px solid transparent;
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-    }
-
-    .account-options-box button:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    .account-buttons button.danger {
-        background-color: var(--error-red);
-        color: var(--light-text);
-    }
-
-    .account-buttons button.danger:hover {
-        background-color: #cc0000;
-    }
-
-    .account-buttons button.secondary {
-        background-color: transparent;
-        color: var(--dark-bg);
-        border: 2px solid var(--dark-bg);
-    }
-
-    .account-buttons button.secondary:hover {
-        background-color: #d0d0d0;
-    }
-
-    .sensitive-actions {
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--dark-bg);
-    }
-
-    .sensitive-actions h3 {
-      text-align: center;
-      color: var(--dark-bg);
-      margin-bottom: 1rem;
-    }
   </style>
 </head>
 <body>
@@ -488,20 +333,6 @@
                 <h2>User Details</h2>
                 <p id="userEmail">Email: Loading...</p>
                 <p id="creationTime">Created: Loading...</p>
-
-                <div id="usernameSection">
-                    <h2>Username</h2>
-                    <p id="currentUsername">Loading...</p>
-                    <div class="username-input-group" id="addUsernameForm">
-                        <div class="input-wrapper">
-                            <input type="text" id="newUsername" placeholder="Enter Username" minlength="4" maxlength="16">
-                            <button id="saveUsernameBtn" disabled>Save</button>
-                        </div>
-                        <p class="username-helper-text">Username must be 4-16 characters</p>
-                    </div>
-                    <button id="editUsernameBtn" class="username-change-btn">Change Username</button>
-                </div>
-
                 <div class="additional-info">
                     <h3>Additional Information</h3>
                     <p id="lastSignIn">Last Sign-in: Loading...</p>
@@ -510,10 +341,10 @@
             </div>
 
             <div class="account-buttons">
-              <button id="changePasswordBtn" class="secondary">Change Password</button>
-              <button id="editProfileBtn" class="secondary">Edit Profile</button>
-              <button id="manageSubscriptionsBtn" class="secondary">Manage Subscriptions</button>
-              <button id="deleteAccountBtn" class="danger">Delete Account</button>
+                <button id="changePasswordBtn" class="secondary">Change Password</button>
+                <button id="editProfileBtn" class="secondary">Edit Profile</button>
+                <button id="manageSubscriptionsBtn" class="secondary">Manage Subscriptions</button>
+                <button id="deleteAccountBtn" class="danger">Delete Account</button>
             </div>
         </div>
     </main>
@@ -611,61 +442,9 @@
                   creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
                   lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
                   userUIDElement.textContent = `User ID: ${user.uid}`;
-
-                  // Attempt to fetch existing username from Firestore
-                  const userDoc = await db.collection('users').doc(user.uid).get();
-                  if (userDoc.exists && userDoc.data().username) {
-                      currentUsernameElement.textContent = userDoc.data().username;
-                      addUsernameForm.style.display = 'none';
-                      editUsernameBtn.style.display = 'inline-block';
-                  } else {
-                      currentUsernameElement.textContent = 'No username set.';
-                      addUsernameForm.style.display = 'flex';
-                      editUsernameBtn.style.display = 'none';
-                  }
               } else {
                   // Redirect to home if not signed in
                   window.location.href = 'index.html';
-              }
-          });
-
-          // Allow editing the username
-          editUsernameBtn.addEventListener('click', () => {
-              currentUsernameElement.style.display = 'none';
-              editUsernameBtn.style.display = 'none';
-              addUsernameForm.style.display = 'flex';
-              const currentUsername = currentUsernameElement.textContent === 'No username set.' ? '' : currentUsernameElement.textContent;
-              newUsernameInput.value = currentUsername;
-
-              // Trigger validation for the current username
-              if (currentUsername) {
-                  const event = new Event('input', { bubbles: true });
-                  newUsernameInput.dispatchEvent(event);
-              }
-          });
-
-          // Save the new username to Firestore for the user
-          saveUsernameBtn.addEventListener('click', async () => {
-              const newUsername = newUsernameInput.value.trim();
-              const validation = validateUsername(newUsername);
-
-              if (validation.valid) {
-                  const user = auth.currentUser;
-                  if (user) {
-                      try {
-                          // Save or update username in Firestore
-                          await db.collection('users').doc(user.uid).set({ username: newUsername }, { merge: true });
-                          currentUsernameElement.textContent = newUsername;
-                          currentUsernameElement.style.display = 'block';
-                          addUsernameForm.style.display = 'none';
-                          editUsernameBtn.style.display = 'inline-block';
-                      } catch (error) {
-                          console.error('Error saving username:', error);
-                          alert('Failed to save username. Please try again.');
-                      }
-                  }
-              } else {
-                  alert(validation.message);
               }
           });
 
