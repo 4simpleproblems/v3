@@ -116,7 +116,6 @@
       border-top: 2px solid var(--primary-action);
     }
 
-    /* New styles for account page */
     .account-grid {
       display: grid;
       grid-template-columns: 2fr 1fr;
@@ -219,12 +218,12 @@
       overflow: auto;
       background-color: var(--modal-bg);
       opacity: 0;
-      transition: opacity 0.3s ease, display 0.3s;
+      transition: opacity 0.3s ease, height 0.3s ease;
     }
 
     .modal.fade-out {
       opacity: 0;
-      display: none;
+      pointer-events: none;
     }
 
     /* Modal Content/Box */
@@ -239,7 +238,7 @@
       position: relative;
       color: var(--modal-text-color);
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-      transition: transform 0.3s ease, opacity 0.3s ease;
+      transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
       display: flex;
       flex-direction: column;
     }
@@ -359,6 +358,11 @@
       border-color: var(--primary-red);
       box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3);
     }
+
+    /* Initially Hide the Change Password Form */
+    .change-password-form {
+      display: none;
+    }
   </style>
 </head>
 
@@ -382,56 +386,53 @@
         <p id="creationTime">Created: Loading...</p>
         <div class="additional-info">
           <h3>Additional Information</h3>
-            <p id="lastSignIn">Last Sign-in: Loading...</p>
-            <p id="userUID">User ID: Loading...</p>
-          </div>
+          <p id="lastSignIn">Last Sign-in: Loading...</p>
+          <p id="userUID">User ID: Loading...</p>
         </div>
-       <div class="account-buttons">
-          <button id="changePasswordBtn" class="secondary">Change Password</button>
-          <button id="editProfileBtn" class="secondary">Edit Profile</button>
-          <button id="manageSubscriptionsBtn" class="secondary">Manage Subscriptions</button>
-          <button id="deleteAccountBtn" class="danger">Delete Account</button>
-        </div>
-     </div>
- </main>
+      </div>
+
+      <div class="account-buttons">
+        <button id="changePasswordBtn" class="secondary">Change Password</button>
+        <button id="editProfileBtn" class="secondary">Edit Profile</button>
+        <button id="manageSubscriptionsBtn" class="secondary">Manage Subscriptions</button>
+        <button id="deleteAccountBtn" class="danger">Delete Account</button>
+      </div>
+    </div>
+  </main>
+
   <footer>
-   <p>© 2025 4SP</p>
- </footer>
+    <p>© 2025 4SP</p>
+  </footer>
+
   <div id="passwordModal" class="modal">
-  <div class="modal-content">
-  <span class="close">&times;</span>
-   <h2 id="modalTitle">Confirm Password</h2>
-    <p id="modalDescription">Please enter your current password to continue.</p>
-    <form class="password-confirmation-form" id="passwordConfirmationForm">
-      <div>
-        <label for="currentPassword">Current Password:</label>
-        <input type="password" id="currentPassword" name="currentPassword" required>
-      </div>
-     <button type="submit">Confirm</button>
-   </form>
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="modalTitle">Confirm Password</h2>
+      <p id="modalDescription">Please enter your current password to continue.</p>
+      <form class="password-confirmation-form" id="passwordConfirmationForm">
+        <div>
+          <label for="currentPassword">Current Password:</label>
+          <input type="password" id="currentPassword" name="currentPassword" required>
+        </div>
+        <button type="submit">Confirm</button>
+      </form>
+      <form class="change-password-form" id="changePasswordForm">
+        <div>
+          <label for="newPassword">New Password:</label>
+          <input type="password" id="newPassword" name="newPassword" required>
+        </div>
+        <div>
+          <label for="confirmPassword">Confirm New Password:</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" required>
+        </div>
+        <button type="submit">Change Password</button>
+      </form>
+    </div>
   </div>
- </div>
-  <div id="changePasswordModal" class="modal">
-  <div class="modal-content">
-   <span class="close">&times;</span>
-    <h2>Change Password</h2>
-    <p>Please enter your new password.</p>
-    <form class="change-password-form" id="changePasswordForm">
-      <div>
-       <label for="newPassword">New Password:</label>
-       <input type="password" id="newPassword" name="newPassword" required>
-      </div>
-      <div>
-       <label for="confirmPassword">Confirm New Password:</label>
-       <input type="password" id="confirmPassword" name="confirmPassword" required>
-      </div>
-      <button type="submit">Change Password</button>
-     </form>
-   </div>
- </div>
+
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-     const auth = firebase.auth();
+      const auth = firebase.auth();
       const userEmailElement = document.getElementById('userEmail');
       const creationTimeElement = document.getElementById('creationTime');
       const lastSignInElement = document.getElementById('lastSignIn');
@@ -444,12 +445,12 @@
       const logoutBtn = document.getElementById('logoutBtn');
 
       const passwordModal = document.getElementById('passwordModal');
+      const modalContent = document.querySelector('#passwordModal .modal-content'); // Select modal-content
       const modalTitle = document.getElementById('modalTitle');
       const modalDescription = document.getElementById('modalDescription');
       const passwordConfirmationForm = document.getElementById('passwordConfirmationForm');
       const currentPasswordInput = document.getElementById('currentPassword');
 
-      const changePasswordModal = document.getElementById('changePasswordModal');
       const changePasswordForm = document.getElementById('changePasswordForm');
       const newPasswordInput = document.getElementById('newPassword');
       const confirmPasswordInput = document.getElementById('confirmPassword');
@@ -464,18 +465,19 @@
         if (action === 'changePassword') {
           modalTitle.textContent = 'Confirm Password';
           modalDescription.textContent = 'Please enter your current password to change your password.';
-          passwordModal.style.display = 'block';
+          passwordConfirmationForm.style.display = 'flex'; // Show password confirmation
+          changePasswordForm.style.display = 'none';       // Hide change password form
+           // Set initial height of the modal
+            modalContent.style.height = 'auto';
         } else if (action === 'deleteAccount') {
           modalTitle.textContent = 'Confirm Delete Account';
           modalDescription.textContent = 'Are you sure you want to delete your account? This action is irreversible.';
-          passwordModal.style.display = 'block';
         }
 
-          passwordModal.classList.remove('fade-out');
-          passwordModal.style.display = 'block';
-          setTimeout(() => {
-            passwordModal.style.opacity = 1;
-           }, 10);
+        passwordModal.classList.remove('fade-out');
+        passwordModal.style.display = 'block';
+          passwordModal.style.opacity = 1;
+
       };
 
       const closeModalFn = (modal) => {
@@ -483,7 +485,7 @@
           modal.style.opacity = 0;
            setTimeout(() => {
             modal.style.display = 'none';
-            modal.classList.remove('fade-out');
+             modal.classList.remove('fade-out');
            }, 300);
         };
 
@@ -522,10 +524,15 @@
            const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
             await user.reauthenticateWithCredential(credential);
 
-           if (currentAction === 'changePassword') {
-            closeModalFn(passwordModal);
-               changePasswordModal.style.display = 'block';
-          } else if (currentAction === 'deleteAccount') {
+               if (currentAction === 'changePassword') {
+                  passwordConfirmationForm.style.display = 'none';
+                  changePasswordForm.style.display = 'flex'; // Show change password form
+                   modalTitle.textContent = 'Change Password';
+                  modalDescription.textContent = 'Please enter your new password.';
+                  
+                  // Adjust the modal height
+                  modalContent.style.height = 'auto'; // Adjust to content
+               } else if (currentAction === 'deleteAccount') {
                 await user.delete();
               alert('Account deleted successfully.');
               window.location.href = 'index.html';
@@ -533,8 +540,6 @@
            } catch (error) {
                 alert('Authentication failed. Please check your password.');
                 console.error('Authentication Error:', error);
-           } finally {
-                closeModalFn(passwordModal);
            }
          });
 
@@ -560,7 +565,7 @@
           console.error('Password change error:', error);
            alert('Failed to change password. Please try again later.');
         } finally {
-          closeModalFn(changePasswordModal);
+          closeModalFn(passwordModal);
         }
       });
 
