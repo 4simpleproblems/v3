@@ -16,7 +16,8 @@
       --primary-action: var(--dark-bg);
       --secondary-action-text: var(--dark-bg);
       --secondary-action-bg: var(--light-gray);
-      --danger-action: var(--error-red);
+      --danger-action: #ff4d4d;
+      /* A brighter red for danger */
       --light-text: #f0f0f0;
       --dark-bg: #1a1a1a;
       --light-gray: #e0e0e0;
@@ -28,11 +29,16 @@
       --card-border: var(--light-gray);
       --pill-radius: 50px;
       --modal-bg: rgba(0, 0, 0, 0.7);
-      --modal-content-bg: #1a1a1a;
-      --modal-content-border: #f0f0f0;
-      --modal-text-color: #f0f0f0;
-      --modal-input-bg: #f0f0f0;
-      --modal-input-text-color: #000;
+      --modal-content-bg: #222;
+      /* Slightly lighter background */
+      --modal-content-border: #666;
+      /* Medium-gray border */
+      --modal-text-color: #ddd;
+      /* Soft white text */
+      --modal-input-bg: #444;
+      /* Darker input */
+      --modal-input-text-color: #eee;
+      /* Lighter input text */
       --primary-red: #ff1212;
     }
 
@@ -178,7 +184,7 @@
     }
 
     .account-buttons button.danger {
-      background-color: var(--error-red);
+      background-color: var(--danger-action);
       color: var(--light-text);
     }
 
@@ -218,7 +224,11 @@
       overflow: auto;
       background-color: var(--modal-bg);
       opacity: 0;
-      transition: opacity 0.3s ease, height 0.3s ease;
+      transition: opacity 0.3s ease;
+      /* Changed from height 0.3s */
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .modal.fade-in {
@@ -233,9 +243,8 @@
     /* Modal Content/Box */
     .modal-content {
       background-color: var(--modal-content-bg);
-      margin: 10% auto;
       padding: 2rem;
-      border: 1px solid var(--primary-red);
+      border: 1px solid var(--modal-content-border);
       width: 90%;
       max-width: 500px;
       border-radius: var(--pill-radius);
@@ -245,6 +254,8 @@
       transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
       display: flex;
       flex-direction: column;
+      gap: 1.5rem;
+      /* Consistent spacing */
     }
 
     /* The Close Button */
@@ -256,32 +267,29 @@
       font-size: 28px;
       font-weight: bold;
       transition: color 0.2s ease;
-    }
-
-    .close:hover,
-    .close:focus {
-      color: #fff;
-      text-decoration: none;
       cursor: pointer;
     }
 
-    /* Style for the password confirmation form */
-    .password-confirmation-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      margin-top: 1.5rem;
+    .close:hover {
+      color: #fff;
+      text-decoration: none;
     }
 
-    .password-confirmation-form label {
+    /* Style for the password confirmation form & change password form */
+    .password-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .password-form label {
       font-weight: bold;
       color: var(--modal-text-color);
       display: block;
-      margin-bottom: 0.5rem;
     }
 
-    .password-confirmation-form input[type="password"] {
-      padding: 1rem 1.5rem;
+    .password-form input[type="password"] {
+      padding: 1rem;
       font-size: 1rem;
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: var(--pill-radius);
@@ -292,13 +300,13 @@
       transition: border-color 0.2s ease;
     }
 
-    .password-confirmation-form input[type="password"]:focus {
+    .password-form input[type="password"]:focus {
       outline: none;
       border-color: var(--primary-red);
       box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3);
     }
 
-    .password-confirmation-form button {
+    .password-form button {
       display: inline-block;
       padding: 1rem 2rem;
       border-radius: var(--pill-radius);
@@ -307,60 +315,59 @@
       text-align: center;
       border: none;
       font-weight: 500;
-      /* Match delete account button style */
-      background-color: var(--danger-action);
       color: var(--light-text);
-      transition: all 0.2s ease;
-      margin-top: 0.5rem;
+      transition: background-color 0.2s ease;
+      /* Inherit button style */
     }
 
-    .password-confirmation-form button:hover {
+    .password-form button.confirm {
+      background-color: var(--primary-red);
+    }
+
+    .password-form button.confirm:hover {
+      background-color: #cc0c0c;
+    }
+
+    .password-form button.delete {
+      background-color: var(--danger-action);
+    }
+
+    .password-form button.delete:hover {
       background-color: #cc0000;
     }
 
     .modal h2 {
-      margin-top: 0;
+      margin: 0;
       color: var(--modal-text-color);
-      font-size: 1.5rem;
+      font-size: 1.75rem;
       font-weight: 600;
     }
 
     .modal p {
       color: rgba(240, 240, 240, 0.8);
+      margin-bottom: 0;
+    }
+
+    /* Specific style adjustments */
+    #confirmPasswordForm .password-form button {
+      margin-top: 1rem;
+    }
+
+    #changePasswordForm .password-form button {
+      margin-top: 0.5rem;
+    }
+
+    #deleteAccountModal .modal-content {
+      text-align: center;
+    }
+
+    #deleteAccountModal .modal-content p {
       margin-bottom: 1.5rem;
     }
 
-    /* New Styles for Change Password Section */
-    .change-password-form {
-      display: none;
-      flex-direction: column;
-      gap: 1.5rem;
+    #deleteAccountModal .password-form button {
       margin-top: 1.5rem;
-    }
-
-    .change-password-form label {
-      font-weight: bold;
-      color: var(--modal-text-color);
-      display: block;
-      margin-bottom: 0.5rem;
-    }
-
-    .change-password-form input[type="password"] {
-      padding: 1rem 1.5rem;
-      font-size: 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: var(--pill-radius);
-      color: var(--modal-input-text-color);
-      background-color: var(--modal-input-bg);
-      width: 100%;
-      box-sizing: border-box;
-      transition: border-color 0.2s ease;
-    }
-
-    .change-password-form input[type="password"]:focus {
-      outline: none;
-      border-color: var(--primary-red);
-      box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3);
+      padding: 1rem 2.5rem;
     }
   </style>
 </head>
@@ -403,118 +410,116 @@
     <p>© 2025 4SP</p>
   </footer>
 
-  <div id="passwordModal" class="modal">
+  <!-- Change Password Modal -->
+  <div id="changePasswordModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
-      <h2 id="modalTitle">Confirm Password</h2>
-      <p id="modalDescription">Please enter your current password to continue.</p>
-      <form class="password-confirmation-form" id="passwordConfirmationForm">
-        <div>
-          <label for="currentPassword">Current Password:</label>
-          <input type="password" id="currentPassword" name="currentPassword" required>
-        </div>
-        <button type="submit">Confirm</button>
+      <h2>Change Password</h2>
+      <p>To change your password, please confirm your current password first.</p>
+      <form class="password-form" id="confirmPasswordForm">
+        <label for="currentPassword">Current Password:</label>
+        <input type="password" id="currentPassword" required>
+        <button type="submit" class="confirm">Confirm Password</button>
       </form>
-      <form class="change-password-form" id="changePasswordForm">
-        <div>
-          <label for="newPassword">New Password:</label>
-          <input type="password" id="newPassword" name="newPassword" required minlength="6">
-        </div>
-        <div>
-          <label for="confirmPassword">Confirm New Password:</label>
-          <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6">
-        </div>
-        <button type="submit">Change Password</button>
+      <form class="password-form" id="newPasswordForm" style="display: none;">
+        <label for="newPassword">New Password:</label>
+        <input type="password" id="newPassword" required minlength="6">
+        <label for="confirmNewPassword">Confirm New Password:</label>
+        <input type="password" id="confirmNewPassword" required minlength="6">
+        <button type="submit" class="confirm">Change Password</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Account Modal -->
+  <div id="deleteAccountModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Delete Account</h2>
+      <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+      <form class="password-form" id="deleteAccountForm">
+        <label for="deletePassword">Enter Password to Confirm:</label>
+        <input type="password" id="deletePassword" required>
+        <button type="submit" class="delete">Delete Account</button>
       </form>
     </div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Firebase Initialization
       const auth = firebase.auth();
+
+      // Get DOM Elements
       const userEmailElement = document.getElementById('userEmail');
       const creationTimeElement = document.getElementById('creationTime');
       const lastSignInElement = document.getElementById('lastSignIn');
       const userUIDElement = document.getElementById('userUID');
-
       const changePasswordBtn = document.getElementById('changePasswordBtn');
-      const editProfileBtn = document.getElementById('editProfileBtn');
-      const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
       const deleteAccountBtn = document.getElementById('deleteAccountBtn');
       const logoutBtn = document.getElementById('logoutBtn');
+      const editProfileBtn = document.getElementById('editProfileBtn');
+      const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
 
-      const passwordModal = document.getElementById('passwordModal');
-      const modalContent = document.querySelector('#passwordModal .modal-content');
-      const modalTitle = document.getElementById('modalTitle');
-      const modalDescription = document.getElementById('modalDescription');
-      const passwordConfirmationForm = document.getElementById('passwordConfirmationForm');
-      const currentPasswordInput = document.getElementById('currentPassword');
-
-      const changePasswordForm = document.getElementById('changePasswordForm');
-      const newPasswordInput = document.getElementById('newPassword');
-      const confirmPasswordInput = document.getElementById('confirmPassword');
-
+      // Get Modal Elements
+      const changePasswordModal = document.getElementById('changePasswordModal');
+      const deleteAccountModal = document.getElementById('deleteAccountModal');
+      const passwordConfirmationForm = document.getElementById('confirmPasswordForm');
+      const newPasswordForm = document.getElementById('newPasswordForm');
+      const deleteAccountForm = document.getElementById('deleteAccountForm');
       const closeModalButtons = document.querySelectorAll('.close');
+      const currentPasswordInput = document.getElementById('currentPassword');
+      const newPasswordInput = document.getElementById('newPassword');
+      const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+      const deletePasswordInput = document.getElementById('deletePassword');
+      const modalContent = document.querySelectorAll('.modal-content');
 
-      let currentAction = null;
-
-      const openModal = (action) => {
-        currentAction = action;
-        passwordModal.classList.remove('fade-out');
-        passwordModal.style.display = 'block';
-        modalContent.style.height = 'auto';
-
-        // Use a small delay to allow the CSS transition to occur
+      // Functions
+      const openModal = (modal) => {
+        modal.classList.remove('fade-out');
+        modal.style.display = 'flex'; // Changed to flex for vertical alignment
         setTimeout(() => {
-          passwordModal.classList.add('fade-in');
-          passwordModal.style.opacity = 1;
+          modal.classList.add('fade-in');
         }, 10);
-
-        if (action === 'changePassword') {
-          modalTitle.textContent = 'Confirm Password';
-          modalDescription.textContent = 'Please enter your current password to change your password.';
-          passwordConfirmationForm.style.display = 'flex';
-          changePasswordForm.style.display = 'none';
-          // Reset modal button style
-          passwordConfirmationForm.querySelector('button').style.backgroundColor = "var(--primary-red)";
-          passwordConfirmationForm.querySelector('button').style.color = "var(--light-text)";
-        } else if (action === 'deleteAccount') {
-          modalTitle.textContent = 'Confirm Delete Account';
-          modalDescription.textContent = 'Are you sure you want to delete your account? This action is irreversible.';
-          passwordConfirmationForm.querySelector('button').style.backgroundColor = "var(--danger-action)";
-          passwordConfirmationForm.querySelector('button').style.color = "var(--light-text)";
-        }
       };
 
-      const closeModalFn = (modal) => {
+      const closeModal = (modal) => {
         modal.classList.remove('fade-in');
         modal.classList.add('fade-out');
 
-        // Use a setTimeout to hide the modal after the fade-out animation completes
+        // Reset forms
+        if (modal.id === "changePasswordModal") {
+          passwordConfirmationForm.style.display = 'flex';
+          newPasswordForm.style.display = 'none';
+          currentPasswordInput.value = "";
+          newPasswordInput.value = "";
+          confirmNewPasswordInput.value = ""
+        }
+
         setTimeout(() => {
           modal.style.display = 'none';
-          modal.classList.remove('fade-out'); // Remove the class after hiding
         }, 300);
       };
 
+      // Event Listeners
       changePasswordBtn.addEventListener('click', () => {
-        openModal('changePassword');
+        openModal(changePasswordModal);
       });
 
       deleteAccountBtn.addEventListener('click', () => {
-        openModal('deleteAccount');
+        openModal(deleteAccountModal);
       });
 
       closeModalButtons.forEach(button => {
         button.addEventListener('click', () => {
           const modal = button.closest('.modal');
-          closeModalFn(modal);
+          closeModal(modal);
         });
       });
 
       window.addEventListener('click', (event) => {
         if (event.target.classList.contains('modal')) {
-          closeModalFn(event.target);
+          closeModal(event.target);
         }
       });
 
@@ -522,38 +527,24 @@
         e.preventDefault();
         const password = currentPasswordInput.value;
 
-        if (!password) {
-          alert('Please enter your password.');
-          return;
-        }
-
         try {
           const user = auth.currentUser;
           const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
           await user.reauthenticateWithCredential(credential);
-
-          if (currentAction === 'changePassword') {
-            // Clear PasswordModal content
-            modalTitle.textContent = 'Change Password';
-            modalDescription.textContent = 'Enter your new password:';
-            passwordConfirmationForm.style.display = "none";
-            changePasswordForm.style.display = "flex";
-            modalContent.style.height = "auto";
-          } else if (currentAction === 'deleteAccount') {
-            await user.delete();
-            alert('Account deleted successfully.');
-            window.location.href = 'index.html';
-          }
+          console.log('Reauthentication successful');
+          // Show new password form, use modal variable from openModal function
+          passwordConfirmationForm.style.display = "none";
+          newPasswordForm.style.display = "flex";
         } catch (error) {
           alert('Authentication failed. Please check your password.');
           console.error('Authentication Error:', error);
         }
       });
 
-      changePasswordForm.addEventListener('submit', async (e) => {
+      newPasswordForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const newPassword = newPasswordInput.value;
-        const confirmNewPassword = confirmPasswordInput.value;
+        const confirmNewPassword = confirmNewPasswordInput.value;
 
         if (newPassword !== confirmNewPassword) {
           alert('New passwords do not match. Please try again.');
@@ -569,13 +560,30 @@
           const user = auth.currentUser;
           await user.updatePassword(newPassword);
           alert('Password changed successfully!');
-          closeModalFn(passwordModal)
+          closeModal(changePasswordModal);
         } catch (error) {
           console.error('Password change error:', error);
           alert('Failed to change password. Please try again later.');
         }
       });
 
+      deleteAccountForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const password = deletePasswordInput.value;
+        try {
+          const user = auth.currentUser;
+          const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+          await user.reauthenticateWithCredential(credential);
+          await user.delete();
+          alert('Account deleted successfully.');
+          window.location.href = 'index.html';
+        } catch (error) {
+          alert('Authentication failed. Please check your password.');
+          console.error('Authentication Error:', error);
+        }
+      });
+
+      // Placeholder Functionality
       editProfileBtn.addEventListener('click', () => {
         alert('Edit Profile functionality is not implemented yet.');
       });
@@ -594,12 +602,12 @@
         }
       });
 
+      // Authentication State Listener
       auth.onAuthStateChanged(async (user) => {
         if (user) {
           userEmailElement.textContent = `Email: ${user.email}`;
           const creationDate = new Date(user.metadata.creationTime);
           creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
-
           lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
           userUIDElement.textContent = `User ID: ${user.uid}`;
         } else {
