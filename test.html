@@ -43,7 +43,8 @@
       font-size: 0.85rem;
       font-weight: bold;
       padding: 0 1.5rem;
-      transition: background-color 0.3s ease, transform 0.1s ease;
+      transition: background-color 0.15s ease-out, transform 0.1s ease;
+      /* Faster background transition */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -69,8 +70,12 @@
       background-color: var(--light-gray);
     }
 
+    /* More pronounced active state */
     .sound-button:active {
-      transform: scale(0.95);
+      transform: scale(0.90);
+      /* More squash */
+      background-color: var(--light-gray);
+      /* Also change background on active */
     }
 
     /* Add a ripple effect */
@@ -648,7 +653,7 @@
 
       // Attach ripple effect to sound buttons
       soundButtons.forEach(button => {
-        button.addEventListener('click', createRipple);
+        button.addEventListener('mousedown', createRipple); // Use mousedown for faster response
       });
 
 
@@ -703,7 +708,7 @@
             const button = buttons[randomIndex];
 
             // Create a simulated click event
-            const clickEvent = new MouseEvent('click', {
+            const clickEvent = new MouseEvent('mousedown', {
               bubbles: true,
               cancelable: true,
               view: window
