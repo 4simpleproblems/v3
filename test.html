@@ -313,6 +313,93 @@
         margin-bottom: 0.5rem;
         color: var(--info-text);
     }
+
+    /* Styles for the modal/popup */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+        background-color: #333; /* Dark background */
+        color: #fff; /* Light text */
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+        border-radius: var(--pill-radius);
+        position: relative;
+        border: 1px solid #f0f0f0; /* Light outline */
+    }
+
+    /* The Close Button */
+    .close {
+        position: absolute;
+        top: 0;
+        right: 0;
+        color: #f0f0f0;
+        font-size: 28px;
+        font-weight: bold;
+        padding: 10px;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #fff;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    /* Style for the password confirmation form */
+    .password-confirmation-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .password-confirmation-form label {
+        font-weight: bold;
+        color: #f0f0f0; /* Light text for labels */
+    }
+
+    .password-confirmation-form input[type="password"] {
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border: 1px solid #f0f0f0; /* Light border */
+        border-radius: var(--pill-radius);
+        color: #000; /* Dark text */
+        background-color: #f0f0f0; /*Light background*/
+    }
+
+    .password-confirmation-form input[type="password"]:focus {
+        outline: none;
+        border-color: var(--primary-action);
+    }
+
+    .password-confirmation-form button {
+      display: inline-block;
+      padding: 1rem 2rem;
+      border-radius: var(--pill-radius);
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      border: 2px solid transparent;
+      font-weight: 500;
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+    }
+
+    .password-confirmation-form button:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
   </style>
 </head>
 <body>
@@ -375,12 +462,6 @@
           // DOM elements for account display
           const userEmailElement = document.getElementById('userEmail');
           const creationTimeElement = document.getElementById('creationTime');
-          const currentUsernameElement = document.getElementById('currentUsername');
-          const addUsernameForm = document.getElementById('addUsernameForm');
-          const newUsernameInput = document.getElementById('newUsername');
-          const saveUsernameBtn = document.getElementById('saveUsernameBtn');
-          const editUsernameBtn = document.getElementById('editUsernameBtn');
-          const usernameHelperText = document.querySelector('.username-helper-text');
           const changePasswordBtn = document.getElementById('changePasswordBtn');
           const deleteAccountBtn = document.getElementById('deleteAccountBtn');
           const logoutBtn = document.getElementById('logoutBtn');
@@ -393,60 +474,6 @@
           const passwordModal = document.getElementById('passwordModal');
           const passwordConfirmationForm = document.getElementById('passwordConfirmationForm');
           const closeModal = document.querySelector('.close');
-
-          // Username validation function
-          function validateUsername(username) {
-              if (username.length < 4) {
-                  return { valid: false, message: 'Username must be at least 4 characters' };
-              } else if (username.length > 16) {
-                  return { valid: false, message: 'Username must be at least 4 characters' };
-              }
-              return { valid: true, message: 'Username is valid' };
-          }
-
-          // Username input validation event
-          newUsernameInput.addEventListener('input', () => {
-              const username = newUsernameInput.value.trim();
-              const validation = validateUsername(username);
-
-              // Update UI based on validation
-              if (validation.valid) {
-                  newUsernameInput.classList.remove('invalid');
-                  newUsernameInput.classList.add('valid');
-                  usernameHelperText.textContent = 'Username is valid';
-                  usernameHelperText.classList.remove('error');
-                  saveUsernameBtn.disabled = false;
-              } else {
-                  newUsernameInput.classList.remove('valid');
-                  newUsernameInput.classList.add('invalid');
-                  usernameHelperText.textContent = validation.message;
-                  usernameHelperText.classList.add('error');
-                  saveUsernameBtn.disabled = true;
-              }
-
-              // Handle empty input case
-              if (username === '') {
-                  newUsernameInput.classList.remove('valid', 'invalid');
-                  usernameHelperText.textContent = 'Username must be 4-16 characters';
-                  usernameHelperText.classList.remove('error');
-                  saveUsernameBtn.disabled = true;
-              }
-          });
-
-          // Listen for authentication state changes
-          auth.onAuthStateChanged(async (user) => {
-              if (user) {
-                  // Display basic user info
-                  userEmailElement.textContent = `Email: ${user.email}`;
-                  const creationDate = new Date(user.metadata.creationTime);
-                  creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
-                  lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
-                  userUIDElement.textContent = `User ID: ${user.uid}`;
-              } else {
-                  // Redirect to home if not signed in
-                  window.location.href = 'index.html';
-              }
-          });
 
           // Function to handle password confirmation and action
           function handleAccountAction(action) {
