@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,376 +13,259 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <style>
-    /* Page-specific styles, can be combined with your styles.css if desired */
     :root {
-        --primary-action: var(--dark-bg);
-        --secondary-action-text: var(--dark-bg);
-        --secondary-action-bg: var(--light-gray);
-        --danger-action: var(--error-red);
-        --light-text: #f0f0f0;
-        --dark-bg: #1a1a1a;
-        --light-gray: #e0e0e0;
-        --medium-gray: #333333;
-        --darker-bg: #0d0d0d;
-        --error-red: #ff3333;
-        --info-text: var(--medium-gray);
-        --card-bg: white;
-        --card-border: var(--light-gray);
-        --pill-radius: 50px;
-
-        /* Custom username button variables */
-        --username-btn-padding: 0.5rem 1rem;
-        --username-btn-font-size: 0.9rem;
-        --username-btn-border-radius: var(--pill-radius);
-        --username-btn-bg-color: var(--secondary-action-bg);
-        --username-btn-text-color: var(--secondary-action-text);
-        --username-btn-border: 2px solid var(--secondary-action-text);
-        --username-btn-hover-bg: #d0d0d0;
-        --username-btn-transition: all 0.3s ease;
-        --username-btn-cursor: pointer;
-        --username-btn-font-weight: normal;
-        --username-btn-box-shadow: none;
-        --username-btn-margin: 0.5rem 0 0 0;
-
-        /* Validation colors */
-        --validation-error: #ff6b6b;
-        --validation-success: #51cf66;
+      --primary-action: var(--dark-bg);
+      --secondary-action-text: var(--dark-bg);
+      --secondary-action-bg: var(--light-gray);
+      --danger-action: var(--error-red);
+      --light-text: #f0f0f0;
+      --dark-bg: #1a1a1a;
+      --light-gray: #e0e0e0;
+      --medium-gray: #333333;
+      --darker-bg: #0d0d0d;
+      --error-red: #ff3333;
+      --info-text: var(--medium-gray);
+      --card-bg: white;
+      --card-border: var(--light-gray);
+      --pill-radius: 50px;
+      --modal-bg: rgba(26, 26, 26, 0.9);
+      /* Adjust opacity as needed */
+      --modal-content-bg: #333;
+      --modal-content-border: #f0f0f0;
+      --modal-text-color: #f0f0f0;
+      --modal-input-bg: #f0f0f0;
+      --modal-input-text-color: #000;
     }
 
     body {
-        background-color: var(--light-gray);
-        font-family: 'Roboto Mono', monospace;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        color: var(--dark-bg);
+      background-color: var(--light-gray);
+      font-family: 'Roboto Mono', monospace;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: var(--dark-bg);
     }
 
     .container {
-        max-width: 1200px;
-        margin: 2rem auto;
-        padding: 0 2rem;
-        flex: 1;
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      flex: 1;
     }
 
     h1 {
-        text-align: center;
-        margin-bottom: 2rem;
-        color: var(--dark-bg);
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--dark-bg);
     }
 
     .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem 3rem;
-        background-color: var(--darker-bg);
-        color: var(--light-text);
-        border-bottom: 1px solid var(--accent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background-color: var(--darker-bg);
+      color: var(--light-text);
+      border-bottom: 1px solid var(--accent);
     }
 
     .logo {
-        font-size: 1.8rem;
-        font-weight: 700;
-        letter-spacing: -1.5px;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -1.5px;
     }
 
     .nav-buttons {
-        display: flex;
-        align-items: center;
+      display: flex;
+      align-items: center;
     }
 
     .btn {
-        display: inline-block;
-        padding: 1rem 2rem;
-        border-radius: 50px;
-        font-size: 1rem;
-        cursor: pointer;
-        text-align: center;
-        border: 2px solid transparent;
-        font-weight: 500;
+      display: inline-block;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      border: 2px solid transparent;
+      font-weight: 500;
     }
 
     .btn.primary {
-        background-color: var(--dark-bg);
-        color: var(--light-text);
+      background-color: var(--dark-bg);
+      color: var(--light-text);
     }
 
     .btn.secondary {
-        background-color: transparent;
-        color: var(--light-text);
-        border-color: var(--light-text);
+      background-color: transparent;
+      color: var(--light-text);
+      border-color: var(--light-text);
     }
 
     .btn:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     footer {
-        text-align: center;
-        padding: 1rem;
-        background-color: var(--dark-bg);
-        color: var(--light-text);
-        border-top: 2px solid var(--primary-action);
+      text-align: center;
+      padding: 1rem;
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      border-top: 2px solid var(--primary-action);
     }
 
     /* New styles for account page */
     .account-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr; /* Increased width of the information frame */
-        gap: 2rem;
-        margin-top: 2rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      /* Increased width of the information frame */
+      gap: 2rem;
+      margin-top: 2rem;
     }
 
     .account-info {
-        padding: 1.5rem;
-        background-color: var(--card-bg);
-        border-radius: var(--pill-radius);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-        border: 1px solid var(--card-border);
-    }
-
-    .account-info h2 {
-        font-size: 1.4rem;
-        margin-bottom: 1rem;
-        color: var(--dark-bg);
-    }
-
-    .account-info p {
-        margin-bottom: 0.75rem;
-        color: var(--info-text);
-    }
-
-    .account-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1.5rem;
-    }
-
-    .account-buttons button {
-        padding: 1rem 1.5rem;
-        border-radius: var(--pill-radius);
-        border: none;
-        font-size: 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        text-align: center;
-        width: 100%; /* Ensures all buttons have the same width */
-        display: inline-block;
-        box-sizing: border-box; /* Include padding and border in the element's total width and height */
-    }
-
-    .account-buttons button:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    .account-buttons button.secondary {
-        background-color: transparent;
-        color: var(--dark-bg);
-        border: 2px solid var(--dark-bg);
-    }
-
-    .account-buttons button.secondary:hover {
-        background-color: #d0d0d0;
-    }
-
-    .account-buttons button.danger {
-        background-color: var(--error-red);
-        color: var(--light-text);
-    }
-
-    .account-buttons button.danger:hover {
-        background-color: #cc0000;
-    }
-
-    .username-input-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .username-input-group .input-wrapper {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .username-input-group input {
-        flex-grow: 1;
-        padding: 0.75rem 1rem;
-        font-size: 1rem;
-        border: 1px solid var(--light-gray);
-        border-radius: var(--pill-radius);
-        color: var(--dark-bg);
-        background-color: var(--card-bg);
-    }
-
-    .username-input-group input:focus {
-        outline: none;
-        border-color: var(--primary-action);
-    }
-
-    .username-input-group input.invalid {
-        border-color: var(--validation-error);
-    }
-
-    .username-input-group input.valid {
-        border-color: var(--validation-success);
-    }
-
-    .username-input-group button {
-        padding: 0.75rem 1.5rem;
-        border-radius: var(--pill-radius);
-        border: none;
-        background-color: var(--primary-action);
-        color: var(--light-text);
-        cursor: pointer;
-        font-size: 0.9rem;
-        text-align: center;
-    }
-
-    .username-input-group button:hover {
-        background-color: var(--darker-bg);
-    }
-
-    .username-input-group button:disabled {
-        background-color: #cccccc;
-        cursor: not-allowed;
-        opacity: 0.7;
-    }
-
-    .username-helper-text {
-        font-size: 0.8rem;
-        margin-top: 0.25rem;
-        color: var(--info-text);
-    }
-
-    .username-helper-text.error {
-        color: var(--validation-error);
-    }
-
-    .btn.secondary.small-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-        border-radius: var(--pill-radius);
-    }
-
-    #addUsernameForm {
-        display: none;
-    }
-
-    /* Custom username change button styling */
-    .username-change-btn {
-        padding: var(--username-btn-padding);
-        font-size: var(--username-btn-font-size);
-        border-radius: var(--username-btn-border-radius);
-        background-color: var(--secondary-action-bg);
-        color: var(--secondary-action-text);
-        border: var(--username-btn-border);
-        cursor: var(--username-btn-cursor);
-        transition: var(--username-btn-transition);
-        font-weight: var(--username-btn-font-weight);
-        box-shadow: var(--username-btn-box-shadow);
-        margin: var(--username-btn-margin);
-        text-align: center;
-    }
-
-    .username-change-btn:hover {
-        background-color: var(--username-btn-hover-bg);
-    }
-
-    .additional-info {
-      margin-top: 1rem;
-      padding: 1rem;
+      padding: 1.5rem;
       background-color: var(--card-bg);
       border-radius: var(--pill-radius);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
       border: 1px solid var(--card-border);
     }
 
-    .additional-info h3 {
-        font-size: 1.1rem;
-        margin-bottom: 0.75rem;
-        color: var(--dark-bg);
+    .account-info h2 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: var(--dark-bg);
     }
 
-    .additional-info p {
-        margin-bottom: 0.5rem;
-        color: var(--info-text);
+    .account-info p {
+      margin-bottom: 0.75rem;
+      color: var(--info-text);
+    }
+
+    .account-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1.5rem;
+    }
+
+    .account-buttons button {
+      padding: 1rem 1.5rem;
+      border-radius: var(--pill-radius);
+      border: none;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      text-align: center;
+      width: 100%;
+      /* Ensures all buttons have the same width */
+      display: inline-block;
+      box-sizing: border-box;
+      /* Include padding and border in the element's total width and height */
+    }
+
+    .account-buttons button:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .account-buttons button.secondary {
+      background-color: transparent;
+      color: var(--dark-bg);
+      border: 2px solid var(--dark-bg);
+    }
+
+    .account-buttons button.secondary:hover {
+      background-color: #d0d0d0;
+    }
+
+    .account-buttons button.danger {
+      background-color: var(--error-red);
+      color: var(--light-text);
+    }
+
+    .account-buttons button.danger:hover {
+      background-color: #cc0000;
     }
 
     /* Styles for the modal/popup */
     .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+      display: none;
+      /* Hidden by default */
+      position: fixed;
+      /* Stay in place */
+      z-index: 1;
+      /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%;
+      /* Full width */
+      height: 100%;
+      /* Full height */
+      overflow: auto;
+      /* Enable scroll if needed */
+      background-color: var(--modal-bg);
+      /* Black w/ opacity */
     }
 
     /* Modal Content/Box */
     .modal-content {
-        background-color: #333; /* Dark background */
-        color: #fff; /* Light text */
-        margin: 15% auto; /* 15% from the top and centered */
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%; /* Could be more or less, depending on screen size */
-        border-radius: var(--pill-radius);
-        position: relative;
-        border: 1px solid #f0f0f0; /* Light outline */
+      background-color: var(--modal-content-bg);
+      margin: 15% auto;
+      /* 15% from the top and centered */
+      padding: 20px;
+      border: 1px solid var(--modal-content-border);
+      width: 80%;
+      /* Could be more or less, depending on screen size */
+      border-radius: var(--pill-radius);
+      position: relative;
+      color: var(--modal-text-color);
     }
 
     /* The Close Button */
     .close {
-        position: absolute;
-        top: 0;
-        right: 0;
-        color: #f0f0f0;
-        font-size: 28px;
-        font-weight: bold;
-        padding: 10px;
+      position: absolute;
+      top: 0;
+      right: 0;
+      color: var(--modal-text-color);
+      font-size: 28px;
+      font-weight: bold;
+      padding: 10px;
     }
 
     .close:hover,
     .close:focus {
-        color: #fff;
-        text-decoration: none;
-        cursor: pointer;
+      color: #fff;
+      text-decoration: none;
+      cursor: pointer;
     }
 
     /* Style for the password confirmation form */
     .password-confirmation-form {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
     }
 
     .password-confirmation-form label {
-        font-weight: bold;
-        color: #f0f0f0; /* Light text for labels */
+      font-weight: bold;
+      color: var(--modal-text-color);
     }
 
     .password-confirmation-form input[type="password"] {
-        padding: 0.75rem 1rem;
-        font-size: 1rem;
-        border: 1px solid #f0f0f0; /* Light border */
-        border-radius: var(--pill-radius);
-        color: #000; /* Dark text */
-        background-color: #f0f0f0; /*Light background*/
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 1px solid var(--modal-content-border);
+      border-radius: var(--pill-radius);
+      color: var(--modal-input-text-color);
+      background-color: var(--modal-input-bg);
     }
 
     .password-confirmation-form input[type="password"]:focus {
-        outline: none;
-        border-color: var(--primary-action);
+      outline: none;
+      border-color: var(--primary-action);
     }
 
     .password-confirmation-form button {
@@ -398,151 +282,168 @@
     }
 
     .password-confirmation-form button:hover {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
   </style>
 </head>
+
 <body>
-    <nav class="navbar">
-        <div class="logo">4SP</div>
-        <div class="nav-buttons">
-            <a href="index.html" class="btn secondary">Home</a>
-            <a href="dashboard.html" class="btn secondary">Dashboard</a>
-            <a href="account.html" class="btn primary">Account</a>
-            <button class="btn secondary" id="logoutBtn">Log Out</button>
-        </div>
-    </nav>
-
-    <main class="container">
-        <h1>Account Information</h1>
-        <div class="account-grid">
-            <div class="account-info">
-                <h2>User Details</h2>
-                <p id="userEmail">Email: Loading...</p>
-                <p id="creationTime">Created: Loading...</p>
-                <div class="additional-info">
-                    <h3>Additional Information</h3>
-                    <p id="lastSignIn">Last Sign-in: Loading...</p>
-                    <p id="userUID">User ID: Loading...</p>
-                </div>
-            </div>
-
-            <div class="account-buttons">
-                <button id="changePasswordBtn" class="secondary">Change Password</button>
-                <button id="editProfileBtn" class="secondary">Edit Profile</button>
-                <button id="manageSubscriptionsBtn" class="secondary">Manage Subscriptions</button>
-                <button id="deleteAccountBtn" class="danger">Delete Account</button>
-            </div>
-        </div>
-    </main>
-
-    <footer>
-        <p>© 2025 4SP</p>
-    </footer>
-
-    <!-- The Modal for password confirmation -->
-    <div id="passwordModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Confirm Password</h2>
-            <form class="password-confirmation-form" id="passwordConfirmationForm">
-                <label for="currentPassword">Enter Current Password:</label>
-                <input type="password" id="currentPassword" name="currentPassword" required>
-                <button type="submit">Confirm</button>
-            </form>
-        </div>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <a href="index.html" class="btn secondary">Home</a>
+      <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      <a href="account.html" class="btn primary">Account</a>
+      <button class="btn secondary" id="logoutBtn">Log Out</button>
     </div>
+  </nav>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-          // Get Firebase Auth and Firestore references from firebase-config.js initialization
-          const auth = firebase.auth();
-          const db = firebase.firestore();
+  <main class="container">
+    <h1>Account Information</h1>
+    <div class="account-grid">
+      <div class="account-info">
+        <h2>User Details</h2>
+        <p id="userEmail">Email: Loading...</p>
+        <p id="creationTime">Created: Loading...</p>
+        <div class="additional-info">
+          <h3>Additional Information</h3>
+          <p id="lastSignIn">Last Sign-in: Loading...</p>
+          <p id="userUID">User ID: Loading...</p>
+        </div>
+      </div>
 
-          // DOM elements for account display
-          const userEmailElement = document.getElementById('userEmail');
-          const creationTimeElement = document.getElementById('creationTime');
-          const changePasswordBtn = document.getElementById('changePasswordBtn');
-          const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-          const logoutBtn = document.getElementById('logoutBtn');
-          const lastSignInElement = document.getElementById('lastSignIn');
-          const userUIDElement = document.getElementById('userUID');
-          const editProfileBtn = document.getElementById('editProfileBtn');
-          const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
+      <div class="account-buttons">
+        <button id="changePasswordBtn" class="secondary">Change Password</button>
+        <button id="editProfileBtn" class="secondary">Edit Profile</button>
+        <button id="manageSubscriptionsBtn" class="secondary">Manage Subscriptions</button>
+        <button id="deleteAccountBtn" class="danger">Delete Account</button>
+      </div>
+    </div>
+  </main>
 
-          // Modal elements
-          const passwordModal = document.getElementById('passwordModal');
-          const passwordConfirmationForm = document.getElementById('passwordConfirmationForm');
-          const closeModal = document.querySelector('.close');
+  <footer>
+    <p>© 2025 4SP</p>
+  </footer>
 
-          // Function to handle password confirmation and action
-          function handleAccountAction(action) {
-              passwordModal.style.display = "block";
+  <!-- The Modal for password confirmation -->
+  <div id="passwordModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Confirm Password</h2>
+      <form class="password-confirmation-form" id="passwordConfirmationForm">
+        <label for="currentPassword">Enter Current Password:</label>
+        <input type="password" id="currentPassword" name="currentPassword" required>
+        <button type="submit">Confirm</button>
+      </form>
+    </div>
+  </div>
 
-              passwordConfirmationForm.onsubmit = async (event) => {
-                  event.preventDefault();
-                  const currentPassword = document.getElementById('currentPassword').value;
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Get Firebase Auth and Firestore references from firebase-config.js initialization
+      const auth = firebase.auth();
 
-                  try {
-                      const user = auth.currentUser;
-                      if (user) {
-                          // Re-authenticate the user
-                          const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
-                          await user.reauthenticateWithCredential(credential);
+      // DOM elements for account display
+      const userEmailElement = document.getElementById('userEmail');
+      const creationTimeElement = document.getElementById('creationTime');
+      const changePasswordBtn = document.getElementById('changePasswordBtn');
+      const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const lastSignInElement = document.getElementById('lastSignIn');
+      const userUIDElement = document.getElementById('userUID');
+      const editProfileBtn = document.getElementById('editProfileBtn');
+      const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
 
-                          // If re-authentication is successful, proceed with the action
-                          if (action === 'changePassword') {
-                              // Redirect to change password page or implement change password functionality here
-                              window.location.href = 'change-password.html'; // Replace with your actual change password page
-                          } else if (action === 'deleteAccount') {
-                              // Implement account deletion functionality here
-                              await user.delete();
-                              alert('Account deleted successfully.');
-                              window.location.href = 'index.html'; // Redirect to home page after deletion
-                          }
-                      }
-                  } catch (error) {
-                      console.error('Error re-authenticating or performing action:', error);
-                      alert('Incorrect password or an error occurred. Please try again.');
-                  } finally {
-                      passwordModal.style.display = "none";
-                  }
-              };
-          }
+      // Modal elements
+      const passwordModal = document.getElementById('passwordModal');
+      const passwordConfirmationForm = document.getElementById('passwordConfirmationForm');
+      const closeModal = document.querySelector('.close');
 
-          // Event listeners for account actions
-          changePasswordBtn.addEventListener('click', () => {
-              handleAccountAction('changePassword');
-          });
+      // Function to handle password confirmation and action
+      function handleAccountAction(action) {
+        passwordModal.style.display = "block";
 
-          deleteAccountBtn.addEventListener('click', () => {
-              handleAccountAction('deleteAccount');
-          });
+        passwordConfirmationForm.onsubmit = async (event) => {
+          event.preventDefault();
+          const currentPassword = document.getElementById('currentPassword').value;
 
-          // Logout Functionality
-          logoutBtn.addEventListener('click', () => {
-              auth.signOut().then(() => {
-                  // Sign-out successful.
-                  window.location.href = 'index.html'; // Redirect to the home page
-              }).catch((error) => {
-                  // An error happened.
-                  console.error('Sign out error', error);
-                  alert('Failed to log out. Please try again.');
-              });
-          });
+          try {
+            const user = auth.currentUser;
+            if (user) {
+              // Re-authenticate the user
+              const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+              await user.reauthenticateWithCredential(credential);
 
-          // Close the modal
-          closeModal.onclick = function() {
-              passwordModal.style.display = "none";
-          }
-
-          // Close the modal if the user clicks outside of it
-          window.onclick = function(event) {
-              if (event.target == passwordModal) {
-                  passwordModal.style.display = "none";
+              // If re-authentication is successful, proceed with the action
+              if (action === 'changePassword') {
+                // Redirect to change password page or implement change password functionality here
+                window.location.href = 'change-password.html';
+                // Replace with your actual change password page
+              } else if (action === 'deleteAccount') {
+                // Implement account deletion functionality here
+                await user.delete();
+                alert('Account deleted successfully.');
+                window.location.href = 'index.html';
+                // Redirect to home page after deletion
               }
+            }
+          } catch (error) {
+            console.error('Error re-authenticating or performing action:', error);
+            alert('Incorrect password or an error occurred. Please try again.');
+          } finally {
+            passwordModal.style.display = "none";
           }
+        };
+      }
+
+      // Event listeners for account actions
+      changePasswordBtn.addEventListener('click', () => {
+        handleAccountAction('changePassword');
       });
-    </script>
+
+      deleteAccountBtn.addEventListener('click', () => {
+        handleAccountAction('deleteAccount');
+      });
+
+      // Logout Functionality
+      logoutBtn.addEventListener('click', () => {
+        auth.signOut().then(() => {
+          // Sign-out successful.
+          window.location.href = 'index.html';
+          // Redirect to the home page
+        }).catch((error) => {
+          // An error happened.
+          console.error('Sign out error', error);
+          alert('Failed to log out. Please try again.');
+        });
+      });
+
+      // Close the modal
+      closeModal.onclick = function () {
+        passwordModal.style.display = "none";
+      }
+
+      // Close the modal if the user clicks outside of it
+      window.onclick = function (event) {
+        if (event.target == passwordModal) {
+          passwordModal.style.display = "none";
+        }
+      }
+
+      // Listen for authentication state changes
+      auth.onAuthStateChanged(async (user) => {
+        if (user) {
+          // Display basic user info
+          userEmailElement.textContent = `Email: ${user.email}`;
+          const creationDate = new Date(user.metadata.creationTime);
+          creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
+        } else {
+          // Redirect to home if not signed in
+          window.location.href = 'index.html';
+        }
+      });
+    });
+  </script>
 </body>
+
 </html>
