@@ -7,7 +7,6 @@
   <title>4SP | Account</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <!-- Firebase libraries using compat versions -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -23,7 +22,7 @@
       --light-gray: #e0e0e0;
       --medium-gray: #333333;
       --darker-bg: #0d0d0d;
-      --error-red: #ff1212;
+      --error-red: #ff3333;
       --info-text: var(--medium-gray);
       --card-bg: white;
       --card-border: var(--light-gray);
@@ -219,12 +218,13 @@
       height: 100%;
       overflow: auto;
       background-color: var(--modal-bg);
-      opacity: 0; /* Make the modal initially invisible */
-      transition: opacity 0.3s ease; /* Add transition for opacity */
+      opacity: 0;
+      transition: opacity 0.3s ease, display 0.3s;
     }
 
     .modal.fade-out {
-      opacity: 0; /* Fade-out class sets opacity to 0 */
+      opacity: 0;
+      display: none;
     }
 
     /* Modal Content/Box */
@@ -239,7 +239,9 @@
       position: relative;
       color: var(--modal-text-color);
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-      transition: transform 0.3s ease, opacity 0.3s ease; /* Add transition to the content */
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      display: flex;
+      flex-direction: column;
     }
 
     /* The Close Button */
@@ -324,6 +326,39 @@
       color: rgba(240, 240, 240, 0.8);
       margin-bottom: 1.5rem;
     }
+
+    /* New Styles for Change Password Section */
+    .change-password-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .change-password-form label {
+      font-weight: bold;
+      color: var(--modal-text-color);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .change-password-form input[type="password"] {
+      padding: 1rem 1.5rem;
+      font-size: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--pill-radius);
+      color: var(--modal-input-text-color);
+      background-color: var(--modal-input-bg);
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease;
+    }
+
+    .change-password-form input[type="password"]:focus {
+      outline: none;
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3);
+    }
   </style>
 </head>
 
@@ -347,42 +382,56 @@
         <p id="creationTime">Created: Loading...</p>
         <div class="additional-info">
           <h3>Additional Information</h3>
-          <p id="lastSignIn">Last Sign-in: Loading...</p>
-          <p id="userUID">User ID: Loading...</p>
+            <p id="lastSignIn">Last Sign-in: Loading...</p>
+            <p id="userUID">User ID: Loading...</p>
+          </div>
         </div>
-      </div>
-
-      <div class="account-buttons">
-        <button id="changePasswordBtn" class="secondary">Change Password</button>
-        <button id="editProfileBtn" class="secondary">Edit Profile</button>
-        <button id="manageSubscriptionsBtn" class="secondary">Manage Subscriptions</button>
-        <button id="deleteAccountBtn" class="danger">Delete Account</button>
-      </div>
-    </div>
-  </main>
-
+       <div class="account-buttons">
+          <button id="changePasswordBtn" class="secondary">Change Password</button>
+          <button id="editProfileBtn" class="secondary">Edit Profile</button>
+          <button id="manageSubscriptionsBtn" class="secondary">Manage Subscriptions</button>
+          <button id="deleteAccountBtn" class="danger">Delete Account</button>
+        </div>
+     </div>
+ </main>
   <footer>
-    <p>© 2025 4SP</p>
-  </footer>
-
+   <p>© 2025 4SP</p>
+ </footer>
   <div id="passwordModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2 id="modalTitle">Confirm Password</h2>
-      <p id="modalDescription">Please enter your current password to continue.</p>
-      <form class="password-confirmation-form" id="passwordConfirmationForm">
-        <div>
-          <label for="currentPassword">Current Password:</label>
-          <input type="password" id="currentPassword" name="currentPassword" required>
-        </div>
-        <button type="submit">Confirm</button>
-      </form>
-    </div>
+  <div class="modal-content">
+  <span class="close">&times;</span>
+   <h2 id="modalTitle">Confirm Password</h2>
+    <p id="modalDescription">Please enter your current password to continue.</p>
+    <form class="password-confirmation-form" id="passwordConfirmationForm">
+      <div>
+        <label for="currentPassword">Current Password:</label>
+        <input type="password" id="currentPassword" name="currentPassword" required>
+      </div>
+     <button type="submit">Confirm</button>
+   </form>
   </div>
-
+ </div>
+  <div id="changePasswordModal" class="modal">
+  <div class="modal-content">
+   <span class="close">&times;</span>
+    <h2>Change Password</h2>
+    <p>Please enter your new password.</p>
+    <form class="change-password-form" id="changePasswordForm">
+      <div>
+       <label for="newPassword">New Password:</label>
+       <input type="password" id="newPassword" name="newPassword" required>
+      </div>
+      <div>
+       <label for="confirmPassword">Confirm New Password:</label>
+       <input type="password" id="confirmPassword" name="confirmPassword" required>
+      </div>
+      <button type="submit">Change Password</button>
+     </form>
+   </div>
+ </div>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const auth = firebase.auth();
+     const auth = firebase.auth();
       const userEmailElement = document.getElementById('userEmail');
       const creationTimeElement = document.getElementById('creationTime');
       const lastSignInElement = document.getElementById('lastSignIn');
@@ -399,7 +448,13 @@
       const modalDescription = document.getElementById('modalDescription');
       const passwordConfirmationForm = document.getElementById('passwordConfirmationForm');
       const currentPasswordInput = document.getElementById('currentPassword');
-      const closeModal = document.querySelector('.close');
+
+      const changePasswordModal = document.getElementById('changePasswordModal');
+      const changePasswordForm = document.getElementById('changePasswordForm');
+      const newPasswordInput = document.getElementById('newPassword');
+      const confirmPasswordInput = document.getElementById('confirmPassword');
+
+      const closeModalButtons = document.querySelectorAll('.close');
 
       let currentAction = null;
 
@@ -407,105 +462,139 @@
         currentAction = action;
 
         if (action === 'changePassword') {
-          modalTitle.textContent = 'Change Password';
-          modalDescription.textContent = 'Please enter your current password to continue.';
+          modalTitle.textContent = 'Confirm Password';
+          modalDescription.textContent = 'Please enter your current password to change your password.';
+          passwordModal.style.display = 'block';
         } else if (action === 'deleteAccount') {
-          modalTitle.textContent = 'Delete Account';
+          modalTitle.textContent = 'Confirm Delete Account';
           modalDescription.textContent = 'Are you sure you want to delete your account? This action is irreversible.';
+          passwordModal.style.display = 'block';
         }
 
-        passwordModal.classList.remove('fade-out');
-        passwordModal.style.display = 'block';
-        setTimeout(() => {
+          passwordModal.classList.remove('fade-out');
+          passwordModal.style.display = 'block';
+          setTimeout(() => {
             passwordModal.style.opacity = 1;
-          }, 10);
+           }, 10);
       };
 
-      const closeModalFn = () => {
-         passwordModal.classList.add('fade-out');
-            passwordModal.style.opacity = 0;
-        setTimeout(() => {
-          passwordModal.style.display = 'none';
-        }, 300);
-      };
+      const closeModalFn = (modal) => {
+        modal.classList.add('fade-out');
+          modal.style.opacity = 0;
+           setTimeout(() => {
+            modal.style.display = 'none';
+            modal.classList.remove('fade-out');
+           }, 300);
+        };
 
       changePasswordBtn.addEventListener('click', () => {
-        openModal('changePassword');
+          openModal('changePassword');
       });
 
       deleteAccountBtn.addEventListener('click', () => {
-        openModal('deleteAccount');
+         openModal('deleteAccount');
       });
 
-      closeModal.addEventListener('click', closeModalFn);
+      closeModalButtons.forEach(button => {
+         button.addEventListener('click', () => {
+         const modal = button.closest('.modal');
+          closeModalFn(modal);
+         });
+       });
 
-      window.addEventListener('click', (event) => {
-        if (event.target === passwordModal) {
-          closeModalFn();
-        }
-      });
+       window.addEventListener('click', (event) => {
+          if (event.target.classList.contains('modal')) {
+             closeModalFn(event.target);
+          }
+        });
 
-      passwordConfirmationForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const password = currentPasswordInput.value;
+       passwordConfirmationForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const password = currentPasswordInput.value;
 
-        if (!password) {
-          alert('Please enter your password.');
+           if (!password) {
+            alert('Please enter your password.');
+            return;
+           }
+
+        try {
+           const user = auth.currentUser;
+           const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+            await user.reauthenticateWithCredential(credential);
+
+           if (currentAction === 'changePassword') {
+            closeModalFn(passwordModal);
+               changePasswordModal.style.display = 'block';
+          } else if (currentAction === 'deleteAccount') {
+                await user.delete();
+              alert('Account deleted successfully.');
+              window.location.href = 'index.html';
+            }
+           } catch (error) {
+                alert('Authentication failed. Please check your password.');
+                console.error('Authentication Error:', error);
+           } finally {
+                closeModalFn(passwordModal);
+           }
+         });
+
+        changePasswordForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const newPassword = newPasswordInput.value;
+          const confirmNewPassword = confirmPasswordInput.value;
+
+        if (newPassword !== confirmNewPassword) {
+          alert('New passwords do not match. Please try again.');
           return;
         }
-
+        if (newPassword.length < 6) {
+          alert('Password needs to be at least 6 characters')
+          return;
+        }
         try {
           const user = auth.currentUser;
-          const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
-          await user.reauthenticateWithCredential(credential);
-
-          if (currentAction === 'changePassword') {
-            window.location.href = 'change-password.html';
-          } else if (currentAction === 'deleteAccount') {
-            await user.delete();
-            alert('Account deleted successfully.');
-            window.location.href = 'index.html';
-          }
+          await user.updatePassword(newPassword);
+          alert('Password changed successfully!');
+           window.location.reload();
         } catch (error) {
-          alert('Authentication failed. Please check your password.');
-          console.error('Authentication Error:', error);
+          console.error('Password change error:', error);
+           alert('Failed to change password. Please try again later.');
         } finally {
-          closeModalFn();
+          closeModalFn(changePasswordModal);
         }
       });
 
-      editProfileBtn.addEventListener('click', () => {
-        alert('Edit Profile functionality is not implemented yet.');
-      });
+ editProfileBtn.addEventListener('click', () => {
+   alert('Edit Profile functionality is not implemented yet.');
+ });
 
-      manageSubscriptionsBtn.addEventListener('click', () => {
-        alert('Manage Subscriptions functionality is not implemented yet.');
-      });
+ manageSubscriptionsBtn.addEventListener('click', () => {
+   alert('Manage Subscriptions functionality is not implemented yet.');
+ });
 
-      logoutBtn.addEventListener('click', async () => {
-        try {
-          await auth.signOut();
-          window.location.href = 'index.html';
-        } catch (error) {
-          console.error('Logout Error:', error);
-          alert('Failed to log out. Please try again.');
-        }
-      });
+ logoutBtn.addEventListener('click', async () => {
+   try {
+    await auth.signOut();
+    window.location.href = 'index.html';
+   } catch (error) {
+     console.error('Logout Error:', error);
+     alert('Failed to log out. Please try again.');
+   }
+ });
 
-      auth.onAuthStateChanged(async (user) => {
-        if (user) {
-          userEmailElement.textContent = `Email: ${user.email}`;
-          const creationDate = new Date(user.metadata.creationTime);
-          creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+     userEmailElement.textContent = `Email: ${user.email}`;
+     const creationDate = new Date(user.metadata.creationTime);
+     creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
 
-          lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
-          userUIDElement.textContent = `User ID: ${user.uid}`;
-        } else {
-          window.location.href = 'index.html';
-        }
-      });
-    });
-  </script>
+    lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
+    userUIDElement.textContent = `User ID: ${user.uid}`;
+ } else {
+  window.location.href = 'index.html';
+ }
+ });
+ });
+</script>
 </body>
-
 </html>
