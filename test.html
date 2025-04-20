@@ -233,13 +233,13 @@
       font-size: 28px;
       font-weight: bold;
       padding: 10px;
+      cursor: pointer;
     }
 
     .close:hover,
     .close:focus {
       color: #fff;
       text-decoration: none;
-      cursor: pointer;
     }
 
     /* Style for the password confirmation form */
@@ -270,7 +270,7 @@
 
     .password-confirmation-form button {
       display: inline-block;
-      padding: 1rem 2rem;
+      padding: 0.75rem 1.5rem;
       border-radius: var(--pill-radius);
       font-size: 1rem;
       cursor: pointer;
@@ -279,10 +279,12 @@
       font-weight: 500;
       background-color: var(--dark-bg);
       color: var(--light-text);
+      transition: background-color 0.3s ease;
     }
 
     .password-confirmation-form button:hover {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      background-color: var(--darker-bg);
     }
   </style>
 </head>
@@ -342,6 +344,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       // Get Firebase Auth and Firestore references from firebase-config.js initialization
       const auth = firebase.auth();
+      const db = firebase.firestore();
 
       // DOM elements for account display
       const userEmailElement = document.getElementById('userEmail');
@@ -437,6 +440,23 @@
           userEmailElement.textContent = `Email: ${user.email}`;
           const creationDate = new Date(user.metadata.creationTime);
           creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
+
+          // Fetch and display additional information
+          try {
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (userDoc.exists) {
+              const userData = userDoc.data();
+              lastSignInElement.textContent = `Last Sign-in: ${userData.lastSignIn || 'N/A'}`;
+              userUIDElement.textContent = `User ID: ${userData.uid || 'N/A'}`;
+            } else {
+              lastSignInElement.textContent = `Last Sign-in: N/A`;
+              userUIDElement.textContent = `User ID: N/A`;
+            }
+          } catch (error) {
+            console.error('Error fetching additional user data:', error);
+            lastSignInElement.textContent = `Last Sign-in: Error`;
+            userUIDElement.textContent = `User ID: Error`;
+          }
         } else {
           // Redirect to home if not signed in
           window.location.href = 'index.html';
