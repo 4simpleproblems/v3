@@ -12,9 +12,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <nav class="navbar">
@@ -34,10 +31,6 @@
         <ul id="analyticsList">
           <li>Loading analytics...</li>
         </ul>
-        <div id="chartSection">
-          <h2>Analytics Chart</h2>
-          <canvas id="analyticsChart" width="400" height="200"></canvas>
-        </div>
         <p id="noDataMessage" class="hidden" style="color: var(--error-red);">
           Missing or insufficient permissions.
         </p>
@@ -49,8 +42,8 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       // Firebase references from firebase-config.js
-      const auth = firebase.auth();
-      const db = firebase.firestore();
+      const auth = window.auth;
+      const db = window.db;
       const adminEmail = "4simpleproblems@gmail.com";
 
       const analyticsContent = document.getElementById("analyticsContent");
@@ -98,72 +91,60 @@
                   .replace(/\b\w/g, c => c.toUpperCase());
       }
 
-      // Fetch and display analytics data from Firestore.
       async function loadAnalytics() {
         try {
           analyticsList.innerHTML = '<li>Loading analytics...</li>';
           noDataMessage.classList.add("hidden");
 
-          // --- Aggregate statistics ---
+          // Aggregate statistics
           const stats = {};
 
-          // Users collection: count and any additional fields
-          const usersSnapshot = await db.collection("users").get();
-          stats["Total Users"] = usersSnapshot.size;
+          // Users collection: count
+          try {
+            const usersSnapshot = await db.collection("users").get();
+            stats["Total Users"] = usersSnapshot.size;
+          } catch (e) {
+            stats["Total Users"] = "Permission Denied";
+          }
 
-          // Requests collection: count and any additional fields
-          const requestsSnapshot = await db.collection("requests").get();
-          stats["Total Requests"] = requestsSnapshot.size;
+          // Requests collection: count
+          try {
+            const requestsSnapshot = await db.collection("requests").get();
+            stats["Total Requests"] = requestsSnapshot.size;
+          } catch (e) {
+            stats["Total Requests"] = "Permission Denied";
+          }
 
-          // Add more collections as needed here
+          // Daily Analytics: show latest document's fields
+          let dailyFieldsHtml = "";
+          try {
+            const dailySnapshot = await db
+              .collection("dailyAnalytics")
+              .orderBy("date", "desc")
+              .limit(1)
+              .get();
 
-          // --- Historical daily analytics ---
-          const dailySnapshot = await db
-            .collection("dailyAnalytics")
-            .orderBy("date")
-            .get();
+            if (!dailySnapshot.empty) {
+              const latest = dailySnapshot.docs[0].data();
+              stats["Latest Analytics Date"] = latest.date;
+              Object.keys(latest).forEach((key) => {
+                if (key !== "date") {
+                  dailyFieldsHtml += `<li>${formatKey(key)} (Latest): ${latest[key]}</li>`;
+                }
+              });
+            } else {
+              dailyFieldsHtml += "<li>No daily analytics data found.</li>";
+            }
+          } catch (e) {
+            dailyFieldsHtml += "<li>Cannot access daily analytics (Permission Denied)</li>";
+          }
 
-          let dates = [];
-          let dailyFields = {}; // { fieldName: [values...] }
-
-          dailySnapshot.forEach((doc) => {
-            const data = doc.data();
-            dates.push(data.date);
-
-            // Collect all fields except 'date'
-            Object.keys(data).forEach((key) => {
-              if (key !== "date") {
-                if (!dailyFields[key]) dailyFields[key] = [];
-                dailyFields[key].push(data[key]);
-              }
-            });
-          });
-
-          // --- Display all stats ---
+          // Render all stats as numbers in the list
           let statsHtml = "";
           Object.entries(stats).forEach(([key, value]) => {
             statsHtml += `<li>${key}: ${value}</li>`;
           });
-
-          // Show most recent dailyAnalytics document's fields as current stats
-          if (dailySnapshot.size > 0) {
-            const lastDoc = dailySnapshot.docs[dailySnapshot.size - 1].data();
-            Object.keys(lastDoc).forEach((key) => {
-              if (key !== "date") {
-                statsHtml += `<li>${formatKey(key)} (Latest): ${lastDoc[key]}</li>`;
-              }
-            });
-          }
-
-          analyticsList.innerHTML = statsHtml;
-
-          // --- Chart all numeric fields from dailyAnalytics ---
-          if (dates.length > 0 && Object.keys(dailyFields).length > 0) {
-            renderAnalyticsChart(dates, dailyFields);
-          } else {
-            document.getElementById("chartSection").innerHTML =
-              '<p>No historical data available for chart.</p>';
-          }
+          analyticsList.innerHTML = statsHtml + dailyFieldsHtml;
 
           noDataMessage.classList.add("hidden");
         } catch (error) {
@@ -171,61 +152,6 @@
           analyticsList.innerHTML = "";
           noDataMessage.classList.remove("hidden");
         }
-      }
-
-      // Render the analytics chart using Chart.js.
-      function renderAnalyticsChart(labels, fieldsData) {
-        const ctx = document.getElementById("analyticsChart").getContext("2d");
-        // Generate a color palette
-        const palette = [
-          "rgba(98,108,214,1)", // blue
-          "rgba(255,51,51,1)",  // red
-          "rgba(51,204,51,1)",  // green
-          "rgba(255,204,0,1)",  // yellow
-          "rgba(153,51,255,1)", // purple
-          "rgba(255,102,0,1)",  // orange
-        ];
-        let colorIdx = 0;
-
-        // Prepare datasets for each field
-        const datasets = Object.entries(fieldsData).map(([field, dataArr]) => {
-          const color = palette[colorIdx % palette.length];
-          colorIdx++;
-          return {
-            label: formatKey(field),
-            data: dataArr,
-            borderColor: color,
-            backgroundColor: color.replace('1)', '0.2)'),
-            fill: true,
-            tension: 0.4
-          };
-        });
-
-        new Chart(ctx, {
-          type: "line",
-          data: {
-            labels: labels,
-            datasets: datasets
-          },
-          options: {
-            responsive: true,
-            scales: {
-              x: {
-                title: {
-                  display: true,
-                  text: "Date"
-                }
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: "Count"
-                },
-                beginAtZero: true
-              }
-            }
-          }
-        });
       }
     });
   </script>
