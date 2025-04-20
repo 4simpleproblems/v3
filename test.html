@@ -1,1094 +1,759 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4SP | Account</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <style>
-        /* Page-specific styles, can be combined with your styles.css if desired */
-        :root {
-            --primary-action: var(--dark-bg);
-            --secondary-action-text: var(--dark-bg);
-            --secondary-action-bg: var(--light-gray);
-            --danger-action: var(--error-red);
-            --info-text: var(--medium-gray);
-            --card-bg: white;
-            --card-border: var(--light-gray);
-            --pill-radius: 50px;
-
-            /* Custom username button variables */
-            --username-btn-padding: 0.5rem 1rem;
-            --username-btn-font-size: 0.9rem;
-            --username-btn-border-radius: var(--pill-radius);
-            --username-btn-bg-color: var(--secondary-action-bg);
-            --username-btn-text-color: var(--secondary-action-text);
-            --username-btn-border: 2px solid var(--secondary-action-text);
-            --username-btn-hover-bg: #d0d0d0;
-            --username-btn-transition: all 0.3s ease;
-            --username-btn-cursor: pointer;
-            --username-btn-font-weight: normal;
-            --username-btn-box-shadow: none;
-            --username-btn-margin: 0.5rem 0 0 0;
-
-            /* Validation colors */
-            --validation-error: #ff6b6b;
-            --validation-success: #51cf66;
-
-            /* New pop-up variables (updated to match button colors/style) */
-            --popup-bg: var(--dark-bg); /* Match primary button background */
-            --popup-text: var(--light-text); /* Match primary button text */
-            --popup-border: var(--light-text); /* Match secondary button border */
-            --popup-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Slightly darker shadow */
-            --popup-padding: 1.2rem; /* Slightly more padding */
-            --popup-margin-top: 0.6rem; /* Slightly more margin */
-            /* --popup-radius: 10px; */ /* Removed or updated below */
-            --animation-duration: 0.3s; /* Match soundboard animation duration */
-        }
-
-        body {
-            background-color: var(--light-gray);
-            color: var(--dark-bg);
-        }
-
-        .account-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .account-info {
-            padding: 1.5rem;
-            background-color: var(--card-bg);
-            border-radius: var(--pill-radius);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            border: 1px solid var(--card-border);
-        }
-
-        .account-info h2 {
-            font-size: 1.4rem;
-            margin-bottom: 1rem;
-            color: var(--dark-bg);
-        }
-
-        .account-info p {
-            margin-bottom: 0.75rem;
-            color: var(--info-text);
-        }
-
-        .account-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            padding: 1.5rem;
-        }
-
-        /* Wrapper for button and its pop-up */
-        .popup-wrapper {
-            position: relative; /* Needed for absolute positioning of the pop-up */
-        }
-
-        .account-buttons button {
-            padding: 1rem 1.5rem;
-            border-radius: var(--pill-radius);
-            border: none;
-            background-color: var(--primary-action);
-            color: var(--light-text);
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            text-align: center;
-            width: 100%; /* Make buttons full width in the flex container */
-        }
-
-        .account-buttons button:hover {
-            background-color: var(--darker-bg);
-        }
-
-        .account-buttons button.secondary {
-            background-color: var(--secondary-action-bg);
-            color: var(--secondary-action-text);
-            border: 2px solid var(--secondary-action-text);
-        }
-
-        .account-buttons button.secondary:hover {
-            background-color: #d0d0d0;
-        }
-
-        .account-buttons button.danger {
-            background-color: var(--danger-action);
-        }
-
-        .account-buttons button.danger:hover {
-            background-color: #cc0000;
-        }
-
-        .username-input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .username-input-group .input-wrapper {
-            display: flex;
-            gap: 0.5rem; /* Gap between input and buttons */
-        }
-
-        .username-input-group .username-buttons {
-            display: flex;
-            gap: 0.5rem; /* Gap between save and cancel buttons */
-        }
-
-
-        .username-input-group input {
-            flex-grow: 1;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--light-gray);
-            border-radius: var(--pill-radius);
-            color: var(--dark-bg);
-            background-color: var(--card-bg);
-        }
-
-        .username-input-group input:focus {
-            outline: none;
-            border-color: var(--primary-action);
-        }
-
-        .username-input-group input.invalid {
-            border-color: var(--validation-error);
-        }
-
-        .username-input-group input.valid {
-            border-color: var(--validation-success);
-        }
-
-        .username-input-group button {
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--pill-radius);
-            border: none;
-            background-color: var(--primary-action);
-            color: var(--light-text);
-            cursor: pointer;
-            font-size: 0.9rem;
-            text-align: center;
-             /* Ensure username buttons don't stretch like account action buttons */
-            width: auto;
-        }
-
-        .username-input-group button:hover {
-            background-color: var(--darker-bg);
-        }
-
-        .username-input-group button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-         /* Style for the new cancel button */
-        .username-input-group button.cancel-username {
-            background-color: var(--secondary-action-bg);
-            color: var(--secondary-action-text);
-            border: 2px solid var(--secondary-action-text);
-        }
-         .username-input-group button.cancel-username:hover {
-            background-color: #d0d0d0;
-         }
-
-
-        .username-helper-text {
-            font-size: 0.8rem;
-            margin-top: 0.25rem;
-            /* Default color */
-            color: var(--info-text);
-        }
-
-        .username-helper-text.error {
-            color: var(--validation-error);
-        }
-         /* Added style for success message */
-        .username-helper-text.success {
-             color: var(--validation-success);
-        }
-
-
-        .btn.secondary.small-btn {
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-            border-radius: var(--pill-radius);
-        }
-
-        #addUsernameForm {
-            display: none;
-        }
-
-        /* Custom username change button styling */
-        .username-change-btn {
-            padding: var(--username-btn-padding);
-            font-size: var(--username-btn-font-size);
-            border-radius: var(--username-btn-border-radius);
-            background-color: var(--username-btn-bg-color);
-            color: var(--username-btn-text-color);
-            border: var(--username-btn-border);
-            cursor: var(--username-btn-cursor);
-            transition: var(--username-btn-transition);
-            font-weight: var(--username-btn-font-weight);
-            box-shadow: var(--username-btn-box-shadow);
-            margin: var(--username-btn-margin);
-            text-align: center;
-        }
-
-        .username-change-btn:hover {
-            background-color: var(--username-btn-hover-bg);
-        }
-
-        .additional-info {
-          margin-top: 1rem;
-          padding: 1rem;
-          background-color: var(--card-bg);
-          border-radius: var(--pill-radius);
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-          border: 1px solid var(--card-border);
-        }
-
-        .additional-info h3 {
-            font-size: 1.1rem;
-            margin-bottom: 0.75rem;
-            color: var(--dark-bg);
-        }
-
-        .additional-info p {
-            margin-bottom: 0.5rem;
-            color: var(--info-text);
-        }
-
-        .account-buttons button.edit-profile {
-            background-color: var(--secondary-action-bg);
-            color: var(--secondary-action-text);
-            border: 2px solid var(--secondary-action-text);
-        }
-
-        .account-buttons button.edit-profile:hover {
-            background-color: #d0d0d0;
-        }
-
-        .account-buttons button.manage-subscriptions {
-            background-color: var(--primary-action);
-        }
-
-        .account-buttons button.manage-subscriptions:hover {
-            background-color: var(--darker-bg);
-        }
-
-        /* --- Animation Keyframes (from soundboard.html) --- */
-         @keyframes fadeInOverlay {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes fadeOutOverlay {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeOutDown {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(20px); }
-        }
-
-
-        /* --- Pop-up Styles (Matching Soundboard Menu style with Account colors) --- */
-        .popup-menu {
-            position: absolute;
-            top: 100%; /* Position below the button */
-            left: 0;
-            right: 0;
-            z-index: 10; /* Ensure it's on top */
-            background-color: var(--popup-bg);
-            border: 2px solid var(--popup-border); /* Match soundboard menu border style */
-            border-radius: 30px; /* Hardcoded to 30px as requested */
-            box-shadow: var(--popup-box-shadow);
-            padding: var(--popup-padding);
-            margin-top: var(--popup-margin-top);
-
-            /* Animation controlled by JS adding/removing classes */
-            display: none; /* Hidden by default */
-            opacity: 0; /* Start transparent for fade */
-            transform: translateY(20px); /* Start below for slide-up effect */
-        }
-
-        .popup-menu.fade-in-up {
-             display: block;
-             animation: fadeInUp var(--animation-duration) ease forwards;
-        }
-
-         .popup-menu.fade-out-down {
-             display: block; /* Keep block during fade-out */
-             animation: fadeOutDown var(--animation-duration) ease forwards;
-         }
-
-        .popup-menu h3 {
-            margin-top: 0;
-            margin-bottom: 0.8rem;
-            font-size: 1.2rem;
-            color: var(--popup-text); /* Use popup text color */
-             padding-bottom: 0.5rem; /* Add padding for underline effect */
-             border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Light underline */
-        }
-
-        .popup-menu p {
-             color: var(--popup-text); /* Use popup text color */
-             font-size: 0.95rem;
-             margin-bottom: 1rem;
-        }
-
-
-        .popup-menu label {
-            display: block;
-            margin-bottom: 0.4rem;
-            font-size: 0.9rem;
-            color: var(--popup-text); /* Use popup text color */
-            opacity: 0.8; /* Slightly less prominent */
-        }
-
-        .popup-menu input[type="password"] {
-            width: calc(100% - 20px); /* Adjust for padding */
-            padding: 0.8rem 10px;
-            margin-bottom: 0.8rem;
-            border: 1px solid var(--light-gray); /* Use light gray border for input */
-            border-radius: 5px; /* Standard input border radius */
-            font-size: 1rem;
-            color: var(--dark-bg); /* Use dark text for input value */
-            background-color: var(--card-bg); /* Use card background for input */
-        }
-
-         .popup-menu input[type="password"].invalid {
-            border-color: var(--validation-error);
-        }
-
-        .popup-menu input[type="password"]:focus {
-             outline: none;
-             border-color: var(--primary-action);
-        }
-
-        .popup-menu .popup-buttons {
-            display: flex;
-            gap: 0.5rem; /* Space between popup buttons */
-            justify-content: flex-end; /* Align buttons to the right */
-            margin-top: 1rem;
-        }
-
-        .popup-menu .popup-buttons button {
-            padding: 0.6rem 1.2rem;
-            font-size: 0.9rem;
-            border-radius: var(--pill-radius); /* Match main buttons */
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            width: auto; /* Override 100% width from parent rule */
-        }
-
-        .popup-menu .popup-buttons button.confirm {
-            /* Match primary button style */
-            background-color: var(--primary-action);
-            color: var(--light-text);
-            border: none;
-        }
-
-        .popup-menu .popup-buttons button.confirm:hover {
-            background-color: var(--darker-bg);
-        }
-
-         .popup-menu .popup-buttons button.confirm:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-
-        .popup-menu .popup-buttons button.cancel {
-            /* Match secondary button style */
-            background-color: var(--secondary-action-bg);
-            color: var(--secondary-action-text);
-            border: 2px solid var(--secondary-action-text);
-        }
-
-        .popup-menu .popup-buttons button.cancel:hover {
-             background-color: #d0d0d0;
-        }
-
-        .popup-menu .popup-buttons button.danger-confirm {
-            /* Match danger button style */
-            background-color: var(--danger-action);
-            color: var(--light-text);
-            border: none;
-        }
-
-        .popup-menu .popup-buttons button.danger-confirm:hover {
-            background-color: #cc0000;
-        }
-
-         .popup-menu .popup-buttons button.danger-confirm:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-
-        .popup-error {
-            color: var(--validation-error);
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
-            text-align: center;
-        }
-
-        /* --- Overlay Styles (from soundboard.html) --- */
-        .overlay {
-            display: none; /* Initially hidden */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1; /* Below the popup, above everything else */
-        }
-
-        .overlay.fade-in-overlay {
-            display: block;
-            animation: fadeInOverlay var(--animation-duration) ease forwards;
-        }
-
-        .overlay.fade-out-overlay {
-            display: block; /* Keep block during fade-out */
-            animation: fadeOutOverlay var(--animation-duration) ease forwards;
-        }
-
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4SP | Soundboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Updated Styles */
+    .sound-section {
+      margin-bottom: 2rem;
+    }
+
+    .sound-section h2 {
+      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 2px solid var(--dark-bg);
+      width: 100%;
+    }
+
+    .soundButtonsContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      padding: 1rem;
+      gap: 1.5rem;
+      width: 100%;
+    }
+
+    /* Updated Sound Button Style - Text Box Style */
+    .sound-button {
+      min-width: 100px;
+      height: 100px;
+      border-radius: 50px;
+      /* Rounded corners instead of perfect circle */
+      background-color: var(--light-text);
+      color: var(--dark-bg);
+      border: 2px solid var(--dark-bg);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: bold;
+      padding: 0 1.5rem;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 250px;
+      /* Maximum width to prevent extremely long buttons */
+      word-wrap: break-word;
+      hyphens: auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Make shorter text still appear circular */
+    .sound-button.short-text {
+      width: 100px;
+      padding: 0.5rem;
+      border-radius: 50%;
+      /* Perfect circle for short text */
+    }
+
+    .sound-button:hover {
+      background-color: var(--light-gray);
+    }
+
+    .sound-button:active {
+      transform: scale(0.95);
+    }
+
+    /* Add a ripple effect */
+    .sound-button .ripple {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 50%;
+      transform: scale(0);
+      animation: rippleEffect 0.6s linear;
+    }
+
+    @keyframes rippleEffect {
+      to {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+
+    /* Options Dropdown Styles - Enhanced with more pronounced animations */
+    .options-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .options-button {
+      background-color: transparent;
+      color: var(--light-text);
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: 2px solid var(--light-text);
+      border-radius: 50px;
+      cursor: pointer;
+    }
+
+    /* Options Menu Fade Animation */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+    }
+
+    .options-content {
+      display: none;
+      position: absolute;
+      background-color: var(--darker-bg);
+      min-width: 250px;
+      border: 2px solid var(--light-text);
+      padding: 1rem;
+      z-index: 2;
+      right: 0;
+      border-radius: 30px;
+      top: 100%;
+      margin-top: 0.5rem;
+      color: var(--light-text);
+    }
+
+    .options-content.fade-in {
+      display: block;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .options-content.fade-out {
+      display: block;
+      animation: fadeOut 0.3s ease forwards;
+    }
+
+    .options-content label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--light-text);
+    }
+
+    .options-content input[type="checkbox"] {
+      margin-right: 0.5rem;
+      vertical-align: middle;
+      background-color: var(--darker-bg);
+      border: 2px solid var(--light-text);
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      position: relative;
+      border-radius: 5px;
+    }
+
+    .options-content input[type="checkbox"]:checked {
+      background-image: url('checkmark.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .options-content #autoClickDelayLabel {
+      margin-top: 0.5rem;
+      display: block;
+    }
+
+    .options-content #autoClickDelay {
+      width: 60px;
+      padding: 0.25rem;
+      border-radius: 30px;
+      border: 2px solid var(--light-text);
+      background-color: var(--darker-bg);
+      color: var(--light-text);
+    }
+
+    /* Options Sections */
+    .options-section {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .options-section:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .options-section h3 {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      color: var(--light-text);
+      opacity: 0.8;
+    }
+
+    /* Keyboard shortcuts info */
+    .keyboard-shortcuts {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .keyboard-shortcuts p {
+      margin: 0.25rem 0;
+      font-size: 0.85rem;
+      color: var(--light-text);
+      opacity: 0.8;
+    }
+
+    /* Apply button for autoclicker delay */
+    #applyDelayBtn {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--light-text);
+      border-radius: 30px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--light-text);
+      cursor: pointer;
+      margin-left: 4px;
+      font-size: 0.8rem;
+    }
+
+    #applyDelayBtn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Enhanced Clear all sounds button with much more satisfying pop effect */
+    #clearAllSoundsBtn {
+      width: 100%;
+      margin-top: 0.5rem;
+      background-color: rgba(255, 0, 0, 0.2);
+      color: var(--light-text);
+      border: 1px solid var(--light-text);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Clear button pop animation */
+    @keyframes buttonPop {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.15);
+      }
+
+      75% {
+        transform: scale(0.95);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* Ripple effect */
+    @keyframes ripple {
+      0% {
+        transform: scale(0);
+        opacity: 0.5;
+      }
+
+      100% {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    #clearAllSoundsBtn.active {
+      animation: buttonPop 0.4s ease-in-out;
+      background-color: rgba(255, 0, 0, 0.4);
+    }
+
+    /* Ripple container to prevent glitches */
+    .ripple-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.4);
+      width: 100px;
+      height: 100px;
+      margin-top: -50px;
+      margin-left: -50px;
+      animation: ripple 0.6s ease-out;
+      pointer-events: none;
+    }
+
+    /* Animated overlay fade effect */
+    @keyframes fadeInOverlay {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOutOverlay {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1;
+    }
+
+    .overlay.fade-in {
+      display: block;
+      animation: fadeInOverlay 0.3s ease forwards;
+    }
+
+    .overlay.fade-out {
+      display: block;
+      animation: fadeOutOverlay 0.3s ease forwards;
+    }
+
+    /* Status message with enhanced fade animation */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOutDown {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    }
+
+    .status-message {
+      display: none;
+      padding: 0.5rem 1rem;
+      margin: 1rem auto;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      background-color: rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 80%;
+    }
+
+    .status-message.fade-in {
+      display: block;
+      animation: fadeInUp 0.3s ease forwards;
+    }
+
+    .status-message.fade-out {
+      display: block;
+      animation: fadeOutDown 0.3s ease forwards;
+    }
+
+    .status-message.success {
+      background-color: rgba(0, 255, 0, 0.1);
+      color: green;
+      border: 1px solid green;
+    }
+
+    .status-message.error {
+      background-color: rgba(255, 0, 0, 0.1);
+      color: red;
+      border: 1px solid red;
+    }
+
+    .status-message.info {
+      background-color: rgba(0, 0, 255, 0.1);
+      color: blue;
+      border: 1px solid blue;
+    }
+  </style>
 </head>
+
 <body>
-    <nav class="navbar">
-        <div class="logo">4SP</div>
-        <div class="nav-buttons">
-            <a href="index.html" class="btn secondary" style="border-radius: var(--pill-radius);">Home</a>
-            <a href="dashboard.html" class="btn secondary" style="border-radius: var(--pill-radius);">Dashboard</a>
-            <a href="account.html" class="btn primary" style="border-radius: var(--pill-radius);">Account</a>
-            <button class="btn secondary" id="logoutBtn" style="border-radius: var(--pill-radius);">Log Out</button>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <div class="options-dropdown">
+        <button class="btn secondary options-button">Options</button>
+        <div class="options-content" id="optionsMenu">
+          <div class="options-section">
+            <h3>Playback Options</h3>
+            <label>
+              <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
+            </label>
+            <label>
+              <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
+            </label>
+            <label id="autoClickDelayLabel" style="display: none;">
+              Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" />
+              <button id="applyDelayBtn">Apply</button>
+            </label>
+          </div>
+
+          <div class="options-section">
+            <h3>Management</h3>
+            <button id="clearAllSoundsBtn" class="btn secondary">
+              Clear All Sounds
+              <div class="ripple-container"></div>
+            </button>
+          </div>
+
+          <div class="keyboard-shortcuts">
+            <p><strong>Keyboard Shortcuts:</strong></p>
+            <p>Shift + C: Mute & clear all sounds</p>
+          </div>
         </div>
-    </nav>
-
-    <main class="container">
-        <h1>Account Information</h1>
-        <div class="account-grid">
-            <div class="account-info">
-                <h2>User Details</h2>
-                <p id="userEmail">Email: Loading...</p>
-                <p id="creationTime">Created: Loading...</p>
-
-                <div id="usernameSection">
-                    <h2>Username</h2>
-                    <p id="currentUsername">Loading...</p>
-                    <div class="username-input-group" id="addUsernameForm">
-                        <div class="input-wrapper">
-                            <input type="text" id="newUsername" placeholder="Enter Username" minlength="4" maxlength="16">
-                             <div class="username-buttons"> <button id="saveUsernameBtn" disabled>Save</button>
-                                <button id="cancelUsernameBtn" class="secondary cancel-username">Cancel</button> </div>
-                        </div>
-                        <p class="username-helper-text">Username must be 4-16 characters</p>
-                    </div>
-                    <button id="editUsernameBtn" class="username-change-btn">Change Username</button>
-                </div>
-
-                <div class="additional-info">
-                    <h3>Additional Information</h3>
-                    <p id="lastSignIn">Last Sign-in: Loading...</p>
-                    <p id="userUID">User ID: Loading...</p>
-                </div>
-            </div>
-
-            <div class="account-buttons">
-                <div class="popup-wrapper">
-                    <button id="changePasswordBtn" class="secondary">Change Password</button>
-                    <div id="changePasswordPopup" class="popup-menu">
-                        <h3>Change Password</h3>
-                        <label for="currentPasswordChange">Current Password:</label>
-                        <input type="password" id="currentPasswordChange" placeholder="Enter current password">
-
-                        <label for="newPasswordChange">New Password:</label>
-                        <input type="password" id="newPasswordChange" placeholder="Enter new password">
-                         <div class="popup-error" id="changePasswordError"></div>
-                        <div class="popup-buttons">
-                            <button class="cancel">Cancel</button>
-                            <button class="confirm" id="confirmPasswordChangeBtn" disabled>Change</button>
-                        </div>
-                    </div>
-                </div>
-
-                 <div class="popup-wrapper">
-                     <button id="editProfileBtn" class="edit-profile">Edit Profile</button>
-                     </div>
-
-                 <div class="popup-wrapper">
-                     <button id="manageSubscriptionsBtn" class="manage-subscriptions">Manage Subscriptions</button>
-                     </div>
-
-                <div class="popup-wrapper">
-                    <button id="deleteAccountBtn" class="danger">Delete Account</button>
-                    <div id="deleteAccountPopup" class="popup-menu">
-                        <h3>Confirm Account Deletion</h3>
-                        <p>This action is permanent and cannot be undone. To confirm, please enter your current password.</p>
-                        <label for="currentPasswordDelete">Current Password:</label>
-                        <input type="password" id="currentPasswordDelete" placeholder="Enter current password">
-                        <div class="popup-error" id="deleteAccountError"></div>
-                        <div class="popup-buttons">
-                            <button class="cancel">Cancel</button>
-                            <button class="danger-confirm" id="confirmDeleteAccountBtn" disabled>Delete Account</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer>
-        <p>© 2025 4SP</p>
-    </footer>
-
-    <div class="overlay" id="overlay"></div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Get Firebase Auth and Firestore references from firebase-config.js initialization
-            const auth = firebase.auth();
-            const db = firebase.firestore();
-
-            // DOM elements for account display
-            const userEmailElement = document.getElementById('userEmail');
-            const creationTimeElement = document.getElementById('creationTime');
-            const currentUsernameElement = document.getElementById('currentUsername');
-            const addUsernameForm = document.getElementById('addUsernameForm');
-            const newUsernameInput = document.getElementById('newUsername');
-            const saveUsernameBtn = document.getElementById('saveUsernameBtn');
-            const editUsernameBtn = document.getElementById('editUsernameBtn');
-            const usernameHelperText = document.querySelector('.username-helper-text');
-            const changePasswordBtn = document.getElementById('changePasswordBtn');
-            const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const lastSignInElement = document.getElementById('lastSignIn');
-            const userUIDElement = document.getElementById('userUID');
-            const editProfileBtn = document.getElementById('editProfileBtn');
-            const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
-
-            // New DOM element for Cancel Username button
-            const cancelUsernameBtn = document.getElementById('cancelUsernameBtn');
-
-
-            // DOM elements for Popups (existing)
-            const changePasswordPopup = document.getElementById('changePasswordPopup');
-            const currentPasswordChangeInput = document.getElementById('currentPasswordChange');
-            const newPasswordChangeInput = document.getElementById('newPasswordChange');
-            const confirmPasswordChangeBtn = document.getElementById('confirmPasswordChangeBtn');
-            const changePasswordErrorElement = document.getElementById('changePasswordError');
-
-            const deleteAccountPopup = document.getElementById('deleteAccountPopup');
-            const currentPasswordDeleteInput = document.getElementById('currentPasswordDelete');
-            const confirmDeleteAccountBtn = document.getElementById('confirmDeleteAccountBtn');
-            const deleteAccountErrorElement = document.getElementById('deleteAccountError');
-
-            // Overlay element (existing)
-            const overlay = document.getElementById('overlay');
-
-            // Get all cancel buttons within any popup (existing)
-            const cancelButtons = document.querySelectorAll('.popup-menu .cancel');
-
-             // Get CSS variable for animation duration (existing)
-            const style = getComputedStyle(document.documentElement);
-            const animationDuration = parseFloat(style.getPropertyValue('--animation-duration')) * 1000; // Convert to ms
-
-
-            // Apply pill shape styling to nav buttons (if not already applied via CSS) (existing)
-            document.querySelectorAll('.nav-buttons .btn').forEach(button => {
-                button.style.borderRadius = 'var(--pill-radius)';
-            });
-
-            // Username validation function (existing)
-            function validateUsername(username) {
-                if (username.length < 4) {
-                    return { valid: false, message: 'Username must be at least 4 characters' };
-                } else if (username.length > 16) {
-                    return { valid: false, message: 'Username cannot exceed 16 characters' };
-                }
-                return { valid: true, message: 'Username is valid' };
-            }
-
-             // Password validation function (simple check for new password) (existing)
-             function validatePassword(password) {
-                 // Example: require at least 6 characters
-                 if (password.length < 6) {
-                     return { valid: false, message: 'Password must be at least 6 characters.' };
-                 }
-                 return { valid: true, message: '' };
-             }
-
-
-            // Function to show a popup with animation (existing)
-            function showPopup(popupElement) {
-                 // Hide any other active popups first
-                 hideAllPopups();
-
-                 // Clear input fields and errors in the target popup
-                 const inputs = popupElement.querySelectorAll('input[type="password"]');
-                 inputs.forEach(input => {
-                     input.value = '';
-                     input.classList.remove('invalid');
-                 });
-                 const errorElement = popupElement.querySelector('.popup-error');
-                 if (errorElement) {
-                     errorElement.textContent = '';
-                 }
-
-                 // Remove any lingering animation classes
-                 popupElement.classList.remove('fade-out-down');
-                 overlay.classList.remove('fade-out-overlay');
-
-                 // Apply active classes to trigger fade-in animation
-                 overlay.style.display = 'block'; // Show overlay immediately before animation
-                 overlay.classList.add('fade-in-overlay');
-
-                 popupElement.style.display = 'block'; // Show popup immediately before animation
-                 popupElement.classList.add('fade-in-up');
-
-                 // Manage button states based on inputs
-                 if(popupElement.id === 'changePasswordPopup') toggleChangePasswordButtonState();
-                 if(popupElement.id === 'deleteAccountPopup') confirmDeleteAccountBtn.disabled = true; // Disable delete button initially
-            }
-
-             // Function to hide a popup with animation (existing)
-            function hidePopup(popupElement) {
-                 // Apply fade-out animation classes
-                 popupElement.classList.remove('fade-in-up');
-                 popupElement.classList.add('fade-out-down');
-
-                 overlay.classList.remove('fade-in-overlay');
-                 overlay.classList.add('fade-out-overlay');
-
-                 // Set display to 'none' after the animation duration
-                 setTimeout(() => {
-                      // Only hide if this is still the active fade-out animation
-                      if (popupElement.classList.contains('fade-out-down')) {
-                         popupElement.style.display = 'none';
-                         popupElement.classList.remove('fade-out-down'); // Clean up class
-                      }
-                       if (overlay.classList.contains('fade-out-overlay')) {
-                           overlay.style.display = 'none';
-                           overlay.classList.remove('fade-out-overlay'); // Clean up class
-                       }
-                 }, animationDuration); // Match CSS animation duration
-            }
-
-            // Function to hide all popups and the overlay (existing)
-            function hideAllPopups() {
-                document.querySelectorAll('.popup-menu.fade-in-up').forEach(popup => {
-                    hidePopup(popup);
-                });
-                 // If any popup was active, the overlay hide is handled by hidePopup
-                 // If no popup was active but overlay somehow visible, this ensures it hides
-                 if (overlay.style.display === 'block' && !overlay.classList.contains('fade-in-overlay')) {
-                      // Create a temporary object that mimics a popup element for the hidePopup logic
-                      const dummyPopup = {
-                           classList: { remove: (cls) => {}, add: (cls) => {}, contains: (cls) => cls === 'fade-out-down' },
-                           style: { display: 'block' }, // Simulate it being visible
-                           querySelector: (selector) => null // No internal elements to clear
-                       };
-                      hidePopup(dummyPopup);
-                 }
-            }
-
-
-            // Close popups when clicking outside (existing)
-            document.addEventListener('click', (event) => {
-                 // Check if the click is outside any popup-wrapper AND the overlay is active
-                 // Check if the click target is the overlay itself
-                 const isClickInsidePopupWrapper = event.target.closest('.popup-wrapper');
-                 const isClickOnOverlay = event.target === overlay;
-                 const isOverlayActive = overlay.style.display === 'block';
-
-                 // If the overlay is active and the click is outside a popup-wrapper OR directly on the overlay
-                 if (isOverlayActive && (!isClickInsidePopupWrapper || isClickOnOverlay)) {
-                     hideAllPopups();
-                 }
-            });
-
-
-            // Listen for authentication state changes (existing)
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    // Display basic user info
-                    userEmailElement.textContent = `Email: ${user.email}`;
-                    const creationDate = new Date(user.metadata.creationTime);
-                    creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
-                    lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
-                    userUIDElement.textContent = `User ID: ${user.uid}`;
-
-                    // Attempt to fetch existing username from Firestore
-                    const userDoc = await db.collection('users').doc(user.uid).get();
-                    if (userDoc.exists && userDoc.data().username) {
-                        currentUsernameElement.textContent = userDoc.data().username;
-                        addUsernameForm.style.display = 'none';
-                        editUsernameBtn.style.display = 'inline-block';
-                    } else {
-                        currentUsernameElement.textContent = 'No username set.';
-                        addUsernameForm.style.display = 'flex';
-                        editUsernameBtn.style.display = 'none';
-                    }
-                } else {
-                    // Redirect to home if not signed in
-                    window.location.href = 'index.html';
-                }
-            });
-
-            // Allow editing the username (existing)
-            editUsernameBtn.addEventListener('click', () => {
-                hideAllPopups(); // Hide popups when changing username
-                currentUsernameElement.style.display = 'none';
-                editUsernameBtn.style.display = 'none';
-                addUsernameForm.style.display = 'flex';
-                const currentUsername = currentUsernameElement.textContent === 'No username set.' ? '' : currentUsernameElement.textContent;
-                newUsernameInput.value = currentUsername;
-
-                // Clear previous status/errors and reset text
-                 usernameHelperText.textContent = 'Username must be 4-16 characters';
-                 usernameHelperText.classList.remove('error', 'success'); // IMPORTANT: clear error/success classes
-
-
-                // Trigger validation for the current username (or empty)
-                const event = new Event('input', { bubbles: true });
-                newUsernameInput.dispatchEvent(event); // Always dispatch to set initial button state correctly
-
-            });
-
-            // Save the new username to Firestore for the user - MODIFIED LOGIC FOR FEEDBACK
-            saveUsernameBtn.addEventListener('click', async () => {
-                 // hideAllPopups(); // Decided to keep form open for feedback on save attempt
-                const newUsername = newUsernameInput.value.trim();
-                const validation = validateUsername(newUsername);
-
-                // Clear previous status/errors before trying to save
-                usernameHelperText.textContent = 'Saving...'; // Indicate saving state
-                usernameHelperText.classList.remove('error', 'success');
-                usernameHelperText.style.color = 'var(--info-text)'; // Use info color for saving
-
-                saveUsernameBtn.disabled = true; // Disable while saving
-
-                if (validation.valid) {
-                    const user = auth.currentUser;
-                    if (user) {
-                        try {
-                            // Save or update the username for this user
-                            await db.collection('users').doc(user.uid).set({ username: newUsername }, { merge: true });
-
-                            // Success feedback
-                            usernameHelperText.textContent = 'Username saved successfully!';
-                            usernameHelperText.classList.remove('error');
-                            usernameHelperText.classList.add('success');
-
-                            // Update display after successful save
-                            currentUsernameElement.textContent = newUsername;
-                            currentUsernameElement.style.display = 'block';
-                            addUsernameForm.style.display = 'none';
-                            editUsernameBtn.style.display = 'inline-block';
-
-                            // Reset input and validation state after successful save and hiding form
-                            newUsernameInput.value = '';
-                            newUsernameInput.classList.remove('valid', 'invalid');
-                             // Helper text reset will happen next time form is opened or stays as success briefly
-
-                        } catch (error) {
-                            console.error("Error saving username:", error);
-                            // Display error in helper text
-                            let errorMessage = `Error saving username: ${error.message}`;
-                            if (error.code === 'firestore/permission-denied') {
-                                 errorMessage = 'Permission denied. Check Firestore security rules or user authentication.';
-                            } else if (error.code === 'firestore/unavailable') {
-                                 errorMessage = 'Firestore is unavailable. Check your connection.';
-                            }
-                            // Add more specific error handling based on potential Firestore errors
-
-                            usernameHelperText.textContent = errorMessage;
-                            usernameHelperText.classList.remove('success');
-                            usernameHelperText.classList.add('error');
-                             // Maybe mark input invalid? Depends on error type, let's not by default
-                             // newUsernameInput.classList.add('invalid');
-
-                             saveUsernameBtn.disabled = false; // Re-enable button on failure
-                        }
-                    } else {
-                         // Should not happen if auth state is managed, but good practice
-                         usernameHelperText.textContent = 'User not authenticated.';
-                         usernameHelperText.classList.remove('success');
-                         usernameHelperText.classList.add('error');
-                         saveUsernameBtn.disabled = false;
-                    }
-                } else {
-                    // This case should ideally be prevented by button disabled state,
-                    // but handle defensively: Re-display validation error
-                    usernameHelperText.textContent = validation.message;
-                    usernameHelperText.classList.remove('success');
-                    usernameHelperText.classList.add('error');
-                     newUsernameInput.classList.add('invalid');
-                     saveUsernameBtn.disabled = false; // Re-enable if disabled erroneously
-                }
-            });
-
-            // Update cancel button to clear error/success states (existing but ensuring cleanup)
-            cancelUsernameBtn.addEventListener('click', () => {
-                 // Hide the username change form
-                 addUsernameForm.style.display = 'none';
-
-                 // Show the current username and the edit button
-                 currentUsernameElement.style.display = 'block';
-                 editUsernameBtn.style.display = 'inline-block';
-
-                 // Clear the input field and reset validation/button state
-                 newUsernameInput.value = '';
-                 newUsernameInput.classList.remove('valid', 'invalid');
-                 usernameHelperText.textContent = 'Username must be 4-16 characters'; // Reset helper text
-                 usernameHelperText.classList.remove('error', 'success'); // IMPORTANT: Clear error/success classes
-                 saveUsernameBtn.disabled = true; // Disable save button
-            });
-
-
-            // --- Password Change Popup Logic --- (existing)
-            changePasswordBtn.addEventListener('click', (event) => {
-                event.stopPropagation(); // Prevent click from immediately closing the popup via document listener
-                showPopup(changePasswordPopup);
-            });
-
-            // Enable/disable Confirm Change button based on input (existing)
-            currentPasswordChangeInput.addEventListener('input', toggleChangePasswordButtonState);
-            newPasswordChangeInput.addEventListener('input', toggleChangePasswordButtonState);
-
-            function toggleChangePasswordButtonState() {
-                 const currentPass = currentPasswordChangeInput.value.trim();
-                 const newPass = newPasswordChangeInput.value.trim();
-                 const isNewPassValid = validatePassword(newPass).valid;
-
-                 // Button is enabled only if both fields have content AND new password is valid
-                 confirmPasswordChangeBtn.disabled = !currentPass || !newPass || !isNewPassValid;
-
-                  // Basic validation feedback for new password while typing
-                 if (newPass && !isNewPassValid) {
-                     newPasswordChangeInput.classList.add('invalid');
-                      changePasswordErrorElement.textContent = validatePassword(newPass).message;
-                      changePasswordErrorElement.style.color = 'var(--validation-error)';
-                 } else {
-                     newPasswordChangeInput.classList.remove('invalid');
-                      // Only clear the error message if the new password is valid OR empty
-                     if (changePasswordErrorElement.textContent === validatePassword(newPass).message || newPass === '') {
-                          changePasswordErrorElement.textContent = '';
-                     }
-                 }
-                 // Also clear current password invalid state on input
-                 currentPasswordChangeInput.classList.remove('invalid');
-                 if (changePasswordErrorElement.textContent === "Incorrect current password.") {
-                     changePasswordErrorElement.textContent = '';
-                 }
-
-            }
-
-
-            confirmPasswordChangeBtn.addEventListener('click', async () => {
-                const user = auth.currentUser;
-                if (!user) return; // Should not happen if button is visible, but good practice
-
-                const currentPassword = currentPasswordChangeInput.value;
-                const newPassword = newPasswordChangeInput.value;
-                 const changeErrorDisplay = changePasswordErrorElement;
-
-                changeErrorDisplay.textContent = ''; // Clear previous errors
-                 confirmPasswordChangeBtn.disabled = true; // Prevent double clicking
-
-                try {
-                    // Validate new password again just before the action
-                    const newPassValidation = validatePassword(newPassword);
-                    if (!newPassValidation.valid) {
-                         changeErrorDisplay.textContent = newPassValidation.message;
-                         newPasswordChangeInput.classList.add('invalid');
-                         confirmPasswordChangeBtn.disabled = false; // Re-enable button
-                         return; // Stop here
-                    }
-                     newPasswordChangeInput.classList.remove('invalid'); // Clear if it was invalid before
-
-                    // Reauthenticate the user with their current password
-                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
-                    await user.reauthenticateWithCredential(credential);
-
-                    // If reauthentication succeeds, update the password
-                    await user.updatePassword(newPassword);
-
-                    // Success message and clear/hide
-                    changeErrorDisplay.textContent = 'Password updated successfully!';
-                    changeErrorDisplay.style.color = 'var(--validation-success)'; // Use success color
-                    currentPasswordChangeInput.value = ''; // Clear inputs
-                    newPasswordChangeInput.value = '';
-                    newPasswordChangeInput.classList.remove('invalid'); // Clear invalid state
-                    confirmPasswordChangeBtn.disabled = false; // Re-enable button
-
-
-                    // Hide the popup after a short delay to show success message
-                    setTimeout(() => {
-                         hidePopup(changePasswordPopup);
-                         // Clear state after hiding
-                         changeErrorDisplay.textContent = '';
-                         newPasswordChangeInput.classList.remove('invalid');
-                         currentPasswordChangeInput.classList.remove('invalid');
-                    }, 2000); // Wait 2 seconds before hiding
-
-                } catch (error) {
-                    console.error("Error changing password:", error);
-                    let errorMessage = "Failed to change password. Please try again.";
-
-                    if (error.code === 'auth/wrong-password') {
-                        errorMessage = "Incorrect current password.";
-                        currentPasswordChangeInput.classList.add('invalid');
-                    } else if (error.code === 'auth/requires-recent-login') {
-                        errorMessage = "Please log in again recently to change your password.";
-                         // Optionally hide the popup and prompt re-login, or keep it open
-                    } else if (error.code === 'auth/weak-password') {
-                         errorMessage = "New password is too weak.";
-                          newPasswordChangeInput.classList.add('invalid');
-                    } else if (error.code === 'auth/invalid-email') {
-                         errorMessage = "Invalid user email.";
-                    } else if (error.code === 'auth/invalid-credential') {
-                         errorMessage = "Invalid credentials provided."; // Sometimes overlaps with wrong-password
-                         currentPasswordChangeInput.classList.add('invalid');
-                    }
-
-                    changeErrorDisplay.textContent = errorMessage;
-                    changeErrorDisplay.style.color = 'var(--validation-error)';
-                    confirmPasswordChangeBtn.disabled = false; // Re-enable button
-                }
-            });
-
-
-            // --- Delete Account Popup Logic --- (existing)
-            deleteAccountBtn.addEventListener('click', (event) => {
-                event.stopPropagation(); // Prevent click from immediately closing the popup via document listener
-                showPopup(deleteAccountPopup);
-            });
-
-            // Enable/disable Confirm Delete button based on current password input (existing)
-            currentPasswordDeleteInput.addEventListener('input', () => {
-                confirmDeleteAccountBtn.disabled = !currentPasswordDeleteInput.value.trim();
-                 currentPasswordDeleteInput.classList.remove('invalid'); // Clear invalid state on input
-                 deleteAccountErrorElement.textContent = ''; // Clear error on input
-            });
-
-            confirmDeleteAccountBtn.addEventListener('click', async () => {
-                const user = auth.currentUser;
-                if (!user) return; // Should not happen if button is visible
-
-                const currentPassword = currentPasswordDeleteInput.value;
-                 const deleteErrorDisplay = deleteAccountErrorElement;
-
-                deleteErrorDisplay.textContent = ''; // Clear previous errors
-                 confirmDeleteAccountBtn.disabled = true; // Prevent double clicking
-
-
-                try {
-                    // Reauthenticate the user with their current password
-                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
-                    await user.reauthenticateWithCredential(credential);
-
-                    // If reauthentication succeeds, delete the account
-                    await user.delete();
-
-                    // Account deleted, redirect to home
-                    alert("Account deleted successfully. Redirecting to home."); // Still using alert for final confirmation/info
-                    window.location.href = 'index.html';
-
-                } catch (error) {
-                    console.error("Error deleting account:", error);
-                     let errorMessage = "Failed to delete account. Please try again.";
-
-                     if (error.code === 'auth/wrong-password') {
-                         errorMessage = "Incorrect current password.";
-                         currentPasswordDeleteInput.classList.add('invalid');
-                     } else if (error.code === 'auth/requires-recent-login') {
-                          errorMessage = "Please log in again recently to delete your account.";
-                           // Optionally hide the popup and prompt re-login
-                     } else if (error.code === 'auth/invalid-email') {
-                         errorMessage = "Invalid user email.";
-                     } else if (error.code === 'auth/invalid-credential') {
-                          errorMessage = "Invalid credentials provided.";
-                          currentPasswordDeleteInput.classList.add('invalid');
-                     }
-
-
-                    deleteErrorDisplay.textContent = errorMessage;
-                    deleteErrorDisplay.style.color = 'var(--validation-error)';
-                    confirmDeleteAccountBtn.disabled = false; // Re-enable button
-                }
-            });
-
-            // --- Cancel Button Logic (for all popups) --- (existing)
-             cancelButtons.forEach(button => {
-                 button.addEventListener('click', (event) => {
-                     event.stopPropagation(); // Prevent document click listener from interfering
-                     const popup = button.closest('.popup-menu');
-                     if (popup) {
-                         hidePopup(popup);
-                         // Clear inputs and errors when cancelling
-                         const inputs = popup.querySelectorAll('input[type="password"]');
-                         inputs.forEach(input => {
-                             input.value = '';
-                             input.classList.remove('invalid');
-                         });
-                         const errorElement = popup.querySelector('.popup-error');
-                         if (errorElement) {
-                             errorElement.textContent = '';
-                         }
-                          // Re-disable confirm button on cancel
-                         if(popup.id === 'changePasswordPopup') toggleChangePasswordButtonState();
-                         if(popup.id === 'deleteAccountPopup') confirmDeleteAccountBtn.disabled = true;
-                     }
-                 });
-             });
-
-
-            // Placeholder for edit profile functionality (existing)
-            editProfileBtn.addEventListener('click', () => {
-                hideAllPopups(); // Hide other popups
-                alert("Edit profile functionality will be implemented soon!");
-            });
-
-            // Placeholder for manage subscriptions functionality (existing)
-            manageSubscriptionsBtn.addEventListener('click', () => {
-                hideAllPopups(); // Hide other popups
-                alert("Manage subscriptions functionality will be implemented soon!");
-            });
-
-
-            // Logout the user on button click (existing)
-            logoutBtn.addEventListener('click', async () => {
-                 hideAllPopups(); // Hide other popups
-                try {
-                    await auth.signOut();
-                    window.location.href = 'index.html';
-                } catch (error) {
-                    console.error("Logout error:", error);
-                    alert("Could not log out. Please try again."); // Still using alert for this
-                }
-            });
+      </div>
+      <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h1>Soundboard</h1>
+    <p>Click the buttons to play a sound!</p>
+
+    <div class="status-message" id="statusMessage"></div>
+
+    <div class="sound-section">
+      <h2>Normal Sounds</h2>
+      <div id="normalSoundsContainer" class="soundButtonsContainer normal">
+        <button class="sound-button">Sound 1</button>
+        <button class="sound-button">Sound 2</button>
+      </div>
+    </div>
+
+    <div class="sound-section">
+      <h2>Explicit Sounds</h2>
+      <div id="explicitSoundsContainer" class="soundButtonsContainer explicit">
+        <button class="sound-button">Sound X</button>
+        <button class="sound-button">Sound Y</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 4SP</p>
+  </footer>
+
+  <div class="overlay" id="overlay"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // DOM Elements
+      const normalSoundsContainer = document.getElementById('normalSoundsContainer');
+      const explicitSoundsContainer = document.getElementById('explicitSoundsContainer');
+      const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
+      const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
+      const autoClickDelayInput = document.getElementById('autoClickDelay');
+      const autoClickDelayLabel = document.getElementById('autoClickDelayLabel');
+      const applyDelayBtn = document.getElementById('applyDelayBtn');
+      const overlay = document.getElementById('overlay');
+      const optionsButton = document.querySelector('.options-button');
+      const optionsMenu = document.getElementById('optionsMenu');
+      const statusMessage = document.getElementById('statusMessage');
+      const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
+      const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const soundButtons = document.querySelectorAll('.sound-button'); // Select all sound buttons
+
+
+      // State variables
+      let playingAudios = [];
+      let autoClickInterval;
+      let requestAnimationFrameId = null;
+      let currentlyHoveredButton = null;
+      let statusMessageTimeout = null;
+      let menuIsOpen = false;
+      let isRippling = false; // Flag to prevent multiple ripples
+
+      // Enhanced show status message with proper fade animation
+      function showStatus(message, type = 'info') {
+        // Clear any existing timeout
+        if (statusMessageTimeout) {
+          clearTimeout(statusMessageTimeout);
+          statusMessage.classList.remove('fade-in', 'fade-out');
+        }
+
+        // Set the message and prepare to show it
+        statusMessage.textContent = message;
+        statusMessage.className = 'status-message ' + type;
+
+        // First check if already displayed, if so remove it briefly
+        if (statusMessage.style.display === 'block') {
+          statusMessage.classList.add('fade-out');
+
+          setTimeout(() => {
+            statusMessage.classList.remove('fade-out');
+            statusMessage.style.display = 'none';
+
+            // Then show the new message after a brief pause
+            setTimeout(() => {
+              statusMessage.style.display = 'block';
+              statusMessage.classList.add('fade-in');
+
+              // Set timeout to hide the message
+              statusMessageTimeout = setTimeout(() => {
+                statusMessage.classList.remove('fade-in');
+                statusMessage.classList.add('fade-out');
+
+                // When fadeout animation finishes, hide the element
+                setTimeout(() => {
+                  statusMessage.style.display = 'none';
+                  statusMessage.classList.remove('fade-out');
+                }, 300);
+              }, 3000);
+            }, 50);
+          }, 300);
+        } else {
+          // If not displayed, show it directly
+          statusMessage.style.display = 'block';
+          statusMessage.classList.add('fade-in');
+
+          // Set timeout to hide the message
+          statusMessageTimeout = setTimeout(() => {
+            statusMessage.classList.remove('fade-in');
+            statusMessage.classList.add('fade-out');
+
+            // When fadeout animation finishes, hide the element
+            setTimeout(() => {
+              statusMessage.style.display = 'none';
+              statusMessage.classList.remove('fade-out');
+            }, 300);
+          }, 3000);
+        }
+      }
+
+      // Open options menu with fade effect
+      function openOptionsMenu() {
+        if (menuIsOpen) return;
+
+        menuIsOpen = true;
+
+        // Show overlay with fade-in
+        overlay.style.display = 'block';
+        overlay.classList.add('fade-in');
+
+        // Show menu with fade-in
+        optionsMenu.style.display = 'block';
+        optionsMenu.classList.add('fade-in');
+      }
+
+      // Close options menu with fade effect
+      function closeOptionsMenu() {
+        if (!menuIsOpen) return;
+
+        menuIsOpen = false;
+
+        // Fade out the overlay
+        overlay.classList.remove('fade-in');
+        overlay.classList.add('fade-out');
+
+        // Fade out the menu
+        optionsMenu.classList.remove('fade-in');
+        optionsMenu.classList.add('fade-out');
+
+        // After animation completes, hide elements and reset classes
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          overlay.classList.remove('fade-out');
+
+          optionsMenu.style.display = 'none';
+          optionsMenu.classList.remove('fade-out');
+        }, 300);
+      }
+
+      // Fixed create ripple effect to prevent glitches
+      function createRipple(event) {
+        // Prevent multiple ripples
+        if (isRippling) return;
+        isRippling = true;
+
+        const button = event.currentTarget;
+        const circle = document.createElement("span");
+        const diameter = Math.max(button.clientWidth, button.clientHeight);
+        const radius = diameter / 2;
+
+        circle.style.width = circle.style.height = `${diameter}px`;
+        circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
+        circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
+        circle.classList.add("ripple");
+
+        const ripple = button.getElementsByClassName("ripple")[0];
+
+        if (ripple) {
+          ripple.remove();
+        }
+
+        button.appendChild(circle);
+        isRippling = false;
+      }
+
+      // Attach ripple effect to sound buttons
+      soundButtons.forEach(button => {
+        button.addEventListener('click', createRipple);
+      });
+
+
+      // Options button click event
+      optionsButton.addEventListener('click', () => {
+        if (menuIsOpen) {
+          closeOptionsMenu();
+        } else {
+          openOptionsMenu();
+        }
+      });
+
+      // Overlay click event
+      overlay.addEventListener('click', closeOptionsMenu);
+
+      // Clear all sounds button click event
+      clearAllSoundsBtn.addEventListener('click', function (event) {
+        // Create ripple effect on click
+        createRipple(event);
+
+        // Add the active class to trigger the animation
+        this.classList.add('active');
+
+        // Simulate clearing all sounds
+        showStatus('All sounds cleared!', 'success');
+
+        // After the animation completes, remove the active class
+        setTimeout(() => {
+          this.classList.remove('active');
+        }, 400); // Duration of the pop animation
+
+        // Stop all currently playing audios
+        playingAudios.forEach(audio => {
+          audio.pause();
+          audio.currentTime = 0;
         });
-    </script>
+        playingAudios = [];
+      });
+
+      // Auto-clicker functionality
+      function startAutoClicker() {
+        const delay = parseInt(autoClickDelayInput.value, 10);
+        if (isNaN(delay) || delay < 0) {
+          showStatus('Invalid auto-click delay.', 'error');
+          return;
+        }
+
+        autoClickInterval = setInterval(() => {
+          const buttons = document.querySelectorAll('.sound-button');
+          if (buttons.length > 0) {
+            const randomIndex = Math.floor(Math.random() * buttons.length);
+            const button = buttons[randomIndex];
+
+            // Create a simulated click event
+            const clickEvent = new MouseEvent('click', {
+              bubbles: true,
+              cancelable: true,
+              view: window
+            });
+            button.dispatchEvent(clickEvent); // Dispatch the event
+
+            // Simulate visual feedback
+            button.classList.add('active');
+            setTimeout(() => {
+              button.classList.remove('active');
+            }, 100);
+          }
+        }, delay);
+        showStatus('Auto clicker started.', 'info');
+      }
+
+      function stopAutoClicker() {
+        clearInterval(autoClickInterval);
+        showStatus('Auto clicker stopped.', 'info');
+      }
+
+      // Auto-clicker checkbox event
+      autoClickerCheckbox.addEventListener('change', function () {
+        if (this.checked) {
+          startAutoClicker();
+        } else {
+          stopAutoClicker();
+        }
+      });
+
+      // Apply delay button click event
+      applyDelayBtn.addEventListener('click', function () {
+        const delay = parseInt(autoClickDelayInput.value, 10);
+        if (isNaN(delay) || delay < 0) {
+          showStatus('Invalid auto-click delay.', 'error');
+          return;
+        }
+        clearInterval(autoClickInterval); // Clear existing interval
+        if (autoClickerCheckbox.checked) {
+          startAutoClicker(); // Restart with the new delay
+        }
+        showStatus(`Auto click delay set to ${delay}ms.`, 'success');
+      });
+
+      // Show/hide auto-click delay input based on checkbox state
+      autoClickerCheckbox.addEventListener('change', function () {
+        autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
+      });
+    });
+  </script>
 </body>
+
 </html>
