@@ -16,7 +16,7 @@
       --primary-action: var(--dark-bg);
       --secondary-action-text: var(--dark-bg);
       --secondary-action-bg: var(--light-gray);
-      --danger-action: #ff4d4d;
+      --danger-action: var(--primary-red);
       --light-text: #f0f0f0;
       --dark-bg: #1a1a1a;
       --light-gray: #e0e0e0;
@@ -34,6 +34,7 @@
       --modal-input-bg: #444;
       --modal-input-text-color: #eee;
       --primary-red: #ff1212;
+      --dark-red: #8b0000;
     }
 
     body {
@@ -152,7 +153,9 @@
     .account-buttons button {
       padding: 1rem 1.5rem;
       border-radius: var(--pill-radius);
-      border: none;
+      border: 2px solid var(--dark-bg);
+      background-color: transparent;
+      color: var(--dark-bg);
       font-size: 1rem;
       font-weight: 500;
       cursor: pointer;
@@ -168,43 +171,27 @@
     }
 
     .account-buttons button.secondary {
-      background-color: transparent;
-      color: var(--dark-bg);
-      border: 2px solid var(--dark-bg);
-    }
-
-    .account-buttons button.secondary:hover {
-      background-color: rgba(0, 0, 0, 0.05);
+      border-color: var(--dark-bg);
     }
 
     .account-buttons button.danger {
       background-color: var(--danger-action);
       color: var(--light-text);
-      border: 2px solid var(--dark-bg);
+      border: 2px solid var(--dark-red);
     }
 
-    .account-buttons button.danger:hover {
+    /* Modal & Forms */
+    /* ... keep unchanged modal styles ... */
+
+    .password-form button.delete {
+      background-color: var(--danger-action);
+      color: var(--light-text);
+      border: 2px solid var(--dark-red);
+      transition: background-color 0.2s ease;
+    }
+
+    .password-form button.delete:hover {
       background-color: #cc0000;
-    }
-
-    .additional-info {
-      margin-top: 1rem;
-      padding: 1rem;
-      background-color: var(--card-bg);
-      border-radius: var(--pill-radius);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--card-border);
-    }
-
-    .additional-info h3 {
-      font-size: 1.1rem;
-      margin-bottom: 0.75rem;
-      color: var(--dark-bg);
-    }
-
-    .additional-info p {
-      margin-bottom: 0.5rem;
-      color: var(--info-text);
     }
 
     /* Styles for the modal/popup */
@@ -363,31 +350,33 @@
       padding: 1rem 2.5rem;
     }
 
-      /* Styles for the logout button */
-      #logoutBtn {
-          background-color: var(--primary-action);
-          color: var(--light-text);
-          border: none;
-          border-radius: var(--pill-radius);
-          padding: 1rem 2rem;
-          font-size: 1rem;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-      }
+    /* Styles for the logout button */
+    #logoutBtn {
+      background-color: var(--primary-action);
+      color: var(--light-text);
+      border: none;
+      border-radius: var(--pill-radius);
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
 
-      #logoutBtn:hover {
-          background-color: var(--darker-bg);
-      }
+    #logoutBtn:hover {
+      background-color: var(--darker-bg);
+    }
 
-           /* Hide modals by default to prevent pre-load delay */
+    /* Hide modals by default to prevent pre-load delay */
     .modal {
       display: none;
-      pointer-events: none; /* Prevent interaction initially */
+      pointer-events: none;
+      /* Prevent interaction initially */
     }
 
     .modal.active {
       display: flex;
-      pointer-events: auto; /* Enable interaction when active */
+      pointer-events: auto;
+      /* Enable interaction when active */
     }
   </style>
 </head>
@@ -498,29 +487,29 @@
 
       // Functions
       const openModal = (modal) => {
-          modal.classList.remove('fade-out');
-          modal.classList.add('active','fade-in');
-         setTimeout(() => {
+        modal.classList.remove('fade-out');
+        modal.classList.add('active', 'fade-in');
+        setTimeout(() => {
           modal.style.opacity = 1;
-         }, 10);
-       };
+        }, 10);
+      };
 
       const closeModal = (modal) => {
         modal.classList.remove('fade-in');
         modal.classList.add('fade-out');
-           setTimeout(() => {
-            modal.classList.remove('active');
-              modal.style.opacity = 0;
-          }, 300);
+        setTimeout(() => {
+          modal.classList.remove('active');
+          modal.style.opacity = 0;
+        }, 300);
       };
 
       // Event Listeners
       changePasswordBtn.addEventListener('click', () => {
-          openModal(changePasswordModal);
+        openModal(changePasswordModal);
       });
 
       deleteAccountBtn.addEventListener('click', () => {
-          openModal(deleteAccountModal);
+        openModal(deleteAccountModal);
       });
 
       closeModalButtons.forEach(button => {
@@ -547,11 +536,10 @@
           // Show new password form
           passwordConfirmationForm.style.display = "none";
           changePasswordMessage.style.display = "block";
-          newPasswordForm.style.display = "flex";
+          newPasswordForm.style.display = "block";
 
         } catch (error) {
-          alert('Authentication failed. Please check your password.');
-          console.error('Authentication Error:', error);
+          alert('Incorrect password. Please try again.');
         }
       });
 
@@ -561,29 +549,35 @@
         const confirmNewPassword = confirmNewPasswordInput.value;
 
         if (newPassword !== confirmNewPassword) {
-          alert('New passwords do not match. Please try again.');
-          return;
-        }
-
-        if (newPassword.length < 6) {
-          alert('New password must be at least 6 characters long.');
+          alert("New passwords do not match. Please try again.");
           return;
         }
 
         try {
           const user = auth.currentUser;
           await user.updatePassword(newPassword);
-          alert('Password changed successfully!');
-          closeModal(changePasswordModal);
+          alert('Password updated successfully!');
+          closeModal(changePasswordModal); // Close modal after successful update
         } catch (error) {
-          console.error('Password change error:', error);
-          alert('Failed to change password. Please try again later.');
+          alert('Error updating password: ' + error.message);
+        }
+      });
+
+
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          await auth.signOut();
+          window.location.href = 'index.html';
+        } catch (error) {
+          console.error('Error signing out: ', error);
+          alert('Failed to log out. Please try again.');
         }
       });
 
       deleteAccountForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const password = deletePasswordInput.value;
+
         try {
           const user = auth.currentUser;
           const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
@@ -592,46 +586,25 @@
           alert('Account deleted successfully.');
           window.location.href = 'index.html';
         } catch (error) {
-          alert('Authentication failed. Please check your password.');
-          console.error('Authentication Error:', error);
-        } finally {
-           closeModal(deleteAccountModal);
+          alert('Error deleting account: ' + error.message);
         }
       });
 
-      // Placeholder Functionality
-      editProfileBtn.addEventListener('click', () => {
-        alert('Edit Profile functionality is not implemented yet.');
-      });
-
-      manageSubscriptionsBtn.addEventListener('click', () => {
-        alert('Manage Subscriptions functionality is not implemented yet.');
-      });
-
-      logoutBtn.addEventListener('click', async () => {
-        try {
-          await auth.signOut();
-          window.location.href = 'index.html';
-        } catch (error) {
-          console.error('Logout Error:', error);
-          alert('Failed to log out. Please try again.');
-        }
-      });
-
-      // Authentication State Listener
-      auth.onAuthStateChanged(async (user) => {
+      // Fetch user data and populate the account page
+      auth.onAuthStateChanged(user => {
         if (user) {
           userEmailElement.textContent = `Email: ${user.email}`;
-          const creationDate = new Date(user.metadata.creationTime);
-          creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
+          creationTimeElement.textContent = `Created: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
           lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
           userUIDElement.textContent = `User ID: ${user.uid}`;
         } else {
-          window.location.href = 'index.html';
+          // Redirect to login page if user is not logged in
+          window.location.href = 'login.html';
         }
       });
     });
   </script>
+
 </body>
 
 </html>
