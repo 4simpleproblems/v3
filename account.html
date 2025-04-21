@@ -224,8 +224,7 @@
       overflow: auto;
       background-color: var(--modal-bg);
       opacity: 0;
-      transition: opacity 0.3s ease;
-      /* Changed from height 0.3s */
+      transition: opacity 0.3s ease, height 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -317,7 +316,6 @@
       font-weight: 500;
       color: var(--light-text);
       transition: background-color 0.2s ease;
-      /* Inherit button style */
     }
 
     .password-form button.confirm {
@@ -341,33 +339,18 @@
       color: var(--modal-text-color);
       font-size: 1.75rem;
       font-weight: 600;
+      text-align: center; /* Centering the heading */
     }
 
     .modal p {
       color: rgba(240, 240, 240, 0.8);
-      margin-bottom: 0;
-    }
-
-    /* Specific style adjustments */
-    #confirmPasswordForm .password-form button {
-      margin-top: 1rem;
-    }
-
-    #changePasswordForm .password-form button {
-      margin-top: 0.5rem;
-    }
-
-    #deleteAccountModal .modal-content {
-      text-align: center;
-    }
-
-    #deleteAccountModal .modal-content p {
       margin-bottom: 1.5rem;
+      text-align: center; /* Centering the description */
     }
 
-    #deleteAccountModal .password-form button {
-      margin-top: 1.5rem;
-      padding: 1rem 2.5rem;
+    /* Make the form fit well*/
+    .password-confirmation-form{
+      margin-top: 3rem;
     }
   </style>
 </head>
@@ -415,12 +398,14 @@
     <div class="modal-content">
       <span class="close">&times;</span>
       <h2>Change Password</h2>
-      <p>To change your password, please confirm your current password first.</p>
-      <form class="password-form" id="confirmPasswordForm">
+      <p>Confirm your current password, then enter a new password.</p>
+      <form class="password-form password-confirmation-form" id="confirmPasswordForm">
         <label for="currentPassword">Current Password:</label>
         <input type="password" id="currentPassword" required>
         <button type="submit" class="confirm">Confirm Password</button>
       </form>
+
+        <p style="display:none;" id="change-password-message">Now enter your new password!</p>
       <form class="password-form" id="newPasswordForm" style="display: none;">
         <label for="newPassword">New Password:</label>
         <input type="password" id="newPassword" required minlength="6">
@@ -472,7 +457,7 @@
       const newPasswordInput = document.getElementById('newPassword');
       const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
       const deletePasswordInput = document.getElementById('deletePassword');
-      const modalContent = document.querySelectorAll('.modal-content');
+        const changePasswordMessage = document.getElementById('change-password-message')
 
       // Functions
       const openModal = (modal) => {
@@ -488,13 +473,10 @@
         modal.classList.add('fade-out');
 
         // Reset forms
-        if (modal.id === "changePasswordModal") {
-          passwordConfirmationForm.style.display = 'flex';
-          newPasswordForm.style.display = 'none';
-          currentPasswordInput.value = "";
-          newPasswordInput.value = "";
-          confirmNewPasswordInput.value = ""
-        }
+          passwordConfirmationForm.style.display = 'flex'
+          newPasswordForm.style.display = "none"
+             changePasswordMessage.style.display = "none"
+              currentPasswordInput.value = ""
 
         setTimeout(() => {
           modal.style.display = 'none';
@@ -531,10 +513,10 @@
           const user = auth.currentUser;
           const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
           await user.reauthenticateWithCredential(credential);
-          console.log('Reauthentication successful');
-          // Show new password form, use modal variable from openModal function
-          passwordConfirmationForm.style.display = "none";
-          newPasswordForm.style.display = "flex";
+            passwordConfirmationForm.style.display = "none"
+              changePasswordMessage.style.display = "block"
+                 newPasswordForm.style.display = "flex"
+
         } catch (error) {
           alert('Authentication failed. Please check your password.');
           console.error('Authentication Error:', error);
@@ -581,6 +563,9 @@
           alert('Authentication failed. Please check your password.');
           console.error('Authentication Error:', error);
         }
+         finally{
+          closeModal(deleteAccountModal);
+         }
       });
 
       // Placeholder Functionality
