@@ -243,18 +243,16 @@
         let filteredRequests = allRequests.filter(req => {
           if (isAdmin) {
             if (currentFilter === "all") {
-              // Modified here: "All Requests" now excludes deleted ones for admins too
-              return req.status !== "deleted";
+              return true; // Admin sees all requests
             } else if (currentFilter === "deleted") {
-              return req.status === "deleted";
+              return req.status === "deleted"; // Admin sees deleted requests
             } else {
-              return req.contentType === currentFilter && req.status !== "deleted";
+              return req.contentType === currentFilter; // Admin sees requests of a specific content type
             }
+          } else {
+            // Non-admin users only see non-deleted requests
+            return req.status !== "deleted" && (currentFilter === "all" || req.contentType === currentFilter);
           }
-          // For non-admin users, always hide requests with status "deleted"
-          if (req.status === "deleted") return false;
-          if (currentFilter === "all") return true;
-          return req.contentType === currentFilter;
         });
 
         // Apply sort order
