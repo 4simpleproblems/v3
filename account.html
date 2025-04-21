@@ -17,7 +17,6 @@
       --secondary-action-text: var(--dark-bg);
       --secondary-action-bg: var(--light-gray);
       --danger-action: #ff4d4d;
-      /* A brighter red for danger */
       --light-text: #f0f0f0;
       --dark-bg: #1a1a1a;
       --light-gray: #e0e0e0;
@@ -30,15 +29,10 @@
       --pill-radius: 50px;
       --modal-bg: rgba(0, 0, 0, 0.7);
       --modal-content-bg: #222;
-      /* Slightly lighter background */
       --modal-content-border: #666;
-      /* Medium-gray border */
       --modal-text-color: #ddd;
-      /* Soft white text */
       --modal-input-bg: #444;
-      /* Darker input */
       --modal-input-text-color: #eee;
-      /* Lighter input text */
       --primary-red: #ff1212;
     }
 
@@ -186,6 +180,7 @@
     .account-buttons button.danger {
       background-color: var(--danger-action);
       color: var(--light-text);
+      border: 2px solid var(--dark-bg);
     }
 
     .account-buttons button.danger:hover {
@@ -225,7 +220,6 @@
       background-color: var(--modal-bg);
       opacity: 0;
       transition: opacity 0.3s ease, height 0.3s ease;
-      display: flex;
       align-items: center;
       justify-content: center;
     }
@@ -254,7 +248,6 @@
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
-      /* Consistent spacing */
     }
 
     /* The Close Button */
@@ -339,13 +332,13 @@
       color: var(--modal-text-color);
       font-size: 1.75rem;
       font-weight: 600;
-      text-align: center; /* Centering the heading */
+      text-align: center;
     }
 
     .modal p {
       color: rgba(240, 240, 240, 0.8);
       margin-bottom: 1.5rem;
-      text-align: center; /* Centering the description */
+      text-align: center;
     }
 
     /* Specific style adjustments */
@@ -385,6 +378,17 @@
       #logoutBtn:hover {
           background-color: var(--darker-bg);
       }
+
+           /* Hide modals by default to prevent pre-load delay */
+    .modal {
+      display: none;
+      pointer-events: none; /* Prevent interaction initially */
+    }
+
+    .modal.active {
+      display: flex;
+      pointer-events: auto; /* Enable interaction when active */
+    }
   </style>
 </head>
 
@@ -415,8 +419,8 @@
 
       <div class="account-buttons">
         <button id="changePasswordBtn" class="secondary">Change Password</button>
-        <button id="editProfileBtn" class="secondary">Edit Profile</button>
-        <button id="manageSubscriptionsBtn" class="secondary">Manage Subscriptions</button>
+        <button id="editProfileBtn" class="edit-profile">Edit Profile</button>
+        <button id="manageSubscriptionsBtn" class="manage-subscriptions">Manage Subscriptions</button>
         <button id="deleteAccountBtn" class="danger">Delete Account</button>
       </div>
     </div>
@@ -494,38 +498,29 @@
 
       // Functions
       const openModal = (modal) => {
-        modal.classList.remove('fade-out');
-        modal.style.display = 'flex'; // Changed to flex for vertical alignment
-        setTimeout(() => {
-          modal.classList.add('fade-in');
-        }, 10);
-      };
+          modal.classList.remove('fade-out');
+          modal.classList.add('active','fade-in');
+         setTimeout(() => {
+          modal.style.opacity = 1;
+         }, 10);
+       };
 
       const closeModal = (modal) => {
         modal.classList.remove('fade-in');
         modal.classList.add('fade-out');
-
-        // Reset forms
-        setTimeout(() => {
-          modal.style.display = 'none';
-          if (modal === changePasswordModal) {
-            passwordConfirmationForm.style.display = 'flex';
-            newPasswordForm.style.display = 'none';
-            changePasswordMessage.style.display = 'none';
-            currentPasswordInput.value = "";
-            newPasswordInput.value = "";
-            confirmNewPasswordInput.value = "";
-          }
-        }, 300);
+           setTimeout(() => {
+            modal.classList.remove('active');
+              modal.style.opacity = 0;
+          }, 300);
       };
 
       // Event Listeners
       changePasswordBtn.addEventListener('click', () => {
-        openModal(changePasswordModal);
+          openModal(changePasswordModal);
       });
 
       deleteAccountBtn.addEventListener('click', () => {
-        openModal(deleteAccountModal);
+          openModal(deleteAccountModal);
       });
 
       closeModalButtons.forEach(button => {
@@ -600,7 +595,7 @@
           alert('Authentication failed. Please check your password.');
           console.error('Authentication Error:', error);
         } finally {
-          closeModal(deleteAccountModal);
+           closeModal(deleteAccountModal);
         }
       });
 
