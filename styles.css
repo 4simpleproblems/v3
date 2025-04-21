@@ -56,7 +56,7 @@ a {
   background: white;
   border-radius: 28px;
   padding: 3rem;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--light-gray);
   width: 100%;
   max-width: 480px;
@@ -126,7 +126,7 @@ input[type="password"] {
 
 .google-auth:hover {
   background-color: #f8f8f8;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .google-icon {
@@ -213,7 +213,7 @@ input[type="password"] {
   color: var(--dark-bg);
   overflow: hidden;
   height: var(--tile-height);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--light-gray);
 }
 
@@ -303,7 +303,7 @@ input[type="password"] {
 }
 
 .btn:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ===== HERO CARD ===== */
@@ -311,7 +311,7 @@ input[type="password"] {
   background: white;
   border-radius: 28px;
   padding: 4rem;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--light-gray);
   text-align: center;
   max-width: 900px;
