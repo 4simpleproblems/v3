@@ -16,7 +16,7 @@
       --primary-action: var(--dark-bg);
       --secondary-action-text: var(--dark-bg);
       --secondary-action-bg: var(--light-gray);
-      --danger-action: var(--primary-red);
+      --danger-action: #ff4d4d;
       --light-text: #f0f0f0;
       --dark-bg: #1a1a1a;
       --light-gray: #e0e0e0;
@@ -34,7 +34,6 @@
       --modal-input-bg: #444;
       --modal-input-text-color: #eee;
       --primary-red: #ff1212;
-      --dark-red: #8b0000;
     }
 
     body {
@@ -154,68 +153,86 @@
       padding: 1rem 1.5rem;
       border-radius: var(--pill-radius);
       border: 2px solid var(--dark-bg);
-      background-color: transparent;
-      color: var(--dark-bg);
       font-size: 1rem;
       font-weight: 500;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease, color 0.3s ease;
       text-align: center;
       width: 100%;
       display: inline-block;
       box-sizing: border-box;
+      background-color: transparent;
+      color: var(--dark-bg);
     }
 
     .account-buttons button:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      background-color: rgba(0, 0, 0, 0.1);
     }
 
     .account-buttons button.secondary {
-      border-color: var(--dark-bg);
+      background-color: transparent;
+      color: var(--dark-bg);
+      border: 2px solid var(--dark-bg);
+    }
+
+    .account-buttons button.secondary:hover {
+      background-color: rgba(0, 0, 0, 0.05);
     }
 
     .account-buttons button.danger {
       background-color: var(--danger-action);
       color: var(--light-text);
-      border: 2px solid var(--dark-red);
+      border: none;
     }
 
-    /* Modal & Forms */
-    /* ... keep unchanged modal styles ... */
-
-    .password-form button.delete {
-      background-color: var(--danger-action);
-      color: var(--light-text);
-      border: 2px solid var(--dark-red);
-      transition: background-color 0.2s ease;
-    }
-
-    .password-form button.delete:hover {
+    .account-buttons button.danger:hover {
       background-color: #cc0000;
+    }
+
+    .additional-info {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: var(--card-bg);
+      border-radius: var(--pill-radius);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--card-border);
+    }
+
+    .additional-info h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      color: var(--dark-bg);
+    }
+
+    .additional-info p {
+      margin-bottom: 0.5rem;
+      color: var(--info-text);
     }
 
     /* Styles for the modal/popup */
     .modal {
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0s linear 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: none;
       position: fixed;
       z-index: 1000;
       left: 0;
       top: 0;
       width: 100%;
       height: 100%;
+      overflow: auto;
       background-color: var(--modal-bg);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      align-items: center;
+      justify-content: center;
     }
 
-    /* Show modal (fade in) */
-    .modal.show {
+    .modal.fade-in {
       opacity: 1;
-      visibility: visible;
-      transition: opacity 0.3s ease, visibility 0s linear 0s;
+    }
+
+    .modal.fade-out {
+      opacity: 0;
+      pointer-events: none;
     }
 
     /* Modal Content/Box */
@@ -326,55 +343,9 @@
       text-align: center;
     }
 
-    /* Specific style adjustments */
-    #confirmPasswordForm .password-form button {
-      margin-top: 1rem;
-    }
-
-    #changePasswordForm .password-form button {
-      margin-top: 0.5rem;
-    }
-
-    #deleteAccountModal .modal-content {
-      text-align: center;
-    }
-
-    #deleteAccountModal .modal-content p {
-      margin-bottom: 1.5rem;
-    }
-
-    #deleteAccountModal .password-form button {
-      margin-top: 1.5rem;
-      padding: 1rem 2.5rem;
-    }
-
-    /* Styles for the logout button */
-    #logoutBtn {
-      background-color: var(--primary-action);
-      color: var(--light-text);
-      border: none;
-      border-radius: var(--pill-radius);
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    #logoutBtn:hover {
-      background-color: var(--darker-bg);
-    }
-
-    /* Hide modals by default to prevent pre-load delay */
-    .modal {
-      display: none;
-      pointer-events: none;
-      /* Prevent interaction initially */
-    }
-
-    .modal.active {
-      display: flex;
-      pointer-events: auto;
-      /* Enable interaction when active */
+    /* Make the form fit well*/
+    .password-confirmation-form {
+      margin-top: 3rem;
     }
   </style>
 </head>
@@ -406,8 +377,8 @@
 
       <div class="account-buttons">
         <button id="changePasswordBtn" class="secondary">Change Password</button>
-        <button id="editProfileBtn" class="edit-profile">Edit Profile</button>
-        <button id="manageSubscriptionsBtn" class="manage-subscriptions">Manage Subscriptions</button>
+        <button id="editProfileBtn" class="secondary">Edit Profile</button>
+        <button id="manageSubscriptionsBtn" class="secondary">Manage Subscriptions</button>
         <button id="deleteAccountBtn" class="danger">Delete Account</button>
       </div>
     </div>
@@ -485,11 +456,26 @@
 
       // Functions
       const openModal = (modal) => {
-        modal.classList.add('show');
+        modal.style.display = 'flex';
+        modal.classList.add('fade-in');
+        modal.setAttribute('aria-hidden', 'false'); /* make modal accessible */
       };
 
       const closeModal = (modal) => {
-        modal.classList.remove('show');
+        modal.classList.remove('fade-in');
+        modal.classList.add('fade-out');
+         modal.setAttribute('aria-hidden', 'true');  /* make modal inaccessible */
+        setTimeout(() => {
+          modal.style.display = 'none';
+          if (modal === changePasswordModal) {
+            passwordConfirmationForm.style.display = 'flex';
+            newPasswordForm.style.display = 'none';
+            changePasswordMessage.style.display = 'none';
+            currentPasswordInput.value = "";
+            newPasswordInput.value = "";
+            confirmNewPasswordInput.value = "";
+          }
+        }, 300);
       };
 
       // Event Listeners
@@ -525,10 +511,11 @@
           // Show new password form
           passwordConfirmationForm.style.display = "none";
           changePasswordMessage.style.display = "block";
-          newPasswordForm.style.display = "block";
+          newPasswordForm.style.display = "flex";
 
         } catch (error) {
-          alert('Incorrect password. Please try again.');
+          alert('Authentication failed. Please check your password.');
+          console.error('Authentication Error:', error);
         }
       });
 
@@ -538,35 +525,29 @@
         const confirmNewPassword = confirmNewPasswordInput.value;
 
         if (newPassword !== confirmNewPassword) {
-          alert("New passwords do not match. Please try again.");
+          alert('New passwords do not match. Please try again.');
+          return;
+        }
+
+        if (newPassword.length < 6) {
+          alert('New password must be at least 6 characters long.');
           return;
         }
 
         try {
           const user = auth.currentUser;
           await user.updatePassword(newPassword);
-          alert('Password updated successfully!');
-          closeModal(changePasswordModal); // Close modal after successful update
+          alert('Password changed successfully!');
+          closeModal(changePasswordModal);
         } catch (error) {
-          alert('Error updating password: ' + error.message);
-        }
-      });
-
-
-      logoutBtn.addEventListener('click', async () => {
-        try {
-          await auth.signOut();
-          window.location.href = 'index.html';
-        } catch (error) {
-          console.error('Error signing out: ', error);
-          alert('Failed to log out. Please try again.');
+          console.error('Password change error:', error);
+          alert('Failed to change password. Please try again later.');
         }
       });
 
       deleteAccountForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const password = deletePasswordInput.value;
-
         try {
           const user = auth.currentUser;
           const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
@@ -575,25 +556,46 @@
           alert('Account deleted successfully.');
           window.location.href = 'index.html';
         } catch (error) {
-          alert('Error deleting account: ' + error.message);
+          alert('Authentication failed. Please check your password.');
+          console.error('Authentication Error:', error);
+        } finally {
+          closeModal(deleteAccountModal);
         }
       });
 
-      // Fetch user data and populate the account page
-      auth.onAuthStateChanged(user => {
+      // Placeholder Functionality
+      editProfileBtn.addEventListener('click', () => {
+        alert('Edit Profile functionality is not implemented yet.');
+      });
+
+      manageSubscriptionsBtn.addEventListener('click', () => {
+        alert('Manage Subscriptions functionality is not implemented yet.');
+      });
+
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          await auth.signOut();
+          window.location.href = 'index.html';
+        } catch (error) {
+          console.error('Logout Error:', error);
+          alert('Failed to log out. Please try again.');
+        }
+      });
+
+      // Authentication State Listener
+      auth.onAuthStateChanged(async (user) => {
         if (user) {
           userEmailElement.textContent = `Email: ${user.email}`;
-          creationTimeElement.textContent = `Created: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
+          const creationDate = new Date(user.metadata.creationTime);
+          creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
           lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
           userUIDElement.textContent = `User ID: ${user.uid}`;
         } else {
-          // Redirect to login page if user is not logged in
-          window.location.href = 'login.html';
+          window.location.href = 'index.html';
         }
       });
     });
   </script>
-
 </body>
 
 </html>
