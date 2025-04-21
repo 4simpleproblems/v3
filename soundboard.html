@@ -719,9 +719,11 @@
       });
 
       // Auto clicker functionality
+      let autoClickInterval;
+
       function startAutoClick() {
         let delay = parseInt(autoClickDelayInput.value, 10);
-        if (isNaN(delay) || delay < 0) {
+        if (isNaN(delay) || delay <= 0) {
           delay = 1000;
           autoClickDelayInput.value = delay;
         }
@@ -729,8 +731,12 @@
         stopAutoClick(); // Clear existing interval
 
         autoClickInterval = setInterval(() => {
-          if (currentlyHoveredButton) {
-            currentlyHoveredButton.click();
+          const buttons = document.querySelectorAll('.sound-button');
+          if (buttons.length > 0) {
+            // Select a random button to click
+            const randomIndex = Math.floor(Math.random() * buttons.length);
+            const button = buttons[randomIndex];
+            button.click();
           }
         }, delay);
       }
