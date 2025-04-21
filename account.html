@@ -348,10 +348,43 @@
       text-align: center; /* Centering the description */
     }
 
-    /* Make the form fit well*/
-    .password-confirmation-form{
-      margin-top: 3rem;
+    /* Specific style adjustments */
+    #confirmPasswordForm .password-form button {
+      margin-top: 1rem;
     }
+
+    #changePasswordForm .password-form button {
+      margin-top: 0.5rem;
+    }
+
+    #deleteAccountModal .modal-content {
+      text-align: center;
+    }
+
+    #deleteAccountModal .modal-content p {
+      margin-bottom: 1.5rem;
+    }
+
+    #deleteAccountModal .password-form button {
+      margin-top: 1.5rem;
+      padding: 1rem 2.5rem;
+    }
+
+      /* Styles for the logout button */
+      #logoutBtn {
+          background-color: var(--primary-action);
+          color: var(--light-text);
+          border: none;
+          border-radius: var(--pill-radius);
+          padding: 1rem 2rem;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+      }
+
+      #logoutBtn:hover {
+          background-color: var(--darker-bg);
+      }
   </style>
 </head>
 
@@ -405,7 +438,7 @@
         <button type="submit" class="confirm">Confirm Password</button>
       </form>
 
-        <p style="display:none;" id="change-password-message">Now enter your new password!</p>
+      <p style="display:none;" id="change-password-message">Now enter your new password!</p>
       <form class="password-form" id="newPasswordForm" style="display: none;">
         <label for="newPassword">New Password:</label>
         <input type="password" id="newPassword" required minlength="6">
@@ -457,7 +490,7 @@
       const newPasswordInput = document.getElementById('newPassword');
       const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
       const deletePasswordInput = document.getElementById('deletePassword');
-        const changePasswordMessage = document.getElementById('change-password-message')
+      const changePasswordMessage = document.getElementById('change-password-message');
 
       // Functions
       const openModal = (modal) => {
@@ -473,13 +506,16 @@
         modal.classList.add('fade-out');
 
         // Reset forms
-          passwordConfirmationForm.style.display = 'flex'
-          newPasswordForm.style.display = "none"
-             changePasswordMessage.style.display = "none"
-              currentPasswordInput.value = ""
-
         setTimeout(() => {
           modal.style.display = 'none';
+          if (modal === changePasswordModal) {
+            passwordConfirmationForm.style.display = 'flex';
+            newPasswordForm.style.display = 'none';
+            changePasswordMessage.style.display = 'none';
+            currentPasswordInput.value = "";
+            newPasswordInput.value = "";
+            confirmNewPasswordInput.value = "";
+          }
         }, 300);
       };
 
@@ -513,9 +549,10 @@
           const user = auth.currentUser;
           const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
           await user.reauthenticateWithCredential(credential);
-            passwordConfirmationForm.style.display = "none"
-              changePasswordMessage.style.display = "block"
-                 newPasswordForm.style.display = "flex"
+          // Show new password form
+          passwordConfirmationForm.style.display = "none";
+          changePasswordMessage.style.display = "block";
+          newPasswordForm.style.display = "flex";
 
         } catch (error) {
           alert('Authentication failed. Please check your password.');
@@ -562,10 +599,9 @@
         } catch (error) {
           alert('Authentication failed. Please check your password.');
           console.error('Authentication Error:', error);
-        }
-         finally{
+        } finally {
           closeModal(deleteAccountModal);
-         }
+        }
       });
 
       // Placeholder Functionality
