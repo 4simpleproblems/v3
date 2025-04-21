@@ -621,8 +621,8 @@
         try {
           const response = await fetch('sounds.json');
           const data = await response.json();
-          createSoundButtons(data.NormalSounds, normalSoundsContainer, 'normal');
-          createSoundButtons(data.ExplicitSounds, explicitSoundsContainer, 'explicit');
+          createSoundButtons(data.NormalSounds, normalSoundsContainer, 'NormalSounds');
+          createSoundButtons(data.ExplicitSounds, explicitSoundsContainer, 'ExplicitSounds');
         } catch (error) {
           console.error('Error loading sounds:', error);
           showStatus('Failed to load sounds. Please check the console.', 'error');
@@ -652,7 +652,7 @@
       function playSound(event) {
         const soundFile = event.target.dataset.sound;
         const category = event.target.dataset.category;
-        const audio = new Audio(`sounds/${category}/${soundFile}`); // Adjust path as needed
+        const audio = new Audio(`${category}/${soundFile}`); // Adjust path as needed
 
         audio.addEventListener('ended', () => {
           playingAudios = playingAudios.filter(a => a !== audio);
