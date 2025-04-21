@@ -363,19 +363,6 @@
     #logoutBtn:hover {
       background-color: var(--darker-bg);
     }
-
-    /* Hide modals by default to prevent pre-load delay */
-    .modal {
-      display: none;
-      pointer-events: none;
-      /* Prevent interaction initially */
-    }
-
-    .modal.active {
-      display: flex;
-      pointer-events: auto;
-      /* Enable interaction when active */
-    }
   </style>
 </head>
 
@@ -485,12 +472,17 @@
 
       // Functions
       const openModal = (modal) => {
+        modal.style.display = 'flex'; // Make sure to display the modal
         modal.classList.add('show');
       };
 
       const closeModal = (modal) => {
         modal.classList.remove('show');
+         setTimeout(() => {
+            modal.style.display = 'none'; // Hide the modal after the fade out
+        }, 300); // Match the transition duration
       };
+
 
       // Event Listeners
       changePasswordBtn.addEventListener('click', () => {
