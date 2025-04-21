@@ -196,27 +196,28 @@
 
     /* Styles for the modal/popup */
     .modal {
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0s linear 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       position: fixed;
       z-index: 1000;
       left: 0;
       top: 0;
       width: 100%;
       height: 100%;
+      overflow: auto;
       background-color: var(--modal-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0s linear 0.3s;
     }
 
-    /* Show modal (fade in) */
     .modal.show {
       opacity: 1;
       visibility: visible;
       transition: opacity 0.3s ease, visibility 0s linear 0s;
     }
+
 
     /* Modal Content/Box */
     .modal-content {
@@ -472,17 +473,18 @@
 
       // Functions
       const openModal = (modal) => {
-        modal.style.display = 'flex'; // Make sure to display the modal
+        modal.style.display = 'flex';
+        // Force reflow to trigger the transition
+        void modal.offsetWidth;
         modal.classList.add('show');
       };
 
       const closeModal = (modal) => {
         modal.classList.remove('show');
-         setTimeout(() => {
-            modal.style.display = 'none'; // Hide the modal after the fade out
-        }, 300); // Match the transition duration
+        setTimeout(() => {
+          modal.style.display = 'none';
+        }, 300);
       };
-
 
       // Event Listeners
       changePasswordBtn.addEventListener('click', () => {
