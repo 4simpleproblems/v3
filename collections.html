@@ -1,254 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4SP | Collections</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap"
-    rel="stylesheet"
-  />
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-  <style>
-    * {
-      font-family: 'Roboto Mono', monospace !important;
-      text-decoration: none !important;
-      box-sizing: border-box;
-    }
-    :root {
-      --dark-bg: #1a1a1a;
-      --darker-bg: #0d0d0d;
-      --light-text: #f0f0f0;
-      --light-gray: #e0e0e0;
-      --primary-blue: #626cd6;
-      --pill-radius: 50px;
-      --card-radius: 24px;
-    }
-    body {
-      background-color: var(--light-gray);
-      color: var(--dark-bg);
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-    }
-    /* Navbar */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.5rem 3rem;
-      background-color: var(--darker-bg);
-      color: var(--light-text);
-    }
-    .logo {
-      font-size: 1.8rem;
-      font-weight: 700;
-    }
-    .nav-buttons {
-      display: flex;
-      gap: 1.5rem;
-    }
-    .btn {
-      padding: 1rem 2rem;
-      border-radius: var(--pill-radius);
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .btn.primary {
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-      border: none;
-    }
-    .btn.secondary {
-      background-color: transparent;
-      color: var(--light-text);
-      border: 2px solid var(--light-text);
-    }
-    /* New style for delete button */
-    .btn.delete {
-      background-color: transparent;
-      border: 2px solid var(--dark-bg);
-      color: var(--dark-bg);
-    }
-    .btn.delete:hover {
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-    }
-    /* Main Layout */
-    .container {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 0 2rem;
-      display: flex;
-      gap: 2rem;
-    }
-    .sidebar {
-      width: 250px;
-    }
-    .filter-btn {
-      width: 100%;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: var(--pill-radius);
-      border: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .filter-btn.active {
-      background-color: var(--dark-bg);
-      color: white;
-    }
-    /* Request Cards */
-    .requests-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
-      flex: 1;
-    }
-    .request-card {
-      background: white;
-      border-radius: var(--card-radius);
-      padding: 1.5rem;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      position: relative;
-    }
-    .badge {
-      padding: 0.25rem 0.75rem;
-      border-radius: var(--pill-radius);
-      font-size: 0.75rem;
-      font-weight: 500;
-    }
-    .badge-normal {
-      background-color: #e6fcf5;
-      color: #087f5b;
-    }
-    .badge-explicit {
-      background-color: #fff3bf;
-      color: #8e6c00;
-    }
-    /* Admin action buttons */
-    .admin-actions {
-      margin-top: 1rem;
-      display: flex;
-      gap: 0.5rem;
-    }
-    .admin-actions .btn {
-      font-size: 0.85rem;
-      padding: 0.5rem 1rem;
-    }
-    #loadingMessage {
-      text-align: center;
-      padding: 2rem;
-    }
-  </style>
-</head>
-<body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="index.html" class="btn secondary">Home</a>
-      <a href="dashboard.html" class="btn secondary">Dashboard</a>
-      <a href="collections.html" class="btn primary">Collections</a>
-      <button id="logoutBtn" class="btn secondary">Log Out</button>
-    </div>
-  </nav>
-
-  <main class="container">
-    <aside class="sidebar">
-      <h2>Filters</h2>
-      <button class="filter-btn active" data-filter="all">All Requests</button>
-      <button class="filter-btn" data-filter="normal">Normal Only</button>
-      <button class="filter-btn" data-filter="explicit">Explicit Only</button>
-      <!-- This filter is only for admins -->
-      <button class="filter-btn" data-filter="deleted" id="deletedFilterBtn" style="display:none;">Deleted</button>
-
-      <h2>Sort By</h2>
-      <button class="filter-btn" data-sort="newest">Newest First</button>
-      <button class="filter-btn" data-sort="oldest">Oldest First</button>
-    </aside>
-
-    <section class="main-content">
-      <h1>Sound Requests Collection</h1>
-      <div id="requestsContainer" class="requests-grid">
-        <p id="loadingMessage">Loading requests...</p>
-      </div>
-    </section>
-  </main>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const db = firebase.firestore();
-      const auth = firebase.auth();
-      const requestsContainer = document.getElementById('requestsContainer');
-      let allRequests = [];
-      let currentFilter = 'all'; // Options: "all", "normal", "explicit", "deleted"
-      let currentSort = 'newest'; // Options: "newest", "oldest"
-      let isAdmin = false; // Flag for admin status
-
-      // Set up real-time listener to fetch requests
-      const setupRealTimeListener = () => {
-        return db.collection("requests")
-          .orderBy("timestamp", "desc")
-          .onSnapshot((snapshot) => {
-            allRequests = snapshot.docs.map(doc => {
-              const data = doc.data();
-              // Convert Firestore timestamp if available
-              if (data.timestamp && data.timestamp.toDate) {
-                data.timestamp = data.timestamp.toDate();
-              }
-              return {
-                id: doc.id,
-                ...data
-              };
-            });
-            renderRequests();
-          }, (error) => {
-            console.error("Listener error:", error);
-            document.getElementById('loadingMessage').textContent = "Error loading requests";
-          });
-      };
-
-      // Render the requests based on the active filter and sort order
-      const renderRequests = () => {
-        let filteredRequests = allRequests.filter(req => {
-          if(isAdmin) {
-            if (currentFilter === "all") {
-              // Modified here: "All Requests" now excludes deleted ones for admins too
-              return req.status !== "deleted";
-            } else if (currentFilter === "deleted") {
-              return req.status === "deleted";
-            } else {
-              return req.contentType === currentFilter && req.status !== "deleted";
-            }
-          }
-          // For non-admin users, always hide requests with status "deleted"
-          if(req.status === "deleted") return false;
-          if(currentFilter === "all") return true;
-          return req.contentType === currentFilter;
-        });
-
-        // Apply sort order
-        filteredRequests.sort((a, b) => {
-          if (currentSort === "newest") {
-            return b.timestamp - a.timestamp;
-          } else {
-            return a.timestamp - b.timestamp;
-          }
-        });
-
-        // Generate HTML for each request card
-        if(filteredRequests.length === 0) {
-          requestsContainer.innerHTML = '<p>No requests found</p>';
-          return;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | Collections</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        * {
+            font-family: 'Roboto Mono', monospace !important;
+            text-decoration: none !important;
+            box-sizing: border-box;
         }
 
-        requestsContainer.innerHTML = filteredRequests.map(request => {
-          let cardHtml = `
+        :root {
+            --dark-bg: #1a1a1a;
+            --darker-bg: #0d0d0d;
+            --light-text: #f0f0f0;
+            --light-gray: #e0e0e0;
+            --primary-blue: #626cd6;
+            --pill-radius: 50px;
+            --card-radius: 24px;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            color: var(--dark-bg);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            background-color: var(--darker-bg);
+            color: var(--light-text);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: var(--pill-radius);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn.primary {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            border: none;
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--light-text);
+            border: 2px solid var(--light-text);
+        }
+
+        /* New style for delete button */
+        .btn.delete {
+            background-color: transparent;
+            border: 2px solid var(--dark-bg);
+            color: var(--dark-bg);
+        }
+
+        .btn.delete:hover {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+        }
+
+        /* Main Layout */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .sidebar {
+            width: 250px;
+        }
+
+        .filter-btn {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: var(--pill-radius);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background-color: var(--dark-bg);
+            color: white;
+        }
+
+        /* Request Cards */
+        .requests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            flex: 1;
+        }
+
+        .request-card {
+            background: white;
+            border-radius: var(--card-radius);
+            padding: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--pill-radius);
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-normal {
+            background-color: #e6fcf5;
+            color: #087f5b;
+        }
+
+        .badge-explicit {
+            background-color: #fff3bf;
+            color: #8e6c00;
+        }
+
+        /* Admin action buttons */
+        .admin-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .admin-actions .btn {
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+        }
+
+        #loadingMessage {
+            text-align: center;
+            padding: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn secondary">Home</a>
+            <a href="dashboard.html" class="btn secondary">Dashboard</a>
+            <a href="collections.html" class="btn primary">Collections</a>
+            <button id="logoutBtn" class="btn secondary">Log Out</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <aside class="sidebar">
+            <h2>Filters</h2>
+            <button class="filter-btn active" data-filter="all">All Requests</button>
+            <button class="filter-btn" data-filter="normal">Normal Only</button>
+            <button class="filter-btn" data-filter="explicit">Explicit Only</button>
+            <!-- This filter is only for admins -->
+            <button class="filter-btn" data-filter="deleted" id="deletedFilterBtn" style="display:none;">Deleted</button>
+
+            <h2>Sort By</h2>
+            <button class="filter-btn" data-sort="newest">Newest First</button>
+        </aside>
+
+        <section class="main-content">
+            <h1>Sound Requests Collection</h1>
+            <div id="requestsContainer" class="requests-grid">
+                <p id="loadingMessage">Loading requests...</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const db = firebase.firestore();
+            const auth = firebase.auth();
+            const requestsContainer = document.getElementById('requestsContainer');
+            let allRequests = [];
+            let currentFilter = 'all'; // Options: "all", "normal", "explicit", "deleted"
+            let currentSort = 'newest'; // Options: "newest", "oldest"
+            let isAdmin = false; // Flag for admin status
+
+            // Function to check if the user is an admin
+
+            // Set up real-time listener to fetch requests
+            const setupRealTimeListener = () => {
+                let query = db.collection("requests").orderBy("timestamp", "desc");
+
+                // Apply the 'status' filter for non-admin users
+                if (!isAdmin) {
+                    query = query.where("status", "!=", "deleted");
+                }
+
+                return query.onSnapshot((snapshot) => {
+                    allRequests = snapshot.docs.map(doc => {
+                        const data = doc.data();
+                        // Convert Firestore timestamp if available
+                        if (data.timestamp && data.timestamp.toDate) {
+                            data.timestamp = data.timestamp.toDate();
+                        }
+                        return {
+                            id: doc.id,
+                            ...data
+                        };
+                    });
+                    renderRequests();
+                }, (error) => {
+                    console.error("Listener error:", error);
+                    document.getElementById('loadingMessage').textContent = "Error loading requests";
+                });
+            };
+
+
+            const renderRequests = () => {
+                let filteredRequests = allRequests.filter(req => {
+                    if (isAdmin) {
+                        if (currentFilter === "all") {
+                            return true;
+                        } else if (currentFilter === "deleted") {
+                            return req.status === "deleted";
+                        } else {
+                            return req.contentType === currentFilter;
+                        }
+                    } else {
+                        if (req.status === "deleted") return false;
+                        if (currentFilter === "all") return true;
+                        return req.contentType === currentFilter;
+                    }
+                });
+
+                filteredRequests.sort((a, b) => {
+                    if (currentSort === "newest") {
+                        return b.timestamp - a.timestamp;
+                    } else {
+                        return a.timestamp - b.timestamp;
+                    }
+                });
+
+                if (filteredRequests.length === 0) {
+                    requestsContainer.innerHTML = '<p>No requests found</p>';
+                    return;
+                }
+
+                requestsContainer.innerHTML = filteredRequests.map(request => {
+                    let cardHtml = `
             <div class="request-card" id="card-${request.id}">
               <h3>${request.soundName}</h3>
               <p>${request.description}</p>
@@ -261,75 +285,69 @@
               </div>
           `;
 
-          // Render admin action buttons only if the user is admin
-          if(isAdmin) {
-            cardHtml += `<div class="admin-actions">`;
-            if (request.status === "pending") {
-              cardHtml += `<button class="btn primary" onclick="handleAdminAction('${request.id}', 'approved')">Approve</button>
+                    if (isAdmin) {
+                        cardHtml += `<div class="admin-actions">`;
+                        if (request.status === "pending") {
+                            cardHtml += `<button class="btn primary" onclick="handleAdminAction('${request.id}', 'approved')">Approve</button>
                            <button class="btn primary" onclick="handleAdminAction('${request.id}', 'denied')">Deny</button>`;
-            }
-            if(request.status !== "deleted") {
-              cardHtml += `<button class="btn delete" onclick="handleAdminAction('${request.id}', 'deleted')">Delete</button>`;
-            }
-            cardHtml += `</div>`;
-          }
+                        }
+                        if (request.status !== "deleted") {
+                            cardHtml += `<button class="btn delete" onclick="handleAdminAction('${request.id}', 'deleted')">Delete</button>`;
+                        }
+                        cardHtml += `</div>`;
+                    }
 
-          cardHtml += `</div>`;
-          return cardHtml;
-        }).join('');
-      };
+                    cardHtml += `</div>`;
+                    return cardHtml;
+                }).join('');
+            };
 
-      // Function for admin actions to update request status
-      window.handleAdminAction = (docId, newStatus) => {
-        db.collection("requests").doc(docId).update({
-          status: newStatus,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-          console.log(`Request ${docId} updated to ${newStatus}`);
-        }).catch(error => {
-          console.error("Error updating request:", error);
+            window.handleAdminAction = (docId, newStatus) => {
+                db.collection("requests").doc(docId).update({
+                    status: newStatus,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    console.log(`Request ${docId} updated to ${newStatus}`);
+                }).catch(error => {
+                    console.error("Error updating request:", error);
+                });
+            };
+
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    isAdmin = (user.email === "4simpleproblems@gmail.com");
+                    if (isAdmin) {
+                        document.getElementById('deletedFilterBtn').style.display = 'block';
+                    }
+                    setupRealTimeListener();
+                } else {
+                    window.location.href = "index.html";
+                }
+            });
+
+            document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    currentFilter = e.target.dataset.filter;
+                    document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    renderRequests();
+                });
+            });
+
+            document.querySelectorAll('.filter-btn[data-sort]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    currentSort = e.target.dataset.sort;
+                    renderRequests();
+                });
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                auth.signOut().then(() => {
+                    window.location.href = "index.html";
+                });
+            });
         });
-      };
-
-      // Listen for auth state changes and check for admin status
-      auth.onAuthStateChanged((user) => {
-        if(user) {
-          isAdmin = (user.email === "4simpleproblems@gmail.com");
-          // Show the "Deleted" filter button only for admin
-          if(isAdmin) {
-            document.getElementById('deletedFilterBtn').style.display = 'block';
-          }
-          setupRealTimeListener();
-        } else {
-          window.location.href = "index.html";
-        }
-      });
-
-      // Event listeners for filter buttons
-      document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          currentFilter = e.target.dataset.filter;
-          document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
-          e.target.classList.add('active');
-          renderRequests();
-        });
-      });
-
-      // Event listeners for sort buttons
-      document.querySelectorAll('.filter-btn[data-sort]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          currentSort = e.target.dataset.sort;
-          renderRequests();
-        });
-      });
-
-      // Logout button logic
-      document.getElementById('logoutBtn').addEventListener('click', () => {
-        auth.signOut().then(() => {
-          window.location.href = "index.html";
-        });
-      });
-    });
-  </script>
+    </script>
 </body>
+
 </html>
