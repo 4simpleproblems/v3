@@ -215,13 +215,12 @@
       const setupRealTimeListener = () => {
         let query = db.collection("requests").orderBy("timestamp", "desc");
 
-        if (!isAdmin) {
-          query = query.where("status", "!=", "deleted");
-        }
-
         return query.onSnapshot((snapshot) => {
           allRequests = snapshot.docs.map(doc => {
             const data = doc.data();
+            if (!isAdmin && data.status == "deleted") {
+              return null;
+            }
             // Convert Firestore timestamp if available
             if (data.timestamp && data.timestamp.toDate) {
               data.timestamp = data.timestamp.toDate();
@@ -230,7 +229,7 @@
               id: doc.id,
               ...data
             };
-          });
+          }).filter(request => request);
           renderRequests();
         }, (error) => {
           console.error("Listener error:", error);
@@ -243,16 +242,18 @@
         let filteredRequests = allRequests.filter(req => {
           if (isAdmin) {
             if (currentFilter === "all") {
-              return true; // Admin sees all requests
+              // Modified here: "All Requests" now excludes deleted ones for admins too
+              return req.status !== "deleted";
             } else if (currentFilter === "deleted") {
-              return req.status === "deleted"; // Admin sees deleted requests
+              return req.status === "deleted";
             } else {
-              return req.contentType === currentFilter; // Admin sees requests of a specific content type
+              return req.contentType === currentFilter && req.status !== "deleted";
             }
-          } else {
-            // Non-admin users only see non-deleted requests
-            return req.status !== "deleted" && (currentFilter === "all" || req.contentType === currentFilter);
           }
+          // For non-admin users, always hide requests with status "deleted"
+          if (req.status === "deleted") return false;
+          if (currentFilter === "all") return true;
+          return req.contentType === currentFilter;
         });
 
         // Apply sort order
