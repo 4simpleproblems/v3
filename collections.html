@@ -190,6 +190,7 @@
 
             <h2>Sort By</h2>
             <button class="filter-btn" data-sort="newest">Newest First</button>
+            <button class="filter-btn" data-sort="oldest">Oldest First</button>
         </aside>
 
         <section class="main-content">
@@ -210,19 +211,16 @@
             let currentSort = 'newest'; // Options: "newest", "oldest"
             let isAdmin = false; // Flag for admin status
 
-            // Function to check if the user is an admin
-
             // Set up real-time listener to fetch requests
             const setupRealTimeListener = () => {
                 let query = db.collection("requests").orderBy("timestamp", "desc");
 
-                // Apply the 'status' filter for non-admin users
                 if (!isAdmin) {
                     query = query.where("status", "!=", "deleted");
                 }
 
                 return query.onSnapshot((snapshot) => {
-                    allRequests = snapshot.docs.map(doc => {
+                    const requests = snapshot.docs.map(doc => {
                         const data = doc.data();
                         // Convert Firestore timestamp if available
                         if (data.timestamp && data.timestamp.toDate) {
@@ -233,6 +231,7 @@
                             ...data
                         };
                     });
+                    allRequests = requests;
                     renderRequests();
                 }, (error) => {
                     console.error("Listener error:", error);
