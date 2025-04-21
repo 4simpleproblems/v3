@@ -34,7 +34,8 @@
     .sound-button {
       min-width: 100px;
       height: 100px;
-      border-radius: 50px; /* Rounded corners instead of perfect circle */
+      border-radius: 50px;
+      /* Rounded corners instead of perfect circle */
       background-color: var(--light-text);
       color: var(--dark-bg);
       border: 2px solid var(--dark-bg);
@@ -48,7 +49,8 @@
       justify-content: center;
       text-align: center;
       line-height: 1.2;
-      max-width: 250px; /* Maximum width to prevent extremely long buttons */
+      max-width: 250px;
+      /* Maximum width to prevent extremely long buttons */
       word-wrap: break-word;
       hyphens: auto;
     }
@@ -57,7 +59,8 @@
     .sound-button.short-text {
       width: 100px;
       padding: 0.5rem;
-      border-radius: 50%; /* Perfect circle for short text */
+      border-radius: 50%;
+      /* Perfect circle for short text */
     }
 
     .sound-button:hover {
@@ -90,6 +93,7 @@
         opacity: 0;
         transform: translateY(-20px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -101,6 +105,7 @@
         opacity: 1;
         transform: translateY(0);
       }
+
       to {
         opacity: 0;
         transform: translateY(-20px);
@@ -216,7 +221,7 @@
       margin-left: 4px;
       font-size: 0.8rem;
     }
-    
+
     #applyDelayBtn:hover {
       background-color: rgba(255, 255, 255, 0.2);
     }
@@ -234,10 +239,21 @@
 
     /* Clear button pop animation */
     @keyframes buttonPop {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.15); }
-      75% { transform: scale(0.95); }
-      100% { transform: scale(1); }
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.15);
+      }
+
+      75% {
+        transform: scale(0.95);
+      }
+
+      100% {
+        transform: scale(1);
+      }
     }
 
     /* Ripple effect */
@@ -246,6 +262,7 @@
         transform: scale(0);
         opacity: 0.5;
       }
+
       100% {
         transform: scale(4);
         opacity: 0;
@@ -283,13 +300,23 @@
 
     /* Animated overlay fade effect */
     @keyframes fadeInOverlay {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     @keyframes fadeOutOverlay {
-      from { opacity: 1; }
-      to { opacity: 0; }
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
     }
 
     .overlay {
@@ -312,13 +339,14 @@
       display: block;
       animation: fadeOutOverlay 0.3s ease forwards;
     }
-    
+
     /* Status message with enhanced fade animation */
     @keyframes fadeInUp {
       from {
         opacity: 0;
         transform: translateY(20px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -330,6 +358,7 @@
         opacity: 1;
         transform: translateY(0);
       }
+
       to {
         opacity: 0;
         transform: translateY(20px);
@@ -397,7 +426,7 @@
               <button id="applyDelayBtn">Apply</button>
             </label>
           </div>
-          
+
           <div class="options-section">
             <h3>Management</h3>
             <button id="clearAllSoundsBtn" class="btn secondary">
@@ -405,7 +434,7 @@
               <div class="ripple-container"></div>
             </button>
           </div>
-          
+
           <div class="keyboard-shortcuts">
             <p><strong>Keyboard Shortcuts:</strong></p>
             <p>Shift + C: Mute & clear all sounds</p>
@@ -474,29 +503,29 @@
           clearTimeout(statusMessageTimeout);
           statusMessage.classList.remove('fade-in', 'fade-out');
         }
-        
+
         // Set the message and prepare to show it
         statusMessage.textContent = message;
         statusMessage.className = 'status-message ' + type;
-        
+
         // First check if already displayed, if so remove it briefly
         if (statusMessage.style.display === 'block') {
           statusMessage.classList.add('fade-out');
-          
+
           setTimeout(() => {
             statusMessage.classList.remove('fade-out');
             statusMessage.style.display = 'none';
-            
+
             // Then show the new message after a brief pause
             setTimeout(() => {
               statusMessage.style.display = 'block';
               statusMessage.classList.add('fade-in');
-              
+
               // Set timeout to hide the message
               statusMessageTimeout = setTimeout(() => {
                 statusMessage.classList.remove('fade-in');
                 statusMessage.classList.add('fade-out');
-                
+
                 // When fadeout animation finishes, hide the element
                 setTimeout(() => {
                   statusMessage.style.display = 'none';
@@ -509,12 +538,12 @@
           // If not displayed, show it directly
           statusMessage.style.display = 'block';
           statusMessage.classList.add('fade-in');
-          
+
           // Set timeout to hide the message
           statusMessageTimeout = setTimeout(() => {
             statusMessage.classList.remove('fade-in');
             statusMessage.classList.add('fade-out');
-            
+
             // When fadeout animation finishes, hide the element
             setTimeout(() => {
               statusMessage.style.display = 'none';
@@ -527,13 +556,13 @@
       // Open options menu with fade effect
       function openOptionsMenu() {
         if (menuIsOpen) return;
-        
+
         menuIsOpen = true;
-        
+
         // Show overlay with fade-in
         overlay.style.display = 'block';
         overlay.classList.add('fade-in');
-        
+
         // Show menu with fade-in
         optionsMenu.style.display = 'block';
         optionsMenu.classList.add('fade-in');
@@ -542,22 +571,22 @@
       // Close options menu with fade effect
       function closeOptionsMenu() {
         if (!menuIsOpen) return;
-        
+
         menuIsOpen = false;
-        
+
         // Fade out the overlay
         overlay.classList.remove('fade-in');
         overlay.classList.add('fade-out');
-        
+
         // Fade out the menu
         optionsMenu.classList.remove('fade-in');
         optionsMenu.classList.add('fade-out');
-        
+
         // After animation completes, hide elements and reset classes
         setTimeout(() => {
           overlay.style.display = 'none';
           overlay.classList.remove('fade-out');
-          
+
           optionsMenu.style.display = 'none';
           optionsMenu.classList.remove('fade-out');
         }, 300);
@@ -568,268 +597,78 @@
         // Prevent multiple ripples
         if (isRippling) return;
         isRippling = true;
-        
-        const rect = clearAllSoundsBtn.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        
-        // Create a ripple element
-        const ripple = document.createElement('span');
-        ripple.classList.add('ripple');
-        ripple.style.left = x + 'px';
-        ripple.style.top = y + 'px';
-        
-        // Clear any existing ripples first
-        rippleContainer.innerHTML = '';
-        
-        // Add ripple to container
-        rippleContainer.appendChild(ripple);
-        
-        // Set timeout to remove ripple and reset flag
-        setTimeout(() => {
-          ripple.remove();
+
+        const circle = document.createElement("span");
+        circle.classList.add("ripple");
+
+        const diameter = Math.max(clearAllSoundsBtn.clientWidth, clearAllSoundsBtn.clientHeight);
+        const radius = diameter / 2;
+
+        circle.style.width = circle.style.height = `${diameter}px`;
+        circle.style.left = `${event.clientX - (clearAllSoundsBtn.offsetLeft + radius)}px`;
+        circle.style.top = `${event.clientY - (clearAllSoundsBtn.offsetTop + radius)}px`;
+
+        rippleContainer.appendChild(circle);
+
+        circle.addEventListener("animationend", () => {
+          circle.remove();
           isRippling = false;
-        }, 600);
-      }
-
-      // Immediately mute all sounds without stopping them
-      function muteAllSounds() {
-        playingAudios.forEach(audio => {
-          audio.volume = 0;
         });
       }
 
-      // Stop all playing sounds (with optional delay)
-      function stopAllAudios(delay = 0) {
-        if (playingAudios.length === 0) return; // Don't proceed if no sounds are playing
-        
-        if (delay > 0) {
-          // First mute them immediately
-          muteAllSounds();
-          
-          // Then stop them after the delay
-          setTimeout(() => {
-            playingAudios.forEach(audio => {
-              audio.pause();
-              audio.currentTime = 0;
-            });
-            playingAudios = [];
-          }, delay);
-        } else {
-          // Stop them immediately
-          playingAudios.forEach(audio => {
-            audio.pause();
-            audio.currentTime = 0;
-          });
-          playingAudios = [];
+      // Load sounds from JSON
+      async function loadSounds() {
+        try {
+          const response = await fetch('sounds.json');
+          const data = await response.json();
+          createSoundButtons(data.NormalSounds, normalSoundsContainer, 'normal');
+          createSoundButtons(data.ExplicitSounds, explicitSoundsContainer, 'explicit');
+        } catch (error) {
+          console.error('Error loading sounds:', error);
+          showStatus('Failed to load sounds. Please check the console.', 'error');
         }
       }
 
-      // Turn off Auto Clicker
-      function disableAutoClicker() {
-        if (autoClickerCheckbox.checked) {
-          autoClickerCheckbox.checked = false;
-          stopAutoClicker();
-          autoClickDelayLabel.style.display = 'none';
-          localStorage.setItem('autoClicker', false);
-        }
-      }
+      // Create sound buttons
+      function createSoundButtons(sounds, container, category) {
+        sounds.forEach(sound => {
+          const button = document.createElement('button');
+          button.classList.add('sound-button');
+          button.textContent = sound.replace('.mp3', '').replace(/_/g, ' '); // Clean up text
+          button.dataset.sound = sound;
+          button.dataset.category = category;
 
-      // Clear all sounds function (mutes immediately, then stops)
-      function clearAllSounds(instantMute = false) {
-        const wasPlaying = playingAudios.length > 0;
-        
-        if (wasPlaying) {
-          if (instantMute) {
-            // Mute immediately, then stop after a short delay
-            muteAllSounds();
-            stopAllAudios(100); // Small delay to ensure smooth transition
-            showStatus('All sounds muted and cleared', 'success');
-          } else {
-            // Normal stop
-            stopAllAudios();
-            showStatus('All sounds stopped', 'success');
+          // Shorter text gets perfect circle
+          if (button.textContent.length < 8) {
+            button.classList.add('short-text');
           }
-        }
-        
-        // Turn off Auto Clicker whenever sounds are cleared
-        disableAutoClicker();
-        
-        // Only close menu when using keyboard shortcut
-        if (instantMute) {
-          closeOptionsMenu();
-        }
+
+          button.addEventListener('click', playSound);
+          container.appendChild(button);
+        });
       }
 
-      // Fast clicking function using requestAnimationFrame for 0ms delay
-      function fastClicker() {
-        if (currentlyHoveredButton && autoClickerCheckbox.checked) {
-          currentlyHoveredButton.click();
-          requestAnimationFrameId = requestAnimationFrame(fastClicker);
-        }
-      }
+      // Play sound function
+      function playSound(event) {
+        const soundFile = event.target.dataset.sound;
+        const category = event.target.dataset.category;
+        const audio = new Audio(`sounds/${category}/${soundFile}`); // Adjust path as needed
 
-      // Auto clicker functions
-      function startAutoClicker() {
-        stopAutoClicker();
-        const delay = parseInt(autoClickDelayInput.value, 10) || 0;
-
-        if (!currentlyHoveredButton || !autoClickerCheckbox.checked) return;
-
-        // Use requestAnimationFrame for "instant" clicking (0ms)
-        if (delay === 0) {
-          requestAnimationFrameId = requestAnimationFrame(fastClicker);
-        } else {
-          // Use setInterval for timed clicking
-          autoClickInterval = setInterval(() => {
-            currentlyHoveredButton.click();
-          }, delay);
-        }
-      }
-
-      function stopAutoClicker() {
-        if (autoClickInterval) {
-          clearInterval(autoClickInterval);
-          autoClickInterval = null;
-        }
-        
-        if (requestAnimationFrameId) {
-          cancelAnimationFrame(requestAnimationFrameId);
-          requestAnimationFrameId = null;
-        }
-      }
-
-      // Apply autoclicker delay setting and close menu
-      function applyAutoClickerDelay() {
-        const delay = parseInt(autoClickDelayInput.value, 10);
-        
-        // Allow 0ms delay (instant clicking)
-        if (isNaN(delay) || delay < 0) {
-          autoClickDelayInput.value = 0;
-        }
-        
-        localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
-        
-        // Restart autoclicker if active
-        if (autoClickerCheckbox.checked && currentlyHoveredButton) {
-          startAutoClicker();
-        }
-        
-        closeOptionsMenu();
-      }
-
-      // Create a sound button for the soundboard with adaptive styling
-      function createSoundButton(folder, fileName, container) {
-        const soundName = fileName.replace('.mp3', '').replace(/_/g, ' ');
-        const soundPath = `${folder}/${fileName}`;
-        const button = document.createElement('button');
-        button.classList.add('sound-button');
-        button.textContent = soundName;
-        
-        // Add special class for short text to maintain circle shape
-        if (soundName.length < 10) {
-          button.classList.add('short-text');
-        }
-
-        button.addEventListener('click', () => {
-          if (!soundOverlayCheckbox.checked) {
-            stopAllAudios();
-          }
-          
-          try {
-            const audio = new Audio(soundPath);
-            audio.addEventListener('ended', () => {
-              playingAudios = playingAudios.filter(a => a !== audio);
-            });
-            playingAudios.push(audio);
-            audio.play().catch(error => {
-              console.error("Error playing sound:", error);
-            });
-          } catch (error) {
-            console.error("Error creating audio:", error);
-          }
+        audio.addEventListener('ended', () => {
+          playingAudios = playingAudios.filter(a => a !== audio);
         });
 
-        button.addEventListener('mouseenter', () => {
-          currentlyHoveredButton = button;
-          if (autoClickerCheckbox.checked) {
-            startAutoClicker();
-          }
-        });
+        if (!soundOverlayCheckbox.checked && playingAudios.length > 0) {
+          playingAudios.forEach(a => a.pause());
+          playingAudios = []; // Clear array after stopping
+        }
 
-        button.addEventListener('mouseleave', () => {
-          if (currentlyHoveredButton === button) {
-            currentlyHoveredButton = null;
-            stopAutoClicker();
-          }
-        });
-
-        container.appendChild(button);
+        playingAudios.push(audio);
+        audio.play();
       }
 
-      // Event Listeners
-      
-      // Sound Overlay checkbox
-      soundOverlayCheckbox.addEventListener('change', function() {
-        if (!this.checked) {
-          stopAllAudios();
-        }
-        localStorage.setItem('soundOverlay', this.checked);
-      });
-      
-      // Auto Clicker checkbox
-      autoClickerCheckbox.addEventListener('change', function() {
-        autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
-        
-        if (this.checked) {
-          if (currentlyHoveredButton) {
-            startAutoClicker();
-          }
-        } else {
-          stopAutoClicker();
-        }
-        
-        localStorage.setItem('autoClicker', this.checked);
-      });
-      
-      // Auto Clicker delay input - handle Enter key press
-      autoClickDelayInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          applyAutoClickerDelay();
-        }
-      });
-      
-      // Auto Clicker delay apply button
-      applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
-
-      // Clear all sounds button with enhanced pop effect & ripple
-      clearAllSoundsBtn.addEventListener('click', function(event) {
-        // Create ripple effect
-        createRipple(event);
-        
-        // Add animation class
-        this.classList.add('active');
-        
-        // Remove animation class after animation completes
-        setTimeout(() => {
-          this.classList.remove('active');
-        }, 400);
-        
-        clearAllSounds(false); // Normal clear without instant mute
-      });
-      
-      // Keyboard shortcut: Shift+C to instantly mute and clear all sounds
-      document.addEventListener('keydown', function(e) {
-        if (e.shiftKey && e.key.toLowerCase() === 'c') {
-          clearAllSounds(true); // With instant mute
-        }
-      });
-
-      // Options menu toggle with enhanced fade effect
-      optionsButton.addEventListener('click', function(e) {
-        e.stopPropagation();
-        
+      // Toggle options menu visibility
+      optionsButton.addEventListener('click', () => {
         if (menuIsOpen) {
           closeOptionsMenu();
         } else {
@@ -837,56 +676,108 @@
         }
       });
 
-      // Close options when clicking overlay
-      overlay.addEventListener('click', function() {
-        closeOptionsMenu();
-      });
-      
-      // Logout button
-      logoutBtn.addEventListener('click', function() {
-        window.location.href = 'index.html';
+      // Close options menu when clicking outside
+      window.addEventListener('click', (event) => {
+        if (menuIsOpen && !optionsMenu.contains(event.target) && !optionsButton.contains(event.target)) {
+          closeOptionsMenu();
+        }
       });
 
-      // Load user preferences from localStorage
-      function loadUserPreferences() {
-        // Sound overlay preference
-        if (localStorage.getItem('soundOverlay') === 'true') {
-          soundOverlayCheckbox.checked = true;
+      // Initialize clear all sounds button
+      clearAllSoundsBtn.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent default button behavior
+        createRipple(event); // Activate ripple effect
+
+        // Mute and stop all playing audio
+        playingAudios.forEach(audio => {
+          audio.pause();
+          audio.currentTime = 0;
+        });
+        playingAudios = [];
+
+        showStatus('All sounds cleared.', 'info');
+
+        clearAllSoundsBtn.classList.add('active');
+
+        setTimeout(() => {
+          clearAllSoundsBtn.classList.remove('active');
+        }, 400);
+      });
+
+      // Initialize keyboard shortcuts
+      document.addEventListener('keydown', (event) => {
+        if (event.shiftKey && event.key === 'C') {
+          // Mute and stop all playing audio
+          playingAudios.forEach(audio => {
+            audio.pause();
+            audio.currentTime = 0;
+          });
+          playingAudios = [];
+
+          showStatus('All sounds cleared via keyboard.', 'info');
         }
-        
-        // Auto clicker preference
-        if (localStorage.getItem('autoClicker') === 'true') {
-          autoClickerCheckbox.checked = true;
-          autoClickDelayLabel.style.display = 'block';
+      });
+
+      // Auto clicker functionality
+      function startAutoClick() {
+        let delay = parseInt(autoClickDelayInput.value, 10);
+        if (isNaN(delay) || delay < 0) {
+          delay = 1000;
+          autoClickDelayInput.value = delay;
         }
-        
-        // Auto clicker delay preference
-        const savedDelay = localStorage.getItem('autoClickDelay');
-        if (savedDelay !== null) {
-          autoClickDelayInput.value = savedDelay;
+
+        stopAutoClick(); // Clear existing interval
+
+        autoClickInterval = setInterval(() => {
+          if (currentlyHoveredButton) {
+            currentlyHoveredButton.click();
+          }
+        }, delay);
+      }
+
+      function stopAutoClick() {
+        if (autoClickInterval) {
+          clearInterval(autoClickInterval);
+          autoClickInterval = null;
         }
       }
 
-      // Fetch and load sounds
-      fetch('SoundboardSN.json')
-        .then(response => response.json())
-        .then(data => {
-          // Create normal sound buttons
-          (data.NormalSounds || []).forEach(file => {
-            createSoundButton('NormalSounds', file, normalSoundsContainer);
-          });
-          
-          // Create explicit sound buttons
-          (data.ExplicitSounds || []).forEach(file => {
-            createSoundButton('ExplicitSounds', file, explicitSoundsContainer);
-          });
-        
-          // Load preferences after sounds are loaded
-          loadUserPreferences();
-        })
-        .catch(error => {
-          console.error('Error loading sound manifest:', error);
+      // Handle auto clicker functionality on checkbox change
+      autoClickerCheckbox.addEventListener('change', () => {
+        if (autoClickerCheckbox.checked) {
+          startAutoClick();
+        } else {
+          stopAutoClick();
+        }
+      });
+
+      // Apply autoclick delay button
+      applyDelayBtn.addEventListener('click', () => {
+        stopAutoClick();
+        if (autoClickerCheckbox.checked) {
+          startAutoClick();
+        }
+        showStatus('Autoclick delay updated.', 'success');
+      });
+
+      // Initialize hover effect
+      document.querySelectorAll('.sound-button').forEach(button => {
+        button.addEventListener('mouseenter', () => {
+          currentlyHoveredButton = button;
         });
+
+        button.addEventListener('mouseleave', () => {
+          currentlyHoveredButton = null;
+        });
+      });
+
+      // Show/hide auto click delay input based on checkbox
+      autoClickerCheckbox.addEventListener('change', () => {
+        autoClickDelayLabel.style.display = autoClickerCheckbox.checked ? 'block' : 'none';
+      });
+
+      // Load sounds on page load
+      loadSounds();
     });
   </script>
 </body>
