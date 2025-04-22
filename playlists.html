@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4SP | Playlists</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      font-family: 'Roboto Mono', monospace;
+      margin: 0;
+      background-color: #121212;
+      color: #eee;
+    }
+    .navbar {
+      background: #1e1e1e;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .btn {
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+    .btn.secondary:hover {
+      background: #333;
+    }
+    .container {
+      padding: 2rem;
+    }
+    .sound-section {
+      margin-bottom: 2rem;
+    }
+    .sound-button {
+      background: #292929;
+      color: white;
+      padding: 1rem;
+      margin: 0.5rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.1s ease-in-out;
+    }
+    .sound-button:hover {
+      transform: scale(1.05);
+    }
+    .short-text {
+      font-size: 1.2rem;
+      padding: 1.2rem;
+    }
+    .status-message {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      display: none;
+    }
+    .status-message.success {
+      background: #4caf50;
+      color: white;
+    }
+    .status-message.fade-in {
+      animation: fadeIn 0.5s forwards;
+    }
+    .status-message.fade-out {
+      animation: fadeOut 0.3s forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+  </style>
+</head>
+
+<body>
+<script src="firebase-config.js"></script>
+<nav class="navbar">
+  <a href="dashboard.html" class="btn secondary">Dashboard</a>
+  <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+</nav>
+<main class="container">
+  <h1>Playlists</h1>
+  <p>Click a sound to play it, or upload your own files below.</p>
+  <div class="status-message" id="statusMessage"></div>
+  <div class="sound-section">
+    <h2>Normal Sounds</h2>
+    <div id="normalSoundsContainer" class="soundButtonsContainer normal"></div>
+  </div>
+  <div class="sound-section">
+    <h2>Explicit Sounds</h2>
+    <div id="explicitSoundsContainer" class="soundButtonsContainer explicit"></div>
+  </div>
+  <div class="sound-section">
+    <h2>Your Local Sounds</h2>
+    <input type="file" id="localFileInput" multiple accept="audio/*" />
+    <div id="localSoundsContainer" class="soundButtonsContainer local"></div>
+  </div>
+</main>
+<footer>
+  <p>© 2025 4SP</p>
+</footer>
+<div class="overlay" id="overlay"></div>
+<script>
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    window.location.href = 'index.html';
+  });
+  const normalSoundsContainer = document.getElementById('normalSoundsContainer');
+  const explicitSoundsContainer = document.getElementById('explicitSoundsContainer');
+  const localFileInput = document.getElementById('localFileInput');
+  const localSoundsContainer = document.getElementById('localSoundsContainer');
+  const statusMessage = document.getElementById('statusMessage');
+  function showStatus(msg, type = 'success') {
+    statusMessage.textContent = msg;
+    statusMessage.className = `status-message ${type} fade-in`;
+    statusMessage.style.display = 'block';
+    setTimeout(() => {
+      statusMessage.classList.remove('fade-in');
+      statusMessage.classList.add('fade-out');
+      setTimeout(() => { statusMessage.style.display = 'none'; }, 300);
+    }, 3000);
+  }
+  function createSoundButton(folder, fileName, container) {
+    const soundName = fileName.replace('.mp3', '').replace(/_/g, ' ');
+    const btn = document.createElement('button');
+    btn.classList.add('sound-button');
+    if (soundName.length < 10) btn.classList.add('short-text');
+    btn.textContent = soundName;
+    btn.addEventListener('click', () => {
+      try {
+        const audio = new Audio(`${folder}/${fileName}`);
+        audio.play();
+      } catch (e) {
+        console.error('Playback error', e);
+      }
+    });
+    container.appendChild(btn);
+  }
+  let localFiles = JSON.parse(localStorage.getItem('localSounds') || '[]');
+  function renderLocalPlaceholders() {
+    localFiles.forEach(filename => {
+      const label = document.createElement('label');
+      label.textContent = `Upload "${filename}" to enable:`;
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'audio/*';
+      input.onchange = () => {
+        const file = input.files[0];
+        if (file && file.name === filename) {
+          const url = URL.createObjectURL(file);
+          addLocalButton(filename, url);
+          label.remove();
+        } else {
+          alert(`Please upload the correct file: ${filename}`);
+        }
+      };
+      label.appendChild(input);
+      localSoundsContainer.appendChild(label);
+    });
+  }
+  function addLocalButton(name, url) {
+    const btn = document.createElement('button');
+    btn.classList.add('sound-button');
+    const label = name.replace('.mp3', '');
+    btn.textContent = label;
+    if (label.length < 10) btn.classList.add('short-text');
+    btn.addEventListener('click', () => new Audio(url).play());
+    localSoundsContainer.appendChild(btn);
+  }
+  localFileInput.addEventListener('change', e => {
+    Array.from(e.target.files).forEach(file => {
+      if (!localFiles.includes(file.name)) {
+        localFiles.push(file.name);
+        localStorage.setItem('localSounds', JSON.stringify(localFiles));
+      }
+      const url = URL.createObjectURL(file);
+      addLocalButton(file.name, url);
+    });
+  });
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch('SoundboardSN.json')
+      .then(res => res.json())
+      .then(data => {
+        (data.NormalSounds || []).forEach(f => createSoundButton('NormalSounds', f, normalSoundsContainer));
+        (data.ExplicitSounds || []).forEach(f => createSoundButton('ExplicitSounds', f, explicitSoundsContainer));
+        renderLocalPlaceholders();
+      })
+      .catch(err => console.error('Error loading manifest:', err));
+  });
+</script>
+</body>
+</html>
