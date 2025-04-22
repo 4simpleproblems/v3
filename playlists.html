@@ -1,199 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4SP | Playlists</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
-  <style>
-    body {
-      font-family: 'Roboto Mono', monospace;
-      margin: 0;
-      background-color: #121212;
-      color: #eee;
-    }
-    .navbar {
-      background: #1e1e1e;
-      padding: 1rem;
-      display: flex;
-      justify-content: space-between;
-    }
-    .btn {
-      color: white;
-      text-decoration: none;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      transition: background 0.3s;
-    }
-    .btn.secondary:hover {
-      background: #333;
-    }
-    .container {
-      padding: 2rem;
-    }
-    .sound-section {
-      margin-bottom: 2rem;
-    }
-    .sound-button {
-      background: #292929;
-      color: white;
-      padding: 1rem;
-      margin: 0.5rem;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: transform 0.1s ease-in-out;
-    }
-    .sound-button:hover {
-      transform: scale(1.05);
-    }
-    .short-text {
-      font-size: 1.2rem;
-      padding: 1.2rem;
-    }
-    .status-message {
-      margin-bottom: 1rem;
-      padding: 1rem;
-      border-radius: 8px;
-      display: none;
-    }
-    .status-message.success {
-      background: #4caf50;
-      color: white;
-    }
-    .status-message.fade-in {
-      animation: fadeIn 0.5s forwards;
-    }
-    .status-message.fade-out {
-      animation: fadeOut 0.3s forwards;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
-    }
-  </style>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | Playlists</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
-<body>
-<script src="firebase-config.js"></script>
-<nav class="navbar">
-  <a href="dashboard.html" class="btn secondary">Dashboard</a>
-  <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
-</nav>
-<main class="container">
-  <h1>Playlists</h1>
-  <p>Click a sound to play it, or upload your own files below.</p>
-  <div class="status-message" id="statusMessage"></div>
-  <div class="sound-section">
-    <h2>Normal Sounds</h2>
-    <div id="normalSoundsContainer" class="soundButtonsContainer normal"></div>
-  </div>
-  <div class="sound-section">
-    <h2>Explicit Sounds</h2>
-    <div id="explicitSoundsContainer" class="soundButtonsContainer explicit"></div>
-  </div>
-  <div class="sound-section">
-    <h2>Your Local Sounds</h2>
-    <input type="file" id="localFileInput" multiple accept="audio/*" />
-    <div id="localSoundsContainer" class="soundButtonsContainer local"></div>
-  </div>
-</main>
-<footer>
-  <p>© 2025 4SP</p>
-</footer>
-<div class="overlay" id="overlay"></div>
-<script>
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    window.location.href = 'index.html';
-  });
-  const normalSoundsContainer = document.getElementById('normalSoundsContainer');
-  const explicitSoundsContainer = document.getElementById('explicitSoundsContainer');
-  const localFileInput = document.getElementById('localFileInput');
-  const localSoundsContainer = document.getElementById('localSoundsContainer');
-  const statusMessage = document.getElementById('statusMessage');
-  function showStatus(msg, type = 'success') {
-    statusMessage.textContent = msg;
-    statusMessage.className = `status-message ${type} fade-in`;
-    statusMessage.style.display = 'block';
-    setTimeout(() => {
-      statusMessage.classList.remove('fade-in');
-      statusMessage.classList.add('fade-out');
-      setTimeout(() => { statusMessage.style.display = 'none'; }, 300);
-    }, 3000);
-  }
-  function createSoundButton(folder, fileName, container) {
-    const soundName = fileName.replace('.mp3', '').replace(/_/g, ' ');
-    const btn = document.createElement('button');
-    btn.classList.add('sound-button');
-    if (soundName.length < 10) btn.classList.add('short-text');
-    btn.textContent = soundName;
-    btn.addEventListener('click', () => {
-      try {
-        const audio = new Audio(`${folder}/${fileName}`);
-        audio.play();
-      } catch (e) {
-        console.error('Playback error', e);
-      }
-    });
-    container.appendChild(btn);
-  }
-  let localFiles = JSON.parse(localStorage.getItem('localSounds') || '[]');
-  function renderLocalPlaceholders() {
-    localFiles.forEach(filename => {
-      const label = document.createElement('label');
-      label.textContent = `Upload "${filename}" to enable:`;
-      const input = document.createElement('input');
-      input.type = 'file'; input.accept = 'audio/*';
-      input.onchange = () => {
-        const file = input.files[0];
-        if (file && file.name === filename) {
-          const url = URL.createObjectURL(file);
-          addLocalButton(filename, url);
-          label.remove();
-        } else {
-          alert(`Please upload the correct file: ${filename}`);
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Ensure firebase-config.js exists and is loaded after SDKs -->
+    <script>
+        // Safety fallback in case firebase-config.js is missing
+        if (!window.firebaseConfigLoaded) {
+            console.error("firebase-config.js not loaded. Make sure it exists and contains the correct configuration.");
         }
-      };
-      label.appendChild(input);
-      localSoundsContainer.appendChild(label);
-    });
-  }
-  function addLocalButton(name, url) {
-    const btn = document.createElement('button');
-    btn.classList.add('sound-button');
-    const label = name.replace('.mp3', '');
-    btn.textContent = label;
-    if (label.length < 10) btn.classList.add('short-text');
-    btn.addEventListener('click', () => new Audio(url).play());
-    localSoundsContainer.appendChild(btn);
-  }
-  localFileInput.addEventListener('change', e => {
-    Array.from(e.target.files).forEach(file => {
-      if (!localFiles.includes(file.name)) {
-        localFiles.push(file.name);
-        localStorage.setItem('localSounds', JSON.stringify(localFiles));
-      }
-      const url = URL.createObjectURL(file);
-      addLocalButton(file.name, url);
-    });
-  });
-  document.addEventListener('DOMContentLoaded', () => {
-    fetch('SoundboardSN.json')
-      .then(res => res.json())
-      .then(data => {
-        (data.NormalSounds || []).forEach(f => createSoundButton('NormalSounds', f, normalSoundsContainer));
-        (data.ExplicitSounds || []).forEach(f => createSoundButton('ExplicitSounds', f, explicitSoundsContainer));
-        renderLocalPlaceholders();
-      })
-      .catch(err => console.error('Error loading manifest:', err));
-  });
-</script>
+    </script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        :root {
+            --dark-bg: #1a1a1a;
+            --darker-bg: #0d0d0d;
+            --light-text: #f0f0f0;
+            --light-gray: #e0e0e0;
+            --tile-height: 280px;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            color: var(--dark-bg);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        nav {
+            background: var(--dark-bg);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .nav-buttons .btn {
+            color: var(--light-text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 2px solid var(--light-text);
+            transition: background 0.3s;
+        }
+
+        .nav-buttons .btn.secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        main.container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            flex: 1;
+        }
+
+        .hidden { display: none !important; }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .dashboard-tile {
+            background: var(--dark-bg);
+            color: var(--light-text);
+            text-decoration: none;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            height: var(--tile-height);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 1rem;
+            transition: transform 0.2s;
+        }
+
+        .dashboard-tile:hover { transform: translateY(-10px); }
+
+        .dashboard-tile .tile-content h3 {
+            margin: 0 0 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .dashboard-tile .tile-content p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .dashboard-tile .tile-frame {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            box-shadow: inset 0 0 0 2px var(--light-text);
+            border-radius: 15px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem 0;
+            background: var(--darker-bg);
+            color: var(--light-text);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-buttons">
+            <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1 class="hidden" id="authNotice">Please login to access your playlists</h1>
+        <div class="dashboard-grid hidden" id="playlistGrid"></div>
+    </main>
+
+    <footer>
+        <p>© 2025 4SP</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!firebase || !firebase.apps.length) {
+                console.error('Firebase not initialized. Check firebase-config.js.');
+                return;
+            }
+            initAuth();
+        });
+
+        function initAuth() {
+            const auth = firebase.auth();
+            const logoutBtn = document.getElementById('logoutBtn');
+            logoutBtn.addEventListener('click', e => {
+                e.preventDefault();
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                });
+            });
+
+            auth.onAuthStateChanged(user => {
+                const notice = document.getElementById('authNotice');
+                const grid = document.getElementById('playlistGrid');
+                if (user) {
+                    notice.classList.add('hidden');
+                    loadPlaylists(user);
+                } else {
+                    notice.classList.remove('hidden');
+                    grid.classList.add('hidden');
+                }
+            });
+        }
+
+        function loadPlaylists(user) {
+            const grid = document.getElementById('playlistGrid');
+            grid.innerHTML = '';
+            grid.appendChild(createTile('Create Playlist', 'playlist-create.html', 'Choose local or normal soundboard'));
+
+            const db = firebase.firestore();
+            db.collection('users').doc(user.uid).collection('playlists')
+              .get().then(snapshot => {
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    grid.appendChild(createTile(data.name, `playlist.html?id=${doc.id}`, data.description || 'Your playlist'));
+                });
+                grid.classList.remove('hidden');
+              }).catch(err => console.error('Error loading playlists:', err));
+        }
+
+        function createTile(title, href, desc) {
+            const a = document.createElement('a');
+            a.href = href;
+            a.className = 'dashboard-tile';
+            const content = document.createElement('div');
+            content.className = 'tile-content';
+            const h3 = document.createElement('h3'); h3.textContent = title;
+            const p = document.createElement('p'); p.textContent = desc;
+            content.appendChild(h3); content.appendChild(p);
+            const frame = document.createElement('div'); frame.className = 'tile-frame';
+            a.appendChild(content); a.appendChild(frame);
+            return a;
+        }
+    </script>
 </body>
 </html>
