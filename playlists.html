@@ -11,14 +11,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-    <!-- Ensure firebase-config.js exists and is loaded after SDKs -->
-    <script>
-        // Safety fallback in case firebase-config.js is missing
-        if (!window.firebaseConfigLoaded) {
-            console.error("firebase-config.js not loaded. Make sure it exists and contains the correct configuration.");
-        }
-    </script>
     <script src="firebase-config.js"></script>
 
     <style>
@@ -40,13 +32,19 @@
             font-family: 'Roboto Mono', monospace;
         }
 
-        nav {
+        /* Navbar */
+        .navbar {
             background: var(--dark-bg);
             padding: 1rem 2rem;
             display: flex;
-            justify-content: flex-end;
+            align-items: center;
+            justify-content: space-between;
         }
-
+        .navbar .logo {
+            color: var(--light-text);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
         .nav-buttons .btn {
             color: var(--light-text);
             text-decoration: none;
@@ -55,7 +53,6 @@
             border: 2px solid var(--light-text);
             transition: background 0.3s;
         }
-
         .nav-buttons .btn.secondary:hover {
             background: rgba(255,255,255,0.1);
         }
@@ -69,13 +66,13 @@
 
         .hidden { display: none !important; }
 
+        /* Grid */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 2rem;
             margin-top: 1rem;
         }
-
         .dashboard-tile {
             background: var(--dark-bg);
             color: var(--light-text);
@@ -90,19 +87,15 @@
             padding: 1rem;
             transition: transform 0.2s;
         }
-
         .dashboard-tile:hover { transform: translateY(-10px); }
-
         .dashboard-tile .tile-content h3 {
             margin: 0 0 0.5rem;
             font-size: 1.5rem;
         }
-
         .dashboard-tile .tile-content p {
             margin: 0;
             font-size: 0.9rem;
         }
-
         .dashboard-tile .tile-frame {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -120,9 +113,10 @@
     </style>
 </head>
 <body>
-    <nav>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
         <div class="nav-buttons">
-            <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+            <a href="#" class="btn secondary hidden" id="logoutBtn">Log Out</a>
         </div>
     </nav>
 
@@ -136,51 +130,65 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!firebase || !firebase.apps.length) {
-                console.error('Firebase not initialized. Check firebase-config.js.');
-                return;
+        function handleAuthState(user) {
+            const authNotice = document.getElementById('authNotice');
+            const grid = document.getElementById('playlistGrid');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            if (user) {
+                authNotice.classList.add('hidden');
+                grid.classList.remove('hidden');
+                logoutBtn.classList.remove('hidden');
+                loadPlaylists(user);
+            } else {
+                authNotice.classList.remove('hidden');
+                grid.classList.add('hidden');
+                logoutBtn.classList.add('hidden');
             }
-            initAuth();
-        });
+        }
 
         function initAuth() {
-            const auth = firebase.auth();
-            const logoutBtn = document.getElementById('logoutBtn');
-            logoutBtn.addEventListener('click', e => {
-                e.preventDefault();
-                auth.signOut().then(() => {
-                    window.location.href = 'index.html';
+            try {
+                const auth = firebase.auth();
+                const logoutBtn = document.getElementById('logoutBtn');
+                logoutBtn.addEventListener('click', e => {
+                    e.preventDefault();
+                    auth.signOut().then(() => window.location.href = 'index.html');
                 });
-            });
 
-            auth.onAuthStateChanged(user => {
-                const notice = document.getElementById('authNotice');
-                const grid = document.getElementById('playlistGrid');
-                if (user) {
-                    notice.classList.add('hidden');
-                    loadPlaylists(user);
-                } else {
-                    notice.classList.remove('hidden');
-                    grid.classList.add('hidden');
-                }
-            });
+                auth.onAuthStateChanged(user => handleAuthState(user));
+            } catch (error) {
+                console.error("Auth initialization error:", error);
+                window.location.href = 'index.html';
+            }
         }
 
         function loadPlaylists(user) {
             const grid = document.getElementById('playlistGrid');
             grid.innerHTML = '';
-            grid.appendChild(createTile('Create Playlist', 'playlist-create.html', 'Choose local or normal soundboard'));
+            // "Create Playlist" tile
+            grid.appendChild(createTile(
+                'Create Playlist',
+                'playlist-create.html',
+                'Choose local or normal soundboard'
+            ));
 
             const db = firebase.firestore();
             db.collection('users').doc(user.uid).collection('playlists')
-              .get().then(snapshot => {
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    grid.appendChild(createTile(data.name, `playlist.html?id=${doc.id}`, data.description || 'Your playlist'));
-                });
-                grid.classList.remove('hidden');
-              }).catch(err => console.error('Error loading playlists:', err));
+              .get()
+              .then(snapshot => {
+                  snapshot.forEach(doc => {
+                      const data = doc.data();
+                      grid.appendChild(
+                          createTile(
+                              data.name,
+                              `playlist.html?id=${doc.id}`,
+                              data.description || 'Your playlist'
+                          )
+                      );
+                  });
+              })
+              .catch(err => console.error('Error loading playlists:', err));
         }
 
         function createTile(title, href, desc) {
@@ -191,10 +199,21 @@
             content.className = 'tile-content';
             const h3 = document.createElement('h3'); h3.textContent = title;
             const p = document.createElement('p'); p.textContent = desc;
-            content.appendChild(h3); content.appendChild(p);
+            content.appendChild(h3);
+            content.appendChild(p);
             const frame = document.createElement('div'); frame.className = 'tile-frame';
-            a.appendChild(content); a.appendChild(frame);
+            a.appendChild(content);
+            a.appendChild(frame);
             return a;
+        }
+
+        if (typeof firebase !== 'undefined') {
+            document.addEventListener('DOMContentLoaded', initAuth);
+        } else {
+            console.error('Firebase SDK not loaded.');
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('authNotice').classList.remove('hidden');
+            });
         }
     </script>
 </body>
