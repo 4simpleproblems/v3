@@ -122,6 +122,7 @@
       z-index: 2;
       right: 0;
       border-radius: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
       color: var(--light-text);
     }
 
@@ -599,192 +600,195 @@
         isRippling = true;
 
         const circle = document.createElement("span");
-        circle.classList.add("ripple");
-
         const diameter = Math.max(clearAllSoundsBtn.clientWidth, clearAllSoundsBtn.clientHeight);
         const radius = diameter / 2;
 
         circle.style.width = circle.style.height = `${diameter}px`;
-        circle.style.left = `${event.clientX - (clearAllSoundsBtn.offsetLeft + radius)}px`;
-        circle.style.top = `${event.clientY - (clearAllSoundsBtn.offsetTop + radius)}px`;
+        circle.style.left = `${event.clientX - clearAllSoundsBtn.offsetLeft - radius}px`;
+        circle.style.top = `${event.clientY - clearAllSoundsBtn.offsetTop - radius}px`;
+        circle.classList.add("ripple");
 
+        const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
         rippleContainer.appendChild(circle);
 
         circle.addEventListener("animationend", () => {
-          circle.remove();
-          isRippling = false;
+          rippleContainer.removeChild(circle);
+          isRippling = false; // Allow new ripples
         });
+      }
+
+      // Play audio function with try-catch for error handling
+      function playAudio(soundId, isExplicit) {
+        try {
+          const audio = new Audio(`sounds/${isExplicit ? 'explicit/' : ''}${soundId}.mp3`);
+
+          // Playback optimization and management
+          audio.addEventListener('ended', () => {
+            playingAudios = playingAudios.filter(a => a !== audio);
+          });
+
+          if (soundOverlayCheckbox.checked) {
+            audio.play();
+            playingAudios.push(audio); // Keep track of playing audios
+          } else {
+            // Stop all currently playing audios
+            playingAudios.forEach(a => a.pause());
+            playingAudios = [audio]; // Start only this audio
+            audio.play();
+          }
+        } catch (error) {
+          console.error("Failed to play sound:", error);
+          showStatus(`Error playing sound ${soundId}.`, 'error');
+        }
+      }
+
+      // Create sound button
+      function createSoundButton(sound, container, isExplicit = false) {
+        const button = document.createElement('button');
+        button.classList.add('sound-button');
+        button.textContent = sound.replace(/_/g, ' ');
+        button.dataset.sound = sound;
+
+        // Add short-text class if the text is short
+        if (sound.length < 5) {
+          button.classList.add('short-text');
+        }
+
+        button.addEventListener('click', () => {
+          playAudio(button.dataset.sound, isExplicit);
+        });
+
+        button.addEventListener('mouseover', () => {
+          if (autoClickerCheckbox.checked) {
+            currentlyHoveredButton = button;
+          }
+        });
+
+        button.addEventListener('mouseout', () => {
+          currentlyHoveredButton = null;
+        });
+
+        container.appendChild(button);
       }
 
       // Load sounds from JSON
       async function loadSounds() {
         try {
           const response = await fetch('sounds.json');
-          const data = await response.json();
-          createSoundButtons(data.NormalSounds, normalSoundsContainer, 'NormalSounds');
-          createSoundButtons(data.ExplicitSounds, explicitSoundsContainer, 'ExplicitSounds');
+          const sounds = await response.json();
+
+          sounds.normal.forEach(sound => createSoundButton(sound, normalSoundsContainer));
+          sounds.explicit.forEach(sound => createSoundButton(sound, explicitSoundsContainer, true));
         } catch (error) {
-          console.error('Error loading sounds:', error);
-          showStatus('Failed to load sounds. Please check the console.', 'error');
+          console.error("Failed to load sounds:", error);
+          showStatus('Failed to load sounds.', 'error');
         }
       }
 
-      // Create sound buttons
-      function createSoundButtons(sounds, container, category) {
-        sounds.forEach(sound => {
-          const button = document.createElement('button');
-          button.classList.add('sound-button');
-          button.textContent = sound.replace('.mp3', '').replace(/_/g, ' '); // Clean up text
-          button.dataset.sound = sound;
-          button.dataset.category = category;
+      // Function to start autoclicker
+      function startAutoClicker() {
+        clearInterval(autoClickInterval); // Clear any existing interval
 
-          // Shorter text gets perfect circle
-          if (button.textContent.length < 8) {
-            button.classList.add('short-text');
-          }
-
-          button.addEventListener('click', playSound);
-          container.appendChild(button);
-        });
-      }
-
-      // Play sound function
-      function playSound(event) {
-        const soundFile = event.target.dataset.sound;
-        const category = event.target.dataset.category;
-        const audio = new Audio(`${category}/${soundFile}`); // Adjust path as needed
-
-        audio.addEventListener('ended', () => {
-          playingAudios = playingAudios.filter(a => a !== audio);
-        });
-
-        if (!soundOverlayCheckbox.checked && playingAudios.length > 0) {
-          playingAudios.forEach(a => a.pause());
-          playingAudios = []; // Clear array after stopping
+        const delay = parseInt(autoClickDelayInput.value, 10);
+        if (isNaN(delay) || delay < 0) {
+          showStatus('Invalid delay. Please enter a valid positive number.', 'error');
+          return;
         }
-
-        playingAudios.push(audio);
-        audio.play();
-      }
-
-      // Toggle options menu visibility
-      optionsButton.addEventListener('click', () => {
-        if (menuIsOpen) {
-          closeOptionsMenu();
-        } else {
-          openOptionsMenu();
-        }
-      });
-
-      // Close options menu when clicking outside
-      window.addEventListener('click', (event) => {
-        if (menuIsOpen && !optionsMenu.contains(event.target) && !optionsButton.contains(event.target)) {
-          closeOptionsMenu();
-        }
-      });
-
-      // Initialize clear all sounds button
-      clearAllSoundsBtn.addEventListener('click', (event) => {
-        event.preventDefault(); // Prevent default button behavior
-        createRipple(event); // Activate ripple effect
-
-        // Mute and stop all playing audio
-        playingAudios.forEach(audio => {
-          audio.pause();
-          audio.currentTime = 0;
-        });
-        playingAudios = [];
-
-        showStatus('All sounds cleared.', 'info');
-
-        clearAllSoundsBtn.classList.add('active');
-
-        setTimeout(() => {
-          clearAllSoundsBtn.classList.remove('active');
-        }, 400);
-      });
-
-      // Initialize keyboard shortcuts
-      document.addEventListener('keydown', (event) => {
-        if (event.shiftKey && event.key === 'C') {
-          // Mute and stop all playing audio
-          playingAudios.forEach(audio => {
-            audio.pause();
-            audio.currentTime = 0;
-          });
-          playingAudios = [];
-
-          showStatus('All sounds cleared via keyboard.', 'info');
-        }
-      });
-
-      // Auto clicker functionality
-      let autoClickInterval;
-
-      function startAutoClick() {
-        let delay = parseInt(autoClickDelayInput.value, 10);
-        if (isNaN(delay) || delay <= 0) {
-          delay = 1000;
-          autoClickDelayInput.value = delay;
-        }
-
-        stopAutoClick(); // Clear existing interval
 
         autoClickInterval = setInterval(() => {
-          const buttons = document.querySelectorAll('.sound-button');
-          if (buttons.length > 0) {
-            // Select a random button to click
-            const randomIndex = Math.floor(Math.random() * buttons.length);
-            const button = buttons[randomIndex];
-            button.click();
+          if (currentlyHoveredButton) {
+            // Simulate a click
+            currentlyHoveredButton.click();
           }
         }, delay);
       }
 
-      function stopAutoClick() {
-        if (autoClickInterval) {
-          clearInterval(autoClickInterval);
-          autoClickInterval = null;
+      // Function to stop autoclicker
+      function stopAutoClicker() {
+        clearInterval(autoClickInterval);
+      }
+
+      // Event listeners
+      optionsButton.addEventListener('click', () => {
+        if (!menuIsOpen) {
+          openOptionsMenu();
+        } else {
+          closeOptionsMenu();
+        }
+      });
+
+      overlay.addEventListener('click', closeOptionsMenu);
+
+      // Clear all sounds button
+      clearAllSoundsBtn.addEventListener('click', (event) => {
+        createRipple(event);
+        clearAllSoundsBtn.classList.add('active'); // Trigger the pop animation
+
+        // After animation, remove the active class
+        setTimeout(() => {
+          clearAllSoundsBtn.classList.remove('active');
+        }, 400);
+
+        playingAudios.forEach(audio => audio.pause());
+        playingAudios = [];
+        showStatus('All sounds cleared.', 'info');
+      });
+
+      // Prevent animation glitches
+      clearAllSoundsBtn.addEventListener('animationend', () => {
+        clearAllSoundsBtn.classList.remove('active');
+      });
+
+      // Sound overlay
+      soundOverlayCheckbox.addEventListener('change', () => {
+        localStorage.setItem('soundOverlay', soundOverlayCheckbox.checked);
+      });
+
+      // Auto clicker
+      autoClickerCheckbox.addEventListener('change', () => {
+        const isChecked = autoClickerCheckbox.checked;
+        localStorage.setItem('autoClicker', isChecked);
+        autoClickDelayLabel.style.display = isChecked ? 'block' : 'none';
+
+        if (isChecked) {
+          startAutoClicker();
+        } else {
+          stopAutoClicker();
+        }
+      });
+
+      // Apply delay button
+      applyDelayBtn.addEventListener('click', () => {
+        startAutoClicker();
+        showStatus('Auto-clicker delay applied.', 'success');
+      });
+
+      // Logout button
+      logoutBtn.addEventListener('click', () => {
+        showStatus('Logged out successfully.', 'success');
+        // Redirect to logout page after a delay to show the status message
+        setTimeout(() => {
+          window.location.href = 'logout.html';
+        }, 1500);
+      });
+
+      // Load stored options
+      const storedSoundOverlay = localStorage.getItem('soundOverlay');
+      if (storedSoundOverlay !== null) {
+        soundOverlayCheckbox.checked = storedSoundOverlay === 'true';
+      }
+
+      const storedAutoClicker = localStorage.getItem('autoClicker');
+      if (storedAutoClicker !== null) {
+        autoClickerCheckbox.checked = storedAutoClicker === 'true';
+        autoClickDelayLabel.style.display = storedAutoClicker === 'true' ? 'block' : 'none';
+
+        if (storedAutoClicker === 'true') {
+          startAutoClicker();
         }
       }
 
-      // Handle auto clicker functionality on checkbox change
-      autoClickerCheckbox.addEventListener('change', () => {
-        if (autoClickerCheckbox.checked) {
-          startAutoClick();
-        } else {
-          stopAutoClick();
-        }
-      });
-
-      // Apply autoclick delay button
-      applyDelayBtn.addEventListener('click', () => {
-        stopAutoClick();
-        if (autoClickerCheckbox.checked) {
-          startAutoClick();
-        }
-        showStatus('Autoclick delay updated.', 'success');
-      });
-
-      // Initialize hover effect
-      let currentlyHoveredButton = null;
-
-      document.querySelectorAll('.sound-button').forEach(button => {
-        button.addEventListener('mouseenter', () => {
-          currentlyHoveredButton = button;
-        });
-
-        button.addEventListener('mouseleave', () => {
-          currentlyHoveredButton = null;
-        });
-      });
-
-      // Show/hide auto click delay input based on checkbox
-      autoClickerCheckbox.addEventListener('change', () => {
-        autoClickDelayLabel.style.display = autoClickerCheckbox.checked ? 'block' : 'none';
-      });
-
-      // Load sounds on page load
+      // Load sounds on DOM load
       loadSounds();
     });
   </script>
