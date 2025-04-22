@@ -767,6 +767,8 @@
       });
 
       // Initialize hover effect
+      let currentlyHoveredButton = null;
+
       document.querySelectorAll('.sound-button').forEach(button => {
         button.addEventListener('mouseenter', () => {
           currentlyHoveredButton = button;
