@@ -625,16 +625,6 @@
         }
       }
 
-      // Turn off Auto Clicker
-      function disableAutoClicker() {
-        if (autoClickerCheckbox.checked) {
-          autoClickerCheckbox.checked = false;
-          stopAutoClicker();
-          autoClickDelayLabel.style.display = 'none';
-          localStorage.setItem('autoClicker', false);
-        }
-      }
-
       // Clear all sounds function (mutes immediately, then stops)
       function clearAllSounds(instantMute = false) {
         const wasPlaying = playingAudios.length > 0;
@@ -651,9 +641,6 @@
             showStatus('All sounds stopped', 'success');
           }
         }
-        
-        // Turn off Auto Clicker whenever sounds are cleared
-        disableAutoClicker();
         
         // Only close menu when using keyboard shortcut
         if (instantMute) {
@@ -880,7 +867,7 @@
           (data.ExplicitSounds || []).forEach(file => {
             createSoundButton('ExplicitSounds', file, explicitSoundsContainer);
           });
-        
+          
           // Load preferences after sounds are loaded
           loadUserPreferences();
         })
