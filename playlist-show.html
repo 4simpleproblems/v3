@@ -1,86 +1,94 @@
-<!-- playlist-show.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>4SP | View Playlist</title>
-  <link rel="stylesheet" href="styles.css"><link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4SP | Playlist Details</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <style>
-    body{background:#121212;color:#fff;font-family:'Roboto Mono',monospace;margin:0;padding:0;}
-    .navbar{background:#1e1e1e;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;}
-    .navbar .logo{color:#fff;font-weight:bold;font-size:1.5rem;}
-    .navbar .btn{color:#fff;border:2px solid #fff;padding:0.5rem 1rem;border-radius:30px;text-decoration:none;}
-    main{max-width:800px;margin:2rem auto;padding:0 1rem;}
-    #soundsContainer{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:1rem;}
-    .sound-btn{width:80px;height:80px;border-radius:50%;background:#2a2a2a;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.2s;position:relative;}
-    .sound-btn:hover{transform:scale(1.1);}
-    .sound-btn.edit-mode:hover{background:rgba(183,28,28,0.8);}
-    .hidden{display:none!important;}
-    .controls{display:flex;gap:1rem;margin-bottom:1rem;}
-  </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
-    <div>
-      <a href="playlists.html" class="btn">← Back</a>
-      <button id="editBtn" class="btn">Edit</button>
-      <button id="saveBtn" class="btn hidden">Save</button>
+    <div class="nav-buttons">
+      <a href="playlists.html" class="btn secondary">← Back</a>
     </div>
   </nav>
-  <main>
-    <h1 id="plTitle"></h1>
-    <p id="plDesc"></p>
-    <div id="soundsContainer"></div>
+  <main class="container" style="max-width:700px;">
+    <div class="dashboard-tile" id="playlistDetails">
+      <div class="tile-frame"></div>
+      <div class="tile-content">
+        <h3 id="playlistName">Loading...</h3>
+        <p id="playlistDesc"></p>
+        <div id="playlistSounds"></div>
+        <span class="badge" id="playlistType"></span>
+      </div>
+    </div>
   </main>
   <script>
-    let editMode=false, current;
-    function init(){firebase.auth().onAuthStateChanged(u=>{if(!u) return location='index.html';load();});}
-    function load(){
-      const params=new URLSearchParams(location.search);
-      const db=firebase.firestore();
-      if(params.has('id')){
-        db.collection('users').doc(firebase.auth().currentUser.uid)
-          .collection('playlists').doc(params.get('id')).get().then(doc=>{
-            current=doc;render(doc.data(),false);
-          });
-      } else {
-        const local=JSON.parse(localStorage.getItem('localPlaylists')||'[]');
-        const p=local.find(x=>x.id===params.get('local')); current={id:p.id,data:()=>p};render(p,false);
-      }
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
     }
-    function render(data,editable){
-      document.getElementById('plTitle').textContent=data.name;
-      document.getElementById('plDesc').textContent=data.description;
-      const cont=document.getElementById('soundsContainer');cont.innerHTML='';
-      data.sounds.forEach((s,i)=>{
-        const btn=document.createElement('div');btn.className='sound-btn';btn.textContent=s.label;
-        btn.onclick=()=>new Audio(s.path||s.url).play();
-        if(editable){btn.classList.add('edit-mode');btn.ondblclick=()=>{data.sounds.splice(i,1);render(data,true);};}
-        cont.appendChild(btn);
+
+    function renderLocal(pl) {
+      document.getElementById('playlistName').textContent = pl.name;
+      document.getElementById('playlistDesc').textContent = pl.description || '';
+      document.getElementById('playlistType').textContent = 'Local';
+      const list = document.getElementById('playlistSounds');
+      list.innerHTML = '';
+      pl.sounds.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'sound-item';
+        div.innerHTML = `
+          <span>${s.label || s.fileName}</span>
+          <button type="button">▶</button>
+        `;
+        div.querySelector('button').onclick = () => new Audio(s.url).play();
+        list.appendChild(div);
       });
-      document.getElementById('saveBtn').onclick=save;
     }
-    document.getElementById('editBtn').addEventListener('click',()=>{editMode=!editMode;render(current.data(),editMode);
-      document.getElementById('saveBtn').classList.toggle('hidden',!editMode);
-    });
-    function save(){
-      const params=new URLSearchParams(location.search);
-      if(params.has('id')){
-        firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid)
-          .collection('playlists').doc(params.get('id')).update({sounds:current.data().sounds});
-      } else {
-        const local=JSON.parse(localStorage.getItem('localPlaylists')||'[]');
-        const idx=local.findIndex(x=>x.id===current.id);local[idx].sounds=current.data().sounds;
-        localStorage.setItem('localPlaylists',JSON.stringify(local));
+
+    function renderFirestore(pl, type) {
+      document.getElementById('playlistName').textContent = pl.name;
+      document.getElementById('playlistDesc').textContent = pl.description || '';
+      document.getElementById('playlistType').textContent = type === 'local' ? 'Local' : 'Normal';
+      const list = document.getElementById('playlistSounds');
+      list.innerHTML = '';
+      (pl.sounds || []).forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'sound-item';
+        div.innerHTML = `
+          <span>${s.label || s.path}</span>
+          <button type="button">▶</button>
+        `;
+        div.querySelector('button').onclick = () => new Audio(s.path).play();
+        list.appendChild(div);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const localId = getQueryParam('local');
+      const firestoreId = getQueryParam('id');
+      if (localId) {
+        const local = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
+        const pl = local.find(p => p.id === localId);
+        if (pl) renderLocal(pl);
+        else document.getElementById('playlistName').textContent = 'Playlist not found';
+      } else if (firestoreId) {
+        firebase.auth().onAuthStateChanged(user => {
+          if (!user) { window.location = 'index.html'; return; }
+          const db = firebase.firestore();
+          db.collection('users').doc(user.uid).collection('playlists').doc(firestoreId).get().then(doc => {
+            if (doc.exists) renderFirestore(doc.data(), 'normal');
+            else document.getElementById('playlistName').textContent = 'Playlist not found';
+          });
+        });
       }
-      editMode=false;render(current.data(),false);document.getElementById('saveBtn').classList.add('hidden');
-    }
-    document.addEventListener('DOMContentLoaded',init);
+    });
   </script>
 </body>
 </html>
