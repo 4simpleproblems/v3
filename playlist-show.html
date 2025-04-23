@@ -2,47 +2,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4SP | View Playlist</title>
-    <link rel="stylesheet" href="styles.css"><link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <style>
-        /* reuse dashboard/grid/button styles */
-        .navbar, .dashboard-tile, .btn {/* ... */}
-    </style>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>4SP | View Playlist</title>
+  <link rel="stylesheet" href="styles.css"><link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    body{background:#121212;color:#fff;font-family:'Roboto Mono',monospace;margin:0;padding:0;}
+    .navbar{background:#1e1e1e;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;}
+    .navbar .logo{color:#fff;font-weight:bold;font-size:1.5rem;}
+    .navbar .btn{color:#fff;border:2px solid #fff;padding:0.5rem 1rem;border-radius:30px;text-decoration:none;}
+    main{max-width:800px;margin:2rem auto;padding:0 1rem;}
+    #soundsContainer{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:1rem;}
+    .sound-btn{width:80px;height:80px;border-radius:50%;background:#2a2a2a;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform 0.2s;position:relative;}
+    .sound-btn:hover{transform:scale(1.1);}
+    .sound-btn.edit-mode:hover{background:rgba(183,28,28,0.8);}
+    .hidden{display:none!important;}
+    .controls{display:flex;gap:1rem;margin-bottom:1rem;}
+  </style>
 </head>
 <body>
-    <nav class="navbar"><div class="logo">4SP</div><div class="nav-buttons"><a href="playlists.html" class="btn secondary">Back</a><a href="#" class="btn primary hidden" id="editBtn">Edit</a></div></nav>
-    <main class="container">
-        <h1 id="plName"></h1>
-        <p id="plDesc"></p>
-        <div id="soundsList" class="dashboard-grid"></div>
-    </main>
-    <footer><p>© 2025 4SP</p></footer>
-    <script>
-        let current={};
-        function initShow(){
-            const auth=firebase.auth(); auth.onAuthStateChanged(user=>{ if(!user) return window.location.href='index.html'; loadPlaylist(user); });
-        }
-        function loadPlaylist(user){
-            const params=new URLSearchParams(location.search);
-            if(params.has('localId')){
-                const locals=JSON.parse(localStorage.getItem('localPlaylists')||'[]'); current=locals.find(p=>p.id===params.get('localId'))||{}; renderPlaylist();
-            } else {
-                const id=params.get('id');
-                firebase.firestore().collection('users').doc(user.uid).collection('playlists').doc(id).get().then(doc=>{current=doc.data(); renderPlaylist();});
-            }
-        }
-        function renderPlaylist(){
-            document.getElementById('plName').textContent=current.name;
-            document.getElementById('plDesc').textContent=current.description;
-            const list=document.getElementById('soundsList'); list.innerHTML='';
-            current.sounds.forEach(s=>{const btn=document.createElement('button');btn.className='dashboard-tile';btn.textContent=s.name;btn.onclick=_=>new Audio(s.folder?`${s.folder}/${s.fileName}`:s.blobUrl).play();list.appendChild(btn);});
-        }
-        document.addEventListener('DOMContentLoaded',initShow);
-    </script>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div>
+      <a href="playlists.html" class="btn">← Back</a>
+      <button id="editBtn" class="btn">Edit</button>
+      <button id="saveBtn" class="btn hidden">Save</button>
+    </div>
+  </nav>
+  <main>
+    <h1 id="plTitle"></h1>
+    <p id="plDesc"></p>
+    <div id="soundsContainer"></div>
+  </main>
+  <script>
+    let editMode=false, current;
+    function init(){firebase.auth().onAuthStateChanged(u=>{if(!u) return location='index.html';load();});}
+    function load(){
+      const params=new URLSearchParams(location.search);
+      const db=firebase.firestore();
+      if(params.has('id')){
+        db.collection('users').doc(firebase.auth().currentUser.uid)
+          .collection('playlists').doc(params.get('id')).get().then(doc=>{
+            current=doc;render(doc.data(),false);
+          });
+      } else {
+        const local=JSON.parse(localStorage.getItem('localPlaylists')||'[]');
+        const p=local.find(x=>x.id===params.get('local')); current={id:p.id,data:()=>p};render(p,false);
+      }
+    }
+    function render(data,editable){
+      document.getElementById('plTitle').textContent=data.name;
+      document.getElementById('plDesc').textContent=data.description;
+      const cont=document.getElementById('soundsContainer');cont.innerHTML='';
+      data.sounds.forEach((s,i)=>{
+        const btn=document.createElement('div');btn.className='sound-btn';btn.textContent=s.label;
+        btn.onclick=()=>new Audio(s.path||s.url).play();
+        if(editable){btn.classList.add('edit-mode');btn.ondblclick=()=>{data.sounds.splice(i,1);render(data,true);};}
+        cont.appendChild(btn);
+      });
+      document.getElementById('saveBtn').onclick=save;
+    }
+    document.getElementById('editBtn').addEventListener('click',()=>{editMode=!editMode;render(current.data(),editMode);
+      document.getElementById('saveBtn').classList.toggle('hidden',!editMode);
+    });
+    function save(){
+      const params=new URLSearchParams(location.search);
+      if(params.has('id')){
+        firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid)
+          .collection('playlists').doc(params.get('id')).update({sounds:current.data().sounds});
+      } else {
+        const local=JSON.parse(localStorage.getItem('localPlaylists')||'[]');
+        const idx=local.findIndex(x=>x.id===current.id);local[idx].sounds=current.data().sounds;
+        localStorage.setItem('localPlaylists',JSON.stringify(local));
+      }
+      editMode=false;render(current.data(),false);document.getElementById('saveBtn').classList.add('hidden');
+    }
+    document.addEventListener('DOMContentLoaded',init);
+  </script>
 </body>
 </html>
