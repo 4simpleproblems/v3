@@ -26,10 +26,10 @@
       <h1>Create Playlist</h1>
       <form id="playlistForm">
         <label>Name (max 20 chars)
-          <input id="plName" type="text" maxlength="20" required>
+          <input id="plName" type="text" maxlength="20" required style="border-radius: 0;">
         </label>
         <label>Description (max 60 chars)
-          <textarea id="plDesc" maxlength="60"></textarea>
+          <textarea id="plDesc" maxlength="60" style="border-radius: 0;"></textarea>
         </label>
 
         <label>Type
@@ -117,7 +117,7 @@
       const item = document.createElement('div');
       item.className = 'sound-item';
       item.innerHTML = `
-                <input type="file" accept="audio/*">
+                <input type="file" accept="audio/*" disabled>
                 <input type="text" class="name-edit" placeholder="Button label">
                 <button type="button" class="remove-local-sound" style="background:#b71c1c;">✕</button>
             `;
@@ -175,29 +175,15 @@
 
         const sounds = [];
         const soundItems = localSoundInputs.querySelectorAll('.sound-item');
-        let allFilesValid = true;
 
         soundItems.forEach(i => {
-          const fileInput = i.querySelector('input[type="file"]');
-          const file = fileInput.files[0];
           const label = i.querySelector('.name-edit').value;
-
-          if (file) {
-            sounds.push({
-              fileName: file.name,
-              label: label,
-              url: URL.createObjectURL(file)
-            });
-          } else {
-            allFilesValid = false;
-          }
+          sounds.push({
+            fileName: "local",
+            label: label,
+            url: ""
+          });
         });
-
-        if (!allFilesValid) {
-          alert('Please select a file for each local sound input.');
-          return;
-        }
-
 
         const id = Date.now().toString();
         local.push({
