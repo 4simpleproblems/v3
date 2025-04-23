@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>4SP | Create Playlist</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -11,6 +12,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
 </head>
+
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
@@ -18,92 +20,198 @@
       <a href="playlists.html" class="btn secondary">← Back</a>
     </div>
   </nav>
-  <main class="container" style="max-width:600px;">
-    <h1>Create Playlist</h1>
-    <form id="playlistForm" class="card">
-      <label>Name (max 20 chars)
-        <input id="plName" type="text" maxlength="20" required>
-      </label>
-      <label>Description (max 60 chars)
-        <textarea id="plDesc" maxlength="60"></textarea>
-      </label>
-      <label>Type
-        <select id="plType">
-          <option value="normal">Normal</option>
-          <option value="local">Local</option>
-        </select>
-      </label>
-      <div id="soundsSection" class="sounds-list"></div>
-      <button type="submit" class="btn primary btn-save">Save Playlist</button>
-    </form>
+
+  <main class="container" style="max-width:700px;">
+    <div class="card">
+      <h1>Create Playlist</h1>
+      <form id="playlistForm">
+        <label>Name (max 20 chars)
+          <input id="plName" type="text" maxlength="20" required>
+        </label>
+        <label>Description (max 60 chars)
+          <textarea id="plDesc" maxlength="60"></textarea>
+        </label>
+
+        <label>Type
+          <select id="plType">
+            <option value="normal">Normal Sounds</option>
+            <option value="local">Local Sounds</option>
+          </select>
+        </label>
+
+        <div id="normalSoundsSection" class="sounds-list hidden">
+          <h3>Normal Sounds</h3>
+          <p>Choose sounds from our library:</p>
+        </div>
+
+        <div id="localSoundsSection" class="sounds-list hidden">
+          <h3>Local Sounds</h3>
+          <p>Upload your own sound files:</p>
+          <div id="localSoundInputs">
+            <!-- Local sound inputs will be added here -->
+          </div>
+          <button type="button" id="addLocalSound" class="btn secondary">Add Local Sound</button>
+        </div>
+
+        <button type="submit" class="btn primary btn-save">Save Playlist</button>
+      </form>
+    </div>
   </main>
+
   <script>
-    const form = document.getElementById('playlistForm'), sect = document.getElementById('soundsSection');
+    const form = document.getElementById('playlistForm');
+    const plType = document.getElementById('plType');
+    const normalSoundsSection = document.getElementById('normalSoundsSection');
+    const localSoundsSection = document.getElementById('localSoundsSection');
+    const localSoundInputs = document.getElementById('localSoundInputs');
+    const addLocalSoundButton = document.getElementById('addLocalSound');
     let manifest;
+
+    // Fetch sound manifest
     fetch('SoundboardSN.json').then(r => r.json()).then(m => manifest = m);
 
-    document.getElementById('plType').addEventListener('change', renderSounds);
-
+    // Function to render the sound options
     function renderSounds() {
-      sect.innerHTML = '';
-      if (plType.value === 'normal') {
+      normalSoundsSection.innerHTML = '<h3>Normal Sounds</h3> <p>Choose sounds from our library:</p>'; // Clear previous content
+      localSoundsSection.innerHTML = '<h3>Local Sounds</h3><p>Upload your own sound files:</p><div id="localSoundInputs"></div>';// Clear previous content
+      localSoundInputs = localSoundsSection.querySelector('#localSoundInputs');
+      let type = plType.value;
+
+      if (type === 'normal') {
+        normalSoundsSection.classList.remove('hidden');
+        localSoundsSection.classList.add('hidden');
+        // Normal Sounds Section
         ['NormalSounds', 'ExplicitSounds'].forEach(folder => {
           if (manifest && manifest[folder]) {
             manifest[folder].forEach(file => {
-              const item = document.createElement('div'); item.className = 'sound-item';
-              const chk = document.createElement('input'); chk.type = 'checkbox'; chk.value = folder + '/' + file;
-              const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = '▶'; btn.onclick = () => new Audio(folder + '/' + file).play();
-              const nameIn = document.createElement('input'); nameIn.className = 'name-edit'; nameIn.value = file.replace('.mp3', '');
+              const item = document.createElement('div');
+              item.className = 'sound-item';
+              const chk = document.createElement('input');
+              chk.type = 'checkbox';
+              chk.value = folder + '/' + file;
+              const btn = document.createElement('button');
+              btn.type = 'button';
+              btn.textContent = '▶';
+              btn.onclick = () => new Audio(folder + '/' + file).play();
+              const nameIn = document.createElement('input');
+              nameIn.className = 'name-edit';
+              nameIn.value = file.replace('.mp3', '');
               item.append(chk, btn, nameIn);
-              sect.appendChild(item);
+              normalSoundsSection.appendChild(item);
             });
           }
         });
-      } else {
-        for (let i = 0; i < 5; i++) {
-          const item = document.createElement('div'); item.className = 'sound-item';
-          const fileIn = document.createElement('input'); fileIn.type = 'file'; fileIn.accept = 'audio/*';
-          const nameIn = document.createElement('input'); nameIn.className = 'name-edit'; nameIn.placeholder = 'Button label';
-          const btnDel = document.createElement('button'); btnDel.type = 'button'; btnDel.textContent = '✕'; btnDel.style.background = '#b71c1c'; btnDel.onclick = e => item.remove();
-          item.append(fileIn, nameIn, btnDel);
-          sect.appendChild(item);
+      } else if (type === 'local') {
+        normalSoundsSection.classList.add('hidden');
+        localSoundsSection.classList.remove('hidden');
+
+        // Initial local sound inputs (you can adjust the number)
+        for (let i = 0; i < 3; i++) {
+          addLocalSoundInput();
         }
       }
     }
 
+    // Function to add a local sound input
+    function addLocalSoundInput() {
+      const item = document.createElement('div');
+      item.className = 'sound-item';
+      item.innerHTML = `
+                <input type="file" accept="audio/*">
+                <input type="text" class="name-edit" placeholder="Button label">
+                <button type="button" class="remove-local-sound" style="background:#b71c1c;">✕</button>
+            `;
+      localSoundInputs.appendChild(item);
+
+      // Event listener for remove button
+      item.querySelector('.remove-local-sound').addEventListener('click', function() {
+        item.remove();
+      });
+    }
+
+    // Event listener for "Add Local Sound" button
+    addLocalSoundButton.addEventListener('click', addLocalSoundInput);
+
+
+    // Initial rendering and event listener for playlist type change
+    plType.addEventListener('change', renderSounds);
+    document.addEventListener('DOMContentLoaded', renderSounds);
+
+
+    // Form submission
     form.addEventListener('submit', e => {
       e.preventDefault();
-      const name = plName.value, desc = plDesc.value, type = plType.value;
+      const name = document.getElementById('plName').value;
+      const desc = document.getElementById('plDesc').value;
+      const type = plType.value;
+
       if (type === 'normal') {
         const sounds = [];
-        sect.querySelectorAll('.sound-item').forEach(i => {
+        normalSoundsSection.querySelectorAll('.sound-item').forEach(i => {
           const chk = i.querySelector('input[type=checkbox]');
           if (chk && chk.checked) {
-            sounds.push({ path: chk.value, label: i.querySelector('.name-edit').value });
+            sounds.push({
+              path: chk.value,
+              label: i.querySelector('.name-edit').value
+            });
           }
         });
+
         firebase.auth().onAuthStateChanged(u => {
           const db = firebase.firestore();
-          db.collection('users').doc(u.uid).collection('playlists').add({ name, description: desc, type, sounds }).then(() => location = 'playlists.html');
+          db.collection('users').doc(u.uid).collection('playlists').add({
+            name,
+            description: desc,
+            type,
+            sounds
+          }).then(() => location = 'playlists.html');
         });
-      } else {
+      } else if (type === 'local') {
         const local = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-        if (local.length >= 3) { alert('Max 3 local playlists'); return; }
+        if (local.length >= 3) {
+          alert('Max 3 local playlists');
+          return;
+        }
+
         const sounds = [];
-        sect.querySelectorAll('.sound-item').forEach(i => {
-          const f = i.querySelector('input[type=file]').files[0];
-          if (f) {
-            sounds.push({ fileName: f.name, label: i.querySelector('.name-edit').value, url: URL.createObjectURL(f) });
+        const soundItems = localSoundInputs.querySelectorAll('.sound-item');
+        let allFilesValid = true;
+
+        soundItems.forEach(i => {
+          const fileInput = i.querySelector('input[type="file"]');
+          const file = fileInput.files[0];
+          const label = i.querySelector('.name-edit').value;
+
+          if (file) {
+            sounds.push({
+              fileName: file.name,
+              label: label,
+              url: URL.createObjectURL(file)
+            });
+          } else {
+            allFilesValid = false;
           }
         });
+
+        if (!allFilesValid) {
+          alert('Please select a file for each local sound input.');
+          return;
+        }
+
+
         const id = Date.now().toString();
-        local.push({ id, name, description: desc, type, sounds });
+        local.push({
+          id,
+          name,
+          description: desc,
+          type,
+          sounds
+        });
         localStorage.setItem('localPlaylists', JSON.stringify(local));
         location = 'playlists.html';
       }
     });
-
-    document.addEventListener('DOMContentLoaded', renderSounds);
   </script>
 </body>
+
 </html>
