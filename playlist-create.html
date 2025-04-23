@@ -1,0 +1,99 @@
+<!-- playlist-create.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | Create Playlist</n    ><link rel="stylesheet" href="styles.css"><link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        /* Reuse the same styles from dashboard */
+        /* ...copy navbar, buttons, forms styling...*/
+        body{background:#e0e0e0;font-family:'Roboto Mono',monospace;}
+        .navbar{background:#1a1a1a;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;}
+        .navbar .logo{color:#f0f0f0;font-size:1.5rem;font-weight:bold;}
+        .nav-buttons .btn{color:#f0f0f0;text-decoration:none;padding:.5rem 1rem;border-radius:20px;border:2px solid #f0f0f0;transition:background .3s;}
+        .nav-buttons .btn.secondary:hover{background:rgba(255,255,255,0.1);}
+        main.container{max-width:600px;margin:2rem auto;padding:0 1rem;}
+        form{background:#1a1a1a;padding:2rem;border-radius:15px;color:#f0f0f0;display:flex;flex-direction:column;gap:1rem;}
+        label{display:flex;flex-direction:column;font-size:.9rem;}
+        input[type=text],textarea,select{padding:.5rem;border-radius:8px;border:none;font-family:'Roboto Mono';}
+        .sounds-list{display:flex;flex-direction:column;gap:.5rem;}
+        .sound-row{display:flex;align-items:center;gap:.5rem;}
+        .sound-row input[type=text]{flex:1;}
+        .sound-row input[type=file]{flex:1;}
+        .sound-row .remove{background:red;color:white;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;}
+        .btn.primary{background:var(--light-text);color:var(--dark-bg);border:none;padding:.7rem;cursor:pointer;border-radius:20px;}
+    </style>
+</head>
+<body>
+    <nav class="navbar"><div class="logo">4SP</div><div class="nav-buttons"><a href="playlists.html" class="btn secondary">Back</a></div></nav>
+    <main class="container">
+        <form id="playlistForm">
+            <label>Name (≤20 chars)<input type="text" id="playlistName" maxlength="20" required></label>
+            <label>Description (≤60 chars)<textarea id="playlistDesc" maxlength="60"></textarea></label>
+            <label>Type<select id="playlistType"><option value="normal">Normal</option><option value="local">Local</option></select></label>
+            <div id="soundsSection" class="sounds-list"></div>
+            <button type="submit" class="btn primary">Save Playlist</button>
+        </form>
+    </main>
+    <footer><p>© 2025 4SP</p></footer>
+    <script>
+        let manifest={NormalSounds:[],ExplicitSounds:[]};
+        function initCreate(){
+            const auth=firebase.auth();
+            auth.onAuthStateChanged(user=>{if(!user) return window.location.href='index.html';});
+            fetch('SoundboardSN.json').then(r=>r.json()).then(d=>manifest=d);
+            document.getElementById('playlistType').onchange=renderSounds;
+            document.getElementById('playlistForm').onsubmit=save;
+            renderSounds();
+        }
+        function renderSounds(){
+            const sec=document.getElementById('soundsSection'); sec.innerHTML='';
+            if(document.getElementById('playlistType').value==='normal'){
+                [...manifest.NormalSounds, ...manifest.ExplicitSounds].forEach(fn=>{
+                    const row=document.createElement('div');row.className='sound-row';
+                    const cb=document.createElement('input');cb.type='checkbox';cb.value=fn;row.appendChild(cb);
+                    const lbl=document.createElement('span');lbl.textContent=fn.replace('.mp3','');row.appendChild(lbl);
+                    sec.appendChild(row);
+                });
+            } else {
+                for(let i=0;i<3;i++){addLocalRow(null);}  // allow up to 3 sounds
+            }
+        }
+        function addLocalRow(file){
+            const sec=document.getElementById('soundsSection');
+            const row=document.createElement('div');row.className='sound-row';
+            const txt=document.createElement('input');txt.type='text';txt.placeholder='Label';row.appendChild(txt);
+            const inp=document.createElement('input');inp.type='file';inp.accept='audio/*';row.appendChild(inp);
+            const btn=document.createElement('button');btn.type='button';btn.className='remove';btn.textContent='×';btn.onclick=()=>row.remove();row.appendChild(btn);
+            sec.appendChild(row);
+        }
+        function save(e){
+            e.preventDefault();
+            const name=document.getElementById('playlistName').value;
+            const desc=document.getElementById('playlistDesc').value;
+            const type=document.getElementById('playlistType').value;
+            if(type==='normal'){
+                const auth=firebase.auth(); auth.onAuthStateChanged(user=>{
+                    const db=firebase.firestore();
+                    const sounds=[];
+                    document.querySelectorAll('#soundsSection input[type=checkbox]:checked').forEach(cb=>{
+                        sounds.push({id:cb.value,name:cb.value.replace('.mp3',''),folder:manifest.NormalSounds.includes(cb.value)?'NormalSounds':'ExplicitSounds',fileName:cb.value});
+                    });
+                    db.collection('users').doc(user.uid).collection('playlists').add({name,description:desc,type,sounds}).then(()=>window.location.href='playlists.html');
+                });
+            } else {
+                let locals=JSON.parse(localStorage.getItem('localPlaylists')||'[]'); if(locals.length>=3) return alert('Max 3 local playlists');
+                const sounds=[];
+                document.querySelectorAll('#soundsSection .sound-row').forEach(row=>{
+                    const file=row.querySelector('input[type=file]').files[0]; const label=row.querySelector('input[type=text]').value||file.name;
+                    if(file){ sounds.push({id:Date.now()+''+Math.random(),name:label,blobUrl:URL.createObjectURL(file),fileName:file.name}); }
+                });
+                locals.push({id:Date.now()+'',name,description:desc,type,sounds}); localStorage.setItem('localPlaylists',JSON.stringify(locals)); window.location.href='playlists.html';
+            }
+        }
+        document.addEventListener('DOMContentLoaded',initCreate);
+    </script>
