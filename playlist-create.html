@@ -1,233 +1,97 @@
 <!-- playlist-create.html -->
+<! -- Create a new playlist -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>4SP | Create Playlist</title>
-  <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    /* CREATE PLAYLIST PAGE STYLES */
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      background: #1a1a1a;
-      padding: 2rem;
-      border-radius: 30px;
-    }
-    label {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.9rem;
-      color: white;
-    }
-    input[type="text"], textarea, select {
-      padding: 0.5rem;
-      border-radius: 15px;
-      border: none;
-      margin-top: 0.3rem;
-    }
-    #soundsSection {
-      background: #212121;
-      padding: 1rem;
-      border-radius: 30px;
-    }
-    .sound-input-row {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-    .sound-input-row input[type="text"] {
-      flex: 1;
-    }
-    .sound-input-row input[type="file"] {
-      flex: 1;
-    }
-    .sound-input-row .delete-btn {
-      background: #b71c1c;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 2rem;
-      height: 2rem;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-    /* END CREATE PAGE STYLES */
-  </style>
-</head>
-<body>
+  <link rel="stylesheet" href="styles.css"><link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="playlists.html" class="btn secondary">Back</a>
-    </div>
-  </nav>
-
-  <main class="container">
+  <style>
+    body{background:#121212;color:#fff;font-family:'Roboto Mono',monospace;margin:0;padding:0;}
+    .navbar{background:#1e1e1e;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;}
+    .navbar .logo{color:#fff;font-weight:bold;font-size:1.5rem;}
+    .navbar .btn{color:#fff;border:2px solid #fff;padding:0.5rem 1rem;border-radius:30px;text-decoration:none;}
+    main{max-width:600px;margin:2rem auto;padding:0 1rem;}
+    form{display:flex;flex-direction:column;gap:1rem;}
+    label{display:flex;flex-direction:column;font-size:0.9rem;}
+    input[type=text],textarea,select{padding:0.5rem;border-radius:10px;border:none;}
+    .sounds-list{display:flex;flex-direction:column;gap:0.5rem;}
+    .sound-item{display:flex;align-items:center;gap:0.5rem;}
+    .sound-item input[type=checkbox]{width:18px;height:18px;}
+    .sound-item button{border:none;background:#2a2a2a;color:#fff;padding:0.5rem;border-radius:50%;width:2rem;height:2rem;cursor:pointer;}
+    .sound-item input.name-edit{flex:1;padding:0.4rem;border-radius:8px;border:none;}
+    .btn-save{background:#4caf50;color:#fff;border:none;padding:0.7rem;border-radius:20px;cursor:pointer;}
+  </style>
+</head>
+<body>
+  <nav class="navbar"><div class="logo">4SP</div><a href="playlists.html" class="btn">← Back</a></nav>
+  <main>
     <h1>Create Playlist</h1>
-    <form id="form">
-      <label>Name (≤20 chars)
-        <input type="text" id="name" maxlength="20" required>
-      </label>
-      <label>Description (≤60 chars)
-        <textarea id="desc" maxlength="60"></textarea>
-      </label>
-      <label>Type
-        <select id="type">
-          <option value="normal">Normal</option>
-          <option value="local">Local</option>
-        </select>
-      </label>
-      <div id="soundsSection"></div>
-      <button type="submit" class="btn primary">Save Playlist</button>
+    <form id="playlistForm">
+      <label>Name (max 20 chars)<input id="plName" type="text" maxlength="20" required></label>
+      <label>Description (max 60 chars)<textarea id="plDesc" maxlength="60"></textarea></label>
+      <label>Type<select id="plType"><option value="normal">Normal</option><option value="local">Local</option></select></label>
+      <div id="soundsSection" class="sounds-list"></div>
+      <button type="submit" class="btn-save">Save Playlist</button>
     </form>
   </main>
-
-  <footer>
-    <p>© 2025 4SP</p>
-  </footer>
-
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const auth = firebase.auth();
-      const db = firebase.firestore();
-      const form = document.getElementById('form');
-      const typeSelect = document.getElementById('type');
-      const soundsSection = document.getElementById('soundsSection');
-
-      auth.onAuthStateChanged(user => {
-        if (!user) location.href = 'index.html';
-      });
-
-      typeSelect.addEventListener('change', renderSounds);
-      renderSounds();
-
-      function renderSounds() {
-        soundsSection.innerHTML = '';
-        if (typeSelect.value === 'normal') {
-          renderNormalPickers();
-        } else {
-          renderLocalUpload();
+    const form=document.getElementById('playlistForm'), sect=document.getElementById('soundsSection');
+    let manifest;
+    fetch('SoundboardSN.json').then(r=>r.json()).then(m=>manifest=m);
+    document.getElementById('plType').addEventListener('change',renderSounds);
+    function renderSounds(){sect.innerHTML='';
+      if(plType.value==='normal'){
+        ['NormalSounds','ExplicitSounds'].forEach(folder=>{
+          manifest[folder].forEach(file=>{
+            const item=document.createElement('div');item.className='sound-item';
+            const chk=document.createElement('input');chk.type='checkbox';chk.value=folder+'/'+file;
+            const btn=document.createElement('button');btn.textContent='▶';btn.onclick=()=>new Audio(folder+'/'+file).play();
+            const nameIn=document.createElement('input');nameIn.className='name-edit';nameIn.value=file.replace('.mp3','');
+            item.append(chk,btn,nameIn);
+            sect.appendChild(item);
+          });
+        });
+      } else {
+        // local
+        for(let i=0;i<5;i++){
+          const item=document.createElement('div');item.className='sound-item';
+          const fileIn=document.createElement('input');fileIn.type='file';fileIn.accept='audio/*';
+          const nameIn=document.createElement('input');nameIn.className='name-edit';nameIn.placeholder='Button label';
+          const btnDel=document.createElement('button');btnDel.textContent='✕';btnDel.style.background='#b71c1c';btnDel.onclick=e=>item.remove();
+          item.append(fileIn,nameIn,btnDel);
+          sect.appendChild(item);
         }
       }
-
-      function renderNormalPickers() {
-        const container = document.createElement('div');
-        container.innerHTML = '<p>Select from Normal and Explicit sounds:</p>';
-        fetch('SoundboardSN.json')
-          .then(res => res.json())
-          .then(data => {
-            ['NormalSounds', 'ExplicitSounds'].forEach(folder => {
-              const group = document.createElement('div');
-              group.innerHTML = `<h4>${folder.replace('Sounds','')}</h4>`;
-              data[folder].forEach(file => {
-                const label = document.createElement('label');
-                label.innerHTML = `<input type="checkbox" value="${folder}|${file}"> ${file.replace('.mp3','')}`;
-                group.appendChild(label);
-              });
-              container.appendChild(group);
-            });
-          });
-        soundsSection.appendChild(container);
-      }
-
-      function renderLocalUpload() {
-        const container = document.createElement('div');
-        container.innerHTML = '<p>Upload your own sounds:</p>';
-        const list = document.createElement('div');
-        addLocalInputRow(list);
-        const addBtn = document.createElement('button');
-        addBtn.textContent = '+ Add Sound';
-        addBtn.className = 'btn secondary';
-        addBtn.style.marginTop = '0.5rem';
-        addBtn.addEventListener('click', e => {
-          e.preventDefault();
-          addLocalInputRow(list);
+    }
+    form.addEventListener('submit',e=>{e.preventDefault();
+      const name=plName.value,desc=plDesc.value,type=plType.value;
+      if(type==='normal'){
+        const sounds=[];
+        sect.querySelectorAll('.sound-item').forEach(i=>{const chk=i.querySelector('input[type=checkbox]'); if(chk.checked){
+          sounds.push({path:chk.value,label:i.querySelector('.name-edit').value});
+        }});
+        firebase.auth().onAuthStateChanged(u=>{
+          const db=firebase.firestore();
+          db.collection('users').doc(u.uid).collection('playlists').add({name,desc,type,sounds}).then(()=>location='playlists.html');
         });
-        soundsSection.appendChild(container);
-        soundsSection.appendChild(list);
-        soundsSection.appendChild(addBtn);
-      }
-
-      function addLocalInputRow(list) {
-        const row = document.createElement('div');
-        row.className = 'sound-input-row';
-        const nameInput = document.createElement('input');
-        nameInput.type = 'text';
-        nameInput.placeholder = 'Sound name';
-        nameInput.maxLength = 20;
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = 'audio/*';
-        const delBtn = document.createElement('button');
-        delBtn.className = 'delete-btn';
-        delBtn.textContent = '×';
-        delBtn.addEventListener('click', () => list.removeChild(row));
-        row.appendChild(nameInput);
-        row.appendChild(fileInput);
-        row.appendChild(delBtn);
-        list.appendChild(row);
-      }
-
-      form.addEventListener('submit', e => {
-        e.preventDefault();
-        const name = document.getElementById('name').value.trim();
-        const desc = document.getElementById('desc').value.trim();
-        const type = typeSelect.value;
-        auth.currentUser && (
-          type === 'normal' ? saveNormal(name, desc) : saveLocal(name, desc)
-        );
-      });
-
-      function saveNormal(name, desc) {
-        const selected = Array.from(soundsSection.querySelectorAll('input[type=checkbox]:checked'))
-          .map(chk => {
-            const [folder, file] = chk.value.split('|');
-            return { folder, file, name: chk.nextSibling.textContent.trim() };
-          });
-        if (selected.length === 0) return alert('Select at least one sound');
-        const user = auth.currentUser;
-        db.collection('users').doc(user.uid).collection('playlists')
-          .add({ name, description: desc, type: 'normal', sounds: selected })
-          .then(() => location.href = 'playlists.html')
-          .catch(err => console.error('Error saving:', err));
-      }
-
-      function saveLocal(name, desc) {
-        const rows = soundsSection.querySelectorAll('.sound-input-row');
-        const files = [];
-        rows.forEach(row => {
-          const file = row.querySelector('input[type=file]').files[0];
-          const label = row.querySelector('input[type=text]').value.trim();
-          if (file) {
-            files.push({ id: crypto.randomUUID(), name: label, blob: URL.createObjectURL(file) });
-          }
-        });
-        if (files.length === 0) return alert('Upload at least one file');
-        const local = getLocal();
-        if (local.length >= 3) return alert('Max 3 local playlists');
-        local.push({ id: crypto.randomUUID(), name, description: desc, type: 'local', sounds: files });
-        localStorage.setItem('localPlaylists', JSON.stringify(local));
-        location.href = 'playlists.html';
-      }
-
-      function getLocal() {
-        try {
-          return JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-        } catch {
-          return [];
-        }
+      } else {
+        const local=JSON.parse(localStorage.getItem('localPlaylists')||'[]');
+        if(local.length>=3){alert('Max 3 local playlists');return;} 
+        const sounds=[];
+        sect.querySelectorAll('.sound-item').forEach(i=>{const f=i.querySelector('input[type=file]').files[0]; if(f){
+          sounds.push({fileName:f.name,label:i.querySelector('.name-edit').value,url:URL.createObjectURL(f)});
+        }});
+        const id=Date.now().toString(); local.push({id,name,desc,type,sounds}); localStorage.setItem('localPlaylists',JSON.stringify(local)); location='playlists.html';
       }
     });
+    // initial
+    document.addEventListener('DOMContentLoaded',renderSounds);
   </script>
 </body>
 </html>
+
