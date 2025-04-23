@@ -1,0 +1,75 @@
+<!-- feedback-collections.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | Feedback Collections</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        * { font-family: 'Roboto Mono', monospace !important; text-decoration: none !important; box-sizing: border-box; }
+        :root { --light-gray: #e0e0e0; --dark-bg: #1a1a1a; --darker-bg: #0d0d0d; --light-text: #f0f0f0; --pill-radius: 50px; --card-radius: 24px; }
+        body { background-color: var(--light-gray); color: var(--dark-bg); margin: 0; padding: 0; min-height: 100vh; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 3rem; background-color: var(--darker-bg); color: var(--light-text); }
+        .logo { font-size: 1.8rem; font-weight: 700; }
+        .nav-buttons { display: flex; gap: 1.5rem; }
+        .btn { padding: 1rem 2rem; border-radius: var(--pill-radius); font-size: 1rem; cursor: pointer; transition: all 0.3s ease; }
+        .btn.secondary { background-color: transparent; color: var(--light-text); border: 2px solid var(--light-text); }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; display: flex; }
+        .requests-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; flex: 1; }
+        .request-card { background: white; border-radius: var(--card-radius); padding: 1.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        #loadingMessage { text-align: center; padding: 2rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="feedback.html" class="btn secondary">Submit Feedback</a>
+            <button id="logoutBtn" class="btn secondary">Log Out</button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="main-content">
+            <h1>Feedback Collection</h1>
+            <div id="feedbackContainer" class="requests-grid"><p id="loadingMessage">Loading feedback...</p></div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const db = firebase.firestore(), auth = firebase.auth();
+            const container = document.getElementById('feedbackContainer');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const adminEmail = '4simpleproblems@gmail.com';
+
+            auth.onAuthStateChanged(user => {
+                if (!user) return window.location.href = 'index.html';
+                if (user.email !== adminEmail) return window.location.href = 'feedback.html';
+                db.collection('feedback').orderBy('timestamp', 'desc').onSnapshot(snap => {
+                    const items = snap.docs.map(d => ({ id: d.id, ...d.data(), timestamp: d.data().timestamp?.toDate() }));
+                    render(items);
+                }, e => container.innerHTML = '<p>Error loading feedback</p>');
+            });
+
+            function render(list) {
+                if (!list.length) return container.innerHTML = '<p>No feedback found</p>';
+                container.innerHTML = list.map(item => `
+                    <div class="request-card">
+                        <h3>${item.title}</h3>
+                        <p>${item.description}</p>
+                        <div class="request-meta"><span>${item.timestamp?.toLocaleString() || ''}</span> <span>| From: ${item.submittedBy}</span></div>
+                    </div>`
+                ).join('');
+            }
+
+            logoutBtn.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'index.html'));
+        });
+    </script>
+</body>
+</html>
