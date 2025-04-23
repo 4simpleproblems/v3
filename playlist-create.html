@@ -1,97 +1,108 @@
-<!-- playlist-create.html -->
-<! -- Create a new playlist -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>4SP | Create Playlist</title>
-  <link rel="stylesheet" href="styles.css"><link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <style>
-    body{background:#121212;color:#fff;font-family:'Roboto Mono',monospace;margin:0;padding:0;}
-    .navbar{background:#1e1e1e;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;}
-    .navbar .logo{color:#fff;font-weight:bold;font-size:1.5rem;}
-    .navbar .btn{color:#fff;border:2px solid #fff;padding:0.5rem 1rem;border-radius:30px;text-decoration:none;}
-    main{max-width:600px;margin:2rem auto;padding:0 1rem;}
-    form{display:flex;flex-direction:column;gap:1rem;}
-    label{display:flex;flex-direction:column;font-size:0.9rem;}
-    input[type=text],textarea,select{padding:0.5rem;border-radius:10px;border:none;}
-    .sounds-list{display:flex;flex-direction:column;gap:0.5rem;}
-    .sound-item{display:flex;align-items:center;gap:0.5rem;}
-    .sound-item input[type=checkbox]{width:18px;height:18px;}
-    .sound-item button{border:none;background:#2a2a2a;color:#fff;padding:0.5rem;border-radius:50%;width:2rem;height:2rem;cursor:pointer;}
-    .sound-item input.name-edit{flex:1;padding:0.4rem;border-radius:8px;border:none;}
-    .btn-save{background:#4caf50;color:#fff;border:none;padding:0.7rem;border-radius:20px;cursor:pointer;}
-  </style>
 </head>
 <body>
-  <nav class="navbar"><div class="logo">4SP</div><a href="playlists.html" class="btn">← Back</a></nav>
-  <main>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <a href="playlists.html" class="btn secondary">← Back</a>
+    </div>
+  </nav>
+  <main class="container" style="max-width:600px;">
     <h1>Create Playlist</h1>
     <form id="playlistForm">
-      <label>Name (max 20 chars)<input id="plName" type="text" maxlength="20" required></label>
-      <label>Description (max 60 chars)<textarea id="plDesc" maxlength="60"></textarea></label>
-      <label>Type<select id="plType"><option value="normal">Normal</option><option value="local">Local</option></select></label>
+      <label>Name (max 20 chars)
+        <input id="plName" type="text" maxlength="20" required>
+      </label>
+      <label>Description (max 60 chars)
+        <textarea id="plDesc" maxlength="60"></textarea>
+      </label>
+      <label>Type
+        <select id="plType">
+          <option value="normal">Normal</option>
+          <option value="local">Local</option>
+        </select>
+      </label>
       <div id="soundsSection" class="sounds-list"></div>
-      <button type="submit" class="btn-save">Save Playlist</button>
+      <button type="submit" class="btn primary btn-save">Save Playlist</button>
     </form>
   </main>
   <script>
-    const form=document.getElementById('playlistForm'), sect=document.getElementById('soundsSection');
+    const form = document.getElementById('playlistForm'), sect = document.getElementById('soundsSection');
     let manifest;
-    fetch('SoundboardSN.json').then(r=>r.json()).then(m=>manifest=m);
-    document.getElementById('plType').addEventListener('change',renderSounds);
-    function renderSounds(){sect.innerHTML='';
-      if(plType.value==='normal'){
-        ['NormalSounds','ExplicitSounds'].forEach(folder=>{
-          manifest[folder].forEach(file=>{
-            const item=document.createElement('div');item.className='sound-item';
-            const chk=document.createElement('input');chk.type='checkbox';chk.value=folder+'/'+file;
-            const btn=document.createElement('button');btn.textContent='▶';btn.onclick=()=>new Audio(folder+'/'+file).play();
-            const nameIn=document.createElement('input');nameIn.className='name-edit';nameIn.value=file.replace('.mp3','');
-            item.append(chk,btn,nameIn);
-            sect.appendChild(item);
-          });
+    fetch('SoundboardSN.json').then(r => r.json()).then(m => manifest = m);
+
+    document.getElementById('plType').addEventListener('change', renderSounds);
+
+    function renderSounds() {
+      sect.innerHTML = '';
+      if (plType.value === 'normal') {
+        ['NormalSounds', 'ExplicitSounds'].forEach(folder => {
+          if (manifest && manifest[folder]) {
+            manifest[folder].forEach(file => {
+              const item = document.createElement('div'); item.className = 'sound-item';
+              const chk = document.createElement('input'); chk.type = 'checkbox'; chk.value = folder + '/' + file;
+              const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = '▶'; btn.onclick = () => new Audio(folder + '/' + file).play();
+              const nameIn = document.createElement('input'); nameIn.className = 'name-edit'; nameIn.value = file.replace('.mp3', '');
+              item.append(chk, btn, nameIn);
+              sect.appendChild(item);
+            });
+          }
         });
       } else {
-        // local
-        for(let i=0;i<5;i++){
-          const item=document.createElement('div');item.className='sound-item';
-          const fileIn=document.createElement('input');fileIn.type='file';fileIn.accept='audio/*';
-          const nameIn=document.createElement('input');nameIn.className='name-edit';nameIn.placeholder='Button label';
-          const btnDel=document.createElement('button');btnDel.textContent='✕';btnDel.style.background='#b71c1c';btnDel.onclick=e=>item.remove();
-          item.append(fileIn,nameIn,btnDel);
+        for (let i = 0; i < 5; i++) {
+          const item = document.createElement('div'); item.className = 'sound-item';
+          const fileIn = document.createElement('input'); fileIn.type = 'file'; fileIn.accept = 'audio/*';
+          const nameIn = document.createElement('input'); nameIn.className = 'name-edit'; nameIn.placeholder = 'Button label';
+          const btnDel = document.createElement('button'); btnDel.type = 'button'; btnDel.textContent = '✕'; btnDel.style.background = '#b71c1c'; btnDel.onclick = e => item.remove();
+          item.append(fileIn, nameIn, btnDel);
           sect.appendChild(item);
         }
       }
     }
-    form.addEventListener('submit',e=>{e.preventDefault();
-      const name=plName.value,desc=plDesc.value,type=plType.value;
-      if(type==='normal'){
-        const sounds=[];
-        sect.querySelectorAll('.sound-item').forEach(i=>{const chk=i.querySelector('input[type=checkbox]'); if(chk.checked){
-          sounds.push({path:chk.value,label:i.querySelector('.name-edit').value});
-        }});
-        firebase.auth().onAuthStateChanged(u=>{
-          const db=firebase.firestore();
-          db.collection('users').doc(u.uid).collection('playlists').add({name,desc,type,sounds}).then(()=>location='playlists.html');
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = plName.value, desc = plDesc.value, type = plType.value;
+      if (type === 'normal') {
+        const sounds = [];
+        sect.querySelectorAll('.sound-item').forEach(i => {
+          const chk = i.querySelector('input[type=checkbox]');
+          if (chk && chk.checked) {
+            sounds.push({ path: chk.value, label: i.querySelector('.name-edit').value });
+          }
+        });
+        firebase.auth().onAuthStateChanged(u => {
+          const db = firebase.firestore();
+          db.collection('users').doc(u.uid).collection('playlists').add({ name, description: desc, type, sounds }).then(() => location = 'playlists.html');
         });
       } else {
-        const local=JSON.parse(localStorage.getItem('localPlaylists')||'[]');
-        if(local.length>=3){alert('Max 3 local playlists');return;} 
-        const sounds=[];
-        sect.querySelectorAll('.sound-item').forEach(i=>{const f=i.querySelector('input[type=file]').files[0]; if(f){
-          sounds.push({fileName:f.name,label:i.querySelector('.name-edit').value,url:URL.createObjectURL(f)});
-        }});
-        const id=Date.now().toString(); local.push({id,name,desc,type,sounds}); localStorage.setItem('localPlaylists',JSON.stringify(local)); location='playlists.html';
+        const local = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
+        if (local.length >= 3) { alert('Max 3 local playlists'); return; }
+        const sounds = [];
+        sect.querySelectorAll('.sound-item').forEach(i => {
+          const f = i.querySelector('input[type=file]').files[0];
+          if (f) {
+            sounds.push({ fileName: f.name, label: i.querySelector('.name-edit').value, url: URL.createObjectURL(f) });
+          }
+        });
+        const id = Date.now().toString();
+        local.push({ id, name, description: desc, type, sounds });
+        localStorage.setItem('localPlaylists', JSON.stringify(local));
+        location = 'playlists.html';
       }
     });
-    // initial
-    document.addEventListener('DOMContentLoaded',renderSounds);
+
+    document.addEventListener('DOMContentLoaded', renderSounds);
   </script>
 </body>
 </html>
-
