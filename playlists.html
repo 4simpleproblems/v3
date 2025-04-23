@@ -1,3 +1,4 @@
+<!-- playlists.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,215 +7,67 @@
     <title>4SP | Playlists</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
-
     <style>
-        :root {
-            --dark-bg: #1a1a1a;
-            --darker-bg: #0d0d0d;
-            --light-text: #f0f0f0;
-            --light-gray: #e0e0e0;
-            --tile-height: 280px;
-        }
-
-        body {
-            background-color: var(--light-gray);
-            color: var(--dark-bg);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-            font-family: 'Roboto Mono', monospace;
-        }
-
-        /* Navbar */
-        .navbar {
-            background: var(--dark-bg);
-            padding: 1rem 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .navbar .logo {
-            color: var(--light-text);
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        .nav-buttons .btn {
-            color: var(--light-text);
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            border: 2px solid var(--light-text);
-            transition: background 0.3s;
-        }
-        .nav-buttons .btn.secondary:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        main.container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-            flex: 1;
-        }
-
-        .hidden { display: none !important; }
-
-        /* Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-top: 1rem;
-        }
-        .dashboard-tile {
-            background: var(--dark-bg);
-            color: var(--light-text);
-            text-decoration: none;
-            border-radius: 15px;
-            overflow: hidden;
-            position: relative;
-            height: var(--tile-height);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 1rem;
-            transition: transform 0.2s;
-        }
-        .dashboard-tile:hover { transform: translateY(-10px); }
-        .dashboard-tile .tile-content h3 {
-            margin: 0 0 0.5rem;
-            font-size: 1.5rem;
-        }
-        .dashboard-tile .tile-content p {
-            margin: 0;
-            font-size: 0.9rem;
-        }
-        .dashboard-tile .tile-frame {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            pointer-events: none;
-            box-shadow: inset 0 0 0 2px var(--light-text);
-            border-radius: 15px;
-        }
-
-        footer {
-            text-align: center;
-            padding: 1rem 0;
-            background: var(--darker-bg);
-            color: var(--light-text);
-        }
+        :root { --dark-bg:#1a1a1a; --darker-bg:#0d0d0d; --light-text:#f0f0f0; --light-gray:#e0e0e0; --tile-height:280px; }
+        body { background:var(--light-gray); color:var(--dark-bg); display:flex; flex-direction:column; min-height:100vh; margin:0; font-family:'Roboto Mono', monospace; }
+        .navbar { background:var(--dark-bg); padding:1rem 2rem; display:flex; align-items:center; justify-content:space-between; }
+        .navbar .logo { color:var(--light-text); font-size:1.5rem; font-weight:bold; }
+        .nav-buttons .btn { color:var(--light-text); text-decoration:none; padding:0.5rem 1rem; border-radius:20px; border:2px solid var(--light-text); transition:background 0.3s; }
+        .nav-buttons .btn.secondary:hover { background:rgba(255,255,255,0.1); }
+        main.container { max-width:1200px; margin:2rem auto; padding:0 2rem; flex:1; }
+        .controls { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+        .dashboard-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:2rem; }
+        .dashboard-tile { background:var(--dark-bg); color:var(--light-text); text-decoration:none; border-radius:15px; overflow:hidden; position:relative; height:var(--tile-height); display:flex; flex-direction:column; justify-content:center; padding:1rem; transition:transform .2s; }
+        .dashboard-tile:hover { transform:translateY(-10px); }
+        .dashboard-tile .tile-content h3 { margin:0 0 .5rem; font-size:1.5rem; }
+        .dashboard-tile .tile-content p { margin:0; font-size:.9rem; }
+        .dashboard-tile .tile-frame { position:absolute; top:0; left:0; right:0; bottom:0; pointer-events:none; box-shadow:inset 0 0 0 2px var(--light-text); border-radius:15px; }
+        .badge { display:inline-block; padding:.2rem .6rem; border-radius:12px; font-size:.75rem; background:var(--darker-bg); color:var(--light-text); margin-top:.5rem; }
+        footer { text-align:center; padding:1rem 0; background:var(--darker-bg); color:var(--light-text); }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">4SP</div>
-        <div class="nav-buttons">
-            <a href="#" class="btn secondary hidden" id="logoutBtn">Log Out</a>
-        </div>
-    </nav>
-
+    <nav class="navbar"><div class="logo">4SP</div><div class="nav-buttons"><a href="#" class="btn secondary hidden" id="logoutBtn">Log Out</a></div></nav>
     <main class="container">
+        <div class="controls">
+            <h1>Your Playlists</h1>
+            <a href="playlist-create.html" class="btn secondary">+ Create Playlist</a>
+        </div>
         <h1 class="hidden" id="authNotice">Please login to access your playlists</h1>
         <div class="dashboard-grid hidden" id="playlistGrid"></div>
     </main>
-
-    <footer>
-        <p>© 2025 4SP</p>
-    </footer>
-
+    <footer><p>© 2025 4SP</p></footer>
     <script>
         function handleAuthState(user) {
-            const authNotice = document.getElementById('authNotice');
+            const notice = document.getElementById('authNotice');
             const grid = document.getElementById('playlistGrid');
             const logoutBtn = document.getElementById('logoutBtn');
-
-            if (user) {
-                authNotice.classList.add('hidden');
-                grid.classList.remove('hidden');
-                logoutBtn.classList.remove('hidden');
-                loadPlaylists(user);
-            } else {
-                authNotice.classList.remove('hidden');
-                grid.classList.add('hidden');
-                logoutBtn.classList.add('hidden');
-            }
+            if (user) { notice.classList.add('hidden'); grid.classList.remove('hidden'); logoutBtn.classList.remove('hidden'); loadPlaylists(user); }
+            else { notice.classList.remove('hidden'); grid.classList.add('hidden'); logoutBtn.classList.add('hidden'); }
         }
-
         function initAuth() {
-            try {
-                const auth = firebase.auth();
-                const logoutBtn = document.getElementById('logoutBtn');
-                logoutBtn.addEventListener('click', e => {
-                    e.preventDefault();
-                    auth.signOut().then(() => window.location.href = 'index.html');
-                });
-
-                auth.onAuthStateChanged(user => handleAuthState(user));
-            } catch (error) {
-                console.error("Auth initialization error:", error);
-                window.location.href = 'index.html';
-            }
+            const auth = firebase.auth();
+            document.getElementById('logoutBtn').addEventListener('click', e=>{e.preventDefault(); auth.signOut().then(()=>window.location.href='index.html');});
+            auth.onAuthStateChanged(handleAuthState);
         }
-
         function loadPlaylists(user) {
-            const grid = document.getElementById('playlistGrid');
-            grid.innerHTML = '';
-            // "Create Playlist" tile
-            grid.appendChild(createTile(
-                'Create Playlist',
-                'playlist-create.html',
-                'Choose local or normal soundboard'
-            ));
-
-            const db = firebase.firestore();
-            db.collection('users').doc(user.uid).collection('playlists')
-              .get()
-              .then(snapshot => {
-                  snapshot.forEach(doc => {
-                      const data = doc.data();
-                      grid.appendChild(
-                          createTile(
-                              data.name,
-                              `playlist.html?id=${doc.id}`,
-                              data.description || 'Your playlist'
-                          )
-                      );
-                  });
-              })
-              .catch(err => console.error('Error loading playlists:', err));
+            const grid=document.getElementById('playlistGrid'); grid.innerHTML='';
+            grid.appendChild(createTile('Create Playlist','playlist-create.html','Choose local or normal'));
+            const db=firebase.firestore();
+            db.collection('users').doc(user.uid).collection('playlists').get().then(snap=>{
+                snap.forEach(doc=>{const d=doc.data(); const tile=createTile(d.name,`playlist-show.html?id=${doc.id}`,d.type.toUpperCase()+" Playlist"); const desc=document.createElement('p'); desc.textContent=d.description; tile.querySelector('.tile-content').appendChild(desc); tile.querySelector('.tile-content').appendChild(badge(d.type)); grid.appendChild(tile);});
+            }).catch(console.error);
+            // localStorage
+            let locals=JSON.parse(localStorage.getItem('localPlaylists')||'[]');
+            locals.forEach(pl=>{const t=createTile(pl.name,`playlist-show.html?localId=${pl.id}`,"LOCAL Playlist"); const desc=document.createElement('p'); desc.textContent=pl.description; t.querySelector('.tile-content').appendChild(desc); t.querySelector('.tile-content').appendChild(badge('local')); grid.appendChild(t);});
         }
-
-        function createTile(title, href, desc) {
-            const a = document.createElement('a');
-            a.href = href;
-            a.className = 'dashboard-tile';
-            const content = document.createElement('div');
-            content.className = 'tile-content';
-            const h3 = document.createElement('h3'); h3.textContent = title;
-            const p = document.createElement('p'); p.textContent = desc;
-            content.appendChild(h3);
-            content.appendChild(p);
-            const frame = document.createElement('div'); frame.className = 'tile-frame';
-            a.appendChild(content);
-            a.appendChild(frame);
-            return a;
-        }
-
-        if (typeof firebase !== 'undefined') {
-            document.addEventListener('DOMContentLoaded', initAuth);
-        } else {
-            console.error('Firebase SDK not loaded.');
-            document.addEventListener('DOMContentLoaded', () => {
-                document.getElementById('authNotice').classList.remove('hidden');
-            });
-        }
+        function createTile(title,href,typeText){const a=document.createElement('a');a.href=href;a.className='dashboard-tile';const cont=document.createElement('div');cont.className='tile-content';const h3=document.createElement('h3');h3.textContent=title;cont.appendChild(h3);const p=document.createElement('p');p.textContent=typeText;cont.appendChild(p);a.appendChild(cont);const f=document.createElement('div');f.className='tile-frame';a.appendChild(f);return a;}
+        function badge(type){const b=document.createElement('span');b.className='badge';b.textContent=type.toUpperCase();return b;}
+        document.addEventListener('DOMContentLoaded',initAuth);
     </script>
 </body>
 </html>
