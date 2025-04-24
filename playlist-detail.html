@@ -24,7 +24,12 @@
       background: var(--dark-bg); color: var(--light-text);
       padding: 1rem 2rem;
     }
-    .navbar .logo { font-size: 1.5rem; font-weight: bold; }
+    .logo-section {
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .logo { font-size: 1.5rem; font-weight: bold; }
+    .title-section h2 { margin: 0; font-size: 1.25rem; }
+    .title-section p { margin: 0; font-size: .9rem; opacity: .8; }
     .nav-buttons { display: flex; gap: 1rem; }
     .btn {
       padding: .75rem 1.5rem; border-radius: var(--pill-radius);
@@ -35,13 +40,11 @@
     .btn.big { padding: 1rem 2rem; font-size: 1.1rem; }
     .btn:hover { background: var(--light-text); color: var(--dark-bg); }
     .container { padding: 1rem 2rem; }
-    .playlist-info { margin-bottom: 1rem; }
-    .playlist-info h2 { margin: 0; }
-    .playlist-info p { margin: .5rem 0 0; }
+    .playlist-info { display: none; } /* now in navbar */
     .sound-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(80px,1fr));
-      gap: .75rem;
+      gap: .75rem; justify-items: center;
     }
     .sound-btn {
       background: var(--light-text); color: var(--dark-bg);
@@ -53,10 +56,7 @@
       cursor: pointer; user-select: none;
     }
     .sound-btn.short-text { border-radius: 50%; padding: .5rem; }
-    .overlay {
-      position: fixed; top:0; left:0; width:100%; height:100%;
-      background: rgba(0,0,0,0.7); display: none;
-    }
+    .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display: none; }
     .overlay.show { display: block; }
     .editing .sound-btn { opacity: .5; }
     .editing .sound-btn.dragging { opacity: .2; }
@@ -65,7 +65,13 @@
 </head>
 <body>
   <nav class="navbar">
-    <div class="logo">4SP</div>
+    <div class="logo-section">
+      <div class="logo">4SP</div>
+      <div class="title-section">
+        <h2 id="plName"></h2>
+        <p id="plDesc"></p>
+      </div>
+    </div>
     <div class="nav-buttons">
       <button id="editBtn" class="btn big">Edit</button>
       <button id="saveBtn" class="btn big" style="display:none;">Save</button>
@@ -76,10 +82,6 @@
 
   <div class="overlay" id="overlay"></div>
   <main class="container">
-    <div class="playlist-info">
-      <h2 id="plName"></h2>
-      <p id="plDesc"></p>
-    </div>
     <div id="soundGrid" class="sound-grid"></div>
   </main>
 
@@ -89,7 +91,7 @@
     const playlistId = params.get('id');
     const isLocal = params.get('local') === 'true';
     let data = { items: [] };
-    
+
     const plName = document.getElementById('plName');
     const plDesc = document.getElementById('plDesc');
     const soundGrid = document.getElementById('soundGrid');
@@ -98,7 +100,7 @@
     const backBtn = document.getElementById('backBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const overlay = document.getElementById('overlay');
-    
+
     auth.onAuthStateChanged(async user => {
       if (!user) return location.href='index.html';
       if (isLocal) {
@@ -109,12 +111,12 @@
         if (!doc.exists || doc.data().owner!==user.uid) return location.href='playlist.html';
         data = doc.data();
       }
+      plName.textContent = data.name;
+      plDesc.textContent = data.description;
       render();
     });
 
     function render() {
-      plName.textContent = data.name;
-      plDesc.textContent = data.description;
       soundGrid.innerHTML = '';
       data.items.forEach((item,i)=>{
         const btn = document.createElement('div');
@@ -142,8 +144,8 @@
           e.preventDefault();
           const from = parseInt(e.dataTransfer.getData('text/plain'));
           const to = parseInt(btn.dataset.index);
-          const item = data.items.splice(from,1)[0];
-          data.items.splice(to,0,item);
+          const moved = data.items.splice(from,1)[0];
+          data.items.splice(to,0,moved);
           render();
         });
         soundGrid.appendChild(btn);
@@ -159,9 +161,12 @@
     saveBtn.onclick = async ()=>{
       if(!isLocal) await db.collection('playlists').doc(playlistId)
         .update({ name:data.name, description:data.description, items:data.items });
-      localStorage.setItem('localPlaylists', JSON.stringify(
-        JSON.parse(localStorage.getItem('localPlaylists')||'[]').map(p=>p.id===playlistId?data:p)
-      ));
+      else {
+        const list = JSON.parse(localStorage.getItem('localPlaylists')||'[]');
+        localStorage.setItem('localPlaylists', JSON.stringify(
+          list.map(p=>p.id===playlistId?data:p)
+        ));
+      }
       closeEdit();
     };
     function closeEdit(){
