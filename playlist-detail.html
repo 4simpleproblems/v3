@@ -21,6 +21,10 @@
       --light-text: #f0f0f0;
       --white: #fff;
       --pill-radius: 50px;
+      --darker-bg: #121212;
+      /* Darker background color */
+      --light-gray: #ccc;
+      /* Lighter gray for hover effects */
     }
 
     body {
@@ -258,8 +262,9 @@
       z-index: 2;
       right: 0;
       border-radius: 30px;
-      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
       color: var(--light-text);
+      opacity: 0.95;
+      /* Opaque background */
     }
 
     .options-content.fade-in {
@@ -463,7 +468,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.7);
       z-index: 1;
     }
 
@@ -666,7 +671,7 @@
       const url = sound.url || `${sound.folder}/${sound.fileName}`;
       const audio = new Audio(url);
 
-      if (!soundOverlayCheckbox.checked) {
+      if (soundOverlayCheckbox.checked) {
         playingAudios.forEach(audio => {
           audio.pause();
         });
@@ -675,7 +680,7 @@
 
       audio.play();
 
-      if (soundOverlayCheckbox.checked) {
+      if (!soundOverlayCheckbox.checked) {
         playingAudios.push(audio);
         audio.addEventListener('ended', () => {
           playingAudios = playingAudios.filter(a => a !== audio);
@@ -893,10 +898,11 @@
       setTimeout(() => {
         clearAllSoundsBtn.classList.remove('active');
         stopAllSounds();
+        showStatus('All sounds cleared', 'info');
       }, 400);
     });
     soundOverlayCheckbox.addEventListener('change', () => {
-      showStatus('Sound overlay ' + (soundOverlayCheckbox.checked ? 'disabled' : 'enabled'), 'info');
+      showStatus('Sound overlay ' + (soundOverlayCheckbox.checked ? 'enabled' : 'disabled'), 'info');
     });
 
     autoClickerCheckbox.addEventListener('change', () => {
@@ -953,7 +959,6 @@
         audio.pause();
       });
       playingAudios = [];
-      showStatus('All sounds cleared', 'info');
     }
 
     // Key press listener
