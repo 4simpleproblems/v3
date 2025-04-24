@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>4SP | Playlist Details</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -22,69 +22,47 @@
     }
     body { margin:0; background:var(--light-gray); color:var(--black); }
     .header {
-      position: relative;
-      background: var(--dark-gray);
-      color: var(--white);
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: var(--dark-gray); color: var(--white);
+      padding: 1rem 2rem; display: flex;
+      justify-content: space-between; align-items: center;
     }
-    .header h2, .header p {
-      margin: 0;
-    }
+    .header h2, .header p { margin: 0; }
     .header p { font-size: .9rem; opacity: .8; }
+    .header .btn { margin-left: .5rem; }
     .btn {
-      padding: .75rem 1.5rem;
-      border-radius: var(--pill-radius);
-      background: transparent;
-      border: 2px solid var(--white);
-      color: var(--white);
-      cursor: pointer;
-      font-weight: 500;
+      padding: .75rem 1.5rem; border-radius: var(--pill-radius);
+      background: transparent; border: 2px solid var(--white);
+      color: var(--white); cursor: pointer; font-weight: 500;
       transition: background .2s, color .2s;
-      margin-left: .5rem;
     }
     .btn:hover { background: var(--white); color: var(--dark-gray); }
-    .btn.primary {
-      background: var(--white); color: var(--dark-gray); border: none;
-    }
-    #content {
-      padding: 1rem 2rem;
-    }
+    .btn.primary { background: var(--white); color: var(--dark-gray); border: none; }
+    #content { padding: 1rem 2rem; }
     .sound-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(80px,1fr));
-      gap: .75rem;
+      gap: .75rem; justify-items: center;
     }
     .sound-btn {
-      min-width: 80px; height: 80px;
-      border-radius: var(--pill-radius);
+      min-width: 80px; height: 80px; border-radius: var(--pill-radius);
       background: var(--white); color: var(--dark-gray);
       border: 2px solid var(--dark-gray);
       display: flex; align-items: center; justify-content: center;
       text-align: center; padding: 0 .5rem;
       cursor: pointer; transition: background .2s;
-      word-wrap: break-word;
+      word-wrap: break-word; hyphens: auto;
     }
     .sound-btn.short-text { border-radius: 50%; padding: .5rem; }
-    .sound-btn.delete-hover:hover {
-      background: rgba(255,0,0,0.5);
-      color: #fff;
-    }
+    .sound-btn:hover { background: var(--light-gray); }
     .overlay {
-      display: none;
-      position: fixed; top:0; left:0;
-      width:100%; height:100%;
-      background: rgba(0,0,0,0.7);
-      z-index: 1;
+      display: none; position: fixed; top:0; left:0;
+      width:100%; height:100%; background: rgba(0,0,0,0.7);
+      z-index: 1; opacity:0; transition: opacity .3s;
     }
-    .editing .overlay { display:block; }
+    .overlay.show { display: block; opacity:1; }
+    .overlay.hide { opacity:0; }
     .editing .sound-btn { opacity: .3; }
     .editing .sound-btn:hover { opacity: 1; }
-    .editing .sound-grid { pointer-events: none; }
-    .editing .sound-btn.selected,
-    .editing .sound-btn:hover { pointer-events: auto; }
   </style>
 </head>
 <body>
@@ -98,10 +76,12 @@
       <button id="saveBtn" class="btn primary" style="display:none;">Save</button>
     </div>
   </nav>
+
   <div class="overlay" id="overlay"></div>
   <main id="content">
     <div id="soundGrid" class="sound-grid"></div>
   </main>
+
   <script>
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -118,13 +98,13 @@
     const overlay = document.getElementById('overlay');
 
     auth.onAuthStateChanged(async user => {
-      if (!user) return window.location.href = 'index.html';
+      if (!user) return location.href = 'index.html';
       if (isLocal) {
         const list = JSON.parse(localStorage.getItem('localPlaylists')||'[]');
         playlistData = list.find(p => p.id === playlistId) || {};
       } else {
         const doc = await db.collection('playlists').doc(playlistId).get();
-        if (!doc.exists || doc.data().owner !== user.uid) return window.location.href='playlist.html';
+        if (!doc.exists || doc.data().owner !== user.uid) return location.href = 'playlist.html';
         playlistData = doc.data();
       }
       render();
@@ -133,53 +113,54 @@
     function render() {
       plName.textContent = playlistData.name || '';
       plDesc.textContent = playlistData.description || '';
-      soundGrid.innerHTML = playlistData.items.map((item,i) => {
+      soundGrid.innerHTML = '';
+      playlistData.items.forEach((item, idx) => {
+        const btn = document.createElement('div');
+        btn.className = 'sound-btn';
         const label = item.label || item.fileName;
-        return `<div class="sound-btn" data-index="${i}">${label}</div>`;
-      }).join('');
+        btn.textContent = label;
+        if (label.length < 8) btn.classList.add('short-text');
+        btn.addEventListener('click', () => {
+          if (document.body.classList.contains('editing')) return;
+          let src = item.url || `${item.folder}/${item.fileName}`;
+          const audio = new Audio(src);
+          audio.play();
+        });
+        soundGrid.appendChild(btn);
+      });
     }
 
     editBtn.onclick = () => {
       document.body.classList.add('editing');
-      overlay.style.display = 'block';
+      overlay.classList.add('show');
       editBtn.style.display = 'none';
       saveBtn.style.display = 'inline-block';
-      // Make name/desc editable
-      plName.contentEditable = true;
-      plDesc.contentEditable = true;
-      // Add delete-hover to each
-      document.querySelectorAll('.sound-btn').forEach(btn => {
-        btn.classList.add('delete-hover');
-        btn.onclick = () => {
-          const idx = btn.dataset.index;
-          // Remove item
-          playlistData.items.splice(idx,1);
-          render();
-        };
-      });
     };
 
+    overlay.onclick = () => closeEdit();
+
     saveBtn.onclick = async () => {
-      document.body.classList.remove('editing');
-      overlay.style.display = 'none';
-      editBtn.style.display = 'inline-block';
-      saveBtn.style.display = 'none';
-      plName.contentEditable = false;
-      plDesc.contentEditable = false;
-      // Update data
       playlistData.name = plName.textContent.trim();
       playlistData.description = plDesc.textContent.trim();
       if (isLocal) {
         const list = JSON.parse(localStorage.getItem('localPlaylists')||'[]');
-        const idx = list.findIndex(p=>p.id===playlistId);
-        if (idx>-1) list[idx] = playlistData;
+        const idx = list.findIndex(p => p.id === playlistId);
+        if (idx > -1) list[idx] = playlistData;
         localStorage.setItem('localPlaylists', JSON.stringify(list));
       } else {
         await db.collection('playlists').doc(playlistId)
-          .update({ name: playlistData.name, description: playlistData.description, items: playlistData.items });
+          .update({ name: playlistData.name, description: playlistData.description });
       }
-      render();
+      closeEdit();
     };
+
+    function closeEdit() {
+      overlay.classList.remove('show'); overlay.classList.add('hide');
+      setTimeout(() => overlay.classList.remove('hide'), 300);
+      document.body.classList.remove('editing');
+      editBtn.style.display = 'inline-block';
+      saveBtn.style.display = 'none';
+    }
   </script>
 </body>
 </html>
