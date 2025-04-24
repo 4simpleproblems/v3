@@ -1,78 +1,164 @@
+<!-- playlist.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>4SP | Your Playlists</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
+  <style>
+    * { font-family: 'Roboto Mono', monospace; box-sizing: border-box; }
+    :root {
+      --light-gray: #e0e0e0;
+      --dark-bg: #1a1a1a;
+      --light-text: #f0f0f0;
+      --pill-radius: 50px;
+      --card-radius: 16px;
+    }
+    body { background: var(--light-gray); margin: 0; color: var(--dark-bg); }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: var(--dark-bg);
+      color: var(--light-text);
+    }
+    .logo { font-size: 1.5rem; font-weight: 700; }
+    .btn {
+      padding: .75rem 1.5rem;
+      border-radius: var(--pill-radius);
+      background: transparent;
+      border: 2px solid var(--light-text);
+      color: var(--light-text);
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn.primary {
+      background: var(--light-text);
+      color: var(--dark-bg);
+    }
+    .btn:hover { background: var(--light-text); color: var(--dark-bg); }
+    .container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    h1 { margin-bottom: 1.5rem; }
+    .playlists-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .playlist-card {
+      background: #fff;
+      padding: 1rem;
+      border-radius: var(--card-radius);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 120px;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+    .playlist-card:hover { transform: translateY(-4px); }
+    .playlist-card h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1.1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .playlist-card p {
+      margin: 0;
+      font-size: .9rem;
+      color: #555;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #createTile {
+      font-size: 3rem;
+      color: #888;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="#" id="logoutBtn" class="btn secondary">Log Out</a>
-    </div>
+    <button id="logoutBtn" class="btn">Log Out</button>
   </nav>
+
   <main class="container">
-    <div class="controls">
-      <h1>Your Playlists</h1>
-      <a href="playlist-create.html" class="btn primary">+ Create Playlist</a>
+    <h1>Your Playlists</h1>
+    <div class="playlists-grid" id="playlistsGrid">
+      <div id="createTile" class="playlist-card">+</div>
     </div>
-    <div id="playlistGrid" class="dashboard-grid"></div>
   </main>
+
   <script>
-    function initAuth() {
-      const auth = firebase.auth();
-      document.getElementById('logoutBtn').addEventListener('click', e => {
-        e.preventDefault();
-        auth.signOut();
-      });
-      auth.onAuthStateChanged(user => {
-        if (user) {
-          loadPlaylists(user.uid);
-        } else {
-          window.location = 'index.html';
-        }
-      });
-    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const grid = document.getElementById('playlistsGrid');
+    const createTile = document.getElementById('createTile');
 
-    function loadPlaylists(uid) {
-      const grid = document.getElementById('playlistGrid');
-      grid.innerHTML = '';
-      const db = firebase.firestore();
-      db.collection('users').doc(uid).collection('playlists').get().then(snap => {
-        snap.forEach(doc => {
-          const p = doc.data();
-          grid.appendChild(makeTile(p.name, p.description, 'normal', 'playlist-show.html?id=' + doc.id));
-        });
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      loadPlaylists(user.uid);
+    });
+
+    async function loadPlaylists(uid) {
+      // Load normal playlists (up to 10)
+      const normalSnap = await db.collection('playlists')
+        .where('owner', '==', uid)
+        .where('type', '==', 'normal')
+        .orderBy('createdAt', 'desc')
+        .limit(10)
+        .get();
+      normalSnap.forEach(doc => {
+        addCard(doc.id, doc.data());
       });
+
+      // Load local playlists from localStorage (up to 3)
       const local = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-      local.forEach(p => {
-        grid.appendChild(makeTile(p.name, p.description, 'local', 'playlist-show.html?local=' + p.id));
+      local.slice(0, 3).forEach(pl => {
+        addCard(pl.id, pl, true);
       });
     }
 
-    function makeTile(name, desc, type, href) {
-      const a = document.createElement('a');
-      a.href = href;
-      a.className = 'dashboard-tile';
-      a.innerHTML = `
-        <div class="tile-frame"></div>
-        <div class="tile-content">
-          <h3>${name}</h3>
-          <p>${desc || ''}</p>
-          <span class="badge">${type === 'local' ? 'Local' : 'Normal'}</span>
-        </div>
-      `;
-      return a;
+    function addCard(id, data, isLocal = false) {
+      const div = document.createElement('div');
+      div.className = 'playlist-card';
+      div.innerHTML = `<h3>${data.name}</h3><p>${data.description}</p>`;
+      div.addEventListener('click', () => {
+        const url = `playlist-detail.html?id=${encodeURIComponent(id)}&local=${isLocal}`;
+        window.location.href = url;
+      });
+      grid.insertBefore(div, createTile);
     }
 
-    document.addEventListener('DOMContentLoaded', initAuth);
+    createTile.addEventListener('click', () => {
+      window.location.href = 'playlist-create.html';
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      auth.signOut().then(() => {
+        window.location.href = 'index.html';
+      });
+    });
   </script>
 </body>
 </html>
