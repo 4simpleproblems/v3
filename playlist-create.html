@@ -50,9 +50,8 @@
     .sound-section h2 { margin-bottom: .5rem; font-size: 1.25rem; }
     .sound-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
       gap: .75rem;
-      justify-content: center;
       justify-items: center;
     }
     .sound-btn {
@@ -152,7 +151,8 @@
         .then(data => {
           (data.NormalSounds || []).forEach(file => createBtn('NormalSounds', file, normalGrid));
           (data.ExplicitSounds || []).forEach(file => createBtn('ExplicitSounds', file, explicitGrid));
-        });
+
+      });
     }
 
     function createBtn(folder, fileName, container) {
