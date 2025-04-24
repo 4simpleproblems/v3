@@ -49,17 +49,21 @@
     .sound-section { margin-bottom: 1.5rem; }
     .sound-section h2 { margin-bottom: .5rem; font-size: 1.25rem; }
     .sound-grid {
-      display: grid; grid-template-columns: repeat(auto-fill,minmax(80px,1fr)); gap: .5rem;
+      display: grid; grid-template-columns: repeat(auto-fill,minmax(100px,1fr)); gap: .75rem;
     }
     .sound-btn {
-      min-width: 80px; height: 80px; border-radius: var(--pill-radius);
-      background: var(--white); border: 2px solid var(--dark-gray);
-      color: var(--dark-gray); display: flex; align-items: center;
-      justify-content: center; text-align: center; padding: 0 1rem;
-      cursor: pointer; transition: background .2s, transform .1s;
-      word-wrap: break-word; hyphens: auto;
+      min-width: 100px; height: 100px; border-radius: var(--pill-radius);
+      background-color: var(--white); color: var(--dark-gray);
+      border: 2px solid var(--dark-gray); cursor: pointer;
+      font-size: 0.85rem; font-weight: bold;
+      padding: 0 1.5rem; transition: background-color 0.3s ease, transform 0.1s ease;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; line-height: 1.2;
+      max-width: 250px; word-wrap: break-word; hyphens: auto;
     }
-    .sound-btn.short-text { border-radius: 50%; }
+    .sound-btn.short-text {
+      width: 100px; height: 100px; border-radius: 50%; padding: 0.5rem;
+    }
     .sound-btn.selected { background: #aaf; border-color: #88c; }
     .sound-btn:hover { background: var(--light-gray); }
     .btn.primary {
