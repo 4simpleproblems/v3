@@ -49,15 +49,17 @@
     }
     .sound-section { margin-bottom: 1.5rem; text-align: center; }
     .sound-section h2 { margin-bottom: .5rem; font-size: 1.25rem; }
-   .sound-grid {
+.sound-grid {
   display: grid;
+  /* Each column fits the widest button in that column */
   grid-template-columns: repeat(auto-fit, minmax(0, max-content));
   gap: 0.75rem;
-  justify-content: start;
+  justify-content: start; /* Align grid to left */
 }
 
 .sound-btn {
-  padding: 1rem 1.5rem;
+  height: 100px; /* fixed height */
+  padding: 0 1.5rem;
   border-radius: var(--pill-radius);
   background-color: var(--white);
   color: var(--dark-gray);
@@ -65,17 +67,24 @@
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: bold;
-  transition: background-color 0.3s, transform 0.1s;
+  transition: background-color 0.3s ease, transform 0.1s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   line-height: 1.2;
-  word-break: break-word;
-  white-space: normal;
-  /* Remove min-width, max-width, width, height */
-  
+
+  /* Prevent word breaks and force single line */
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+
+  /* Let width grow to fit content */
+  width: auto;
+  min-width: 100px; /* optional minimum width */
+  max-width: none; /* no max width */
 }
+
     .sound-btn.short-text { width: 100px; height: 100px; border-radius: 50%; padding: .5rem; }
     .sound-btn.selected { background: #aaf; border-color: #88c; }
     .sound-btn:hover { background: var(--light-gray); }
