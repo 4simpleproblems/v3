@@ -22,16 +22,22 @@
       --dark-gray: #333;
       --pill-radius: 50px;
       --card-radius: 24px;
-      --light-text: #ddd;
-      --dark-bg: #222;
-      --light-bg: #eee;
+
+      /* Button color customization variables */
+      --btn-bg-unselected: #f9f9f9;
+      --btn-border-unselected: #bbb;
+      --btn-color-unselected: #555;
+
+      --btn-bg-selected: #aaf;
+      --btn-border-selected: #88c;
+      --btn-color-selected: #222;
     }
     body {
       background: var(--light-gray);
       margin: 0;
       color: var(--black);
     }
-    /* Navbar */
+    /* Navbar - exactly same as before */
     .navbar {
       display: flex;
       justify-content: space-between;
@@ -61,11 +67,6 @@
     .btn:hover {
       background: var(--white);
       color: var(--dark-gray);
-    }
-    .btn.primary {
-      background: var(--dark-gray);
-      color: var(--white);
-      border: none;
     }
     /* Container */
     .form-container {
@@ -104,7 +105,7 @@
       margin-bottom: 0.5rem;
       font-size: 1.25rem;
     }
-    /* Sound buttons container using flex-wrap (from soundboard.html) */
+    /* Sound buttons container using flex-wrap */
     .soundButtonsContainer {
       display: flex;
       flex-wrap: wrap;
@@ -113,45 +114,56 @@
       gap: 1.5rem;
       width: 100%;
     }
-    /* Sound button styles from soundboard.html */
-    .sound-button {
+    /* Sound button styles with customizable colors */
+    .sound-btn {
       min-width: 100px;
       height: 100px;
       border-radius: var(--pill-radius);
-      background-color: var(--light-text);
-      color: var(--dark-bg);
-      border: 2px solid var(--dark-bg);
+      background-color: var(--btn-bg-unselected);
+      color: var(--btn-color-unselected);
+      border: 2px solid var(--btn-border-unselected);
       cursor: pointer;
       font-size: 0.85rem;
       font-weight: bold;
       padding: 0 1.5rem;
-      transition: background-color 0.3s ease, transform 0.1s ease;
+      transition:
+        background-color 0.3s ease,
+        transform 0.1s ease,
+        color 0.3s ease,
+        border-color 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
       line-height: 1.2;
-      max-width: 250px; /* max width to avoid extremely wide buttons */
+      max-width: 250px;
       white-space: nowrap; /* prevent word breaks */
       overflow-wrap: normal;
       word-break: normal;
     }
-    .sound-button.short-text {
+    .sound-btn.short-text {
       width: 100px;
-      padding: 0.5rem;
+      height: 100px;
       border-radius: 50%;
+      padding: 0.5rem;
       white-space: nowrap;
     }
-    .sound-button:hover {
+    .sound-btn.selected {
+      background-color: var(--btn-bg-selected);
+      border-color: var(--btn-border-selected);
+      color: var(--btn-color-selected);
+    }
+    .sound-btn:hover {
       background-color: var(--light-gray);
     }
-    .sound-button:active {
+    .sound-btn:active {
       transform: scale(0.95);
     }
-    .sound-button.selected {
-      background-color: #aaf;
-      border-color: #88c;
-      color: var(--dark-bg);
+    /* Primary button */
+    .btn.primary {
+      background: var(--dark-gray);
+      color: var(--white);
+      border: none;
     }
     /* Notification */
     #notification {
@@ -179,7 +191,7 @@
 
   <main class="form-container">
     <h1>Create Playlist</h1>
-    <!-- Removed playlist type dropdown as per previous request -->
+    <!-- Removed playlist type dropdown as requested -->
     <form id="createForm">
       <div id="normalSection" class="sound-section">
         <h2>Normal Sounds</h2>
@@ -229,7 +241,7 @@
     function createBtn(folder, fileName, container) {
       const label = fileName.replace(/\.(mp3|wav)$/i, '').replace(/_/g, ' ');
       const btn = document.createElement('div');
-      btn.className = 'sound-button';
+      btn.className = 'sound-btn';
       btn.textContent = label;
       if (label.length < 8) btn.classList.add('short-text');
       btn.addEventListener('click', () => toggleSelection({folder, fileName, label}, btn));
@@ -269,7 +281,7 @@
       form.reset();
       selections = [];
       // Remove selected style from buttons
-      document.querySelectorAll('.sound-button.selected').forEach(b => b.classList.remove('selected'));
+      document.querySelectorAll('.sound-btn.selected').forEach(b => b.classList.remove('selected'));
     });
   </script>
 </body>
