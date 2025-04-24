@@ -15,62 +15,55 @@
     :root {
       --black: #000;
       --white: #fff;
-      --light-gray: #e0e0e0;
-      --dark-gray: #1a1a1a;
+      --light-gray: #f0f0f0;
+      --dark-gray: #333;
       --pill-radius: 50px;
       --card-radius: 24px;
     }
     body { background: var(--light-gray); margin: 0; color: var(--black); }
     .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background: var(--dark-gray);
-      color: var(--white);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 2rem; background: var(--dark-gray); color: var(--white);
     }
     .nav-buttons { display: flex; gap: 1rem; }
     .btn {
-      padding: .75rem 1.5rem;
-      border-radius: var(--pill-radius);
-      background: transparent;
-      border: 2px solid var(--white);
-      color: var(--white);
-      cursor: pointer;
-      font-weight: 500;
+      padding: .75rem 1.5rem; border-radius: var(--pill-radius);
+      background: transparent; border: 2px solid var(--white);
+      color: var(--white); cursor: pointer; font-weight: 500;
       transition: background 0.2s, color 0.2s;
     }
-    .btn.big {
-      padding: 1rem 2rem;
-      font-size: 1.1rem;
-    }
+    .btn.big { padding: 1rem 2rem; font-size: 1.1rem; }
     .btn:hover { background: var(--white); color: var(--dark-gray); }
     .form-container {
-      max-width: 700px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background: var(--white);
-      border-radius: var(--card-radius);
+      max-width: 700px; margin: 2rem auto; padding: 2rem;
+      background: var(--white); border-radius: var(--card-radius);
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     h1 { margin-bottom: 1.5rem; }
     label { display: block; margin-bottom: .5rem; font-weight: 500; }
     select, input[type="text"], textarea, input[type="file"] {
-      width: 100%; padding: 1rem; margin-bottom: 1.5rem; border: 1px solid var(--dark-gray);
-      border-radius: var(--pill-radius); font-size: 1rem; background: var(--white);
+      width: 100%; padding: 1rem; margin-bottom: 1.5rem;
+      border: 1px solid var(--dark-gray); border-radius: var(--pill-radius);
+      font-size: 1rem; background: var(--white);
     }
     .sound-section { margin-bottom: 1.5rem; }
+    .sound-section h2 { margin-bottom: .5rem; font-size: 1.25rem; }
     .sound-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(80px,1fr)); gap: .5rem;
-      margin-top: .5rem;
+      display: grid; grid-template-columns: repeat(auto-fill,minmax(80px,1fr)); gap: .5rem;
     }
     .sound-btn {
-      padding: .5rem; background: #ddd; border-radius:8px; text-align:center;
-      cursor:pointer; user-select:none; transition: background .2s;
+      min-width: 80px; height: 80px; border-radius: var(--pill-radius);
+      background: var(--white); border: 2px solid var(--dark-gray);
+      color: var(--dark-gray); display: flex; align-items: center;
+      justify-content: center; text-align: center; padding: 0 1rem;
+      cursor: pointer; transition: background .2s, transform .1s;
+      word-wrap: break-word; hyphens: auto;
     }
-    .sound-btn.selected { background: #aaf; }
+    .sound-btn.short-text { border-radius: 50%; }
+    .sound-btn.selected { background: #aaf; border-color: #88c; }
+    .sound-btn:hover { background: var(--light-gray); }
     .btn.primary {
-      background: var(--dark-gray); color: var(--white); border:none;
+      background: var(--dark-gray); color: var(--white); border: none;
     }
     #notification {
       position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
@@ -88,6 +81,7 @@
       <button id="logoutBtn" class="btn big">Log Out</button>
     </div>
   </nav>
+
   <main class="form-container">
     <h1>Create Playlist</h1>
     <label for="playlistType">Playlist Type</label>
@@ -97,14 +91,15 @@
     </select>
     <form id="createForm">
       <div id="normalSection" class="sound-section">
-        <label>Select Sounds</label>
-        <div class="sound-grid" id="normalGrid"></div>
-        <div class="sound-grid" id="explicitGrid"></div>
+        <h2>Normal Sounds</h2>
+        <div id="normalGrid" class="sound-grid"></div>
+        <h2>Explicit Sounds</h2>
+        <div id="explicitGrid" class="sound-grid"></div>
       </div>
       <div id="localSection" class="sound-section" style="display:none;">
-        <label>Upload Audio Files</label>
+        <h2>Upload Files</h2>
         <input type="file" id="fileInput" multiple accept="audio/*" />
-        <div class="sound-grid" id="localGrid"></div>
+        <div id="localGrid" class="sound-grid"></div>
       </div>
       <label for="name">Playlist Name</label>
       <input type="text" id="name" required maxlength="30" />
@@ -113,7 +108,8 @@
       <button type="submit" class="btn primary">Create Playlist</button>
     </form>
   </main>
-  <div id="notification">Your playlist has been created! <a href="playlist.html" style="color:var(--white); text-decoration:underline;">View Playlists</a></div>
+
+  <div id="notification">Your playlist has been created! <a href="playlist.html" style="color:#fff; text-decoration:underline;">View Playlists</a></div>
 
   <script>
     const auth = firebase.auth();
@@ -121,6 +117,10 @@
     const typeSel = document.getElementById('playlistType');
     const normalSection = document.getElementById('normalSection');
     const localSection = document.getElementById('localSection');
+    const normalGrid = document.getElementById('normalGrid');
+    const explicitGrid = document.getElementById('explicitGrid');
+    const localGrid = document.getElementById('localGrid');
+    const fileInput = document.getElementById('fileInput');
     const form = document.getElementById('createForm');
     const notification = document.getElementById('notification');
     const dashBtn = document.getElementById('dashboardBtn');
@@ -128,7 +128,7 @@
     let selections = [];
 
     auth.onAuthStateChanged(user => {
-      if (!user) window.location.href = 'index.html';
+      if (!user) return window.location.href = 'index.html';
       loadSoundButtons();
     });
 
@@ -136,56 +136,58 @@
     logoutBtn.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'index.html'));
 
     typeSel.addEventListener('change', () => {
-      if (typeSel.value === 'normal') {
-        normalSection.style.display = 'block';
-        localSection.style.display = 'none';
-      } else {
-        normalSection.style.display = 'none';
-        localSection.style.display = 'block';
-      }
+      normalSection.style.display = typeSel.value === 'normal' ? 'block' : 'none';
+      localSection.style.display = typeSel.value === 'local' ? 'block' : 'none';
     });
 
     function loadSoundButtons() {
-      // TODO: replace sample with actual NormalSounds & ExplicitSounds
-      const sample = ['Sound A','Sound B','Sound C'];
-      const normalGrid = document.getElementById('normalGrid');
-      sample.forEach(label => {
-        const btn = document.createElement('div'); btn.className='sound-btn'; btn.textContent=label;
-        btn.onclick = () => toggle(label, btn);
-        normalGrid.appendChild(btn);
-      });
+      fetch('SoundboardSN.json')
+        .then(res => res.json())
+        .then(data => {
+          (data.NormalSounds || []).forEach(file => createBtn('NormalSounds', file, normalGrid));
+          (data.ExplicitSounds || []).forEach(file => createBtn('ExplicitSounds', file, explicitGrid));
+        });
     }
 
-    document.getElementById('fileInput').addEventListener('change', e => {
-      const files = Array.from(e.target.files);
-      const localGrid = document.getElementById('localGrid');
-      localGrid.innerHTML = '';
-      selections = [];
-      files.forEach(file => {
+    function createBtn(folder, fileName, container) {
+      const label = fileName.replace(/\.(mp3|wav)$/i, '').replace(/_/g, ' ');
+      const btn = document.createElement('div');
+      btn.className = 'sound-btn';
+      btn.textContent = label;
+      if (label.length < 8) btn.classList.add('short-text');
+      btn.addEventListener('click', () => toggleSelection({folder, fileName, label}, btn));
+      container.appendChild(btn);
+    }
+
+    function toggleSelection(item, btn) {
+      const idx = selections.findIndex(i => i.fileName === item.fileName && i.folder === item.folder);
+      if (idx > -1) { selections.splice(idx,1); btn.classList.remove('selected'); }
+      else { selections.push(item); btn.classList.add('selected'); }
+    }
+
+    fileInput.addEventListener('change', e => {
+      localGrid.innerHTML =''; selections = [];
+      Array.from(e.target.files).forEach(file => {
+        const label = file.name.replace(/\.(mp3|wav)$/i,'');
         const reader = new FileReader();
         reader.onload = () => {
           const url = reader.result;
-          const label = file.name;
           const btn = document.createElement('div');
           btn.className = 'sound-btn selected';
           btn.textContent = label;
-          selections.push({ label, url });
-          btn.onclick = () => toggleLocal(label, url, btn);
+          if (label.length < 8) btn.classList.add('short-text');
+          selections.push({label, url});
+          btn.addEventListener('click', () => toggleLocal(label, url, btn));
           localGrid.appendChild(btn);
         };
         reader.readAsDataURL(file);
       });
     });
 
-    function toggle(label, btn) {
-      const idx = selections.indexOf(label);
+    function toggleLocal(label, url, btn) {
+      const idx = selections.findIndex(i => i.url === url && i.label === label);
       if (idx > -1) { selections.splice(idx,1); btn.classList.remove('selected'); }
-      else { selections.push(label); btn.classList.add('selected'); }
-    }
-    function toggleLocal(label,url,btn) {
-      const idx = selections.findIndex(i=>i.label===label);
-      if (idx > -1) { selections.splice(idx,1); btn.classList.remove('selected'); }
-      else { selections.push({label,url}); btn.classList.add('selected'); }
+      else { selections.push({label, url}); btn.classList.add('selected'); }
     }
 
     form.addEventListener('submit', async e => {
@@ -206,9 +208,8 @@
         local.push({ id, type, name, description:desc, items:selections });
         localStorage.setItem('localPlaylists', JSON.stringify(local));
       }
-      notification.style.display='block'; setTimeout(()=>notification.style.display='none',5000);
-      form.reset(); selections=[];
-      document.getElementById('localGrid').innerHTML='';
+      notification.style.display='block'; setTimeout(() => notification.style.display='none',5000);
+      form.reset(); selections=[]; localGrid.innerHTML='';
     });
   </script>
 </body>
