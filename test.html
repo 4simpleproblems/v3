@@ -11,62 +11,65 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <style>
-    /* just make the inputs super round & taller */
+    /* Round and taller text inputs and textareas */
     input[type="text"], textarea {
       border-radius: 50px;
       padding: 0.75rem 1rem;
       font-size: 1rem;
       border: 1px solid #333;
+      width: 100%;
+      box-sizing: border-box;
     }
-    textarea { height: 5rem; }
+    textarea { height: 5rem; resize: none; }
   </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
-      <button id="dashboardBtn" class="btn big">Dashboard</button>
-      <button id="logoutBtn" class="btn big">Log Out</button>
+      <button id="dashboardBtn" class="btn secondary">Dashboard</button>
+      <button id="logoutBtn" class="btn secondary">Log Out</button>
     </div>
   </nav>
 
-  <main class="form-container">
-    <h1>Create Playlist</h1>
+  <main class="container">
+    <div class="form-container">
+      <h1>Create Playlist</h1>
 
-    <form id="createForm">
-      <div class="sound-section">
-        <h2>Normal Sounds</h2>
-        <div id="normalGrid" class="sound-grid"></div>
-      </div>
+      <form id="createForm">
+        <div class="sound-section">
+          <h2>Normal Sounds</h2>
+          <div id="normalGrid" class="sound-grid"></div>
+        </div>
 
-      <div class="sound-section">
-        <h2>Explicit Sounds</h2>
-        <div id="explicitGrid" class="sound-grid"></div>
-      </div>
+        <div class="sound-section">
+          <h2>Explicit Sounds</h2>
+          <div id="explicitGrid" class="sound-grid"></div>
+        </div>
 
-      <label for="name">Playlist Name</label>
-      <input type="text" id="name" required maxlength="30" placeholder="e.g. My Favorites" />
+        <label for="name">Playlist Name</label>
+        <input type="text" id="name" required maxlength="30" placeholder="e.g. My Favorites" />
 
-      <label for="description">Description</label>
-      <textarea id="description" required maxlength="100" placeholder="Short description…"></textarea>
+        <label for="description">Description</label>
+        <textarea id="description" required maxlength="100" placeholder="Short description…"></textarea>
 
-      <button type="submit" class="btn primary">Create Playlist</button>
-    </form>
+        <button type="submit" class="btn primary">Create Playlist</button>
+      </form>
+    </div>
   </main>
 
   <script>
     const auth = firebase.auth();
     const db   = firebase.firestore();
-    const normalGrid = document.getElementById('normalGrid');
+    const normalGrid   = document.getElementById('normalGrid');
     const explicitGrid = document.getElementById('explicitGrid');
-    const form = document.getElementById('createForm');
-    const dashBtn = document.getElementById('dashboardBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
+    const form         = document.getElementById('createForm');
+    const dashBtn      = document.getElementById('dashboardBtn');
+    const logoutBtn    = document.getElementById('logoutBtn');
     let selections = [];
 
     auth.onAuthStateChanged(user => {
       if (!user) return location.href = 'index.html';
-      // load library buttons
       fetch('SoundboardSN.json')
         .then(r => r.json())
         .then(data => {
@@ -79,18 +82,23 @@
     logoutBtn.onclick = () => auth.signOut().then(() => location.href = 'index.html');
 
     function createBtn(folder, fileName, container) {
-      const label = fileName.replace(/\.(mp3|wav)$/i,'').replace(/_/g,' ');
+      const label = fileName.replace(/\.(mp3|wav)$/i, '').replace(/_/g, ' ');
       const btn = document.createElement('div');
       btn.className = 'sound-btn';
       btn.textContent = label;
-      btn.addEventListener('click', () => toggleSelection({folder, fileName, label}, btn));
+      btn.addEventListener('click', () => toggleSelection({ folder, fileName, label }, btn));
       container.appendChild(btn);
     }
 
     function toggleSelection(item, btn) {
-      const idx = selections.findIndex(i => i.fileName===item.fileName && i.folder===item.folder);
-      if (idx > -1) { selections.splice(idx,1); btn.classList.remove('selected'); }
-      else          { selections.push(item); btn.classList.add('selected'); }
+      const idx = selections.findIndex(i => i.fileName === item.fileName && i.folder === item.folder);
+      if (idx > -1) {
+        selections.splice(idx, 1);
+        btn.classList.remove('selected');
+      } else {
+        selections.push(item);
+        btn.classList.add('selected');
+      }
     }
 
     form.addEventListener('submit', async e => {
@@ -98,11 +106,14 @@
       const name = document.getElementById('name').value.trim();
       const desc = document.getElementById('description').value.trim();
       const user = auth.currentUser;
-      const type = 'normal';  // forced
-      // server-side limit check
+      const type = 'normal';
+
       const snap = await db.collection('playlists')
-        .where('owner','==',user.uid).where('type','==',type).get();
+        .where('owner', '==', user.uid)
+        .where('type', '==', type)
+        .get();
       if (snap.size >= 10) return alert('Max 10 normal playlists');
+
       await db.collection('playlists').add({
         owner: user.uid,
         type,
@@ -111,7 +122,8 @@
         items: selections,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
-      alert('Playlist created!'); 
+
+      // Redirect back to playlist overview
       location.href = 'playlist.html';
     });
   </script>
