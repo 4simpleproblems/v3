@@ -1,244 +1,119 @@
-<!-- playlist.html (uses styles.css for all styles) -->
+<!-- playlist-create.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>4SP | Your Playlists</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-</head>
-<body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="dashboard.html" class="btn secondary" id="dashboardBtn">Dashboard</a>
-      <a href="index.html" class="btn secondary" id="logoutBtn">Log Out</a>
-    </div>
-  </nav>
-  <main class="container">
-    <h1>Your Playlists</h1>
-    <div class="playlists-grid" id="playlistsGrid">
-      <div id="createTile" class="playlist-card">+</div>
-    </div>
-  </main>
-  <script>
-    const auth = firebase.auth(), db = firebase.firestore();
-    const grid = document.getElementById('playlistsGrid'), createTile = document.getElementById('createTile');
-    auth.onAuthStateChanged(user => {
-      if (!user) return location.href = 'index.html';
-      db.collection('playlists').where('owner', '==', user.uid).get().then(snapshot => {
-        snapshot.forEach(doc => {
-          const card = document.createElement('div');
-          card.className = 'playlist-card';
-          card.textContent = doc.data().name;
-          card.onclick = () => location.href = `playlist-show.html?id=${doc.id}&local=false`;
-          grid.insertBefore(card, createTile);
-        });
-      });
-    });
-    createTile.onclick = () => location.href = 'playlist-create.html';
-  </script>
-</body>
-</html>
-
-<!-- playlist-create.html (rounded inputs, uses styles.css nav buttons) -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>4SP | Create Playlist</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <link href="styles.css" rel="stylesheet" />
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <style>
-    /* round and taller inputs/selects/textareas */
-    input[type="text"], select {
+    /* just make the inputs super round & taller */
+    input[type="text"], textarea {
       border-radius: 50px;
-      height: 3rem;
-      padding: 0 1rem;
+      padding: 0.75rem 1rem;
       font-size: 1rem;
+      border: 1px solid #333;
     }
-    textarea {
-      border-radius: 50px;
-      height: 5rem;
-      padding: 1rem;
-      font-size: 1rem;
-      resize: none;
-    }
+    textarea { height: 5rem; }
   </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
-      <a href="dashboard.html" class="btn secondary" id="dashboardBtn">Dashboard</a>
-      <a href="playlist.html" class="btn secondary" id="backBtn">Back to Playlists</a>
-      <a href="index.html" class="btn secondary" id="logoutBtn">Log Out</a>
+      <button id="dashboardBtn" class="btn big">Dashboard</button>
+      <button id="logoutBtn" class="btn big">Log Out</button>
     </div>
   </nav>
-  <main class="container form-container">
+
+  <main class="form-container">
     <h1>Create Playlist</h1>
-    <label for="playlistType">Playlist Type</label>
-    <select id="playlistType">
-      <option value="normal">Normal (choose from library)</option>
-      <option value="local">Local (upload files)</option>
-    </select>
+
     <form id="createForm">
-      <div id="normalSection" class="sound-section">
+      <div class="sound-section">
         <h2>Normal Sounds</h2>
         <div id="normalGrid" class="sound-grid"></div>
+      </div>
+
+      <div class="sound-section">
         <h2>Explicit Sounds</h2>
         <div id="explicitGrid" class="sound-grid"></div>
       </div>
-      <div id="localSection" class="sound-section" style="display:none;">
-        <h2>Upload Files</h2>
-        <input type="file" id="fileInput" multiple accept="audio/*" />
-        <div id="localGrid" class="sound-grid"></div>
-      </div>
+
       <label for="name">Playlist Name</label>
       <input type="text" id="name" required maxlength="30" placeholder="e.g. My Favorites" />
+
       <label for="description">Description</label>
-      <textarea id="description" required maxlength="100" placeholder="Short description..."></textarea>
+      <textarea id="description" required maxlength="100" placeholder="Short description…"></textarea>
+
       <button type="submit" class="btn primary">Create Playlist</button>
     </form>
   </main>
+
   <script>
-    const auth = firebase.auth(), db = firebase.firestore();
-    const typeSel = document.getElementById('playlistType'), normalSection = document.getElementById('normalSection'), localSection = document.getElementById('localSection');
-    const normalGrid = document.getElementById('normalGrid'), explicitGrid = document.getElementById('explicitGrid'), localGrid = document.getElementById('localGrid');
-    const fileInput = document.getElementById('fileInput'), form = document.getElementById('createForm');
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+    const normalGrid = document.getElementById('normalGrid');
+    const explicitGrid = document.getElementById('explicitGrid');
+    const form = document.getElementById('createForm');
+    const dashBtn = document.getElementById('dashboardBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    let selections = [];
+
     auth.onAuthStateChanged(user => {
       if (!user) return location.href = 'index.html';
-      fetch('SoundboardSN.json').then(r => r.json()).then(data => {
-        (data.NormalSounds || []).forEach(f => createBtn('NormalSounds', f, normalGrid));
-        (data.ExplicitSounds || []).forEach(f => createBtn('ExplicitSounds', f, explicitGrid));
-      });
+      // load library buttons
+      fetch('SoundboardSN.json')
+        .then(r => r.json())
+        .then(data => {
+          (data.NormalSounds || []).forEach(f => createBtn('NormalSounds', f, normalGrid));
+          (data.ExplicitSounds || []).forEach(f => createBtn('ExplicitSounds', f, explicitGrid));
+        });
     });
-    typeSel.addEventListener('change', () => {
-      if (typeSel.value === 'normal') {
-        normalSection.style.display = 'block';
-        localSection.style.display = 'none';
-      } else {
-        normalSection.style.display = 'none';
-        localSection.style.display = 'block';
-      }
-    });
-    fileInput.addEventListener('change', () => {
-      Array.from(fileInput.files).forEach(file => {
-        const reader = new FileReader();
-        reader.onload = e => {
-          const btn = document.createElement('div');
-          btn.className = 'sound-btn';
-          const label = file.name.replace(/\.(mp3|wav)$/i, '').replace(/_/g, ' ');
-          btn.textContent = label;
-          btn.addEventListener('click', () => toggleLocal(label, e.target.result, btn));
-          localGrid.appendChild(btn);
-        };
-        reader.readAsDataURL(file);
-      });
-    });
+
+    dashBtn.onclick   = () => location.href = 'dashboard.html';
+    logoutBtn.onclick = () => auth.signOut().then(() => location.href = 'index.html');
+
     function createBtn(folder, fileName, container) {
-      const label = fileName.replace(/\.(mp3|wav)$/i, '').replace(/_/g, ' ');
+      const label = fileName.replace(/\.(mp3|wav)$/i,'').replace(/_/g,' ');
       const btn = document.createElement('div');
       btn.className = 'sound-btn';
       btn.textContent = label;
-      btn.addEventListener('click', () => toggleSelection({ folder, fileName, label }, btn));
+      btn.addEventListener('click', () => toggleSelection({folder, fileName, label}, btn));
       container.appendChild(btn);
     }
+
+    function toggleSelection(item, btn) {
+      const idx = selections.findIndex(i => i.fileName===item.fileName && i.folder===item.folder);
+      if (idx > -1) { selections.splice(idx,1); btn.classList.remove('selected'); }
+      else          { selections.push(item); btn.classList.add('selected'); }
+    }
+
     form.addEventListener('submit', async e => {
       e.preventDefault();
       const name = document.getElementById('name').value.trim();
       const desc = document.getElementById('description').value.trim();
-      const type = typeSel.value;
       const user = auth.currentUser;
-      if (type === 'normal') {
-        const snap = await db.collection('playlists').where('owner','==',user.uid).where('type','==','normal').get();
-        if (snap.size >= 10) return alert('Max 10 normal playlists');
-        await db.collection('playlists').add({ owner: user.uid, type, name, description: desc, items: selections, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-      } else {
-        const local = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-        if (local.length >= 3) return alert('Max 3 local playlists');
-        const id = Date.now().toString();
-        local.push({ id, type, name, description: desc, items: selections });
-        localStorage.setItem('localPlaylists', JSON.stringify(local));
-      }
-      form.reset(); selections = []; localGrid.innerHTML = '';
-      alert('Playlist created!');
+      const type = 'normal';  // forced
+      // server-side limit check
+      const snap = await db.collection('playlists')
+        .where('owner','==',user.uid).where('type','==',type).get();
+      if (snap.size >= 10) return alert('Max 10 normal playlists');
+      await db.collection('playlists').add({
+        owner: user.uid,
+        type,
+        name,
+        description: desc,
+        items: selections,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      alert('Playlist created!'); 
+      location.href = 'playlist.html';
     });
-    createTile.onclick = () => location.href = 'playlist-create.html';
-    document.getElementById('dashboardBtn').onclick = () => location.href = 'dashboard.html';
-    document.getElementById('logoutBtn').onclick = () => auth.signOut().then(() => location.href = 'index.html');
-  </script>
-</body>
-</html>
-
-<!-- playlist-show.html (uses styles.css nav buttons) -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>4SP | View Playlist</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-</head>
-<body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="dashboard.html" class="btn secondary" id="dashboardBtn">Dashboard</a>
-      <a href="playlist.html" class="btn secondary" id="backBtn">Playlists</a>
-      <a href="index.html" class="btn secondary" id="logoutBtn">Log Out</a>
-    </div>
-  </nav>
-  <main class="container">
-    <h1 id="plName"></h1>
-    <p id="plDesc"></p>
-    <div id="soundGrid" class="sound-grid"></div>
-  </main>
-  <script>
-    const auth = firebase.auth(), db = firebase.firestore();
-    const params = new URLSearchParams(location.search);
-    const playlistId = params.get('id'), isLocal = params.get('local') === 'true';
-    const plName = document.getElementById('plName'), plDesc = document.getElementById('plDesc'), grid = document.getElementById('soundGrid');
-    auth.onAuthStateChanged(user => {
-      if (!user) return location.href = 'index.html';
-      if (isLocal) {
-        const local = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-        const pl = local.find(p => p.id === playlistId);
-        plName.textContent = pl.name; plDesc.textContent = pl.description;
-        pl.items.forEach(item => render(item));
-      } else {
-        db.collection('playlists').doc(playlistId).get().then(doc => {
-          const data = doc.data();
-          plName.textContent = data.name; plDesc.textContent = data.description;
-          data.items.forEach(item => render(item));
-        });
-      }
-    });
-    function render(item) {
-      const btn = document.createElement('div');
-      btn.className = 'sound-button'; btn.textContent = item.label;
-      btn.onclick = () => play(item);
-      grid.appendChild(btn);
-    }
-    function play(item) {
-      const src = isLocal ? item.url : `${item.folder}/${item.fileName}`;
-      new Audio(src).play();
-    }
-    document.getElementById('dashboardBtn').onclick = () => location.href = 'dashboard.html';
-    document.getElementById('backBtn').onclick = () => location.href = 'playlist.html';
-    document.getElementById('logoutBtn').onclick = () => auth.signOut().then(() => location.href = 'index.html');
   </script>
 </body>
 </html>
