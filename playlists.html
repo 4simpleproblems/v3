@@ -29,6 +29,7 @@
       color: var(--light-text);
     }
     .logo { font-size: 1.5rem; font-weight: 700; }
+    .nav-buttons { display: flex; gap: 1rem; }
     .btn {
       padding: .75rem 1.5rem;
       border-radius: var(--pill-radius);
@@ -39,11 +40,11 @@
       font-weight: 500;
       transition: background 0.2s, color 0.2s;
     }
-    .btn.primary {
-      background: var(--light-text);
-      color: var(--dark-bg);
-    }
     .btn:hover { background: var(--light-text); color: var(--dark-bg); }
+    .btn.big {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+    }
     .container {
       max-width: 1000px;
       margin: 2rem auto;
@@ -96,7 +97,10 @@
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
-    <button id="logoutBtn" class="btn">Log Out</button>
+    <div class="nav-buttons">
+      <button id="dashboardBtn" class="btn big">Dashboard</button>
+      <button id="logoutBtn" class="btn big">Log Out</button>
+    </div>
   </nav>
 
   <main class="container">
@@ -111,6 +115,8 @@
     const db = firebase.firestore();
     const grid = document.getElementById('playlistsGrid');
     const createTile = document.getElementById('createTile');
+    const dashBtn = document.getElementById('dashboardBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
 
     auth.onAuthStateChanged(user => {
       if (!user) {
@@ -120,23 +126,21 @@
       loadPlaylists(user.uid);
     });
 
+    dashBtn.addEventListener('click', () => {
+      window.location.href = 'dashboard.html';
+    });
+
     async function loadPlaylists(uid) {
-      // Load normal playlists (up to 10)
       const normalSnap = await db.collection('playlists')
         .where('owner', '==', uid)
         .where('type', '==', 'normal')
         .orderBy('createdAt', 'desc')
         .limit(10)
         .get();
-      normalSnap.forEach(doc => {
-        addCard(doc.id, doc.data());
-      });
+      normalSnap.forEach(doc => addCard(doc.id, doc.data()));
 
-      // Load local playlists from localStorage (up to 3)
       const local = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-      local.slice(0, 3).forEach(pl => {
-        addCard(pl.id, pl, true);
-      });
+      local.slice(0, 3).forEach(pl => addCard(pl.id, pl, true));
     }
 
     function addCard(id, data, isLocal = false) {
@@ -154,7 +158,7 @@
       window.location.href = 'playlist-create.html';
     });
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
+    logoutBtn.addEventListener('click', () => {
       auth.signOut().then(() => {
         window.location.href = 'index.html';
       });
