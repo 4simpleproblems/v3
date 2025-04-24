@@ -618,8 +618,14 @@
     const applyDelayBtn = document.getElementById('applyDelayBtn');
     const optionsButton = document.querySelector('.options-button');
     const optionsMenu = document.getElementById('optionsMenu');
+    const statusMessage = document.getElementById('statusMessage');
     const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
     const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
+    let playingAudios = [];
+    let autoClickInterval;
+    let requestAnimationFrameId = null;
+    let currentlyHoveredButton = null;
+    let statusMessageTimeout = null;
     let menuIsOpen = false;
     let isRippling = false; // Flag to prevent multiple ripples
 
@@ -649,10 +655,31 @@
         btn.draggable = document.body.classList.contains('editing');
         btn.dataset.index = i;
         btn.onclick = () => {
-          if (!document.body.classList.contains('editing')) new Audio(item.url || `${item.folder}/${item.fileName}`).play();
+          playSound(item);
         };
         grid.appendChild(btn);
       });
+    }
+
+    function playSound(sound) {
+      const url = sound.url || `${sound.folder}/${sound.fileName}`;
+      const audio = new Audio(url);
+
+      if (soundOverlayCheckbox.checked) {
+        playingAudios.forEach(audio => {
+          audio.pause();
+        });
+        playingAudios = [audio];
+      }
+
+      audio.play();
+
+      if (!soundOverlayCheckbox.checked) {
+        playingAudios.push(audio);
+        audio.addEventListener('ended', () => {
+          playingAudios = playingAudios.filter(a => a !== audio);
+        });
+      }
     }
 
     // Drag and drop on grid
@@ -864,7 +891,76 @@
       createRipple(event);
       setTimeout(() => {
         clearAllSoundsBtn.classList.remove('active');
+        stopAllSounds();
       }, 400);
+    });
+    soundOverlayCheckbox.addEventListener('change', () => {
+      showStatus('Sound overlay ' + (soundOverlayCheckbox.checked ? 'enabled' : 'disabled'), 'info');
+    });
+
+    autoClickerCheckbox.addEventListener('change', () => {
+      if (autoClickerCheckbox.checked) {
+        startAutoClicker();
+        autoClickDelayLabel.style.display = 'block';
+        showStatus('Auto clicker enabled', 'info');
+      } else {
+        stopAutoClicker();
+        autoClickDelayLabel.style.display = 'none';
+        showStatus('Auto clicker disabled', 'info');
+      }
+    });
+    applyDelayBtn.addEventListener('click', () => {
+      stopAutoClicker();
+      startAutoClicker();
+      showStatus('Auto click delay applied', 'success');
+    });
+
+    function startAutoClicker() {
+      const delay = parseInt(autoClickDelayInput.value, 10);
+      if (isNaN(delay) || delay < 0) {
+        showStatus('Invalid delay, please enter a valid number', 'error');
+        autoClickerCheckbox.checked = false;
+        autoClickDelayLabel.style.display = 'none';
+        return;
+      }
+
+      autoClickInterval = setInterval(() => {
+        if (currentlyHoveredButton) {
+          currentlyHoveredButton.click();
+        }
+      }, delay);
+    }
+
+    function stopAutoClicker() {
+      clearInterval(autoClickInterval);
+    }
+    // Capture hovered button for autoclicker
+    document.addEventListener('mouseover', function (event) {
+      if (event.target && event.target.classList.contains('sound-btn')) {
+        currentlyHoveredButton = event.target;
+      }
+    });
+
+    document.addEventListener('mouseout', function (event) {
+      if (event.target && event.target.classList.contains('sound-btn')) {
+        currentlyHoveredButton = null;
+      }
+    });
+    // Clear all sounds
+    function stopAllSounds() {
+      playingAudios.forEach(audio => {
+        audio.pause();
+      });
+      playingAudios = [];
+      showStatus('All sounds cleared', 'info');
+    }
+
+    // Key press listener
+    document.addEventListener('keydown', function (event) {
+      if (event.shiftKey && event.key === 'C') {
+        stopAllSounds();
+        showStatus('Sounds cleared via keyboard shortcut', 'info');
+      }
     });
   </script>
 </body>
