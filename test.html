@@ -1,621 +1,244 @@
+<!-- playlist.html (uses styles.css for all styles) -->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>4SP | Account</title>
-  <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>4SP | Your Playlists</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <a href="dashboard.html" class="btn secondary" id="dashboardBtn">Dashboard</a>
+      <a href="index.html" class="btn secondary" id="logoutBtn">Log Out</a>
+    </div>
+  </nav>
+  <main class="container">
+    <h1>Your Playlists</h1>
+    <div class="playlists-grid" id="playlistsGrid">
+      <div id="createTile" class="playlist-card">+</div>
+    </div>
+  </main>
+  <script>
+    const auth = firebase.auth(), db = firebase.firestore();
+    const grid = document.getElementById('playlistsGrid'), createTile = document.getElementById('createTile');
+    auth.onAuthStateChanged(user => {
+      if (!user) return location.href = 'index.html';
+      db.collection('playlists').where('owner', '==', user.uid).get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const card = document.createElement('div');
+          card.className = 'playlist-card';
+          card.textContent = doc.data().name;
+          card.onclick = () => location.href = `playlist-show.html?id=${doc.id}&local=false`;
+          grid.insertBefore(card, createTile);
+        });
+      });
+    });
+    createTile.onclick = () => location.href = 'playlist-create.html';
+  </script>
+</body>
+</html>
+
+<!-- playlist-create.html (rounded inputs, uses styles.css nav buttons) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>4SP | Create Playlist</title>
+  <link rel="stylesheet" href="styles.css"/>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <style>
-    :root {
-      --primary-action: var(--dark-bg);
-      --secondary-action-text: var(--dark-bg);
-      --secondary-action-bg: var(--light-gray);
-      --danger-action: #ff4d4d;
-      /* A brighter red for danger */
-      --light-text: #f0f0f0;
-      --dark-bg: #1a1a1a;
-      --light-gray: #e0e0e0;
-      --medium-gray: #333333;
-      --darker-bg: #0d0d0d;
-      --error-red: #ff1212;
-      --info-text: var(--medium-gray);
-      --card-bg: white;
-      --card-border: var(--light-gray);
-      --pill-radius: 50px;
-      --modal-bg: rgba(0, 0, 0, 0.7);
-      --modal-content-bg: #222;
-      /* Slightly lighter background */
-      --modal-content-border: #666;
-      /* Medium-gray border */
-      --modal-text-color: #ddd;
-      /* Soft white text */
-      --modal-input-bg: #444;
-      /* Darker input */
-      --modal-input-text-color: #eee;
-      /* Lighter input text */
-      --primary-red: #ff1212;
-    }
-
-    body {
-      background-color: var(--light-gray);
-      font-family: 'Roboto Mono', monospace;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      color: var(--dark-bg);
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 0 2rem;
-      flex: 1;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: var(--dark-bg);
-    }
-
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.5rem 3rem;
-      background-color: var(--darker-bg);
-      color: var(--light-text);
-      border-bottom: 1px solid var(--accent);
-    }
-
-    .logo {
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: -1.5px;
-    }
-
-    .nav-buttons {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 1rem 2rem;
+    /* round and taller inputs/selects/textareas */
+    input[type="text"], select {
       border-radius: 50px;
+      height: 3rem;
+      padding: 0 1rem;
       font-size: 1rem;
-      cursor: pointer;
-      text-align: center;
-      border: 2px solid transparent;
-      font-weight: 500;
     }
-
-    .btn.primary {
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-    }
-
-    .btn.secondary {
-      background-color: transparent;
-      color: var(--light-text);
-      border-color: var(--light-text);
-    }
-
-    .btn:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    footer {
-      text-align: center;
-      padding: 1rem;
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-      border-top: 2px solid var(--primary-action);
-    }
-
-    .account-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 2rem;
-      margin-top: 2rem;
-    }
-
-    .account-info {
-      padding: 1.5rem;
-      background-color: var(--card-bg);
-      border-radius: var(--pill-radius);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--card-border);
-    }
-
-    .account-info h2 {
-      font-size: 1.4rem;
-      margin-bottom: 1rem;
-      color: var(--dark-bg);
-    }
-
-    .account-info p {
-      margin-bottom: 0.75rem;
-      color: var(--info-text);
-    }
-
-    .account-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      padding: 1.5rem;
-    }
-
-    .account-buttons button {
-      padding: 1rem 1.5rem;
-      border-radius: var(--pill-radius);
-      border: none;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      text-align: center;
-      width: 100%;
-      display: inline-block;
-      box-sizing: border-box;
-    }
-
-    .account-buttons button:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .account-buttons button.secondary {
-      background-color: transparent;
-      color: var(--dark-bg);
-      border: 2px solid var(--dark-bg);
-    }
-
-    .account-buttons button.secondary:hover {
-      background-color: rgba(0, 0, 0, 0.05);
-    }
-
-    .account-buttons button.danger {
-      background-color: var(--danger-action);
-      color: var(--light-text);
-    }
-
-    .account-buttons button.danger:hover {
-      background-color: #cc0000;
-    }
-
-    .additional-info {
-      margin-top: 1rem;
-      padding: 1rem;
-      background-color: var(--card-bg);
-      border-radius: var(--pill-radius);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--card-border);
-    }
-
-    .additional-info h3 {
-      font-size: 1.1rem;
-      margin-bottom: 0.75rem;
-      color: var(--dark-bg);
-    }
-
-    .additional-info p {
-      margin-bottom: 0.5rem;
-      color: var(--info-text);
-    }
-
-    /* Styles for the modal/popup */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: var(--modal-bg);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      /* Changed from height 0.3s */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal.fade-in {
-      opacity: 1;
-    }
-
-    .modal.fade-out {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    /* Modal Content/Box */
-    .modal-content {
-      background-color: var(--modal-content-bg);
-      padding: 2rem;
-      border: 1px solid var(--modal-content-border);
-      width: 90%;
-      max-width: 500px;
-      border-radius: var(--pill-radius);
-      position: relative;
-      color: var(--modal-text-color);
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-      transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      /* Consistent spacing */
-    }
-
-    /* The Close Button */
-    .close {
-      position: absolute;
-      top: 1rem;
-      right: 1.5rem;
-      color: var(--modal-text-color);
-      font-size: 28px;
-      font-weight: bold;
-      transition: color 0.2s ease;
-      cursor: pointer;
-    }
-
-    .close:hover {
-      color: #fff;
-      text-decoration: none;
-    }
-
-    /* Style for the password confirmation form & change password form */
-    .password-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .password-form label {
-      font-weight: bold;
-      color: var(--modal-text-color);
-      display: block;
-    }
-
-    .password-form input[type="password"] {
+    textarea {
+      border-radius: 50px;
+      height: 5rem;
       padding: 1rem;
       font-size: 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: var(--pill-radius);
-      color: var(--modal-input-text-color);
-      background-color: var(--modal-input-bg);
-      width: 100%;
-      box-sizing: border-box;
-      transition: border-color 0.2s ease;
-    }
-
-    .password-form input[type="password"]:focus {
-      outline: none;
-      border-color: var(--primary-red);
-      box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3);
-    }
-
-    .password-form button {
-      display: inline-block;
-      padding: 1rem 2rem;
-      border-radius: var(--pill-radius);
-      font-size: 1rem;
-      cursor: pointer;
-      text-align: center;
-      border: none;
-      font-weight: 500;
-      color: var(--light-text);
-      transition: background-color 0.2s ease;
-      /* Inherit button style */
-    }
-
-    .password-form button.confirm {
-      background-color: var(--primary-red);
-    }
-
-    .password-form button.confirm:hover {
-      background-color: #cc0c0c;
-    }
-
-    .password-form button.delete {
-      background-color: var(--danger-action);
-    }
-
-    .password-form button.delete:hover {
-      background-color: #cc0000;
-    }
-
-    .modal h2 {
-      margin: 0;
-      color: var(--modal-text-color);
-      font-size: 1.75rem;
-      font-weight: 600;
-    }
-
-    .modal p {
-      color: rgba(240, 240, 240, 0.8);
-      margin-bottom: 0;
-    }
-
-    /* Specific style adjustments */
-    #confirmPasswordForm .password-form button {
-      margin-top: 1rem;
-    }
-
-    #changePasswordForm .password-form button {
-      margin-top: 0.5rem;
-    }
-
-    #deleteAccountModal .modal-content {
-      text-align: center;
-    }
-
-    #deleteAccountModal .modal-content p {
-      margin-bottom: 1.5rem;
-    }
-
-    #deleteAccountModal .password-form button {
-      margin-top: 1.5rem;
-      padding: 1rem 2.5rem;
+      resize: none;
     }
   </style>
 </head>
-
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
-      <a href="index.html" class="btn secondary">Home</a>
-      <a href="dashboard.html" class="btn secondary">Dashboard</a>
-      <a href="account.html" class="btn primary">Account</a>
-      <button class="btn secondary" id="logoutBtn">Log Out</button>
+      <a href="dashboard.html" class="btn secondary" id="dashboardBtn">Dashboard</a>
+      <a href="playlist.html" class="btn secondary" id="backBtn">Back to Playlists</a>
+      <a href="index.html" class="btn secondary" id="logoutBtn">Log Out</a>
     </div>
   </nav>
-
-  <main class="container">
-    <h1>Account Information</h1>
-    <div class="account-grid">
-      <div class="account-info">
-        <h2>User Details</h2>
-        <p id="userEmail">Email: Loading...</p>
-        <p id="creationTime">Created: Loading...</p>
-        <div class="additional-info">
-          <h3>Additional Information</h3>
-          <p id="lastSignIn">Last Sign-in: Loading...</p>
-          <p id="userUID">User ID: Loading...</p>
-        </div>
+  <main class="container form-container">
+    <h1>Create Playlist</h1>
+    <label for="playlistType">Playlist Type</label>
+    <select id="playlistType">
+      <option value="normal">Normal (choose from library)</option>
+      <option value="local">Local (upload files)</option>
+    </select>
+    <form id="createForm">
+      <div id="normalSection" class="sound-section">
+        <h2>Normal Sounds</h2>
+        <div id="normalGrid" class="sound-grid"></div>
+        <h2>Explicit Sounds</h2>
+        <div id="explicitGrid" class="sound-grid"></div>
       </div>
-
-      <div class="account-buttons">
-        <button id="changePasswordBtn" class="secondary">Change Password</button>
-        <button id="editProfileBtn" class="secondary">Edit Profile</button>
-        <button id="manageSubscriptionsBtn" class="secondary">Manage Subscriptions</button>
-        <button id="deleteAccountBtn" class="danger">Delete Account</button>
+      <div id="localSection" class="sound-section" style="display:none;">
+        <h2>Upload Files</h2>
+        <input type="file" id="fileInput" multiple accept="audio/*" />
+        <div id="localGrid" class="sound-grid"></div>
       </div>
-    </div>
+      <label for="name">Playlist Name</label>
+      <input type="text" id="name" required maxlength="30" placeholder="e.g. My Favorites" />
+      <label for="description">Description</label>
+      <textarea id="description" required maxlength="100" placeholder="Short description..."></textarea>
+      <button type="submit" class="btn primary">Create Playlist</button>
+    </form>
   </main>
-
-  <footer>
-    <p>© 2025 4SP</p>
-  </footer>
-
-  <!-- Change Password Modal -->
-  <div id="changePasswordModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2>Change Password</h2>
-      <p>To change your password, please confirm your current password first.</p>
-      <form class="password-form" id="confirmPasswordForm">
-        <label for="currentPassword">Current Password:</label>
-        <input type="password" id="currentPassword" required>
-        <button type="submit" class="confirm">Confirm Password</button>
-      </form>
-      <form class="password-form" id="newPasswordForm" style="display: none;">
-        <label for="newPassword">New Password:</label>
-        <input type="password" id="newPassword" required minlength="6">
-        <label for="confirmNewPassword">Confirm New Password:</label>
-        <input type="password" id="confirmNewPassword" required minlength="6">
-        <button type="submit" class="confirm">Change Password</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Delete Account Modal -->
-  <div id="deleteAccountModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2>Delete Account</h2>
-      <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-      <form class="password-form" id="deleteAccountForm">
-        <label for="deletePassword">Enter Password to Confirm:</label>
-        <input type="password" id="deletePassword" required>
-        <button type="submit" class="delete">Delete Account</button>
-      </form>
-    </div>
-  </div>
-
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Firebase Initialization
-      const auth = firebase.auth();
-
-      // Get DOM Elements
-      const userEmailElement = document.getElementById('userEmail');
-      const creationTimeElement = document.getElementById('creationTime');
-      const lastSignInElement = document.getElementById('lastSignIn');
-      const userUIDElement = document.getElementById('userUID');
-      const changePasswordBtn = document.getElementById('changePasswordBtn');
-      const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-      const logoutBtn = document.getElementById('logoutBtn');
-      const editProfileBtn = document.getElementById('editProfileBtn');
-      const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
-
-      // Get Modal Elements
-      const changePasswordModal = document.getElementById('changePasswordModal');
-      const deleteAccountModal = document.getElementById('deleteAccountModal');
-      const passwordConfirmationForm = document.getElementById('confirmPasswordForm');
-      const newPasswordForm = document.getElementById('newPasswordForm');
-      const deleteAccountForm = document.getElementById('deleteAccountForm');
-      const closeModalButtons = document.querySelectorAll('.close');
-      const currentPasswordInput = document.getElementById('currentPassword');
-      const newPasswordInput = document.getElementById('newPassword');
-      const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
-      const deletePasswordInput = document.getElementById('deletePassword');
-      const modalContent = document.querySelectorAll('.modal-content');
-
-      // Functions
-      const openModal = (modal) => {
-        modal.classList.remove('fade-out');
-        modal.style.display = 'flex'; // Changed to flex for vertical alignment
-        setTimeout(() => {
-          modal.classList.add('fade-in');
-        }, 10);
-      };
-
-      const closeModal = (modal) => {
-        modal.classList.remove('fade-in');
-        modal.classList.add('fade-out');
-
-        // Reset forms
-        if (modal.id === "changePasswordModal") {
-          passwordConfirmationForm.style.display = 'flex';
-          newPasswordForm.style.display = 'none';
-          currentPasswordInput.value = "";
-          newPasswordInput.value = "";
-          confirmNewPasswordInput.value = ""
-        }
-
-        setTimeout(() => {
-          modal.style.display = 'none';
-        }, 300);
-      };
-
-      // Event Listeners
-      changePasswordBtn.addEventListener('click', () => {
-        openModal(changePasswordModal);
-      });
-
-      deleteAccountBtn.addEventListener('click', () => {
-        openModal(deleteAccountModal);
-      });
-
-      closeModalButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const modal = button.closest('.modal');
-          closeModal(modal);
-        });
-      });
-
-      window.addEventListener('click', (event) => {
-        if (event.target.classList.contains('modal')) {
-          closeModal(event.target);
-        }
-      });
-
-      passwordConfirmationForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const password = currentPasswordInput.value;
-
-        try {
-          const user = auth.currentUser;
-          const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
-          await user.reauthenticateWithCredential(credential);
-          console.log('Reauthentication successful');
-          // Show new password form, use modal variable from openModal function
-          passwordConfirmationForm.style.display = "none";
-          newPasswordForm.style.display = "flex";
-        } catch (error) {
-          alert('Authentication failed. Please check your password.');
-          console.error('Authentication Error:', error);
-        }
-      });
-
-      newPasswordForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const newPassword = newPasswordInput.value;
-        const confirmNewPassword = confirmNewPasswordInput.value;
-
-        if (newPassword !== confirmNewPassword) {
-          alert('New passwords do not match. Please try again.');
-          return;
-        }
-
-        if (newPassword.length < 6) {
-          alert('New password must be at least 6 characters long.');
-          return;
-        }
-
-        try {
-          const user = auth.currentUser;
-          await user.updatePassword(newPassword);
-          alert('Password changed successfully!');
-          closeModal(changePasswordModal);
-        } catch (error) {
-          console.error('Password change error:', error);
-          alert('Failed to change password. Please try again later.');
-        }
-      });
-
-      deleteAccountForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const password = deletePasswordInput.value;
-        try {
-          const user = auth.currentUser;
-          const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
-          await user.reauthenticateWithCredential(credential);
-          await user.delete();
-          alert('Account deleted successfully.');
-          window.location.href = 'index.html';
-        } catch (error) {
-          alert('Authentication failed. Please check your password.');
-          console.error('Authentication Error:', error);
-        }
-      });
-
-      // Placeholder Functionality
-      editProfileBtn.addEventListener('click', () => {
-        alert('Edit Profile functionality is not implemented yet.');
-      });
-
-      manageSubscriptionsBtn.addEventListener('click', () => {
-        alert('Manage Subscriptions functionality is not implemented yet.');
-      });
-
-      logoutBtn.addEventListener('click', async () => {
-        try {
-          await auth.signOut();
-          window.location.href = 'index.html';
-        } catch (error) {
-          console.error('Logout Error:', error);
-          alert('Failed to log out. Please try again.');
-        }
-      });
-
-      // Authentication State Listener
-      auth.onAuthStateChanged(async (user) => {
-        if (user) {
-          userEmailElement.textContent = `Email: ${user.email}`;
-          const creationDate = new Date(user.metadata.creationTime);
-          creationTimeElement.textContent = `Created: ${creationDate.toLocaleString()}`;
-          lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
-          userUIDElement.textContent = `User ID: ${user.uid}`;
-        } else {
-          window.location.href = 'index.html';
-        }
+    const auth = firebase.auth(), db = firebase.firestore();
+    const typeSel = document.getElementById('playlistType'), normalSection = document.getElementById('normalSection'), localSection = document.getElementById('localSection');
+    const normalGrid = document.getElementById('normalGrid'), explicitGrid = document.getElementById('explicitGrid'), localGrid = document.getElementById('localGrid');
+    const fileInput = document.getElementById('fileInput'), form = document.getElementById('createForm');
+    auth.onAuthStateChanged(user => {
+      if (!user) return location.href = 'index.html';
+      fetch('SoundboardSN.json').then(r => r.json()).then(data => {
+        (data.NormalSounds || []).forEach(f => createBtn('NormalSounds', f, normalGrid));
+        (data.ExplicitSounds || []).forEach(f => createBtn('ExplicitSounds', f, explicitGrid));
       });
     });
+    typeSel.addEventListener('change', () => {
+      if (typeSel.value === 'normal') {
+        normalSection.style.display = 'block';
+        localSection.style.display = 'none';
+      } else {
+        normalSection.style.display = 'none';
+        localSection.style.display = 'block';
+      }
+    });
+    fileInput.addEventListener('change', () => {
+      Array.from(fileInput.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const btn = document.createElement('div');
+          btn.className = 'sound-btn';
+          const label = file.name.replace(/\.(mp3|wav)$/i, '').replace(/_/g, ' ');
+          btn.textContent = label;
+          btn.addEventListener('click', () => toggleLocal(label, e.target.result, btn));
+          localGrid.appendChild(btn);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+    function createBtn(folder, fileName, container) {
+      const label = fileName.replace(/\.(mp3|wav)$/i, '').replace(/_/g, ' ');
+      const btn = document.createElement('div');
+      btn.className = 'sound-btn';
+      btn.textContent = label;
+      btn.addEventListener('click', () => toggleSelection({ folder, fileName, label }, btn));
+      container.appendChild(btn);
+    }
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const desc = document.getElementById('description').value.trim();
+      const type = typeSel.value;
+      const user = auth.currentUser;
+      if (type === 'normal') {
+        const snap = await db.collection('playlists').where('owner','==',user.uid).where('type','==','normal').get();
+        if (snap.size >= 10) return alert('Max 10 normal playlists');
+        await db.collection('playlists').add({ owner: user.uid, type, name, description: desc, items: selections, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      } else {
+        const local = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
+        if (local.length >= 3) return alert('Max 3 local playlists');
+        const id = Date.now().toString();
+        local.push({ id, type, name, description: desc, items: selections });
+        localStorage.setItem('localPlaylists', JSON.stringify(local));
+      }
+      form.reset(); selections = []; localGrid.innerHTML = '';
+      alert('Playlist created!');
+    });
+    createTile.onclick = () => location.href = 'playlist-create.html';
+    document.getElementById('dashboardBtn').onclick = () => location.href = 'dashboard.html';
+    document.getElementById('logoutBtn').onclick = () => auth.signOut().then(() => location.href = 'index.html');
   </script>
 </body>
+</html>
 
+<!-- playlist-show.html (uses styles.css nav buttons) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4SP | View Playlist</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <a href="dashboard.html" class="btn secondary" id="dashboardBtn">Dashboard</a>
+      <a href="playlist.html" class="btn secondary" id="backBtn">Playlists</a>
+      <a href="index.html" class="btn secondary" id="logoutBtn">Log Out</a>
+    </div>
+  </nav>
+  <main class="container">
+    <h1 id="plName"></h1>
+    <p id="plDesc"></p>
+    <div id="soundGrid" class="sound-grid"></div>
+  </main>
+  <script>
+    const auth = firebase.auth(), db = firebase.firestore();
+    const params = new URLSearchParams(location.search);
+    const playlistId = params.get('id'), isLocal = params.get('local') === 'true';
+    const plName = document.getElementById('plName'), plDesc = document.getElementById('plDesc'), grid = document.getElementById('soundGrid');
+    auth.onAuthStateChanged(user => {
+      if (!user) return location.href = 'index.html';
+      if (isLocal) {
+        const local = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
+        const pl = local.find(p => p.id === playlistId);
+        plName.textContent = pl.name; plDesc.textContent = pl.description;
+        pl.items.forEach(item => render(item));
+      } else {
+        db.collection('playlists').doc(playlistId).get().then(doc => {
+          const data = doc.data();
+          plName.textContent = data.name; plDesc.textContent = data.description;
+          data.items.forEach(item => render(item));
+        });
+      }
+    });
+    function render(item) {
+      const btn = document.createElement('div');
+      btn.className = 'sound-button'; btn.textContent = item.label;
+      btn.onclick = () => play(item);
+      grid.appendChild(btn);
+    }
+    function play(item) {
+      const src = isLocal ? item.url : `${item.folder}/${item.fileName}`;
+      new Audio(src).play();
+    }
+    document.getElementById('dashboardBtn').onclick = () => location.href = 'dashboard.html';
+    document.getElementById('backBtn').onclick = () => location.href = 'playlist.html';
+    document.getElementById('logoutBtn').onclick = () => auth.signOut().then(() => location.href = 'index.html');
+  </script>
+</body>
 </html>
