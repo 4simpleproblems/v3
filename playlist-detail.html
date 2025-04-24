@@ -671,22 +671,25 @@
       const url = sound.url || `${sound.folder}/${sound.fileName}`;
       const audio = new Audio(url);
 
-      if (soundOverlayCheckbox.checked) {
-        playingAudios.forEach(audio => {
+      if (!soundOverlayCheckbox.checked) { // If sound overlay is NOT checked
+        playingAudios.forEach(audio => { // Stop all currently playing audios
           audio.pause();
         });
-        playingAudios = [audio];
+        playingAudios = [audio]; // Set the currently playing audio as the only one
+      } else {
+        // If sound overlay IS checked, just play the audio
       }
 
       audio.play();
 
-      if (!soundOverlayCheckbox.checked) {
-        playingAudios.push(audio);
-        audio.addEventListener('ended', () => {
+      if (soundOverlayCheckbox.checked) { // If sound overlay IS checked
+        playingAudios.push(audio); // Add this audio to the playing audios array
+        audio.addEventListener('ended', () => { // Clean up when it ends
           playingAudios = playingAudios.filter(a => a !== audio);
         });
       }
     }
+
 
     // Drag and drop on grid
     grid.addEventListener('dragstart', e => {
@@ -760,62 +763,6 @@
     backBtn.onclick = () => location.href = 'playlist.html';
     logoutBtn.onclick = () => auth.signOut().then(() => location.href = 'index.html');
 
-    // Enhanced show status message with proper fade animation
-    function showStatus(message, type = 'info') {
-      // Clear any existing timeout
-      if (statusMessageTimeout) {
-        clearTimeout(statusMessageTimeout);
-        statusMessage.classList.remove('fade-in', 'fade-out');
-      }
-
-      // Set the message and prepare to show it
-      statusMessage.textContent = message;
-      statusMessage.className = 'status-message ' + type;
-
-      // First check if already displayed, if so remove it briefly
-      if (statusMessage.style.display === 'block') {
-        statusMessage.classList.add('fade-out');
-
-        setTimeout(() => {
-          statusMessage.classList.remove('fade-out');
-          statusMessage.style.display = 'none';
-
-          // Then show the new message after a brief pause
-          setTimeout(() => {
-            statusMessage.style.display = 'block';
-            statusMessage.classList.add('fade-in');
-
-            // Set timeout to hide the message
-            statusMessageTimeout = setTimeout(() => {
-              statusMessage.classList.remove('fade-in');
-              statusMessage.classList.add('fade-out');
-
-              // When fadeout animation finishes, hide the element
-              setTimeout(() => {
-                statusMessage.style.display = 'none';
-                statusMessage.classList.remove('fade-out');
-              }, 300);
-            }, 3000);
-          }, 50);
-        }, 300);
-      } else {
-        // If not displayed, show it directly
-        statusMessage.style.display = 'block';
-        statusMessage.classList.add('fade-in');
-
-        // Set timeout to hide the message
-        statusMessageTimeout = setTimeout(() => {
-          statusMessage.classList.remove('fade-in');
-          statusMessage.classList.add('fade-out');
-
-          // When fadeout animation finishes, hide the element
-          setTimeout(() => {
-            statusMessage.style.display = 'none';
-            statusMessage.classList.remove('fade-out');
-          }, 300);
-        }, 3000);
-      }
-    }
     // Open options menu with fade effect
     function openOptionsMenu() {
       if (menuIsOpen) return;
@@ -901,25 +848,19 @@
         showStatus('All sounds cleared', 'info');
       }, 400);
     });
-    soundOverlayCheckbox.addEventListener('change', () => {
-      showStatus('Sound overlay ' + (soundOverlayCheckbox.checked ? 'enabled' : 'disabled'), 'info');
-    });
 
     autoClickerCheckbox.addEventListener('change', () => {
       if (autoClickerCheckbox.checked) {
         startAutoClicker();
         autoClickDelayLabel.style.display = 'block';
-        showStatus('Auto clicker enabled', 'info');
       } else {
         stopAutoClicker();
         autoClickDelayLabel.style.display = 'none';
-        showStatus('Auto clicker disabled', 'info');
       }
     });
     applyDelayBtn.addEventListener('click', () => {
       stopAutoClicker();
       startAutoClicker();
-      showStatus('Auto click delay applied', 'success');
     });
 
     function startAutoClicker() {
