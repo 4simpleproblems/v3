@@ -28,10 +28,16 @@
       --btn-border-unselected: #bbb;
       --btn-color-unselected: #555;
 
-     --btn-bg-selected: #6a5acd;       /* Slate Blue background */
-  --btn-border-selected: #483d8b;   /* Dark Slate Blue border */
-  --btn-color-selected: #f0f0ff;    /* Light lavender/white text */
-}
+      /* Selected button colors - blue-purple theme */
+      --btn-bg-selected: #6a5acd;       /* Slate Blue background */
+      --btn-border-selected: #483d8b;   /* Dark Slate Blue border */
+      --btn-color-selected: #f0f0ff;    /* Light lavender/white text */
+
+      /* Selected button hover darker shade */
+      --btn-bg-selected-hover: #4b3f8a;
+      --btn-border-selected-hover: #3a2f6f;
+      --btn-color-selected-hover: #e0e0ff;
+    }
     body {
       background: var(--light-gray);
       margin: 0;
@@ -153,8 +159,15 @@
       border-color: var(--btn-border-selected);
       color: var(--btn-color-selected);
     }
+    /* Hover for unselected buttons */
     .sound-btn:hover {
       background-color: var(--light-gray);
+    }
+    /* Hover for selected buttons - darker shade for readability */
+    .sound-btn.selected:hover {
+      background-color: var(--btn-bg-selected-hover);
+      border-color: var(--btn-border-selected-hover);
+      color: var(--btn-color-selected-hover);
     }
     .sound-btn:active {
       transform: scale(0.95);
