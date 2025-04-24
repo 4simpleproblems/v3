@@ -12,55 +12,30 @@
   <script src="firebase-config.js"></script>
   <style>
     * { font-family: 'Roboto Mono', monospace; box-sizing: border-box; }
-    :root {
-      --dark-bg: #1a1a1a;
-      --light-text: #f0f0f0;
-      --white: #fff;
-      --pill-radius: 50px;
-    }
-    body { margin: 0; background: var(--white); color: var(--dark-bg); }
-    .navbar {
-      display: flex; justify-content: space-between; align-items: center;
-      background: var(--dark-bg); color: var(--light-text);
-      padding: 1rem 2rem;
-    }
-    .logo-section {
-      display: flex; align-items: center; gap: 1rem;
-    }
-    .logo { font-size: 1.5rem; font-weight: bold; }
-    .title-section h2 { margin: 0; font-size: 1.25rem; }
-    .title-section p { margin: 0; font-size: .9rem; opacity: .8; }
-    .nav-buttons { display: flex; gap: 1rem; }
-    .btn {
-      padding: .75rem 1.5rem; border-radius: var(--pill-radius);
-      background: transparent; border: 2px solid var(--light-text);
-      color: var(--light-text); cursor: pointer; font-weight: 500;
-      transition: background .2s, color .2s;
-    }
-    .btn.big { padding: 1rem 2rem; font-size: 1.1rem; }
-    .btn:hover { background: var(--light-text); color: var(--dark-bg); }
-    .container { padding: 1rem 2rem; }
-    .playlist-info { display: none; } /* now in navbar */
-    .sound-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(80px,1fr));
-      gap: .75rem; justify-items: center;
-    }
-    .sound-btn {
-      background: var(--light-text); color: var(--dark-bg);
-      border: 2px solid var(--dark-bg);
-      border-radius: var(--pill-radius);
-      min-width: 80px; height: 80px;
-      display: flex; align-items: center; justify-content: center;
-      text-align: center; padding: 0 .5rem;
-      cursor: pointer; user-select: none;
-    }
-    .sound-btn.short-text { border-radius: 50%; padding: .5rem; }
-    .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display: none; }
-    .overlay.show { display: block; }
-    .editing .sound-btn { opacity: .5; }
-    .editing .sound-btn.dragging { opacity: .2; }
-    .editing .sound-btn:hover { opacity: 1; }
+    :root { --dark-bg: #1a1a1a; --light-text: #f0f0f0; --white: #fff; --pill-radius: 50px; }
+    body { margin:0; background:var(--white); color:var(--dark-bg); }
+    .navbar { display:flex; justify-content:space-between; align-items:center; background:var(--dark-bg); color:var(--light-text); padding:1rem 2rem; }
+    .logo-section { display:flex; align-items:center; gap:1rem; }
+    .logo { font-size:1.5rem; font-weight:bold; }
+    .title-section h2 { margin:0; font-size:1.25rem; }
+    .title-section p { margin:0; font-size:.9rem; opacity:.8; }
+    .nav-buttons { display:flex; gap:1rem; }
+    .btn { padding:.75rem 1.5rem; border-radius:var(--pill-radius); background:transparent; border:2px solid var(--light-text); color:var(--light-text); cursor:pointer; font-weight:500; transition:background .2s, color .2s; }
+    .btn.big { padding:1rem 2rem; font-size:1.1rem; }
+    .btn:hover { background:var(--light-text); color:var(--dark-bg); }
+    .container { padding:1rem 2rem; }
+    .sound-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:.75rem; justify-items:center; }
+    .sound-btn { position:relative; background:var(--light-text); color:var(--dark-bg); border:2px solid var(--dark-bg); border-radius:var(--pill-radius); min-width:100px; height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:.5rem; cursor:pointer; user-select:none; transition:background .2s; }
+    .sound-btn.short-text { border-radius:50%; height:100px; min-width:100px; }
+    .sound-btn span { font-size:.8rem; opacity:.7; }
+    .controls { position:absolute; bottom:5px; left:5px; right:5px; opacity:0; transition:opacity .2s; pointer-events:none; display:flex; flex-direction:column; gap:4px; }
+    .sound-btn:hover .controls { opacity:1; pointer-events:auto; }
+    .controls input, .controls select { width:100%; font-size:0.7rem; }
+    .overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; }
+    .overlay.show { display:block; }
+    .editing .sound-btn { opacity:.5; }
+    .editing .sound-btn.dragging { opacity:.2; }
+    .editing .sound-btn:hover { opacity:1; }
   </style>
 </head>
 <body>
@@ -91,6 +66,7 @@
     const playlistId = params.get('id');
     const isLocal = params.get('local') === 'true';
     let data = { items: [] };
+    let dragSrcIndex = null;
 
     const plName = document.getElementById('plName');
     const plDesc = document.getElementById('plDesc');
@@ -102,82 +78,121 @@
     const overlay = document.getElementById('overlay');
 
     auth.onAuthStateChanged(async user => {
-      if (!user) return location.href='index.html';
+      if (!user) return location.href = 'index.html';
       if (isLocal) {
         const list = JSON.parse(localStorage.getItem('localPlaylists')||'[]');
-        data = list.find(p=>p.id===playlistId)||{};
+        data = list.find(p => p.id === playlistId) || {};
       } else {
         const doc = await db.collection('playlists').doc(playlistId).get();
-        if (!doc.exists || doc.data().owner!==user.uid) return location.href='playlist.html';
+        if (!doc.exists || doc.data().owner !== user.uid) return location.href = 'playlist.html';
         data = doc.data();
       }
       plName.textContent = data.name;
       plDesc.textContent = data.description;
+      setupDragDrop();
       render();
     });
 
     function render() {
       soundGrid.innerHTML = '';
-      data.items.forEach((item,i)=>{
+      data.items.forEach((item, i) => {
         const btn = document.createElement('div');
-        btn.className='sound-btn';
-        const label = item.label||item.fileName;
-        btn.textContent=label;
-        if(label.length<8) btn.classList.add('short-text');
-        btn.draggable = document.body.classList.contains('editing');
-        btn.dataset.index=i;
-        btn.addEventListener('click',()=>{
-          if(document.body.classList.contains('editing')) return;
-          const src = item.url||`${item.folder}/${item.fileName}`;
-          new Audio(src).play();
+        btn.className = 'sound-btn';
+
+        const label = item.label || item.fileName;
+        const nameSpan = document.createElement('div');
+        nameSpan.textContent = label;
+        const descSpan = document.createElement('span');
+        descSpan.textContent = item.description || '';
+
+        if (label.length < 8) btn.classList.add('short-text');
+        else {
+          btn.appendChild(nameSpan);
+          if (descSpan.textContent) btn.appendChild(descSpan);
+        }
+
+        // Controls
+        const controls = document.createElement('div');
+        controls.className = 'controls';
+
+        const volume = document.createElement('input');
+        volume.type = 'range';
+        volume.min = 0; volume.max = 100; volume.value = 100;
+        const speed = document.createElement('select');
+        [0.5, 1, 1.5, 2].forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s;
+          opt.textContent = `${s}x`;
+          if (s === 1) opt.selected = true;
+          speed.appendChild(opt);
         });
-        btn.addEventListener('dragstart',e=>{
-          e.dataTransfer.setData('text/plain',i);
+
+        controls.appendChild(volume);
+        controls.appendChild(speed);
+        btn.appendChild(controls);
+
+        btn.draggable = document.body.classList.contains('editing');
+        btn.dataset.index = i;
+        btn.addEventListener('click', e => {
+          if (document.body.classList.contains('editing') || e.target.tagName !== 'DIV') return;
+          const src = item.url || `${item.folder}/${item.fileName}`;
+          const audio = new Audio(src);
+          audio.volume = volume.value / 100;
+          audio.playbackRate = parseFloat(speed.value);
+          audio.play();
+        });
+        btn.addEventListener('dragstart', e => {
+          dragSrcIndex = i;
           btn.classList.add('dragging');
         });
-        btn.addEventListener('dragend',()=> btn.classList.remove('dragging'));
-        btn.addEventListener('dragover',e=>{
-          if(!document.body.classList.contains('editing')) return;
-          e.preventDefault();
-        });
-        btn.addEventListener('drop',e=>{
-          e.preventDefault();
-          const from = parseInt(e.dataTransfer.getData('text/plain'));
-          const to = parseInt(btn.dataset.index);
-          const moved = data.items.splice(from,1)[0];
-          data.items.splice(to,0,moved);
-          render();
-        });
+        btn.addEventListener('dragend', () => btn.classList.remove('dragging'));
         soundGrid.appendChild(btn);
+      });
+    }
+
+    function setupDragDrop() {
+      soundGrid.addEventListener('dragover', e => {
+        if (!document.body.classList.contains('editing')) return;
+        e.preventDefault();
+      });
+      soundGrid.addEventListener('drop', e => {
+        if (!document.body.classList.contains('editing')) return;
+        e.preventDefault();
+        const target = e.target.closest('.sound-btn');
+        if (!target) return;
+        const dropIndex = parseInt(target.dataset.index);
+        const item = data.items.splice(dragSrcIndex, 1)[0];
+        data.items.splice(dropIndex, 0, item);
+        render();
       });
     }
 
     editBtn.onclick = () => {
       document.body.classList.add('editing');
       overlay.classList.add('show');
-      editBtn.style.display='none'; saveBtn.style.display='inline-block';
+      editBtn.style.display = 'none'; saveBtn.style.display = 'inline-block';
     };
     overlay.onclick = closeEdit;
-    saveBtn.onclick = async ()=>{
-      if(!isLocal) await db.collection('playlists').doc(playlistId)
-        .update({ name:data.name, description:data.description, items:data.items });
+    saveBtn.onclick = async () => {
+      if (!isLocal) await db.collection('playlists').doc(playlistId)
+        .update({ name: data.name, description: data.description, items: data.items });
       else {
         const list = JSON.parse(localStorage.getItem('localPlaylists')||'[]');
         localStorage.setItem('localPlaylists', JSON.stringify(
-          list.map(p=>p.id===playlistId?data:p)
+          list.map(p => p.id === playlistId ? data : p)
         ));
       }
       closeEdit();
     };
-    function closeEdit(){
+    function closeEdit() {
       document.body.classList.remove('editing');
       overlay.classList.remove('show');
-      editBtn.style.display='inline-block'; saveBtn.style.display='none';
+      editBtn.style.display = 'inline-block'; saveBtn.style.display = 'none';
       render();
     }
 
-    backBtn.onclick = ()=> location.href='playlist.html';
-    logoutBtn.onclick = ()=> auth.signOut().then(()=> location.href='index.html');
+    backBtn.onclick = () => location.href = 'playlist.html';
+    logoutBtn.onclick = () => auth.signOut().then(() => location.href = 'index.html');
   </script>
 </body>
 </html>
