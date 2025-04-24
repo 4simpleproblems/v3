@@ -590,8 +590,9 @@
     </div>
   </nav>
 
-  <div class="overlay" id="overlay"></div>
   <main class="container">
+    <div class="status-message" id="statusMessage"></div>
+    <div class="overlay" id="overlay"></div>
     <div id="soundGrid" class="sound-grid"></div>
   </main>
 
@@ -665,7 +666,7 @@
       const url = sound.url || `${sound.folder}/${sound.fileName}`;
       const audio = new Audio(url);
 
-      if (soundOverlayCheckbox.checked) {
+      if (!soundOverlayCheckbox.checked) {
         playingAudios.forEach(audio => {
           audio.pause();
         });
@@ -674,7 +675,7 @@
 
       audio.play();
 
-      if (!soundOverlayCheckbox.checked) {
+      if (soundOverlayCheckbox.checked) {
         playingAudios.push(audio);
         audio.addEventListener('ended', () => {
           playingAudios = playingAudios.filter(a => a !== audio);
@@ -895,7 +896,7 @@
       }, 400);
     });
     soundOverlayCheckbox.addEventListener('change', () => {
-      showStatus('Sound overlay ' + (soundOverlayCheckbox.checked ? 'enabled' : 'disabled'), 'info');
+      showStatus('Sound overlay ' + (soundOverlayCheckbox.checked ? 'disabled' : 'enabled'), 'info');
     });
 
     autoClickerCheckbox.addEventListener('change', () => {
