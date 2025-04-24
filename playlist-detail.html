@@ -24,13 +24,10 @@
     .btn.big { padding:1rem 2rem; font-size:1.1rem; }
     .btn:hover { background:var(--light-text); color:var(--dark-bg); }
     .container { padding:1rem 2rem; }
-    .sound-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:.75rem; justify-items:center; }
-    .sound-btn { position:relative; background:var(--light-text); color:var(--dark-bg); border:2px solid var(--dark-bg); border-radius:var(--pill-radius); min-width:100px; height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:.5rem; cursor:pointer; user-select:none; transition:background .2s; }
-    .sound-btn.short-text { border-radius:50%; height:100px; min-width:100px; }
+    .sound-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(100px,1fr)); gap:.75rem; justify-items:center; }
+    .sound-btn { background:var(--light-text); color:var(--dark-bg); border:2px solid var(--dark-bg); border-radius:var(--pill-radius); min-width:100px; height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:0 .5rem; cursor:pointer; user-select:none; }
+    .sound-btn.short-text { border-radius:50%; padding:.5rem; height:80px; min-width:80px; }
     .sound-btn span { font-size:.8rem; opacity:.7; }
-    .controls { position:absolute; bottom:5px; left:5px; right:5px; opacity:0; transition:opacity .2s; pointer-events:none; display:flex; flex-direction:column; gap:4px; }
-    .sound-btn:hover .controls { opacity:1; pointer-events:auto; }
-    .controls input, .controls select { width:100%; font-size:0.7rem; }
     .overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; }
     .overlay.show { display:block; }
     .editing .sound-btn { opacity:.5; }
@@ -111,35 +108,12 @@
           if (descSpan.textContent) btn.appendChild(descSpan);
         }
 
-        // Controls
-        const controls = document.createElement('div');
-        controls.className = 'controls';
-
-        const volume = document.createElement('input');
-        volume.type = 'range';
-        volume.min = 0; volume.max = 100; volume.value = 100;
-        const speed = document.createElement('select');
-        [0.5, 1, 1.5, 2].forEach(s => {
-          const opt = document.createElement('option');
-          opt.value = s;
-          opt.textContent = `${s}x`;
-          if (s === 1) opt.selected = true;
-          speed.appendChild(opt);
-        });
-
-        controls.appendChild(volume);
-        controls.appendChild(speed);
-        btn.appendChild(controls);
-
         btn.draggable = document.body.classList.contains('editing');
         btn.dataset.index = i;
-        btn.addEventListener('click', e => {
-          if (document.body.classList.contains('editing') || e.target.tagName !== 'DIV') return;
+        btn.addEventListener('click', () => {
+          if (document.body.classList.contains('editing')) return;
           const src = item.url || `${item.folder}/${item.fileName}`;
-          const audio = new Audio(src);
-          audio.volume = volume.value / 100;
-          audio.playbackRate = parseFloat(speed.value);
-          audio.play();
+          new Audio(src).play();
         });
         btn.addEventListener('dragstart', e => {
           dragSrcIndex = i;
