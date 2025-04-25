@@ -193,7 +193,7 @@
       margin-left: 4px;
       font-size: 0.8rem;
     }
-    
+
     #applyDelayBtn:hover {
       background-color: rgba(255, 255, 255, 0.2);
     }
@@ -260,7 +260,7 @@
 
     /* Overlay & Status Animations */
     .overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1; }
-    
+
     /* Animated overlay fade effect */
     @keyframes fadeInOverlay {
       from { opacity: 0; }
@@ -343,21 +343,6 @@
       color: blue;
       border: 1px solid blue;
     }
-    
-    /* Delete Playlist Button */
-    #deletePlaylistBtn {
-      width: 100%;
-      margin-top: 0.5rem;
-      background-color: rgba(255, 0, 0, 0.2);
-      color: var(--light-text);
-      border: 1px solid var(--light-text);
-      position: relative;
-      overflow: hidden;
-    }
-
-    #deletePlaylistBtn:hover {
-      background-color: rgba(255, 0, 0, 0.4);
-    }
 
     /* Delete Playlist Modal */
     .modal {
@@ -377,6 +362,12 @@
     .modal.show {
       display: flex;
       animation: fadeIn 0.3s ease forwards;
+    }
+
+    /* new fade-out for delete modal */
+    .modal.fade-out {
+      display: flex;
+      animation: fadeOut 0.3s ease forwards;
     }
 
     .modal-content {
@@ -404,8 +395,6 @@
       font-size: 1.5rem;
       font-weight: bold;
       cursor: pointer;
-      display: flex;
-      animation: fadeOutOverlay 0.3s ease forwards;
     }
 
     .delete-form {
@@ -584,37 +573,24 @@
       audio.play();
     }
 
-    // Enhanced show status message with proper fade animation
     function showStatus(message, type = 'info') {
-      // Clear any existing timeout
       if (statusMessageTimeout) {
         clearTimeout(statusMessageTimeout);
         statusMessage.classList.remove('fade-in', 'fade-out');
       }
-      
-      // Set the message and prepare to show it
       statusMessage.textContent = message;
       statusMessage.className = 'status-message ' + type;
-      
-      // First check if already displayed, if so remove it briefly
       if (statusMessage.style.display === 'block') {
         statusMessage.classList.add('fade-out');
-        
         setTimeout(() => {
           statusMessage.classList.remove('fade-out');
           statusMessage.style.display = 'none';
-          
-          // Then show the new message after a brief pause
           setTimeout(() => {
             statusMessage.style.display = 'block';
             statusMessage.classList.add('fade-in');
-            
-            // Set timeout to hide the message
             statusMessageTimeout = setTimeout(() => {
               statusMessage.classList.remove('fade-in');
               statusMessage.classList.add('fade-out');
-              
-              // When fadeout animation finishes, hide the element
               setTimeout(() => {
                 statusMessage.style.display = 'none';
                 statusMessage.classList.remove('fade-out');
@@ -623,16 +599,11 @@
           }, 50);
         }, 300);
       } else {
-        // If not displayed, show it directly
         statusMessage.style.display = 'block';
         statusMessage.classList.add('fade-in');
-        
-        // Set timeout to hide the message
         statusMessageTimeout = setTimeout(() => {
           statusMessage.classList.remove('fade-in');
           statusMessage.classList.add('fade-out');
-          
-          // When fadeout animation finishes, hide the element
           setTimeout(() => {
             statusMessage.style.display = 'none';
             statusMessage.classList.remove('fade-out');
@@ -641,81 +612,53 @@
       }
     }
 
-    // Open options menu with fade effect
     function openOptionsMenu() {
       if (menuIsOpen) return;
-      
       menuIsOpen = true;
-      
-      // Show overlay with fade-in
       overlay.style.display = 'block';
       overlay.classList.add('fade-in');
-      
-      // Show menu with fade-in
       optionsMenu.style.display = 'block';
       optionsMenu.classList.add('fade-in');
     }
 
-    // Close options menu with fade effect
     function closeOptionsMenu() {
       if (!menuIsOpen) return;
-      
       menuIsOpen = false;
-      
-      // Fade out the overlay
       overlay.classList.remove('fade-in');
       overlay.classList.add('fade-out');
-      
-      // Fade out the menu
       optionsMenu.classList.remove('fade-in');
       optionsMenu.classList.add('fade-out');
-      
-      // After animation completes, hide elements and reset classes
       setTimeout(() => {
         overlay.style.display = 'none';
         overlay.classList.remove('fade-out');
-        
         optionsMenu.style.display = 'none';
         optionsMenu.classList.remove('fade-out');
       }, 300);
     }
 
-    // Fixed create ripple effect to prevent glitches
     function createRipple(event) {
-      // Prevent multiple ripples
       if (isRippling) return;
       isRippling = true;
-      
       const button = event.currentTarget;
       const rippleContainer = button.querySelector('.ripple-container');
       const rect = button.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
-      
-      // Create a ripple element
       const ripple = document.createElement('span');
       ripple.classList.add('ripple');
       ripple.style.left = x + 'px';
       ripple.style.top = y + 'px';
-      
-      // Clear any existing ripples first
       rippleContainer.innerHTML = '';
-      
-      // Add ripple to container
       rippleContainer.appendChild(ripple);
-      
-      // Set timeout to remove ripple and reset flag
       setTimeout(() => {
         ripple.remove();
         isRippling = false;
       }, 600);
     }
 
-    // Clear all sounds function with enhanced ripple effect
     function clearAll(instantMute = false) {
       if (playingAudios.length > 0) {
         if (instantMute) {
-          // Mute immediately, then stop after a short delay
           playingAudios.forEach(a => a.volume = 0);
           setTimeout(() => {
             playingAudios.forEach(a => a.pause());
@@ -723,7 +666,6 @@
           }, 100);
           showStatus('All sounds muted and cleared', 'success');
         } else {
-          // Normal stop
           playingAudios.forEach(a => a.pause());
           playingAudios = [];
           showStatus('All sounds stopped', 'success');
@@ -731,7 +673,6 @@
       }
     }
 
-    // Fast clicking function using requestAnimationFrame for 0ms delay
     function fastClick() {
       if (currentlyHoveredButton && autoClickerCheckbox.checked) {
         currentlyHoveredButton.click();
@@ -739,18 +680,13 @@
       }
     }
 
-    // Auto clicker functions
     function startAutoClicker() {
       stopAutoClicker();
       const delay = parseInt(autoClickDelayInput.value, 10) || 0;
-
       if (!autoClickerCheckbox.checked) return;
-
-      // Use requestAnimationFrame for "instant" clicking (0ms)
       if (delay === 0) {
         requestAnimationFrameId = requestAnimationFrame(fastClick);
       } else {
-        // Use setInterval for timed clicking
         autoClickInterval = setInterval(() => {
           if (currentlyHoveredButton) currentlyHoveredButton.click();
         }, delay);
@@ -762,41 +698,33 @@
         clearInterval(autoClickInterval);
         autoClickInterval = null;
       }
-      
       if (requestAnimationFrameId) {
         cancelAnimationFrame(requestAnimationFrameId);
         requestAnimationFrameId = null;
       }
     }
 
-    // Options menu toggle with enhanced fade effect
     optionsButton.addEventListener('click', () => menuIsOpen ? closeOptionsMenu() : openOptionsMenu());
-    
-    // Close options when clicking overlay
     overlay.addEventListener('click', () => {
       if (menuIsOpen) closeOptionsMenu();
     });
-    
-    // Close menu when clicking outside
     window.addEventListener('click', e => {
       if (!optionsMenu.contains(e.target) && !optionsButton.contains(e.target) && menuIsOpen) closeOptionsMenu();
     });
 
-    // Auto Clicker
     applyDelayBtn.addEventListener('click', () => {
       stopAutoClicker();
       startAutoClicker();
       localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
     });
-    
+
     autoClickerCheckbox.addEventListener('change', () => {
       autoClickDelayLabel.style.display = autoClickerCheckbox.checked ? 'block' : 'none';
       if (autoClickerCheckbox.checked) startAutoClicker();
       else stopAutoClicker();
       localStorage.setItem('autoClicker', autoClickerCheckbox.checked);
     });
-    
-    // Sound Overlay checkbox
+
     soundOverlayCheckbox.addEventListener('change', function() {
       if (!this.checked) {
         playingAudios.forEach(a => a.pause());
@@ -805,7 +733,6 @@
       localStorage.setItem('soundOverlay', this.checked);
     });
 
-    // Clear All Sounds with enhanced ripple effect
     clearAllSoundsBtn.addEventListener('click', e => {
       createRipple(e);
       clearAllSoundsBtn.classList.add('active');
@@ -815,156 +742,140 @@
       clearAll(false);
     });
 
-    // Delete Playlist button
     deletePlaylistBtn.addEventListener('click', (e) => {
       createRipple(e);
       deletePlaylistBtn.classList.add('active');
       setTimeout(() => {
         deletePlaylistBtn.classList.remove('active');
       }, 400);
-      
-      // Open the delete confirmation modal
+
       confirmPlaylistName.textContent = data.name;
       confirmPlaylistInput.value = '';
       confirmDeleteBtn.disabled = true;
-      
-      // Show the modal
+
       deletePlaylistModal.style.display = 'flex';
       deletePlaylistModal.classList.add('show');
-      
-      // Close options menu
+
       closeOptionsMenu();
     });
 
-   // Close delete modal when clicking the X
-deletePlaylistModal.querySelector('.close').addEventListener('click', () => {
-  deletePlaylistModal.classList.remove('show');
-  setTimeout(() => {
-    deletePlaylistModal.style.display = 'none';
-  }, 300);
-});
-
-// Close delete modal when clicking outside
-window.addEventListener('click', (e) => {
-  if (e.target === deletePlaylistModal) {
-    deletePlaylistModal.classList.remove('show');
-    setTimeout(() => {
-      deletePlaylistModal.style.display = 'none';
-    }, 300);
-  }
-});
-
-// Handle confirm delete input validation
-confirmPlaylistInput.addEventListener('input', () => {
-  confirmDeleteBtn.disabled = confirmPlaylistInput.value !== data.name;
-});
-
-// Handle delete playlist confirmation
-confirmDeleteBtn.addEventListener('click', async () => {
-  if (confirmPlaylistInput.value === data.name) {
-    try {
-      if (isLocal) {
-        // Delete from local storage
-        const playlists = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-        localStorage.setItem('localPlaylists', 
-          JSON.stringify(playlists.filter(p => p.id !== playlistId)));
-      } else {
-        // Delete from Firestore
-        await db.collection('playlists').doc(playlistId).delete();
-      }
-      showStatus('Playlist deleted successfully', 'success');
+    // Helper for fading out the delete modal
+    function closeDeleteModal() {
+      deletePlaylistModal.classList.remove('show');
+      deletePlaylistModal.classList.add('fade-out');
       setTimeout(() => {
-        location.href = 'playlist.html';
-      }, 1000);
-    } catch (error) {
-      showStatus('Error deleting playlist: ' + error.message, 'error');
+        deletePlaylistModal.style.display = 'none';
+        deletePlaylistModal.classList.remove('fade-out');
+      }, 300);
     }
-  }
-});
 
-// Track button hovering for auto-clicker
-document.addEventListener('mouseover', e => {
-  if (e.target.classList.contains('sound-button')) {
-    currentlyHoveredButton = e.target;
-    if (autoClickerCheckbox.checked) startAutoClicker();
-  }
-});
+    // Close via "×"
+    deletePlaylistModal.querySelector('.close')
+      .addEventListener('click', closeDeleteModal);
 
-document.addEventListener('mouseout', e => {
-  if (e.target.classList.contains('sound-button') && currentlyHoveredButton === e.target) {
-    currentlyHoveredButton = null;
-    stopAutoClicker();
-  }
-});
-
-// Keyboard shortcut
-document.addEventListener('keydown', e => {
-  if (e.shiftKey && e.key.toLowerCase() === 'c') {
-    clearAll(true);
-    closeOptionsMenu();
-  }
-});
-
-// Load user preferences from localStorage
-function loadUserPreferences() {
-  // Sound overlay preference
-  if (localStorage.getItem('soundOverlay') === 'true') {
-    soundOverlayCheckbox.checked = true;
-  }
-  
-  // Auto clicker preference
-  if (localStorage.getItem('autoClicker') === 'true') {
-    autoClickerCheckbox.checked = true;
-    autoClickDelayLabel.style.display = 'block';
-  }
-  
-  // Auto clicker delay preference
-  const savedDelay = localStorage.getItem('autoClickDelay');
-  if (savedDelay !== null) {
-    autoClickDelayInput.value = savedDelay;
-  }
-}
-
-// Back & Logout & Save
-document.getElementById('backBtn').onclick = () => location.href='playlist.html';
-document.getElementById('logoutBtn').onclick = () => auth.signOut().then(() => location.href='index.html');
-document.getElementById('saveBtn').onclick = async () => {
-  data.name = plName.textContent.trim();
-  data.description = plDesc.textContent.trim();
-  if (!isLocal) {
-    await db.collection('playlists').doc(playlistId).update({
-      name: data.name,
-      description: data.description,
-      items: data.items
+    // Close by clicking outside
+    window.addEventListener('click', (e) => {
+      if (e.target === deletePlaylistModal) {
+        closeDeleteModal();
+      }
     });
-  } else {
-    const lst = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-    localStorage.setItem('localPlaylists', JSON.stringify(lst.map(p => p.id === playlistId ? data : p)));
-  }
-  showStatus('Playlist saved successfully', 'success');
-};
 
-// In-place editing for playlist name and description
-plName.addEventListener('click', function() {
-  this.contentEditable = true;
-  this.focus();
-  document.getElementById('saveBtn').style.display = 'block';
-});
+    confirmPlaylistInput.addEventListener('input', () => {
+      confirmDeleteBtn.disabled = confirmPlaylistInput.value !== data.name;
+    });
 
-plDesc.addEventListener('click', function() {
-  this.contentEditable = true;
-  this.focus();
-  document.getElementById('saveBtn').style.display = 'block';
-});
+    confirmDeleteBtn.addEventListener('click', async () => {
+      if (confirmPlaylistInput.value === data.name) {
+        try {
+          if (isLocal) {
+            const playlists = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
+            localStorage.setItem('localPlaylists',
+              JSON.stringify(playlists.filter(p => p.id !== playlistId)));
+          } else {
+            await db.collection('playlists').doc(playlistId).delete();
+          }
+          showStatus('Playlist deleted successfully', 'success');
+          setTimeout(() => {
+            location.href = 'playlist.html';
+          }, 1000);
+        } catch (error) {
+          showStatus('Error deleting playlist: ' + error.message, 'error');
+        }
+      }
+    });
 
-function closeEdit() {
-  plName.contentEditable = false;
-  plDesc.contentEditable = false;
-  document.getElementById('saveBtn').style.display = 'none';
-}
+    document.addEventListener('mouseover', e => {
+      if (e.target.classList.contains('sound-button')) {
+        currentlyHoveredButton = e.target;
+        if (autoClickerCheckbox.checked) startAutoClicker();
+      }
+    });
 
-// Load preferences when page loads
-loadUserPreferences();
-</script>
+    document.addEventListener('mouseout', e => {
+      if (e.target.classList.contains('sound-button') && currentlyHoveredButton === e.target) {
+        currentlyHoveredButton = null;
+        stopAutoClicker();
+      }
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.shiftKey && e.key.toLowerCase() === 'c') {
+        clearAll(true);
+        closeOptionsMenu();
+      }
+    });
+
+    function loadUserPreferences() {
+      if (localStorage.getItem('soundOverlay') === 'true') {
+        soundOverlayCheckbox.checked = true;
+      }
+      if (localStorage.getItem('autoClicker') === 'true') {
+        autoClickerCheckbox.checked = true;
+        autoClickDelayLabel.style.display = 'block';
+      }
+      const savedDelay = localStorage.getItem('autoClickDelay');
+      if (savedDelay !== null) {
+        autoClickDelayInput.value = savedDelay;
+      }
+    }
+
+    document.getElementById('backBtn').onclick = () => location.href='playlist.html';
+    document.getElementById('logoutBtn').onclick = () => auth.signOut().then(() => location.href='index.html');
+    document.getElementById('saveBtn').onclick = async () => {
+      data.name = plName.textContent.trim();
+      data.description = plDesc.textContent.trim();
+      if (!isLocal) {
+        await db.collection('playlists').doc(playlistId).update({
+          name: data.name,
+          description: data.description,
+          items: data.items
+        });
+      } else {
+        const lst = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
+        localStorage.setItem('localPlaylists', JSON.stringify(lst.map(p => p.id === playlistId ? data : p)));
+      }
+      showStatus('Playlist saved successfully', 'success');
+    };
+
+    plName.addEventListener('click', function() {
+      this.contentEditable = true;
+      this.focus();
+      document.getElementById('saveBtn').style.display = 'block';
+    });
+
+    plDesc.addEventListener('click', function() {
+      this.contentEditable = true;
+      this.focus();
+      document.getElementById('saveBtn').style.display = 'block';
+    });
+
+    function closeEdit() {
+      plName.contentEditable = false;
+      plDesc.contentEditable = false;
+      document.getElementById('saveBtn').style.display = 'none';
+    }
+
+    loadUserPreferences();
+  </script>
 </body>
 </html>
