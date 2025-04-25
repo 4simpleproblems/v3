@@ -43,30 +43,304 @@
     .sound-button:hover { background: var(--light-gray); }
     .sound-button:active { transform: scale(0.95); }
 
+    /* Enhanced Options Dropdown Styles - More pronounced animations */
+    .options-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .options-button {
+      background-color: transparent;
+      color: var(--light-text);
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: 2px solid var(--light-text);
+      border-radius: 50px;
+      cursor: pointer;
+    }
+
+    /* Options Menu Fade Animation */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+    }
+
+    .options-content {
+      display: none;
+      position: absolute;
+      background-color: var(--darker-bg);
+      min-width: 250px;
+      border: 2px solid var(--light-text);
+      padding: 1rem;
+      z-index: 2;
+      right: 0;
+      border-radius: 30px;
+      color: var(--light-text);
+    }
+
+    .options-content.fade-in {
+      display: block;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .options-content.fade-out {
+      display: block;
+      animation: fadeOut 0.3s ease forwards;
+    }
+
+    .options-content label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--light-text);
+    }
+
+    .options-content input[type="checkbox"] {
+      margin-right: 0.5rem;
+      vertical-align: middle;
+      background-color: var(--darker-bg);
+      border: 2px solid var(--light-text);
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      position: relative;
+      border-radius: 5px;
+    }
+
+    .options-content input[type="checkbox"]:checked {
+      background-image: url('checkmark.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .options-content #autoClickDelayLabel {
+      margin-top: 0.5rem;
+      display: block;
+    }
+
+    .options-content #autoClickDelay {
+      width: 60px;
+      padding: 0.25rem;
+      border-radius: 30px;
+      border: 2px solid var(--light-text);
+      background-color: var(--darker-bg);
+      color: var(--light-text);
+    }
+
+    /* Options Sections */
+    .options-section {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .options-section:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .options-section h3 {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      color: var(--light-text);
+      opacity: 0.8;
+    }
+
+    /* Keyboard shortcuts info */
+    .keyboard-shortcuts {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .keyboard-shortcuts p {
+      margin: 0.25rem 0;
+      font-size: 0.85rem;
+      color: var(--light-text);
+      opacity: 0.8;
+    }
+
+    /* Apply button for autoclicker delay */
+    #applyDelayBtn {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--light-text);
+      border-radius: 30px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--light-text);
+      cursor: pointer;
+      margin-left: 4px;
+      font-size: 0.8rem;
+    }
+    
+    #applyDelayBtn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Enhanced Clear all sounds button with much more satisfying pop effect */
+    #clearAllSoundsBtn {
+      width: 100%;
+      margin-top: 0.5rem;
+      background-color: rgba(255, 0, 0, 0.2);
+      color: var(--light-text);
+      border: 1px solid var(--light-text);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Clear button pop animation */
+    @keyframes buttonPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      75% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+
+    /* Ripple effect */
+    @keyframes ripple {
+      0% {
+        transform: scale(0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    #clearAllSoundsBtn.active {
+      animation: buttonPop 0.4s ease-in-out;
+      background-color: rgba(255, 0, 0, 0.4);
+    }
+
+    /* Ripple container to prevent glitches */
+    .ripple-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.4);
+      width: 100px;
+      height: 100px;
+      margin-top: -50px;
+      margin-left: -50px;
+      animation: ripple 0.6s ease-out;
+      pointer-events: none;
+    }
+
     /* Overlay & Status Animations */
     .overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1; }
-    .overlay.fade-in { display:block; animation:fadeInOverlay .3s ease forwards; }
-    .overlay.fade-out { display:block; animation:fadeOutOverlay .3s ease forwards; }
-    @keyframes fadeInOverlay { from {opacity:0;} to{opacity:1;} }
-    @keyframes fadeOutOverlay { from{opacity:1;} to{opacity:0;} }
+    
+    /* Animated overlay fade effect */
+    @keyframes fadeInOverlay {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
 
-    .status-message { display:none; margin:1rem auto; padding:.5rem 1rem; border-radius:var(--pill-radius); max-width:80%; text-align:center; }
-    .status-message.fade-in { display:block; animation:fadeInUp .3s ease forwards; }
-    .status-message.fade-out { display:block; animation:fadeOutDown .3s ease forwards; }
-    @keyframes fadeInUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
-    @keyframes fadeOutDown { from{opacity:1;transform:translateY(0);} to{opacity:0;transform:translateY(20px);} }
-    .status-message.success { background:rgba(0,255,0,0.1); color:green; border:1px solid green; }
-    .status-message.error { background:rgba(255,0,0,0.1); color:red; border:1px solid red; }
-    .status-message.info { background:rgba(0,0,255,0.1); color:blue; border:1px solid blue; }
+    @keyframes fadeOutOverlay {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
 
-    /* Options Dropdown Animations */
-    .options-dropdown { position: relative; display: inline-block; }
-    .options-button { background: transparent; color: var(--light-text); padding: .75rem 1.5rem; font-size: 1rem; border: 2px solid var(--light-text); border-radius: var(--pill-radius); cursor: pointer; }
-    .options-content { display: none; position: absolute; right: 0; background: var(--darker-bg); min-width: 250px; border: 2px solid var(--light-text); padding: 1rem; border-radius: 30px; z-index: 2; }
-    .options-content.fade-in { display: block; animation:fadeIn .3s ease forwards; }
-    .options-content.fade-out { display: block; animation:fadeOut .3s ease forwards; }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(-20px);} to{opacity:1;transform:translateY(0);} }
-    @keyframes fadeOut { from{opacity:1;transform:translateY(0);} to{opacity:0;transform:translateY(-20px);} }
+    .overlay.fade-in {
+      display: block;
+      animation: fadeInOverlay 0.3s ease forwards;
+    }
+
+    .overlay.fade-out {
+      display: block;
+      animation: fadeOutOverlay 0.3s ease forwards;
+    }
+
+    /* Status message with enhanced fade animation */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOutDown {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    }
+
+    .status-message {
+      display: none;
+      padding: 0.5rem 1rem;
+      margin: 1rem auto;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      background-color: rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 80%;
+    }
+
+    .status-message.fade-in {
+      display: block;
+      animation: fadeInUp 0.3s ease forwards;
+    }
+
+    .status-message.fade-out {
+      display: block;
+      animation: fadeOutDown 0.3s ease forwards;
+    }
+
+    .status-message.success {
+      background-color: rgba(0, 255, 0, 0.1);
+      color: green;
+      border: 1px solid green;
+    }
+
+    .status-message.error {
+      background-color: rgba(255, 0, 0, 0.1);
+      color: red;
+      border: 1px solid red;
+    }
+
+    .status-message.info {
+      background-color: rgba(0, 0, 255, 0.1);
+      color: blue;
+      border: 1px solid blue;
+    }
   </style>
 </head>
 
@@ -85,14 +359,26 @@
         <div class="options-content" id="optionsMenu">
           <div class="options-section">
             <h3>Playback Options</h3>
-            <label><input type="checkbox" id="soundOverlayCheckbox" /> Sound Overlay</label>
-            <label><input type="checkbox" id="autoClickerCheckbox" /> Auto Clicker</label>
-            <label id="autoClickDelayLabel" style="display:none;">Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" /><button id="applyDelayBtn">Apply</button></label>
+            <label>
+              <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
+            </label>
+            <label>
+              <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
+            </label>
+            <label id="autoClickDelayLabel" style="display: none;">
+              Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" />
+              <button id="applyDelayBtn">Apply</button>
+            </label>
           </div>
+          
           <div class="options-section">
             <h3>Management</h3>
-            <button id="clearAllSoundsBtn" class="btn secondary">Clear All Sounds<div class="ripple-container"></div></button>
+            <button id="clearAllSoundsBtn" class="btn secondary">
+              Clear All Sounds
+              <div class="ripple-container"></div>
+            </button>
           </div>
+          
           <div class="keyboard-shortcuts">
             <p><strong>Keyboard Shortcuts:</strong></p>
             <p>Shift + C: Mute & clear all sounds</p>
@@ -166,38 +452,299 @@
       audio.play();
     }
 
-    // Options menu toggle
-    function openOptionsMenu() { if (menuIsOpen) return; menuIsOpen=true; overlay.style.display='block'; overlay.classList.add('fade-in'); optionsMenu.style.display='block'; optionsMenu.classList.add('fade-in'); }
-    function closeOptionsMenu() { if (!menuIsOpen) return; menuIsOpen=false; overlay.classList.remove('fade-in'); overlay.classList.add('fade-out'); optionsMenu.classList.remove('fade-in'); optionsMenu.classList.add('fade-out'); setTimeout(()=>{ overlay.style.display='none'; overlay.classList.remove('fade-out'); optionsMenu.style.display='none'; optionsMenu.classList.remove('fade-out'); },300); }
-    optionsButton.addEventListener('click',()=> menuIsOpen?closeOptionsMenu():openOptionsMenu());
-    window.addEventListener('click',e=>{ if (!optionsMenu.contains(e.target)&&!optionsButton.contains(e.target)&&menuIsOpen) closeOptionsMenu(); });
+    // Enhanced show status message with proper fade animation
+    function showStatus(message, type = 'info') {
+      // Clear any existing timeout
+      if (statusMessageTimeout) {
+        clearTimeout(statusMessageTimeout);
+        statusMessage.classList.remove('fade-in', 'fade-out');
+      }
+      
+      // Set the message and prepare to show it
+      statusMessage.textContent = message;
+      statusMessage.className = 'status-message ' + type;
+      
+      // First check if already displayed, if so remove it briefly
+      if (statusMessage.style.display === 'block') {
+        statusMessage.classList.add('fade-out');
+        
+        setTimeout(() => {
+          statusMessage.classList.remove('fade-out');
+          statusMessage.style.display = 'none';
+          
+          // Then show the new message after a brief pause
+          setTimeout(() => {
+            statusMessage.style.display = 'block';
+            statusMessage.classList.add('fade-in');
+            
+            // Set timeout to hide the message
+            statusMessageTimeout = setTimeout(() => {
+              statusMessage.classList.remove('fade-in');
+              statusMessage.classList.add('fade-out');
+              
+              // When fadeout animation finishes, hide the element
+              setTimeout(() => {
+                statusMessage.style.display = 'none';
+                statusMessage.classList.remove('fade-out');
+              }, 300);
+            }, 3000);
+          }, 50);
+        }, 300);
+      } else {
+        // If not displayed, show it directly
+        statusMessage.style.display = 'block';
+        statusMessage.classList.add('fade-in');
+        
+        // Set timeout to hide the message
+        statusMessageTimeout = setTimeout(() => {
+          statusMessage.classList.remove('fade-in');
+          statusMessage.classList.add('fade-out');
+          
+          // When fadeout animation finishes, hide the element
+          setTimeout(() => {
+            statusMessage.style.display = 'none';
+            statusMessage.classList.remove('fade-out');
+          }, 300);
+        }, 3000);
+      }
+    }
+
+    // Open options menu with fade effect
+    function openOptionsMenu() {
+      if (menuIsOpen) return;
+      
+      menuIsOpen = true;
+      
+      // Show overlay with fade-in
+      overlay.style.display = 'block';
+      overlay.classList.add('fade-in');
+      
+      // Show menu with fade-in
+      optionsMenu.style.display = 'block';
+      optionsMenu.classList.add('fade-in');
+    }
+
+    // Close options menu with fade effect
+    function closeOptionsMenu() {
+      if (!menuIsOpen) return;
+      
+      menuIsOpen = false;
+      
+      // Fade out the overlay
+      overlay.classList.remove('fade-in');
+      overlay.classList.add('fade-out');
+      
+      // Fade out the menu
+      optionsMenu.classList.remove('fade-in');
+      optionsMenu.classList.add('fade-out');
+      
+      // After animation completes, hide elements and reset classes
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        overlay.classList.remove('fade-out');
+        
+        optionsMenu.style.display = 'none';
+        optionsMenu.classList.remove('fade-out');
+      }, 300);
+    }
+
+    // Fixed create ripple effect to prevent glitches
+    function createRipple(event) {
+      // Prevent multiple ripples
+      if (isRippling) return;
+      isRippling = true;
+      
+      const rect = clearAllSoundsBtn.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      
+      // Create a ripple element
+      const ripple = document.createElement('span');
+      ripple.classList.add('ripple');
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      
+      // Clear any existing ripples first
+      rippleContainer.innerHTML = '';
+      
+      // Add ripple to container
+      rippleContainer.appendChild(ripple);
+      
+      // Set timeout to remove ripple and reset flag
+      setTimeout(() => {
+        ripple.remove();
+        isRippling = false;
+      }, 600);
+    }
+
+    // Clear all sounds function with enhanced ripple effect
+    function clearAll(instantMute = false) {
+      if (playingAudios.length > 0) {
+        if (instantMute) {
+          // Mute immediately, then stop after a short delay
+          playingAudios.forEach(a => a.volume = 0);
+          setTimeout(() => {
+            playingAudios.forEach(a => a.pause());
+            playingAudios = [];
+          }, 100);
+          showStatus('All sounds muted and cleared', 'success');
+        } else {
+          // Normal stop
+          playingAudios.forEach(a => a.pause());
+          playingAudios = [];
+          showStatus('All sounds stopped', 'success');
+        }
+      }
+    }
+
+    // Fast clicking function using requestAnimationFrame for 0ms delay
+    function fastClick() {
+      if (currentlyHoveredButton && autoClickerCheckbox.checked) {
+        currentlyHoveredButton.click();
+        requestAnimationFrameId = requestAnimationFrame(fastClick);
+      }
+    }
+
+    // Auto clicker functions
+    function startAutoClicker() {
+      stopAutoClicker();
+      const delay = parseInt(autoClickDelayInput.value, 10) || 0;
+
+      if (!autoClickerCheckbox.checked) return;
+
+      // Use requestAnimationFrame for "instant" clicking (0ms)
+      if (delay === 0) {
+        requestAnimationFrameId = requestAnimationFrame(fastClick);
+      } else {
+        // Use setInterval for timed clicking
+        autoClickInterval = setInterval(() => {
+          if (currentlyHoveredButton) currentlyHoveredButton.click();
+        }, delay);
+      }
+    }
+
+    function stopAutoClicker() {
+      if (autoClickInterval) {
+        clearInterval(autoClickInterval);
+        autoClickInterval = null;
+      }
+      
+      if (requestAnimationFrameId) {
+        cancelAnimationFrame(requestAnimationFrameId);
+        requestAnimationFrameId = null;
+      }
+    }
+
+    // Options menu toggle with enhanced fade effect
+    optionsButton.addEventListener('click', () => menuIsOpen ? closeOptionsMenu() : openOptionsMenu());
+    
+    // Close options when clicking overlay
+    overlay.addEventListener('click', () => {
+      if (menuIsOpen) closeOptionsMenu();
+    });
+    
+    // Close menu when clicking outside
+    window.addEventListener('click', e => {
+      if (!optionsMenu.contains(e.target) && !optionsButton.contains(e.target) && menuIsOpen) closeOptionsMenu();
+    });
 
     // Auto Clicker
-    applyDelayBtn.addEventListener('click',()=>{ stopAutoClicker(); startAutoClicker(); });
-    autoClickerCheckbox.addEventListener('change',()=>{ autoClickDelayLabel.style.display = autoClickerCheckbox.checked ? 'block':'none'; if (autoClickerCheckbox.checked) startAutoClicker(); else stopAutoClicker(); });
-    function startAutoClicker(){ stopAutoClicker(); const delay = parseInt(autoClickDelayInput.value,10)||0; if(delay===0){ requestAnimationFrameId=requestAnimationFrame(fastClick);} else { autoClickInterval=setInterval(()=>{ if(currentlyHoveredButton) currentlyHoveredButton.click(); },delay); } }
-    function stopAutoClicker(){ if(autoClickInterval) clearInterval(autoClickInterval); if(requestAnimationFrameId) cancelAnimationFrame(requestAnimationFrameId); }
-    function fastClick(){ if(currentlyHoveredButton&&autoClickerCheckbox.checked){ currentlyHoveredButton.click(); requestAnimationFrameId=requestAnimationFrame(fastClick);} }
-    document.addEventListener('mouseover',e=>{ if(e.target.classList.contains('sound-button')) currentlyHoveredButton=e.target; });
-    document.addEventListener('mouseout',e=>{ if(e.target.classList.contains('sound-button')) currentlyHoveredButton=null; });
+    applyDelayBtn.addEventListener('click', () => {
+      stopAutoClicker();
+      startAutoClicker();
+      localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
+    });
+    
+    autoClickerCheckbox.addEventListener('change', () => {
+      autoClickDelayLabel.style.display = autoClickerCheckbox.checked ? 'block' : 'none';
+      if (autoClickerCheckbox.checked) startAutoClicker();
+      else stopAutoClicker();
+      localStorage.setItem('autoClicker', autoClickerCheckbox.checked);
+    });
+    
+    // Sound Overlay checkbox
+    soundOverlayCheckbox.addEventListener('change', function() {
+      if (!this.checked) {
+        playingAudios.forEach(a => a.pause());
+        playingAudios = [];
+      }
+      localStorage.setItem('soundOverlay', this.checked);
+    });
 
-    // Clear All Sounds
-    clearAllSoundsBtn.addEventListener('click',e=>{ createRipple(e); clearAll(); });
-    function clearAll(){ playingAudios.forEach(a=>a.pause()); playingAudios=[]; showStatus('All sounds cleared','info'); }
-    function createRipple(e){ if(isRippling) return; isRippling=true; const circle=document.createElement('span'), d=Math.max(clearAllSoundsBtn.clientWidth,clearAllSoundsBtn.clientHeight), r=d/2; circle.style.width=circle.style.height=`${d}px`; circle.style.left=`${e.clientX-(clearAllSoundsBtn.offsetLeft+r)}px`; circle.style.top=`${e.clientY-(clearAllSoundsBtn.offsetTop+r)}px`; circle.classList.add('ripple'); rippleContainer.appendChild(circle); setTimeout(()=>{ circle.remove(); isRippling=false; },600); }
+    // Clear All Sounds with enhanced ripple effect
+    clearAllSoundsBtn.addEventListener('click', e => {
+      createRipple(e);
+      clearAllSoundsBtn.classList.add('active');
+      setTimeout(() => {
+        clearAllSoundsBtn.classList.remove('active');
+      }, 400);
+      clearAll(false);
+    });
 
-    // Status messages
-    function showStatus(msg,type){ if(statusMessageTimeout){ clearTimeout(statusMessageTimeout); statusMessage.classList.remove('fade-in','fade-out'); } statusMessage.textContent=msg; statusMessage.className=`status-message ${type}`; statusMessage.style.display='block'; statusMessage.classList.add('fade-in'); statusMessageTimeout=setTimeout(()=>{ statusMessage.classList.remove('fade-in'); statusMessage.classList.add('fade-out'); setTimeout(()=>{ statusMessage.style.display='none'; statusMessage.classList.remove('fade-out'); },300); },3000); }
+    // Track button hovering for auto-clicker
+    document.addEventListener('mouseover', e => {
+      if (e.target.classList.contains('sound-button')) {
+        currentlyHoveredButton = e.target;
+        if (autoClickerCheckbox.checked) startAutoClicker();
+      }
+    });
+    
+    document.addEventListener('mouseout', e => {
+      if (e.target.classList.contains('sound-button') && currentlyHoveredButton === e.target) {
+        currentlyHoveredButton = null;
+        stopAutoClicker();
+      }
+    });
 
     // Keyboard shortcut
-    document.addEventListener('keydown',e=>{ if(e.shiftKey&&e.key.toLowerCase()==='c'){ clearAll(); closeOptionsMenu(); } });
+    document.addEventListener('keydown', e => {
+      if (e.shiftKey && e.key.toLowerCase() === 'c') {
+        clearAll(true);
+        closeOptionsMenu();
+      }
+    });
+
+    // Load user preferences from localStorage
+    function loadUserPreferences() {
+      // Sound overlay preference
+      if (localStorage.getItem('soundOverlay') === 'true') {
+        soundOverlayCheckbox.checked = true;
+      }
+      
+      // Auto clicker preference
+      if (localStorage.getItem('autoClicker') === 'true') {
+        autoClickerCheckbox.checked = true;
+        autoClickDelayLabel.style.display = 'block';
+      }
+      
+      // Auto clicker delay preference
+      const savedDelay = localStorage.getItem('autoClickDelay');
+      if (savedDelay !== null) {
+        autoClickDelayInput.value = savedDelay;
+      }
+    }
 
     // Back & Logout & Save
-    document.getElementById('backBtn').onclick=()=>location.href='playlist.html';
-    document.getElementById('logoutBtn').onclick=()=>auth.signOut().then(()=>location.href='index.html');
-    document.getElementById('saveBtn').onclick=async()=>{ data.name=plName.textContent.trim(); data.description=plDesc.textContent.trim(); if(!isLocal) await db.collection('playlists').doc(playlistId).update({ name:data.name,description:data.description,items:data.items }); else{ const lst=JSON.parse(localStorage.getItem('localPlaylists')||'[]'); localStorage.setItem('localPlaylists',JSON.stringify(lst.map(p=>p.id===playlistId?data:p))); } closeEdit(); };
+    document.getElementById('backBtn').onclick = () => location.href='playlist.html';
+    document.getElementById('logoutBtn').onclick = () => auth.signOut().then(() => location.href='index.html');
+    document.getElementById('saveBtn').onclick = async () => {
+      data.name = plName.textContent.trim();
+      data.description = plDesc.textContent.trim();
+      if (!isLocal) {
+        await db.collection('playlists').doc(playlistId).update({
+          name: data.name,
+          description: data.description,
+          items: data.items
+        });
+      } else {
+        const lst = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
+        localStorage.setItem('localPlaylists', JSON.stringify(lst.map(p => p.id === playlistId ? data : p)));
+      }
+      closeEdit();
+    };
 
-    // Render on load complete
+    // Load preferences when page loads
+    loadUserPreferences();
   </script>
 </body>
 
