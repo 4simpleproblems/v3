@@ -2,8 +2,8 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>4SP | Playlist Details</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -11,10 +11,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <style>
-    * {
-      font-family: 'Roboto Mono', monospace;
-      box-sizing: border-box;
-    }
+    * { font-family: 'Roboto Mono', monospace; box-sizing: border-box; }
 
     :root {
       --dark-bg: #1a1a1a;
@@ -22,529 +19,54 @@
       --white: #fff;
       --pill-radius: 50px;
       --darker-bg: #121212;
-      /* Darker background color */
       --light-gray: #ccc;
-      /* Lighter gray for hover effects */
     }
 
-    body {
-      margin: 0;
-      background: var(--white);
-      color: var(--dark-bg);
-    }
-
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--dark-bg);
-      color: var(--light-text);
-      padding: 1rem 2rem;
-    }
-
-    .logo-section {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-
-    .title-section h2 {
-      margin: 0;
-      font-size: 1.25rem;
-    }
-
-    .title-section p {
-      margin: 0;
-      font-size: .9rem;
-      opacity: .8;
-    }
-
-    .nav-buttons {
-      display: flex;
-      gap: 1rem;
-    }
-
-    .btn {
-      padding: .75rem 1.5rem;
-      border-radius: var(--pill-radius);
-      background: transparent;
-      border: 2px solid var(--light-text);
-      color: var(--light-text);
-      cursor: pointer;
-      font-weight: 500;
-      transition: background .2s, color .2s;
-    }
-
-    .btn.big {
-      padding: 1rem 2rem;
-      font-size: 1.1rem;
-    }
-
-    .btn:hover {
-      background: var(--light-text);
-      color: var(--dark-bg);
-    }
-
-    .container {
-      padding: 1rem 2rem;
-    }
-
-    .sound-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-      gap: .75rem;
-      justify-items: center;
-    }
-
-    .sound-btn {
-      background: var(--light-text);
-      color: var(--dark-bg);
-      border: 2px solid var(--dark-bg);
-      border-radius: var(--pill-radius);
-      min-width: 80px;
-      height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 0 .5rem;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .sound-btn.short-text {
-      border-radius: 50%;
-      padding: .5rem;
-    }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-    }
-
-    .overlay.show {
-      display: block;
-    }
-
-    .editing .sound-btn {
-      opacity: .5;
-    }
-
-    .editing .sound-btn.dragging {
-      opacity: .2;
-    }
-
-    .editing .sound-btn:hover {
-      opacity: 1;
-    }
-
-    /* Updated Styles */
-    .sound-section {
-      margin-bottom: 2rem;
-    }
-
-    .sound-section h2 {
-      margin-bottom: 0.5rem;
-      font-size: 1.5rem;
-      padding-bottom: 0.25rem;
-      border-bottom: 2px solid var(--dark-bg);
-      width: 100%;
-    }
-
-    .soundButtonsContainer {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-start;
-      padding: 1rem;
-      gap: 1.5rem;
-      width: 100%;
-    }
-
-    /* Updated Sound Button Style - Text Box Style */
-    .sound-button {
-      min-width: 100px;
-      height: 100px;
-      border-radius: 50px;
-      /* Rounded corners instead of perfect circle */
-      background-color: var(--light-text);
-      color: var(--dark-bg);
-      border: 2px solid var(--dark-bg);
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: bold;
-      padding: 0 1.5rem;
-      transition: background-color 0.3s ease, transform 0.1s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      line-height: 1.2;
-      max-width: 250px;
-      /* Maximum width to prevent extremely long buttons */
-      word-wrap: break-word;
-      hyphens: auto;
-    }
-
-    /* Make shorter text still appear circular */
-    .sound-button.short-text {
-      width: 100px;
-      padding: 0.5rem;
-      border-radius: 50%;
-      /* Perfect circle for short text */
-    }
-
-    .sound-button:hover {
-      background-color: var(--light-gray);
-    }
-
-    .sound-button:active {
-      transform: scale(0.95);
-    }
-
-    /* Options Dropdown Styles - Enhanced with more pronounced animations */
-    .options-dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    .options-button {
-      background-color: transparent;
-      color: var(--light-text);
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      border: 2px solid var(--light-text);
-      border-radius: 50px;
-      cursor: pointer;
-    }
-
-    /* Options Menu Fade Animation */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeOut {
-      from {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      to {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-    }
-
-    .options-content {
-      display: none;
-      position: absolute;
-      background-color: var(--darker-bg);
-      min-width: 250px;
-      border: 2px solid var(--light-text);
-      padding: 1rem;
-      z-index: 2;
-      right: 0;
-      border-radius: 30px;
-      color: var(--light-text);
-      opacity: 0.95;
-      /* Opaque background */
-    }
-
-    .options-content.fade-in {
-      display: block;
-      animation: fadeIn 0.3s ease forwards;
-    }
-
-    .options-content.fade-out {
-      display: block;
-      animation: fadeOut 0.3s ease forwards;
-    }
-
-    .options-content label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: var(--light-text);
-    }
-
-    .options-content input[type="checkbox"] {
-      margin-right: 0.5rem;
-      vertical-align: middle;
-      background-color: var(--darker-bg);
-      border: 2px solid var(--light-text);
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
-      position: relative;
-      border-radius: 5px;
-    }
-
-    .options-content input[type="checkbox"]:checked {
-      background-image: url('checkmark.png');
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-    }
-
-    .options-content #autoClickDelayLabel {
-      margin-top: 0.5rem;
-      display: block;
-    }
-
-    .options-content #autoClickDelay {
-      width: 60px;
-      padding: 0.25rem;
-      border-radius: 30px;
-      border: 2px solid var(--light-text);
-      background-color: var(--darker-bg);
-      color: var(--light-text);
-    }
-
-    /* Options Sections */
-    .options-section {
-      margin-bottom: 1rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .options-section:last-child {
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
-    }
-
-    .options-section h3 {
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
-      color: var(--light-text);
-      opacity: 0.8;
-    }
-
-    /* Keyboard shortcuts info */
-    .keyboard-shortcuts {
-      margin-top: 1rem;
-      padding: 0.5rem;
-      border-radius: 10px;
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .keyboard-shortcuts p {
-      margin: 0.25rem 0;
-      font-size: 0.85rem;
-      color: var(--light-text);
-      opacity: 0.8;
-    }
-
-    /* Apply button for autoclicker delay */
-    #applyDelayBtn {
-      padding: 0.25rem 0.5rem;
-      border: 1px solid var(--light-text);
-      border-radius: 30px;
-      background-color: rgba(255, 255, 255, 0.1);
-      color: var(--light-text);
-      cursor: pointer;
-      margin-left: 4px;
-      font-size: 0.8rem;
-    }
-
-    #applyDelayBtn:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
-
-    /* Enhanced Clear all sounds button with much more satisfying pop effect */
-    #clearAllSoundsBtn {
-      width: 100%;
-      margin-top: 0.5rem;
-      background-color: rgba(255, 0, 0, 0.2);
-      color: var(--light-text);
-      border: 1px solid var(--light-text);
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Clear button pop animation */
-    @keyframes buttonPop {
-      0% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.15);
-      }
-
-      75% {
-        transform: scale(0.95);
-      }
-
-      100% {
-        transform: scale(1);
-      }
-    }
-
-    /* Ripple effect */
-    @keyframes ripple {
-      0% {
-        transform: scale(0);
-        opacity: 0.5;
-      }
-
-      100% {
-        transform: scale(4);
-        opacity: 0;
-      }
-    }
-
-    #clearAllSoundsBtn.active {
-      animation: buttonPop 0.4s ease-in-out;
-      background-color: rgba(255, 0, 0, 0.4);
-    }
-
-    /* Ripple container to prevent glitches */
-    .ripple-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      overflow: hidden;
-      border-radius: inherit;
-      pointer-events: none;
-    }
-
-    .ripple {
-      position: absolute;
-      border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.4);
-      width: 100px;
-      height: 100px;
-      margin-top: -50px;
-      margin-left: -50px;
-      animation: ripple 0.6s ease-out;
-      pointer-events: none;
-    }
-
-    /* Animated overlay fade effect */
-    @keyframes fadeInOverlay {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes fadeOutOverlay {
-      from {
-        opacity: 1;
-      }
-
-      to {
-        opacity: 0;
-      }
-    }
-
-    .overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
-      z-index: 1;
-    }
-
-    .overlay.fade-in {
-      display: block;
-      animation: fadeInOverlay 0.3s ease forwards;
-    }
-
-    .overlay.fade-out {
-      display: block;
-      animation: fadeOutOverlay 0.3s ease forwards;
-    }
-
-    /* Status message with enhanced fade animation */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeOutDown {
-      from {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      to {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-    }
-
-    .status-message {
-      display: none;
-      padding: 0.5rem 1rem;
-      margin: 1rem auto;
-      border-radius: 50px;
-      font-size: 0.9rem;
-      background-color: rgba(0, 0, 0, 0.1);
-      text-align: center;
-      max-width: 80%;
-    }
-
-    .status-message.fade-in {
-      display: block;
-      animation: fadeInUp 0.3s ease forwards;
-    }
-
-    .status-message.fade-out {
-      display: block;
-      animation: fadeOutDown 0.3s ease forwards;
-    }
-
-    .status-message.success {
-      background-color: rgba(0, 255, 0, 0.1);
-      color: green;
-      border: 1px solid green;
-    }
-
-    .status-message.error {
-      background-color: rgba(255, 0, 0, 0.1);
-      color: red;
-      border: 1px solid red;
-    }
-
-    .status-message.info {
-      background-color: rgba(0, 0, 255, 0.1);
-      color: blue;
-      border: 1px solid blue;
-    }
+    body { margin: 0; background: var(--white); color: var(--dark-bg); }
+
+    .navbar { display: flex; justify-content: space-between; align-items: center; background: var(--dark-bg); color: var(--light-text); padding: 1rem 2rem; }
+    .logo-section { display: flex; align-items: center; gap: 1rem; }
+    .logo { font-size: 1.5rem; font-weight: bold; }
+    .title-section h2 { margin: 0; font-size: 1.25rem; }
+    .title-section p { margin: 0; font-size: .9rem; opacity: .8; }
+    .nav-buttons { display: flex; gap: 1rem; }
+    .btn { padding: .75rem 1.5rem; border-radius: var(--pill-radius); background: transparent; border: 2px solid var(--light-text); color: var(--light-text); cursor: pointer; font-weight: 500; transition: background .2s, color .2s; }
+    .btn.big { padding: 1rem 2rem; font-size: 1.1rem; }
+    .btn:hover { background: var(--light-text); color: var(--dark-bg); }
+
+    /* Soundboard-style grid & buttons */
+    .sound-section { margin: 2rem; }
+    .sound-section h2 { margin-bottom: .75rem; font-size: 1.5rem; padding-bottom: .5rem; border-bottom: 2px solid var(--dark-bg); }
+    .soundButtonsContainer { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 1rem; padding: 1rem; }
+    .sound-button { min-width: 100px; height: 100px; border-radius: var(--pill-radius); background: var(--light-text); color: var(--dark-bg); border: 2px solid var(--dark-bg); display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 1.5rem; font-size: .85rem; font-weight: bold; transition: background-color .3s ease, transform .1s ease; max-width: 250px; word-wrap: break-word; hyphens: auto; cursor: pointer; }
+    .sound-button.short-text { width: 100px; padding: .5rem; border-radius: 50%; }
+    .sound-button:hover { background: var(--light-gray); }
+    .sound-button:active { transform: scale(0.95); }
+
+    /* Overlay & Status Animations */
+    .overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1; }
+    .overlay.fade-in { display:block; animation:fadeInOverlay .3s ease forwards; }
+    .overlay.fade-out { display:block; animation:fadeOutOverlay .3s ease forwards; }
+    @keyframes fadeInOverlay { from {opacity:0;} to{opacity:1;} }
+    @keyframes fadeOutOverlay { from{opacity:1;} to{opacity:0;} }
+
+    .status-message { display:none; margin:1rem auto; padding:.5rem 1rem; border-radius:var(--pill-radius); max-width:80%; text-align:center; }
+    .status-message.fade-in { display:block; animation:fadeInUp .3s ease forwards; }
+    .status-message.fade-out { display:block; animation:fadeOutDown .3s ease forwards; }
+    @keyframes fadeInUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+    @keyframes fadeOutDown { from{opacity:1;transform:translateY(0);} to{opacity:0;transform:translateY(20px);} }
+    .status-message.success { background:rgba(0,255,0,0.1); color:green; border:1px solid green; }
+    .status-message.error { background:rgba(255,0,0,0.1); color:red; border:1px solid red; }
+    .status-message.info { background:rgba(0,0,255,0.1); color:blue; border:1px solid blue; }
+
+    /* Options Dropdown Animations */
+    .options-dropdown { position: relative; display: inline-block; }
+    .options-button { background: transparent; color: var(--light-text); padding: .75rem 1.5rem; font-size: 1rem; border: 2px solid var(--light-text); border-radius: var(--pill-radius); cursor: pointer; }
+    .options-content { display: none; position: absolute; right: 0; background: var(--darker-bg); min-width: 250px; border: 2px solid var(--light-text); padding: 1rem; border-radius: 30px; z-index: 2; }
+    .options-content.fade-in { display: block; animation:fadeIn .3s ease forwards; }
+    .options-content.fade-out { display: block; animation:fadeOut .3s ease forwards; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(-20px);} to{opacity:1;transform:translateY(0);} }
+    @keyframes fadeOut { from{opacity:1;transform:translateY(0);} to{opacity:0;transform:translateY(-20px);} }
   </style>
 </head>
 
@@ -563,26 +85,14 @@
         <div class="options-content" id="optionsMenu">
           <div class="options-section">
             <h3>Playback Options</h3>
-            <label>
-              <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
-            </label>
-            <label>
-              <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
-            </label>
-            <label id="autoClickDelayLabel" style="display: none;">
-              Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" />
-              <button id="applyDelayBtn">Apply</button>
-            </label>
+            <label><input type="checkbox" id="soundOverlayCheckbox" /> Sound Overlay</label>
+            <label><input type="checkbox" id="autoClickerCheckbox" /> Auto Clicker</label>
+            <label id="autoClickDelayLabel" style="display:none;">Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" /><button id="applyDelayBtn">Apply</button></label>
           </div>
-
           <div class="options-section">
             <h3>Management</h3>
-            <button id="clearAllSoundsBtn" class="btn secondary">
-              Clear All Sounds
-              <div class="ripple-container"></div>
-            </button>
+            <button id="clearAllSoundsBtn" class="btn secondary">Clear All Sounds<div class="ripple-container"></div></button>
           </div>
-
           <div class="keyboard-shortcuts">
             <p><strong>Keyboard Shortcuts:</strong></p>
             <p>Shift + C: Mute & clear all sounds</p>
@@ -598,24 +108,21 @@
   <main class="container">
     <div class="status-message" id="statusMessage"></div>
     <div class="overlay" id="overlay"></div>
-    <div id="soundGrid" class="sound-grid"></div>
+
+    <section class="sound-section">
+      <h2>Playlist Sounds</h2>
+      <div id="soundGrid" class="soundButtonsContainer"></div>
+    </section>
   </main>
 
   <script>
-    const auth = firebase.auth(),
-      db = firebase.firestore();
+    const auth = firebase.auth(), db = firebase.firestore();
     const params = new URLSearchParams(location.search);
     const playlistId = params.get('id');
     const isLocal = params.get('local') === 'true';
-    let data = {
-      items: []
-    };
-    const plName = document.getElementById('plName'),
-      plDesc = document.getElementById('plDesc');
+    let data = { items: [] };
+    const plName = document.getElementById('plName'), plDesc = document.getElementById('plDesc');
     const grid = document.getElementById('soundGrid');
-    const saveBtn = document.getElementById('saveBtn');
-    const backBtn = document.getElementById('backBtn'),
-      logoutBtn = document.getElementById('logoutBtn');
     const overlay = document.getElementById('overlay');
     const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
     const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
@@ -627,288 +134,70 @@
     const statusMessage = document.getElementById('statusMessage');
     const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
     const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
-    let playingAudios = [];
-    let autoClickInterval;
-    let requestAnimationFrameId = null;
-    let currentlyHoveredButton = null;
-    let statusMessageTimeout = null;
-    let menuIsOpen = false;
-    let isRippling = false; // Flag to prevent multiple ripples
+    let playingAudios = [], autoClickInterval, requestAnimationFrameId = null, currentlyHoveredButton = null, statusMessageTimeout = null, menuIsOpen = false, isRippling = false;
 
     auth.onAuthStateChanged(async user => {
-      if (!user) return location.href = 'index.html';
+      if (!user) return location.href='index.html';
       if (isLocal) {
-        const list = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-        data = list.find(p => p.id === playlistId) || {};
+        const list = JSON.parse(localStorage.getItem('localPlaylists')||'[]'); data = list.find(p=>p.id===playlistId)||{};
       } else {
         const doc = await db.collection('playlists').doc(playlistId).get();
-        if (!doc.exists || doc.data().owner !== user.uid) return location.href = 'playlist.html';
-        data = doc.data();
+        if (!doc.exists||doc.data().owner!==user.uid) return location.href='playlist.html'; data = doc.data();
       }
-      plName.textContent = data.name;
-      plDesc.textContent = data.description;
-      render();
+      plName.textContent=data.name; plDesc.textContent=data.description; render();
     });
 
     function render() {
       grid.innerHTML = '';
-      data.items.forEach((item, i) => {
-        const btn = document.createElement('div');
-        btn.className = 'sound-btn';
-        const label = item.label || item.fileName;
-        btn.textContent = label;
+      data.items.forEach((item,i) => {
+        const btn = document.createElement('button'); btn.className = 'sound-button';
+        const label = item.label||item.fileName; btn.textContent = label;
         if (label.length < 8) btn.classList.add('short-text');
-        btn.draggable = document.body.classList.contains('editing');
-        btn.dataset.index = i;
-        btn.onclick = () => {
-          playSound(item);
-        };
+        btn.onclick = () => playSound(item);
         grid.appendChild(btn);
       });
     }
 
     function playSound(sound) {
-      const url = sound.url || `${sound.folder}/${sound.fileName}`;
+      const url = sound.url||`${sound.folder}/${sound.fileName}`;
       const audio = new Audio(url);
-
-      if (!soundOverlayCheckbox.checked) { // If sound overlay is NOT checked
-        playingAudios.forEach(audio => { // Stop all currently playing audios
-          audio.pause();
-        });
-        playingAudios = [audio]; // Set the currently playing audio as the only one
-      } else {
-        // If sound overlay IS checked, just play the audio
-      }
-
+      if (!soundOverlayCheckbox.checked) { playingAudios.forEach(a=>a.pause()); playingAudios=[audio]; }
+      else { playingAudios.push(audio); audio.addEventListener('ended',()=>{ playingAudios = playingAudios.filter(a=>a!==audio); }); }
       audio.play();
-
-      if (soundOverlayCheckbox.checked) { // If sound overlay IS checked
-        playingAudios.push(audio); // Add this audio to the playing audios array
-        audio.addEventListener('ended', () => { // Clean up when it ends
-          playingAudios = playingAudios.filter(a => a !== audio);
-        });
-      }
     }
 
+    // Options menu toggle
+    function openOptionsMenu() { if (menuIsOpen) return; menuIsOpen=true; overlay.style.display='block'; overlay.classList.add('fade-in'); optionsMenu.style.display='block'; optionsMenu.classList.add('fade-in'); }
+    function closeOptionsMenu() { if (!menuIsOpen) return; menuIsOpen=false; overlay.classList.remove('fade-in'); overlay.classList.add('fade-out'); optionsMenu.classList.remove('fade-in'); optionsMenu.classList.add('fade-out'); setTimeout(()=>{ overlay.style.display='none'; overlay.classList.remove('fade-out'); optionsMenu.style.display='none'; optionsMenu.classList.remove('fade-out'); },300); }
+    optionsButton.addEventListener('click',()=> menuIsOpen?closeOptionsMenu():openOptionsMenu());
+    window.addEventListener('click',e=>{ if (!optionsMenu.contains(e.target)&&!optionsButton.contains(e.target)&&menuIsOpen) closeOptionsMenu(); });
 
-    // Drag and drop on grid
-    grid.addEventListener('dragstart', e => {
-      if (!document.body.classList.contains('editing')) {
-        e.preventDefault();
-        return;
-      }
-      e.target.classList.add('dragging');
-      e.dataTransfer.setData('text/plain', e.target.dataset.index);
-    });
-    grid.addEventListener('dragend', e => {
-      e.target.classList.remove('dragging');
-    });
-    grid.addEventListener('dragover', e => {
-      if (!document.body.classList.contains('editing')) return;
-      e.preventDefault();
-      const dragging = document.querySelector('.dragging');
-      const afterElement = getDragAfterElement(e.clientY);
-      if (afterElement == null) grid.appendChild(dragging);
-      else grid.insertBefore(dragging, afterElement);
-    });
-    grid.addEventListener('drop', e => {
-      e.preventDefault();
-      // recompute data.items order from DOM
-      const newItems = [];
-      grid.querySelectorAll('.sound-btn').forEach(btn => {
-        const idx = parseInt(btn.dataset.index);
-        newItems.push(data.items[idx]);
-      });
-      data.items = newItems;
-    });
+    // Auto Clicker
+    applyDelayBtn.addEventListener('click',()=>{ stopAutoClicker(); startAutoClicker(); });
+    autoClickerCheckbox.addEventListener('change',()=>{ autoClickDelayLabel.style.display = autoClickerCheckbox.checked ? 'block':'none'; if (autoClickerCheckbox.checked) startAutoClicker(); else stopAutoClicker(); });
+    function startAutoClicker(){ stopAutoClicker(); const delay = parseInt(autoClickDelayInput.value,10)||0; if(delay===0){ requestAnimationFrameId=requestAnimationFrame(fastClick);} else { autoClickInterval=setInterval(()=>{ if(currentlyHoveredButton) currentlyHoveredButton.click(); },delay); } }
+    function stopAutoClicker(){ if(autoClickInterval) clearInterval(autoClickInterval); if(requestAnimationFrameId) cancelAnimationFrame(requestAnimationFrameId); }
+    function fastClick(){ if(currentlyHoveredButton&&autoClickerCheckbox.checked){ currentlyHoveredButton.click(); requestAnimationFrameId=requestAnimationFrame(fastClick);} }
+    document.addEventListener('mouseover',e=>{ if(e.target.classList.contains('sound-button')) currentlyHoveredButton=e.target; });
+    document.addEventListener('mouseout',e=>{ if(e.target.classList.contains('sound-button')) currentlyHoveredButton=null; });
 
-    function getDragAfterElement(y) {
-      const draggable = document.querySelector('.dragging');
-      const elems = [...grid.querySelectorAll('.sound-btn:not(.dragging)')];
-      return elems.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) return {
-          offset: offset,
-          element: child
-        };
-        else return closest;
-      }, {
-        offset: Number.NEGATIVE_INFINITY
-      }).element;
-    }
+    // Clear All Sounds
+    clearAllSoundsBtn.addEventListener('click',e=>{ createRipple(e); clearAll(); });
+    function clearAll(){ playingAudios.forEach(a=>a.pause()); playingAudios=[]; showStatus('All sounds cleared','info'); }
+    function createRipple(e){ if(isRippling) return; isRippling=true; const circle=document.createElement('span'), d=Math.max(clearAllSoundsBtn.clientWidth,clearAllSoundsBtn.clientHeight), r=d/2; circle.style.width=circle.style.height=`${d}px`; circle.style.left=`${e.clientX-(clearAllSoundsBtn.offsetLeft+r)}px`; circle.style.top=`${e.clientY-(clearAllSoundsBtn.offsetTop+r)}px`; circle.classList.add('ripple'); rippleContainer.appendChild(circle); setTimeout(()=>{ circle.remove(); isRippling=false; },600); }
 
-    overlay.onclick = closeEdit;
-    saveBtn.onclick = async () => {
-      data.name = plName.textContent.trim();
-      data.description = plDesc.textContent.trim();
-      if (!isLocal) await db.collection('playlists').doc(playlistId).update({
-        name: data.name,
-        description: data.description,
-        items: data.items
-      });
-      else {
-        const list = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-        localStorage.setItem('localPlaylists', JSON.stringify(list.map(p => p.id === playlistId ? data : p)));
-      }
-      closeEdit();
-    };
+    // Status messages
+    function showStatus(msg,type){ if(statusMessageTimeout){ clearTimeout(statusMessageTimeout); statusMessage.classList.remove('fade-in','fade-out'); } statusMessage.textContent=msg; statusMessage.className=`status-message ${type}`; statusMessage.style.display='block'; statusMessage.classList.add('fade-in'); statusMessageTimeout=setTimeout(()=>{ statusMessage.classList.remove('fade-in'); statusMessage.classList.add('fade-out'); setTimeout(()=>{ statusMessage.style.display='none'; statusMessage.classList.remove('fade-out'); },300); },3000); }
 
-    function closeEdit() {
-      document.body.classList.remove('editing');
-      overlay.classList.remove('show');
-      saveBtn.style.display = 'none';
-      render();
-    }
-    backBtn.onclick = () => location.href = 'playlist.html';
-    logoutBtn.onclick = () => auth.signOut().then(() => location.href = 'index.html');
+    // Keyboard shortcut
+    document.addEventListener('keydown',e=>{ if(e.shiftKey&&e.key.toLowerCase()==='c'){ clearAll(); closeOptionsMenu(); } });
 
-    // Open options menu with fade effect
-    function openOptionsMenu() {
-      if (menuIsOpen) return;
+    // Back & Logout & Save
+    document.getElementById('backBtn').onclick=()=>location.href='playlist.html';
+    document.getElementById('logoutBtn').onclick=()=>auth.signOut().then(()=>location.href='index.html');
+    document.getElementById('saveBtn').onclick=async()=>{ data.name=plName.textContent.trim(); data.description=plDesc.textContent.trim(); if(!isLocal) await db.collection('playlists').doc(playlistId).update({ name:data.name,description:data.description,items:data.items }); else{ const lst=JSON.parse(localStorage.getItem('localPlaylists')||'[]'); localStorage.setItem('localPlaylists',JSON.stringify(lst.map(p=>p.id===playlistId?data:p))); } closeEdit(); };
 
-      menuIsOpen = true;
-
-      // Show overlay with fade-in
-      overlay.style.display = 'block';
-      overlay.classList.add('fade-in');
-
-      // Show menu with fade-in
-      optionsMenu.style.display = 'block';
-      optionsMenu.classList.add('fade-in');
-    }
-
-    // Close options menu with fade effect
-    function closeOptionsMenu() {
-      if (!menuIsOpen) return;
-
-      menuIsOpen = false;
-
-      // Fade out the overlay
-      overlay.classList.remove('fade-in');
-      overlay.classList.add('fade-out');
-
-      // Fade out the menu
-      optionsMenu.classList.remove('fade-in');
-      optionsMenu.classList.add('fade-out');
-
-      // After animation completes, hide elements and reset classes
-      setTimeout(() => {
-        overlay.style.display = 'none';
-        overlay.classList.remove('fade-out');
-
-        optionsMenu.style.display = 'none';
-        optionsMenu.classList.remove('fade-out');
-      }, 300);
-    }
-
-    // Fixed create ripple effect to prevent glitches
-    function createRipple(event) {
-      // Prevent multiple ripples
-      if (isRippling) return;
-      isRippling = true;
-
-      const circle = document.createElement('span');
-      const diameter = Math.max(clearAllSoundsBtn.clientWidth, clearAllSoundsBtn.clientHeight);
-      const radius = diameter / 2;
-
-      circle.style.width = circle.style.height = `${diameter}px`;
-      circle.style.left = `${event.clientX - (clearAllSoundsBtn.offsetLeft + radius)}px`;
-      circle.style.top = `${event.clientY - (clearAllSoundsBtn.offsetTop + radius)}px`;
-      circle.classList.add('ripple');
-
-      rippleContainer.appendChild(circle);
-
-      // Set timeout to remove ripple and reset flag
-      setTimeout(() => {
-        circle.remove();
-        isRippling = false;
-      }, 600);
-    }
-    optionsButton.addEventListener('click', () => {
-      if (menuIsOpen) {
-        closeOptionsMenu();
-      } else {
-        openOptionsMenu();
-      }
-    });
-
-    // Event listener for closing the options menu when clicking outside
-    window.addEventListener('click', (event) => {
-      if (!optionsMenu.contains(event.target) && !optionsButton.contains(event.target) && menuIsOpen) {
-        closeOptionsMenu();
-      }
-    });
-    clearAllSoundsBtn.addEventListener('click', () => {
-      clearAllSoundsBtn.classList.add('active');
-      createRipple(event);
-      setTimeout(() => {
-        clearAllSoundsBtn.classList.remove('active');
-        stopAllSounds();
-        showStatus('All sounds cleared', 'info');
-      }, 400);
-    });
-
-    autoClickerCheckbox.addEventListener('change', () => {
-      if (autoClickerCheckbox.checked) {
-        startAutoClicker();
-        autoClickDelayLabel.style.display = 'block';
-      } else {
-        stopAutoClicker();
-        autoClickDelayLabel.style.display = 'none';
-      }
-    });
-    applyDelayBtn.addEventListener('click', () => {
-      stopAutoClicker();
-      startAutoClicker();
-    });
-
-    function startAutoClicker() {
-      const delay = parseInt(autoClickDelayInput.value, 10);
-      if (isNaN(delay) || delay < 0) {
-        showStatus('Invalid delay, please enter a valid number', 'error');
-        autoClickerCheckbox.checked = false;
-        autoClickDelayLabel.style.display = 'none';
-        return;
-      }
-
-      autoClickInterval = setInterval(() => {
-        if (currentlyHoveredButton) {
-          currentlyHoveredButton.click();
-        }
-      }, delay);
-    }
-
-    function stopAutoClicker() {
-      clearInterval(autoClickInterval);
-    }
-    // Capture hovered button for autoclicker
-    document.addEventListener('mouseover', function (event) {
-      if (event.target && event.target.classList.contains('sound-btn')) {
-        currentlyHoveredButton = event.target;
-      }
-    });
-
-    document.addEventListener('mouseout', function (event) {
-      if (event.target && event.target.classList.contains('sound-btn')) {
-        currentlyHoveredButton = null;
-      }
-    });
-    // Clear all sounds
-    function stopAllSounds() {
-      playingAudios.forEach(audio => {
-        audio.pause();
-      });
-      playingAudios = [];
-    }
-
-    // Key press listener
-    document.addEventListener('keydown', function (event) {
-      if (event.shiftKey && event.key === 'C') {
-        stopAllSounds();
-        showStatus('Sounds cleared via keyboard shortcut', 'info');
-      }
-    });
+    // Render on load complete
   </script>
 </body>
 
