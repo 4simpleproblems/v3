@@ -20,6 +20,8 @@
       --pill-radius: 50px;
       --darker-bg: #121212;
       --light-gray: #ccc;
+      --danger-action: rgba(255, 0, 0, 0.6);
+      --dark-red: #8b0000;
     }
 
     body { margin: 0; background: var(--white); color: var(--dark-bg); }
@@ -197,7 +199,7 @@
     }
 
     /* Enhanced Clear all sounds button with much more satisfying pop effect */
-    #clearAllSoundsBtn {
+    #clearAllSoundsBtn, #deletePlaylistBtn {
       width: 100%;
       margin-top: 0.5rem;
       background-color: rgba(255, 0, 0, 0.2);
@@ -207,7 +209,7 @@
       overflow: hidden;
     }
 
-    /* Clear button pop animation */
+    /* Button pop animation */
     @keyframes buttonPop {
       0% { transform: scale(1); }
       50% { transform: scale(1.15); }
@@ -227,7 +229,7 @@
       }
     }
 
-    #clearAllSoundsBtn.active {
+    #clearAllSoundsBtn.active, #deletePlaylistBtn.active {
       animation: buttonPop 0.4s ease-in-out;
       background-color: rgba(255, 0, 0, 0.4);
     }
@@ -341,6 +343,112 @@
       color: blue;
       border: 1px solid blue;
     }
+    
+    /* Delete Playlist Button */
+    #deletePlaylistBtn {
+      width: 100%;
+      margin-top: 0.5rem;
+      background-color: rgba(255, 0, 0, 0.2);
+      color: var(--light-text);
+      border: 1px solid var(--light-text);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #deletePlaylistBtn:hover {
+      background-color: rgba(255, 0, 0, 0.4);
+    }
+
+    /* Delete Playlist Modal */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show {
+      display: flex;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .modal-content {
+      background-color: var(--darker-bg);
+      border-radius: var(--pill-radius);
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 500px;
+      color: var(--light-text);
+      position: relative;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .modal h3 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .close {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      color: var(--light-text);
+      font-size: 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .delete-form {
+      margin-top: 1.5rem;
+    }
+
+    .delete-form input {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: var(--pill-radius);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--light-text);
+      margin-bottom: 1rem;
+      box-sizing: border-box;
+    }
+
+    .delete-form input:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .delete-form button {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: var(--pill-radius);
+      background-color: var(--danger-action);
+      color: var(--light-text);
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .delete-form button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .danger-btn {
+      background-color: rgba(255, 0, 0, 0.6);
+    }
+
+    .danger-btn:hover:not(:disabled) {
+      background-color: rgba(255, 0, 0, 0.8);
+    }
   </style>
 </head>
 
@@ -377,6 +485,10 @@
               Clear All Sounds
               <div class="ripple-container"></div>
             </button>
+            <button id="deletePlaylistBtn" class="btn secondary danger-btn">
+              Delete Playlist
+              <div class="ripple-container"></div>
+            </button>
           </div>
           
           <div class="keyboard-shortcuts">
@@ -401,6 +513,20 @@
     </section>
   </main>
 
+  <!-- Delete Playlist Modal -->
+  <div id="deletePlaylistModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Delete Playlist</h3>
+      <p>Are you sure you want to delete this playlist? This action cannot be undone.</p>
+      <p>Please type <strong id="confirmPlaylistName"></strong> to confirm:</p>
+      <div class="delete-form">
+        <input type="text" id="confirmPlaylistInput" placeholder="Type playlist name">
+        <button id="confirmDeleteBtn" class="btn danger-btn" disabled>Delete</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const auth = firebase.auth(), db = firebase.firestore();
     const params = new URLSearchParams(location.search);
@@ -419,7 +545,11 @@
     const optionsMenu = document.getElementById('optionsMenu');
     const statusMessage = document.getElementById('statusMessage');
     const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
-    const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
+    const deletePlaylistBtn = document.getElementById('deletePlaylistBtn');
+    const deletePlaylistModal = document.getElementById('deletePlaylistModal');
+    const confirmPlaylistName = document.getElementById('confirmPlaylistName');
+    const confirmPlaylistInput = document.getElementById('confirmPlaylistInput');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
     let playingAudios = [], autoClickInterval, requestAnimationFrameId = null, currentlyHoveredButton = null, statusMessageTimeout = null, menuIsOpen = false, isRippling = false;
 
     auth.onAuthStateChanged(async user => {
@@ -554,7 +684,9 @@
       if (isRippling) return;
       isRippling = true;
       
-      const rect = clearAllSoundsBtn.getBoundingClientRect();
+      const button = event.currentTarget;
+      const rippleContainer = button.querySelector('.ripple-container');
+      const rect = button.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
       
@@ -681,71 +813,156 @@
       clearAll(false);
     });
 
-    // Track button hovering for auto-clicker
-    document.addEventListener('mouseover', e => {
-      if (e.target.classList.contains('sound-button')) {
-        currentlyHoveredButton = e.target;
-        if (autoClickerCheckbox.checked) startAutoClicker();
-      }
-    });
-    
-    document.addEventListener('mouseout', e => {
-      if (e.target.classList.contains('sound-button') && currentlyHoveredButton === e.target) {
-        currentlyHoveredButton = null;
-        stopAutoClicker();
-      }
-    });
-
-    // Keyboard shortcut
-    document.addEventListener('keydown', e => {
-      if (e.shiftKey && e.key.toLowerCase() === 'c') {
-        clearAll(true);
-        closeOptionsMenu();
-      }
-    });
-
-    // Load user preferences from localStorage
-    function loadUserPreferences() {
-      // Sound overlay preference
-      if (localStorage.getItem('soundOverlay') === 'true') {
-        soundOverlayCheckbox.checked = true;
-      }
+    // Delete Playlist button
+    deletePlaylistBtn.addEventListener('click', (e) => {
+      createRipple(e);
+      deletePlaylistBtn.classList.add('active');
+      setTimeout(() => {
+        deletePlaylistBtn.classList.remove('active');
+      }, 400);
       
-      // Auto clicker preference
-      if (localStorage.getItem('autoClicker') === 'true') {
-        autoClickerCheckbox.checked = true;
-        autoClickDelayLabel.style.display = 'block';
-      }
+      // Open the delete confirmation modal
+      confirmPlaylistName.textContent = data.name;
+      confirmPlaylistInput.value = '';
+      confirmDeleteBtn.disabled = true;
       
-      // Auto clicker delay preference
-      const savedDelay = localStorage.getItem('autoClickDelay');
-      if (savedDelay !== null) {
-        autoClickDelayInput.value = savedDelay;
-      }
-    }
+      // Show the modal
+      deletePlaylistModal.style.display = 'flex';
+      deletePlaylistModal.classList.add('show');
+      
+      // Close options menu
+      closeOptionsMenu();
+    });
 
-    // Back & Logout & Save
-    document.getElementById('backBtn').onclick = () => location.href='playlist.html';
-    document.getElementById('logoutBtn').onclick = () => auth.signOut().then(() => location.href='index.html');
-    document.getElementById('saveBtn').onclick = async () => {
-      data.name = plName.textContent.trim();
-      data.description = plDesc.textContent.trim();
-      if (!isLocal) {
-        await db.collection('playlists').doc(playlistId).update({
-          name: data.name,
-          description: data.description,
-          items: data.items
-        });
+   // Close delete modal when clicking the X
+deletePlaylistModal.querySelector('.close').addEventListener('click', () => {
+  deletePlaylistModal.classList.remove('show');
+  setTimeout(() => {
+    deletePlaylistModal.style.display = 'none';
+  }, 300);
+});
+
+// Close delete modal when clicking outside
+window.addEventListener('click', (e) => {
+  if (e.target === deletePlaylistModal) {
+    deletePlaylistModal.classList.remove('show');
+    setTimeout(() => {
+      deletePlaylistModal.style.display = 'none';
+    }, 300);
+  }
+});
+
+// Handle confirm delete input validation
+confirmPlaylistInput.addEventListener('input', () => {
+  confirmDeleteBtn.disabled = confirmPlaylistInput.value !== data.name;
+});
+
+// Handle delete playlist confirmation
+confirmDeleteBtn.addEventListener('click', async () => {
+  if (confirmPlaylistInput.value === data.name) {
+    try {
+      if (isLocal) {
+        // Delete from local storage
+        const playlists = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
+        localStorage.setItem('localPlaylists', 
+          JSON.stringify(playlists.filter(p => p.id !== playlistId)));
       } else {
-        const lst = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-        localStorage.setItem('localPlaylists', JSON.stringify(lst.map(p => p.id === playlistId ? data : p)));
+        // Delete from Firestore
+        await db.collection('playlists').doc(playlistId).delete();
       }
-      closeEdit();
-    };
+      showStatus('Playlist deleted successfully', 'success');
+      setTimeout(() => {
+        location.href = 'playlist.html';
+      }, 1000);
+    } catch (error) {
+      showStatus('Error deleting playlist: ' + error.message, 'error');
+    }
+  }
+});
 
-    // Load preferences when page loads
-    loadUserPreferences();
-  </script>
+// Track button hovering for auto-clicker
+document.addEventListener('mouseover', e => {
+  if (e.target.classList.contains('sound-button')) {
+    currentlyHoveredButton = e.target;
+    if (autoClickerCheckbox.checked) startAutoClicker();
+  }
+});
+
+document.addEventListener('mouseout', e => {
+  if (e.target.classList.contains('sound-button') && currentlyHoveredButton === e.target) {
+    currentlyHoveredButton = null;
+    stopAutoClicker();
+  }
+});
+
+// Keyboard shortcut
+document.addEventListener('keydown', e => {
+  if (e.shiftKey && e.key.toLowerCase() === 'c') {
+    clearAll(true);
+    closeOptionsMenu();
+  }
+});
+
+// Load user preferences from localStorage
+function loadUserPreferences() {
+  // Sound overlay preference
+  if (localStorage.getItem('soundOverlay') === 'true') {
+    soundOverlayCheckbox.checked = true;
+  }
+  
+  // Auto clicker preference
+  if (localStorage.getItem('autoClicker') === 'true') {
+    autoClickerCheckbox.checked = true;
+    autoClickDelayLabel.style.display = 'block';
+  }
+  
+  // Auto clicker delay preference
+  const savedDelay = localStorage.getItem('autoClickDelay');
+  if (savedDelay !== null) {
+    autoClickDelayInput.value = savedDelay;
+  }
+}
+
+// Back & Logout & Save
+document.getElementById('backBtn').onclick = () => location.href='playlist.html';
+document.getElementById('logoutBtn').onclick = () => auth.signOut().then(() => location.href='index.html');
+document.getElementById('saveBtn').onclick = async () => {
+  data.name = plName.textContent.trim();
+  data.description = plDesc.textContent.trim();
+  if (!isLocal) {
+    await db.collection('playlists').doc(playlistId).update({
+      name: data.name,
+      description: data.description,
+      items: data.items
+    });
+  } else {
+    const lst = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
+    localStorage.setItem('localPlaylists', JSON.stringify(lst.map(p => p.id === playlistId ? data : p)));
+  }
+  showStatus('Playlist saved successfully', 'success');
+};
+
+// In-place editing for playlist name and description
+plName.addEventListener('click', function() {
+  this.contentEditable = true;
+  this.focus();
+  document.getElementById('saveBtn').style.display = 'block';
+});
+
+plDesc.addEventListener('click', function() {
+  this.contentEditable = true;
+  this.focus();
+  document.getElementById('saveBtn').style.display = 'block';
+});
+
+function closeEdit() {
+  plName.contentEditable = false;
+  plDesc.contentEditable = false;
+  document.getElementById('saveBtn').style.display = 'none';
+}
+
+// Load preferences when page loads
+loadUserPreferences();
+</script>
 </body>
-
 </html>
