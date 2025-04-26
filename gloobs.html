@@ -4,11 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gloobs World</title>
-  <link rel="stylesheet" href="/gloobs.css" />
+
+  <!-- Use a relative path here -->
+  <link rel="stylesheet" href="gloobs.css" />
+
+  <!-- Firebase compat libraries -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <script src="/firebase-config.js"></script>
-  <script src="/gloobs.js" defer></script>
+
+  <!-- Your config and game logic -->
+  <script src="firebase-config.js"></script>
+  <script src="gloobs.js" defer></script>
 </head>
 <body>
   <div class="gloobs-container">
