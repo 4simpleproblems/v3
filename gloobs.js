@@ -1,34 +1,36 @@
-// gloobs.js
+// Grab the canvas
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Generate a unique ID and random color for this player
-const id = "gloob_" + Math.random().toString(36).substring(2, 8);
-const color = "#" + Math.floor(Math.random() * 16777215).toString(16);
+// Unique ID + bright-ish random color
+const id    = "gloob_" + Math.random().toString(36).substr(2, 6);
+const color = "#" + ((Math.random() * 0xaaaaaa) + 0x555555 | 0).toString(16);
 
-// Starting position
-let x = Math.random() * (canvas.width - 40) + 20;
+// Random spawn inside bounds
+let x = Math.random() * (canvas.width  - 40) + 20;
 let y = Math.random() * (canvas.height - 40) + 20;
 
-// Write self into Firebase and ensure removal on disconnect
-db.ref("players/" + id).set({ x, y, color });
-db.ref("players/" + id).onDisconnect().remove();
+// Log for debugging
+console.log("My Gloob ID:", id, "Color:", color, "Start:", { x, y });
 
-// Handle movement keys
-document.addEventListener("keydown", (e) => {
+// Write self to Firebase; auto‐remove on disconnect
+db.ref(`players/${id}`).set({ x, y, color });
+db.ref(`players/${id}`).onDisconnect().remove();
+
+// Move on keypress
+document.addEventListener("keydown", e => {
   const speed = 5;
-  switch (e.key) {
-    case "w": case "ArrowUp":    y = Math.max(20, y - speed); break;
-    case "s": case "ArrowDown":  y = Math.min(canvas.height - 20, y + speed); break;
-    case "a": case "ArrowLeft":  x = Math.max(20, x - speed); break;
-    case "d": case "ArrowRight": x = Math.min(canvas.width - 20, x + speed); break;
-  }
-  db.ref("players/" + id).update({ x, y });
+  if (e.key === "w" || e.key === "ArrowUp")    y = Math.max(20, y - speed);
+  if (e.key === "s" || e.key === "ArrowDown")  y = Math.min(canvas.height - 20, y + speed);
+  if (e.key === "a" || e.key === "ArrowLeft")  x = Math.max(20, x - speed);
+  if (e.key === "d" || e.key === "ArrowRight") x = Math.min(canvas.width  - 20, x + speed);
+  db.ref(`players/${id}`).update({ x, y });
 });
 
-// Listen for all players and redraw
-db.ref("players").on("value", (snapshot) => {
+// Draw loop whenever any player data changes
+db.ref("players").on("value", snapshot => {
   const players = snapshot.val() || {};
+  console.log("All players data:", players);  // Debug: do you see your own id/color here?
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   for (let pid in players) {
