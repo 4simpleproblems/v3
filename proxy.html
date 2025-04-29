@@ -1,20 +1,11 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="utf-8"><title>Proxy2</title></head>
+<head><meta charset="utf-8"><title>Proxy4</title></head>
 <body>
-  <div id="app">Loading…</div>
+  <div id="content">Loading…</div>
   <script>
-    (async ()=>{
-      const url = 'https://4sp.koyeb.app'+ '?cb=' + Date.now();
-      const resp = await fetch(url, {
-        headers: {
-          'X-Proxy-By': 'proxy2',
-          'X-Rand': Math.random()
-        }
-      });  // :contentReference[oaicite:0]{index=0}
-      const html = await resp.text();
-      document.getElementById('app').innerHTML = html;
-    })();
+    function cb(html){ document.getElementById('content').innerHTML = html; }
   </script>
+  <script src="https://4sp.koyeb.app/jsonp?callback=cb&rand=<?=Math.random()?>"></script>
 </body>
 </html>
