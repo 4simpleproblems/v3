@@ -1,79 +1,109 @@
 // sw.js
-const CACHE_NAME    = 'sw-proxy-v2';
+const CACHE_NAME    = 'advanced-proxy-v1';
 const OFFLINE_URL   = '/offline.html';
 const TARGET_ORIGIN = 'https://4sp.koyeb.app';
 
-self.addEventListener('install', event => {
-  // Pre-cache the offline fallback page
-  event.waitUntil(
+// Install: cache offline page & claim immediately
+self.addEventListener('install', evt => {
+  evt.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll([OFFLINE_URL]))
-      .then(() => self.skipWaiting())  // Activate worker immediately :contentReference[oaicite:6]{index=6}
+      .then(cache => cache.add(OFFLINE_URL))
+      .then(() => self.skipWaiting())  // :contentReference[oaicite:8]{index=8}
   );
 });
 
-self.addEventListener('activate', event => {
-  // Take control of all pages under scope without reload :contentReference[oaicite:7]{index=7}
-  event.waitUntil(clients.claim());
+// Activate: claim clients immediately
+self.addEventListener('activate', evt => {
+  evt.waitUntil(clients.claim());     // :contentReference[oaicite:9]{index=9}
 });
 
-self.addEventListener('fetch', event => {
-  const { request } = event;
-  const url = new URL(request.url);
+// Listen for clear-cache messages
+self.addEventListener('message', evt => {
+  if (evt.data.action === 'clear-cache') {
+    caches.delete(CACHE_NAME).then(() => evt.ports[0]?.postMessage({ cleared: true }));
+  }
+});
 
-  // Only handle requests to our own origin
+// Background sync for queued requests
+self.addEventListener('sync', evt => {
+  if (evt.tag === 'offline-queue') {
+    evt.waitUntil(processQueue());     // :contentReference[oaicite:10]{index=10}
+  }
+});
+
+// Periodic background sync to refresh cache
+self.addEventListener('periodicsync', evt => {
+  if (evt.tag === 'refresh-cache') {
+    evt.waitUntil(refreshAll());       // :contentReference[oaicite:11]{index=11}
+  }
+});
+
+// Push notifications for updates
+self.addEventListener('push', evt => {
+  const data = evt.data?.json() || { title: 'Update Available', body: 'New content is ready.' };
+  self.registration.showNotification(data.title, { body: data.body }); // :contentReference[oaicite:12]{index=12}
+});
+
+// Core fetch handler: reverse proxy, caching, content rewrite
+self.addEventListener('fetch', evt => {
+  const url = new URL(evt.request.url);
   if (url.origin !== location.origin) return;
 
-  // Build the proxied URL
-  const targetUrl = TARGET_ORIGIN + url.pathname + url.search;
-
-  if (request.mode === 'navigate') {
-    // Network-first for page loads :contentReference[oaicite:8]{index=8}
-    event.respondWith(networkFirst(request, targetUrl));
-  } else {
-    // Cache-first for static assets :contentReference[oaicite:9]{index=9}
-    event.respondWith(cacheFirst(request, targetUrl));
-  }
+  const target = TARGET_ORIGIN + url.pathname + url.search;
+  evt.respondWith((async () => {
+    try {
+      const response = await fetch(target, { mode: 'cors' });
+      if (!response.ok) throw new Error('Network error');
+      const ct = response.headers.get('Content-Type') || '';
+      if (ct.includes('text/html')) {
+        // Rewrite HTML links
+        const text = await response.text();
+        const parser = new DOMParser();                                 // :contentReference[oaicite:13]{index=13}
+        const doc = parser.parseFromString(text, 'text/html');
+        for (const el of doc.querySelectorAll('[src],[href]')) {
+          const attr = el.hasAttribute('href') ? 'href' : 'src';
+          const val = el.getAttribute(attr);
+          if (val.startsWith('/')) el.setAttribute(attr, TARGET_ORIGIN + val);
+        }
+        const fixed = new Response('<!doctype html>' + doc.documentElement.outerHTML, {
+          headers: response.headers
+        });
+        return fixed;
+      }
+      // Static assets: stale-while-revalidate
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(evt.request, response.clone());                         // :contentReference[oaicite:14]{index=14}
+      return response;
+    } catch (err) {
+      // On failure, try cache first
+      const cacheRes = await caches.match(evt.request);
+      if (cacheRes) return cacheRes;
+      // Fallback to offline page for navigations
+      if (evt.request.mode === 'navigate') {
+        return caches.match(OFFLINE_URL);
+      }
+      return new Response('', { status: 504, statusText: 'Gateway Timeout' });
+    }
+  })());
 });
 
-async function networkFirst(req, targetUrl) {
-  try {
-    console.log('NW fetch:', targetUrl);
-    const res = await fetch(targetUrl, { mode: 'cors' });  // CORS fetch :contentReference[oaicite:10]{index=10}
-    if (!res.ok) throw new Error(`Status ${res.status}`);
-
-    // If HTML, rewrite links so they continue pointing to TARGET_ORIGIN
-    if (res.headers.get('Content-Type')?.includes('text/html')) {
-      const text = await res.text();
-      const fixed = text.replace(
-        /(href|src)=["']\/([^"']+)/g,
-        (_, attr, path) => `${attr}="${TARGET_ORIGIN}/${path}"`
-      );  // Regex-based rewriting :contentReference[oaicite:11]{index=11}
-      return new Response(fixed, { headers: res.headers });
-    }
-
-    return res;
-  } catch (err) {
-    console.error('Network-first failed:', err);  // Debug logging :contentReference[oaicite:12]{index=12}
-    const cache = await caches.open(CACHE_NAME);
-    return cache.match(OFFLINE_URL);
+// Process queued requests when back online
+async function processQueue() {
+  const queue = await getQueue(); // your logic to retrieve stored requests
+  for (const req of queue) {
+    await fetch(req);
   }
 }
 
-async function cacheFirst(req, targetUrl) {
+// Periodic cache refresh
+async function refreshAll() {
   const cache = await caches.open(CACHE_NAME);
-  const cached = await cache.match(req);
-  if (cached) {
-    console.log('Cache hit:', req.url);
-    return cached;
-  }
-  try {
-    console.log('Cache miss, fetching:', targetUrl);
-    const res = await fetch(targetUrl, { mode: 'cors' });  // CORS fetch :contentReference[oaicite:13]{index=13}
-    if (res.ok) cache.put(req, res.clone());
-    return res;
-  } catch (err) {
-    console.error('Cache-first failed:', err);  // Debug logging :contentReference[oaicite:14]{index=14}
-    return new Response('', { status: 504, statusText: 'Gateway Timeout' });
-  }
+  const keys = await cache.keys();
+  await Promise.all(keys.map(req => fetch(req.url).then(r => cache.put(req, r))));
 }
+
+// (Optional) Register periodic sync and push subscription
+self.registration.periodicSync.register('refresh-cache', {
+  minInterval: 24 * 60 * 60 * 1000
+});
+self.registration.pushManager.subscribe({ userVisibleOnly: true });
