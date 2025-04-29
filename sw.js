@@ -1,8 +1,4 @@
-// sw.js
-self.addEventListener("fetch", e => {
-  const url = new URL(e.request.url);
-  if (url.pathname.startsWith("/proxy/")) {
-    const proxied = "https://4sp.koyeb.app" + url.pathname.replace("/proxy", "");
-    e.respondWith(fetch(proxied));
-  }
+self.addEventListener('fetch', event => {
+  const target = event.request.url.replace(self.origin, 'https://4sp.koyeb.app');
+  event.respondWith(fetch(target));
 });
