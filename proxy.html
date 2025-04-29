@@ -4,82 +4,96 @@
   <meta charset="UTF-8">
   <meta http-equiv="Service-Worker-Allowed" content="/" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Proxy</title>
+  <title>Smart Proxy Loader</title>
   <style>
-    body { margin:0; font-family: sans-serif; display:flex; flex-direction:column; height:100vh; }
-    #toolbar { background:#222; color:#fff; padding:0.5em; display:flex; align-items:center; gap:0.5em; }
-    #toolbar button { background:#444; border:none; color:#fff; padding:0.5em 1em; cursor:pointer; border-radius:4px; }
-    #status { margin-left:auto; }
-    #log { flex:1; background:#f9f9f9; overflow:auto; padding:1em; font-size:0.9em; }
-    #content { flex:1; border-top:1px solid #ccc; }
+    body { margin:0; font-family:sans-serif; }
+    #loader {
+      position:fixed;top:50%;left:50%;
+      transform:translate(-50%,-50%);
+      background:rgba(255,255,255,0.9);
+      padding:1em 2em; border-radius:4px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.2);
+    }
   </style>
 </head>
 <body>
-  <div id="toolbar">
-    <button id="btn-clear">Clear Cache</button>
-    <button id="btn-refresh">Force Refresh</button>
-    <button id="btn-sync">Sync Now</button>
-    <button id="btn-notify">Enable Notifications</button>
-    <span id="status">Status: <em>Loading SW…</em></span>
-  </div>
-  <pre id="log">Initializing…</pre>
-  <iframe id="content" src="/" frameborder="0" style="width:100%;height:100%;"></iframe>
-
+  <div id="loader">Loading…</div>
   <script>
-    const log = msg => {
-      document.getElementById('log').textContent += `\n${new Date().toISOString()} – ${msg}`;
-    };
+    const REMOTE = 'https://4sp.koyeb.app';
 
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        .then(reg => {
-          log('SW registered');
-          document.getElementById('status').innerHTML = 'Status: SW Registered';
-          // Listen for updates
-          reg.addEventListener('updatefound', () => log('SW update found'));
-          // Force update checks periodically
-          setInterval(() => reg.update(), 60_000);
-        })
-        .catch(err => log('SW registration failed: ' + err));
-    } else {
-      log('SW unsupported');
+    // 1) Register & activate SW
+    async function initSW() {
+      if (!('serviceWorker' in navigator)) return;
+      const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      await navigator.serviceWorker.ready;
+      console.log('SW active:', reg.active);
     }
 
-    // SW ready: update UI
-    navigator.serviceWorker.ready.then(reg => {
-      document.getElementById('status').innerHTML = 'Status: Online Proxy Active';
-      log('SW ready and controlling page');
-    });
+    // 2) Fetch + inject page
+    async function load(path = '/') {
+      document.getElementById('loader').style.display = 'block';
+      try {
+        const res = await fetch(path, { mode: 'same-origin' });
+        if (!res.ok) throw new Error(res.statusText);
+        const html = await res.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
 
-    // Toolbar button handlers
-    document.getElementById('btn-clear').onclick = () => {
-      if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({ action: 'clear-cache' });
-        log('Sent clear-cache message to SW');
-      }
-    };
-    document.getElementById('btn-refresh').onclick = () => {
-      document.getElementById('content').src += '';
-      log('Forced iframe refresh');
-    };
-    document.getElementById('btn-sync').onclick = () => {
-      if ('SyncManager' in window) {
-        navigator.serviceWorker.ready.then(reg => {
-          reg.sync.register('offline-queue').then(() => log('Background sync registered'));
+        // Replace <head>
+        document.title = doc.title;
+        document.head.innerHTML = '';
+        doc.head.childNodes.forEach(n => {
+          const clone = n.cloneNode(true);
+          // rewrite relative href/src in <link> & <script>
+          if (clone.href && clone.getAttribute('href')?.startsWith('/')) {
+            clone.href = location.origin + clone.getAttribute('href');
+          }
+          if (clone.src && clone.getAttribute('src')?.startsWith('/')) {
+            clone.src = location.origin + clone.getAttribute('src');
+          }
+          document.head.appendChild(clone);
         });
-      } else {
-        log('Background sync unsupported');
-      }
-    };
-    document.getElementById('btn-notify').onclick = () => {
-      Notification.requestPermission().then(p => log('Notification permission: ' + p));
-    };
 
-    // Listen to messages from SW
-    navigator.serviceWorker.addEventListener('message', evt => {
-      log('Message from SW: ' + JSON.stringify(evt.data));
-    });
+        // Replace <body>
+        document.body.innerHTML = '';
+        doc.body.childNodes.forEach(n => {
+          if (n.nodeType === Node.ELEMENT_NODE) {
+            // rewrite relative href/src everywhere
+            if (n.hasAttribute('href') && n.getAttribute('href').startsWith('/')) {
+              n.setAttribute('href', location.origin + n.getAttribute('href'));
+            }
+            if (n.hasAttribute('src') && n.getAttribute('src').startsWith('/')) {
+              n.setAttribute('src', location.origin + n.getAttribute('src'));
+            }
+          }
+          document.body.appendChild(n.cloneNode(true));
+        });
+
+        // 3) Hijack all same-origin links
+        document.querySelectorAll('a[href^="' + location.origin + '"]').forEach(a => {
+          a.addEventListener('click', e => {
+            e.preventDefault();
+            const url = new URL(a.href);
+            history.pushState({}, '', url.pathname + url.search);
+            load(url.pathname + url.search);
+          });
+        });
+
+      } catch (err) {
+        document.body.innerHTML = '<h1>Unable to load site</h1><p>' + err + '</p>';
+      } finally {
+        document.getElementById('loader').style.display = 'none';
+      }
+    }
+
+    // 4) Handle back/forward
+    window.addEventListener('popstate', () => load(location.pathname + location.search));
+
+    // bootstrap
+    (async () => {
+      await initSW();
+      await load(location.pathname + location.search);
+    })();
   </script>
 </body>
 </html>
