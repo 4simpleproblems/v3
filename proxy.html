@@ -1,12 +1,18 @@
 <!-- proxy.html -->
 <!DOCTYPE html><html><head>
   <meta charset="utf-8">
-  <title>Proxy via SW</title>
+  <title>Proxy AJAX</title>
 </head><body>
+  <div id="app">Loading…</div>
   <script>
-    navigator.serviceWorker.register('/sw.js').then(() => {
-      // once registered, rewrite the URL to trigger fetch interception
-      location.replace('/proxy/');
-    });
+    fetch("https://4sp.koyeb.app/")
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById("app").innerHTML = html;
+      })
+      .catch(err => {
+        document.getElementById("app").textContent = "Error loading proxy.";
+        console.error(err);
+      });
   </script>
 </body></html>
