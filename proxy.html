@@ -2,12 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>4SP Proxy</title>
+  <title>4Simple Proxy</title>
+  <link rel="icon" href="/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
-<body>
-  <h1>Click below to launch the proxy:</h1>
-  <a href="https://4sp.koyeb.app" target="_blank">
-    <button>Launch Proxy</button>
-  </a>
+<body style="font-family: sans-serif; padding: 2em;">
+  <h1>Welcome to 4Simple Proxy</h1>
+  <p>Enter a URL to browse privately through our proxy:</p>
+  <input id="urlInput" type="text" placeholder="https://example.com" style="width: 300px; padding: 8px;" />
+  <button onclick="startProxy()" style="padding: 8px 16px;">Go</button>
+
+  <script src="uv/uv.bundle.js"></script>
+  <script src="uv/uv.config.js"></script>
+  <script>
+    const proxyUrl = 'https://4sp.koyeb.app'; // your Koyeb UV backend
+
+    async function startProxy() {
+      const url = document.getElementById('urlInput').value;
+      if (!url.startsWith('http')) {
+        alert("Please include https:// in your URL");
+        return;
+      }
+
+      const encoded = __uv$config.prefix + __uv$config.encodeUrl(url);
+      window.location.href = encoded;
+    }
+
+    (async () => {
+      // Register UV service worker
+      await __uv$config.sw.register();
+    })();
+  </script>
 </body>
 </html>
