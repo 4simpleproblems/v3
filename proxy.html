@@ -1,12 +1,34 @@
 <!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>4SP ┃ Proxy</title></head>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Service-Worker-Allowed" content="/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4SP ┃ Proxy</title>
+  <style>
+    body { margin:0; font-family: Arial, sans-serif; }
+    #loader { position:fixed;top:50%;left:50%;transform:translate(-50%,-50%); }
+  </style>
+</head>
 <body>
+  <div id="loader">Loading…</div>
+  <div id="content" style="display:none;"></div>
+
   <script>
+    // Register the Service Worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .then(reg => console.log('SW registered:', reg.scope))
+        .catch(err => console.error('SW registration failed:', err));
     }
-    window.location = location.href + '?start';
+
+    // Once the SW takes control, hide loader and show content
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+      // Navigate to same URL to trigger fetch through SW
+      window.location.reload();
+    });
   </script>
 </body>
 </html>
