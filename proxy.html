@@ -3,33 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Service-Worker-Allowed" content="/" />
-  <title>4SP TEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proxy</title>
   <style>
-    #loader { /* same as before */ }
-    #content { display:none; }
+    body { margin:0; font-family: sans-serif; display:flex; flex-direction:column; height:100vh; }
+    #toolbar { background:#222; color:#fff; padding:0.5em; display:flex; align-items:center; gap:0.5em; }
+    #toolbar button { background:#444; border:none; color:#fff; padding:0.5em 1em; cursor:pointer; border-radius:4px; }
+    #status { margin-left:auto; }
+    #log { flex:1; background:#f9f9f9; overflow:auto; padding:1em; font-size:0.9em; }
+    #content { flex:1; border-top:1px solid #ccc; }
   </style>
 </head>
 <body>
-  <div id="loader">Loading…</div>
-  <div id="content"></div>
+  <div id="toolbar">
+    <button id="btn-clear">Clear Cache</button>
+    <button id="btn-refresh">Force Refresh</button>
+    <button id="btn-sync">Sync Now</button>
+    <button id="btn-notify">Enable Notifications</button>
+    <span id="status">Status: <em>Loading SW…</em></span>
+  </div>
+  <pre id="log">Initializing…</pre>
+  <iframe id="content" src="/" frameborder="0" style="width:100%;height:100%;"></iframe>
+
   <script>
+    const log = msg => {
+      document.getElementById('log').textContent += `\n${new Date().toISOString()} – ${msg}`;
+    };
+
+    // Register Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        .catch(err => console.error('SW registration failed:', err));
-
-      // Use `ready` to run as soon as SW is controlling the page
-      navigator.serviceWorker.ready
-        .then(registration => {
-          console.log('SW ready, controlling:', registration.active);
-          document.getElementById('loader').style.display = 'none';
-          document.getElementById('content').style.display = 'block';
-          // Trigger navigation through SW
-          window.location.href = window.location.href;
+        .then(reg => {
+          log('SW registered');
+          document.getElementById('status').innerHTML = 'Status: SW Registered';
+          // Listen for updates
+          reg.addEventListener('updatefound', () => log('SW update found'));
+          // Force update checks periodically
+          setInterval(() => reg.update(), 60_000);
         })
-        .catch(err => console.error('SW ready promise rejected:', err));
+        .catch(err => log('SW registration failed: ' + err));
     } else {
-      console.warn('Service Workers unsupported');
+      log('SW unsupported');
     }
+
+    // SW ready: update UI
+    navigator.serviceWorker.ready.then(reg => {
+      document.getElementById('status').innerHTML = 'Status: Online Proxy Active';
+      log('SW ready and controlling page');
+    });
+
+    // Toolbar button handlers
+    document.getElementById('btn-clear').onclick = () => {
+      if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({ action: 'clear-cache' });
+        log('Sent clear-cache message to SW');
+      }
+    };
+    document.getElementById('btn-refresh').onclick = () => {
+      document.getElementById('content').src += '';
+      log('Forced iframe refresh');
+    };
+    document.getElementById('btn-sync').onclick = () => {
+      if ('SyncManager' in window) {
+        navigator.serviceWorker.ready.then(reg => {
+          reg.sync.register('offline-queue').then(() => log('Background sync registered'));
+        });
+      } else {
+        log('Background sync unsupported');
+      }
+    };
+    document.getElementById('btn-notify').onclick = () => {
+      Notification.requestPermission().then(p => log('Notification permission: ' + p));
+    };
+
+    // Listen to messages from SW
+    navigator.serviceWorker.addEventListener('message', evt => {
+      log('Message from SW: ' + JSON.stringify(evt.data));
+    });
   </script>
 </body>
 </html>
