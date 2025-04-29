@@ -3,32 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Service-Worker-Allowed" content="/" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>4SP ┃ Proxy</title>
+  <title>4SP TEST</title>
   <style>
-    body { margin:0; font-family: Arial, sans-serif; }
-    #loader { position:fixed;top:50%;left:50%;transform:translate(-50%,-50%); }
+    #loader { /* same as before */ }
+    #content { display:none; }
   </style>
 </head>
 <body>
   <div id="loader">Loading…</div>
-  <div id="content" style="display:none;"></div>
-
+  <div id="content"></div>
   <script>
-    // Register the Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js', { scope: '/' })
-        .then(reg => console.log('SW registered:', reg.scope))
         .catch(err => console.error('SW registration failed:', err));
-    }
 
-    // Once the SW takes control, hide loader and show content
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      document.getElementById('loader').style.display = 'none';
-      document.getElementById('content').style.display = 'block';
-      // Navigate to same URL to trigger fetch through SW
-      window.location.reload();
-    });
+      // Use `ready` to run as soon as SW is controlling the page
+      navigator.serviceWorker.ready
+        .then(registration => {
+          console.log('SW ready, controlling:', registration.active);
+          document.getElementById('loader').style.display = 'none';
+          document.getElementById('content').style.display = 'block';
+          // Trigger navigation through SW
+          window.location.href = window.location.href;
+        })
+        .catch(err => console.error('SW ready promise rejected:', err));
+    } else {
+      console.warn('Service Workers unsupported');
+    }
   </script>
 </body>
 </html>
