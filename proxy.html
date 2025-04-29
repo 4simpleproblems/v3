@@ -1,58 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>4SP Proxy</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background-color: #000;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-    }
-    h1 {
-      margin-bottom: 1rem;
-      font-size: 2rem;
-    }
-    button {
-      background-color: #e03e2d;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      color: #fff;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      transition: transform 0.1s ease;
-    }
-    button:active {
-      transform: scale(0.97);
-    }
-    button:hover {
-      opacity: 0.9;
-    }
-  </style>
-</head>
-<body>
-  <h1>Welcome to 4SP Proxy</h1>
-  <p>Click the button below to launch the full-page proxy.</p>
-  <button id="launch-btn">Launch Proxy</button>
-
+<!-- proxy.html -->
+<!DOCTYPE html><html><head>
+  <meta charset="utf-8">
+  <title>Proxy via SW</title>
+</head><body>
   <script>
-    document.getElementById('launch-btn').addEventListener('click', function() {
-      // Option A: Open in the same tab
-      window.location.href = 'https://4sp.koyeb.app';
-
-      // Option B: Open in a new tab instead (uncomment if you prefer)
-      // window.open('https://4sp.koyeb.app', '_blank', 'noopener');
+    navigator.serviceWorker.register('/sw.js').then(() => {
+      // once registered, rewrite the URL to trigger fetch interception
+      location.replace('/proxy/');
     });
   </script>
-</body>
-</html>
+</body></html>
