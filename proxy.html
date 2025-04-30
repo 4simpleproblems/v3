@@ -1,37 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>4Simple Proxy</title>
-  <link rel="icon" href="/favicon.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <title>Node Proxy</title>
 </head>
-<body style="font-family: sans-serif; padding: 2em;">
-  <h1>Welcome to 4Simple Proxy</h1>
-  <p>Enter a URL to browse privately through our proxy:</p>
-  <input id="urlInput" type="text" placeholder="https://example.com" style="width: 300px; padding: 8px;" />
-  <button onclick="startProxy()" style="padding: 8px 16px;">Go</button>
+<body>
+  <h2>Node Proxy</h2>
+  <form onsubmit="openProxy(); return false;">
+    <input type="text" id="url" placeholder="https://example.com" size="50">
+    <button type="submit">Go</button>
+  </form>
 
-  <script src="uv/uv.bundle.js"></script>
-  <script src="uv/uv.config.js"></script>
   <script>
-    const proxyUrl = 'https://4sp.koyeb.app'; // your Koyeb UV backend
-
-    async function startProxy() {
-      const url = document.getElementById('urlInput').value;
+    function openProxy() {
+      const url = document.getElementById('url').value;
       if (!url.startsWith('http')) {
-        alert("Please include https:// in your URL");
+        alert("URL must start with http:// or https://");
         return;
       }
-
-      const encoded = __uv$config.prefix + __uv$config.encodeUrl(url);
-      window.location.href = encoded;
+      const proxied = `http://localhost:3000/?url=${encodeURIComponent(url)}`;
+      window.open(proxied, '_blank');
     }
-
-    (async () => {
-      // Register UV service worker
-      await __uv$config.sw.register();
-    })();
   </script>
 </body>
 </html>
