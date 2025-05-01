@@ -5,21 +5,28 @@
   <title>Proxy UI</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    body, html { margin:0; height:100%; overflow:hidden; font-family:sans-serif; }
-    #toolbar { position:fixed; top:0; left:0; right:0; background:#fff; padding:8px;
-               display:flex; gap:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1); z-index:10; }
-    #url { flex:1; padding:4px; font-size:1rem; }
-    #go  { padding:4px 8px; font-size:1rem; }
-    #frame{ position:absolute; top:44px; bottom:0; left:0; right:0;
-             width:100%; height:calc(100% - 44px); border:none; }
+    body, html { margin:0; height:100%; overflow:hidden; font-family:sans-serif }
+    #toolbar {
+      position:fixed; top:0; left:0; right:0; background:#fff;
+      padding:8px; display:flex; gap:8px;
+      box-shadow:0 2px 4px rgba(0,0,0,0.1); z-index:10;
+    }
+    #url { flex:1; padding:4px; font-size:1rem }
+    #go  { padding:4px 8px; font-size:1rem }
+    #frame {
+      position:absolute; top:44px; bottom:0; left:0; right:0;
+      width:100%; height:calc(100% - 44px); border:none;
+    }
   </style>
 </head>
 <body>
   <div id="toolbar">
-    <input id="url" type="text" placeholder="Enter full URL to proxy (e.g. https://example.com)" />
+    <input id="url" type="text"
+           placeholder="Enter URL to proxy (e.g. https://example.com)" />
     <button id="go">Go</button>
   </div>
   <iframe id="frame" allowfullscreen></iframe>
+
   <script>
     const workerBase = 'https://my-proxy.4simpleproblems.workers.dev';
     const input = document.getElementById('url');
@@ -28,13 +35,15 @@
 
     function loadProxy(target) {
       if (!target) return;
+      // ensure protocol
       if (!/^https?:\/\//i.test(target)) target = 'https://' + target;
       frame.src = workerBase + '/?url=' + encodeURIComponent(target);
     }
 
     btn.addEventListener('click', () => loadProxy(input.value.trim()));
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') loadProxy(input.value.trim()); });
+    input.addEventListener('keydown', e => { if (e.key==='Enter') loadProxy(input.value.trim()); });
 
+    // If someone visits proxy.html?url=… auto-load that URL
     const params = new URLSearchParams(window.location.search);
     if (params.has('url')) {
       input.value = params.get('url');
