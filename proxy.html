@@ -2,24 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Node Proxy</title>
+  <title>Proxy UI</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body, html { margin:0; height:100%; overflow:hidden; font-family:sans-serif; }
+    #toolbar { position:fixed; top:0; left:0; right:0; background:#fff; padding:8px;
+               display:flex; gap:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1); z-index:10; }
+    #url { flex:1; padding:4px; font-size:1rem; }
+    #go  { padding:4px 8px; font-size:1rem; }
+    #frame{ position:absolute; top:44px; bottom:0; left:0; right:0;
+             width:100%; height:calc(100% - 44px); border:none; }
+  </style>
 </head>
 <body>
-  <h2>Node Proxy</h2>
-  <form onsubmit="openProxy(); return false;">
-    <input type="text" id="url" placeholder="https://example.com" size="50">
-    <button type="submit">Go</button>
-  </form>
-
+  <div id="toolbar">
+    <input id="url" type="text" placeholder="Enter full URL to proxy (e.g. https://example.com)" />
+    <button id="go">Go</button>
+  </div>
+  <iframe id="frame" allowfullscreen></iframe>
   <script>
-    function openProxy() {
-      const url = document.getElementById('url').value;
-      if (!url.startsWith('http')) {
-        alert("URL must start with http:// or https://");
-        return;
-      }
-      const proxied = `http://localhost:3000/?url=${encodeURIComponent(url)}`;
-      window.open(proxied, '_blank');
+    const workerBase = 'https://my-proxy.4simpleproblems.workers.dev';
+    const input = document.getElementById('url');
+    const btn   = document.getElementById('go');
+    const frame = document.getElementById('frame');
+
+    function loadProxy(target) {
+      if (!target) return;
+      if (!/^https?:\/\//i.test(target)) target = 'https://' + target;
+      frame.src = workerBase + '/?url=' + encodeURIComponent(target);
+    }
+
+    btn.addEventListener('click', () => loadProxy(input.value.trim()));
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') loadProxy(input.value.trim()); });
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('url')) {
+      input.value = params.get('url');
+      loadProxy(input.value);
     }
   </script>
 </body>
