@@ -63,13 +63,10 @@
             border: 2px solid transparent;
             cursor: pointer;
             text-decoration: none;
-            transition: none !important;
             background-color: transparent;
             color: var(--light-text);
         }
         .btn.secondary {
-            background-color: transparent;
-            color: var(--light-text);
             border-color: var(--light-text);
         }
         /* Pill & Outline styles for customization */
@@ -185,15 +182,16 @@
             document.getElementById('clock').textContent = `${hours}:${mins}:${secs}${suffix}`;
         }
         setInterval(updateClock, 1000);
+        updateClock();
 
         // Settings handling
         function applySettings(settings) {
             document.body.classList.toggle('dark-theme', settings.theme === 'dark');
-            document.querySelectorAll('.pill-group[data-setting="theme"] .pill").forEach(btn => {
+            document.querySelectorAll('.pill-group[data-setting="theme"] .pill').forEach(btn => {
                 btn.classList.toggle('selected', btn.dataset.value === settings.theme);
             });
             use12Hour = settings.format === '12';
-            document.querySelectorAll('.pill-group[data-setting="format"] .pill").forEach(btn => {
+            document.querySelectorAll('.pill-group[data-setting="format"] .pill').forEach(btn => {
                 btn.classList.toggle('selected', btn.dataset.value === settings.format);
             });
             updateClock();
