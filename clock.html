@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | Clock</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        :root {
+            --dark-bg: #1a1a1a;
+            --darker-bg: #0d0d0d;
+            --light-text: #f0f0f0;
+            --light-gray: #e0e0e0;
+        }
+        body {
+            background-color: var(--light-gray);
+            color: var(--dark-bg);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Roboto Mono', monospace;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-theme {
+            background-color: var(--darker-bg);
+            color: var(--light-text);
+        }
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            background-color: var(--darker-bg);
+            color: var(--light-text);
+            border-bottom: 1px solid var(--darker-bg);
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            cursor: pointer;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .nav-buttons .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            border: 2px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: none !important;
+            background-color: transparent;
+            color: var(--light-text);
+        }
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--light-text);
+            border-color: var(--light-text);
+        }
+        /* Pill & Outline styles for customization */
+        .pill {
+            padding: 0.5rem 1rem;
+            border-radius: 999px;
+            border: 2px solid var(--dark-bg);
+            background: transparent;
+            color: var(--dark-bg);
+            cursor: pointer;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1rem;
+            transition: background 0.3s, color 0.3s, border-color 0.3s;
+        }
+        body.dark-theme .pill {
+            border-color: var(--light-text);
+            color: var(--light-text);
+        }
+        .pill.selected {
+            background: var(--dark-bg);
+            color: var(--light-text);
+        }
+        /* Main container */
+        main.container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .clock-display {
+            background: white;
+            padding: 4rem 6rem;
+            border-radius: 24px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+            font-size: 4rem;
+            color: var(--dark-bg);
+            text-align: center;
+        }
+        body.dark-theme .clock-display {
+            background: #2a2a2a;
+            color: var(--light-text);
+        }
+        .customization {
+            margin-top: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: center;
+        }
+        .pill-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem 0;
+            color: #333333;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo" onclick="window.location.href='dashboard.html'">4SP</div>
+        <div class="nav-buttons">
+            <a href="dashboard.html" class="btn secondary">Dashboard</a>
+            <a href="#" id="logoutBtn" class="btn secondary">Log Out</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="clock-display" id="clock">--:--:--</div>
+        <div class="customization">
+            <div class="pill-group" data-setting="theme">
+                <button class="pill" data-value="light">Light</button>
+                <button class="pill" data-value="dark">Dark</button>
+            </div>
+            <div class="pill-group" data-setting="format">
+                <button class="pill" data-value="24">24-hour</button>
+                <button class="pill" data-value="12">12-hour</button>
+            </div>
+            <button id="fullscreenBtn" class="pill">Fullscreen</button>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2025 4SP</p>
+    </footer>
+
+    <script>
+        // Firebase and Firestore
+        let db;
+        function initFirebase() {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        }
+
+        // Clock update
+        let use12Hour = false;
+        function updateClock() {
+            const now = new Date();
+            let hrs = now.getHours();
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            const secs = String(now.getSeconds()).padStart(2, '0');
+            let suffix = '';
+            if (use12Hour) {
+                suffix = hrs >= 12 ? ' PM' : ' AM';
+                hrs = hrs % 12 || 12;
+            }
+            const hours = String(hrs).padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${mins}:${secs}${suffix}`;
+        }
+        setInterval(updateClock, 1000);
+
+        // Settings handling
+        function applySettings(settings) {
+            document.body.classList.toggle('dark-theme', settings.theme === 'dark');
+            document.querySelectorAll('.pill-group[data-setting="theme"] .pill").forEach(btn => {
+                btn.classList.toggle('selected', btn.dataset.value === settings.theme);
+            });
+            use12Hour = settings.format === '12';
+            document.querySelectorAll('.pill-group[data-setting="format"] .pill").forEach(btn => {
+                btn.classList.toggle('selected', btn.dataset.value === settings.format);
+            });
+            updateClock();
+        }
+        function saveSettings(uid) {
+            const theme = document.querySelector('.pill-group[data-setting="theme"] .pill.selected').dataset.value;
+            const format = document.querySelector('.pill-group[data-setting="format"] .pill.selected').dataset.value;
+            return db.collection('clockSettings').doc(uid).set({ theme, format });
+        }
+        function loadSettings(uid) {
+            db.collection('clockSettings').doc(uid).get().then(doc => {
+                if (doc.exists) applySettings(doc.data());
+            }).catch(console.error);
+        }
+
+        // Fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+
+        // Auth and events
+        function handleAuthState(user) {
+            if (!user) return window.location.href = 'index.html';
+            loadSettings(user.uid);
+            document.querySelectorAll('.pill-group .pill').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const group = btn.closest('.pill-group');
+                    group.querySelectorAll('.pill').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    saveSettings(user.uid);
+                });
+            });
+            document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+            document.getElementById('logoutBtn').addEventListener('click', e => {
+                e.preventDefault();
+                firebase.auth().signOut().then(() => window.location.href = 'index.html');
+            });
+        }
+        function initAuth() {
+            initFirebase();
+            firebase.auth().onAuthStateChanged(handleAuthState);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof firebase !== 'undefined') initAuth();
+        });
+    </script>
+</body>
+</html>
