@@ -65,9 +65,63 @@
         </section>
     </main>
 
+    <!-- Email Verification Modal -->
+    <div id="verificationModal" class="modal">
+        <div class="modal-content">
+            <h2>Verify Your Email</h2>
+            <p>We've sent a verification email to <span id="verificationEmail"></span></p>
+            <p>Please check your inbox and click the verification link to activate your account.</p>
+            <div class="modal-buttons">
+                <button id="resendVerificationBtn" class="btn secondary">Resend Email</button>
+                <button id="closeModalBtn" class="btn primary">OK</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <p>© 2025 4SP</p>
     </footer>
+
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        /* For Email Verification Message */
+        .verification-sent {
+            background-color: #e6f7ff;
+            border-left: 4px solid #1890ff;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
@@ -85,8 +139,14 @@
             const db = firebase.firestore();
             const signupForm = document.getElementById('signupForm');
             const authMessage = document.getElementById('authMessage');
-            const usernameInput = document.getElementById('signupUsername'); // Get Username Input Field
+            const usernameInput = document.getElementById('signupUsername');
             const usernameHelperText = document.querySelector('.username-helper-text');
+            
+            // Modal elements
+            const verificationModal = document.getElementById('verificationModal');
+            const verificationEmail = document.getElementById('verificationEmail');
+            const resendVerificationBtn = document.getElementById('resendVerificationBtn');
+            const closeModalBtn = document.getElementById('closeModalBtn');
 
             // Username validation function
             function validateUsername(username) {
@@ -144,7 +204,7 @@
                     return;
                 }
 
-                 // Validate Username
+                // Validate Username
                 const usernameValidation = validateUsername(username);
                 if (!usernameValidation.valid) {
                     showMessage(usernameValidation.message, 'error');
@@ -158,17 +218,40 @@
                     // Save username to Firestore
                     await db.collection('users').doc(user.uid).set({
                         username: username,
-                        email: email // save the email for convenience and future use.
+                        email: email,
+                        emailVerified: false
                     });
                     
-                    // Optional: Send email verification
-                    // await userCredential.user.sendEmailVerification();
+                    // Send email verification
+                    await user.sendEmailVerification();
                     
-                    showMessage('Account created successfully! Redirecting...', 'success');
-                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                    // Show verification modal
+                    verificationEmail.textContent = email;
+                    verificationModal.style.display = 'flex';
+                    
+                    showMessage('Account created! Please verify your email.', 'success');
                 } catch (error) {
                     handleAuthError(error);
                 }
+            });
+            
+            // Handle verification modal buttons
+            resendVerificationBtn.addEventListener('click', async () => {
+                try {
+                    const user = auth.currentUser;
+                    if (user) {
+                        await user.sendEmailVerification();
+                        showMessage('Verification email resent!', 'success');
+                    } else {
+                        showMessage('No user signed in. Please try again.', 'error');
+                    }
+                } catch (error) {
+                    handleAuthError(error);
+                }
+            });
+            
+            closeModalBtn.addEventListener('click', () => {
+                verificationModal.style.display = 'none';
             });
 
             // Google signup
@@ -184,32 +267,61 @@
                     const result = await auth.signInWithPopup(provider);
                     const user = result.user;
 
-                    // Automatically generate a username from Google profile
-                    let username = generateUsernameFromGoogle(user);
+                    // Check if this is a new user
+                    const isNewUser = result.additionalUserInfo.isNewUser;
 
-                    // Ensure uniqueness by checking Firestore
-                    const usernameRef = db.collection('usernames').doc(username);
-                    const usernameDoc = await usernameRef.get();
+                    if (isNewUser) {
+                        // Automatically generate a username from Google profile
+                        let username = generateUsernameFromGoogle(user);
 
-                    if(usernameDoc.exists){
-                         const usersSnapshot = await db.collection('users').get();
-                         username = `NONAME-${usersSnapshot.size + 1}`;
+                        // Ensure uniqueness by checking Firestore
+                        const usernameRef = db.collection('usernames').doc(username);
+                        const usernameDoc = await usernameRef.get();
+
+                        if(usernameDoc.exists){
+                             const usersSnapshot = await db.collection('users').get();
+                             username = `NONAME-${usersSnapshot.size + 1}`;
+                        }
+
+                        // Save username to Firestore
+                        await db.collection('users').doc(user.uid).set({
+                            username: username,
+                            email: user.email,
+                            emailVerified: user.emailVerified
+                        });
                     }
-
-                    // Save username to Firestore
-                    await db.collection('users').doc(user.uid).set({
-                        username: username,
-                        email: user.email // save the email for convenience and future use.
-                    });
                     
-                    showMessage('Google signup successful! Redirecting...', 'success');
-                    setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                    // Google Auth typically verifies email automatically
+                    if (user.emailVerified) {
+                        showMessage('Google signup successful! Redirecting...', 'success');
+                        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                    } else {
+                        // Rare case: Google account with unverified email
+                        await user.sendEmailVerification();
+                        verificationEmail.textContent = user.email;
+                        verificationModal.style.display = 'flex';
+                        showMessage('Please verify your email before continuing.', 'warning');
+                    }
                 } catch (error) {
                     handleAuthError(error);
                 }
             });
 
-             function generateUsernameFromGoogle(user) {
+            // Set up auth state listener to check email verification
+            firebase.auth().onAuthStateChanged(function(user) {
+                if (user) {
+                    // User is signed in
+                    console.log("User signed in with verification status:", user.emailVerified);
+                    
+                    if (user.emailVerified) {
+                        // User email is verified, redirect to dashboard
+                        showMessage('Email verified! Redirecting to dashboard...', 'success');
+                        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                    }
+                }
+            });
+
+            function generateUsernameFromGoogle(user) {
                 // Use displayName or email prefix, sanitized and lowercased
                 let base = user.displayName || user.email.split('@')[0];
                 base = base.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
