@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4SP | Links</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --dark-bg: #121212;
+      --darker-bg: #1e1e1e;
+      --light-text: #ffffff;
+      --light-gray: #f0f0f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto Mono', monospace;
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--light-text);
+      text-decoration: none;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--darker-bg);
+      padding: 0.75rem 1.5rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 999;
+    }
+
+    .navbar .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn.secondary {
+      background-color: transparent;
+      border: 1px solid var(--light-text);
+      color: var(--light-text);
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn.secondary:hover {
+      background-color: var(--light-gray);
+      color: var(--dark-bg);
+    }
+
+    main.container {
+      max-width: 800px;
+      margin: 6rem auto 2rem auto;
+      background-color: var(--darker-bg);
+      padding: 2rem;
+      border-radius: 30px;
+    }
+
+    main.container h1 {
+      margin-bottom: 1.5rem;
+      font-size: 1.75rem;
+    }
+
+    .links-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .links-list li {
+      margin-bottom: 1rem;
+    }
+
+    .links-list a {
+      font-size: 1.25rem;
+      text-decoration: underline;
+      transition: color 0.2s;
+    }
+
+    .links-list a:hover {
+      color: var(--light-gray);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem 0;
+      background-color: var(--darker-bg);
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
+
+    footer p {
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h1>Links</h1>
+    <ul class="links-list" id="linksList">
+      <!-- Links will be injected here -->
+    </ul>
+  </main>
+
+  <footer>
+    <p>© 2025 4SP</p>
+  </footer>
+
+  <script>
+    // Define your links here as { name: 'Display Name', url: 'https://...' }
+    const links = [
+      { name: 'GitHub - 4simpleproblems', url: 'https://github.com/4simpleproblems' },
+      { name: 'OpenAI', url: 'https://openai.com' },
+      { name: 'Google', url: 'https://google.com' }
+    ];
+
+    const listEl = document.getElementById('linksList');
+    links.forEach(link => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.textContent = link.name;
+      a.href = link.url;
+      a.target = '_blank'; // open in new tab
+      li.appendChild(a);
+      listEl.appendChild(li);
+    });
+  </script>
+</body>
+
+</html>
