@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4SP | Terms of Service</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --dark-bg: #121212;
+      --darker-bg: #1e1e1e;
+      --light-text: #ffffff;
+      --light-gray: #f0f0f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto Mono', monospace;
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--light-text);
+      text-decoration: none;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--darker-bg);
+      padding: 0.75rem 1.5rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      border-radius: 0;
+      z-index: 999;
+    }
+
+    .navbar .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn.secondary {
+      background-color: transparent;
+      border: 1px solid var(--light-text);
+      color: var(--light-text);
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn.secondary:hover {
+      background-color: var(--light-gray);
+      color: var(--dark-bg);
+    }
+
+    main.container {
+      max-width: 800px;
+      margin: 6rem auto 2rem auto;
+      background-color: var(--darker-bg);
+      padding: 2rem;
+      border-radius: 30px;
+    }
+
+    main.container h1 {
+      margin-bottom: 1rem;
+      font-size: 1.75rem;
+    }
+
+    main.container p {
+      margin-bottom: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem 0;
+      background-color: var(--darker-bg);
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+      border-radius: 0;
+    }
+
+    footer p {
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h1>Terms of Service</h1>
+    <p>
+      By using this website and its services, including any proxy functionality that provides access to the Internet, you acknowledge and agree that the provider is not responsible for any misuse or unauthorized activities carried out through this platform. You assume full responsibility for compliance with all applicable laws, regulations, and ethical standards, and must refrain from any actions that infringe upon the rights of others or violate legal requirements.
+    </p>
+    <p>
+      The service is provided "as is," without warranties of any kind, whether express or implied, including but not limited to warranties of performance, reliability, or fitness for a particular purpose. In no event shall the provider be liable for any direct, indirect, incidental, consequential, or special damages arising from or related to the use or inability to use the website or proxy service, including data loss, security breaches, or other adverse outcomes. Your use of this service is at your own risk.
+    </p>
+  </main>
+
+  <footer>
+    <p>© 2025 4SP</p>
+  </footer>
+</body>
+
+</html>
