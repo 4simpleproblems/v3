@@ -18,5 +18,14 @@
 </head>
 <body>
   <iframe src="https://4sp-us4.global.ssl.fastly.net/" allowfullscreen></iframe>
+  
+  <script>
+    // Listen for Ctrl+Shift+X to redirect to dashboard.html
+    document.addEventListener('keydown', function(event) {
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'x') {
+        window.location.href = 'dashboard.html';
+      }
+    });
+  </script>
 </body>
 </html>
