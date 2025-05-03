@@ -1,159 +1,837 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4SP | Analytics</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
 
-  <!-- Firebase scripts -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4SP | Analytics</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    :root {
+      --primary-action: var(--dark-bg);
+      --secondary-action-text: var(--dark-bg);
+      --secondary-action-bg: var(--light-gray);
+      --danger-action: var(--primary-red);
+      --light-text: #f0f0f0;
+      --dark-bg: #1a1a1a;
+      --light-gray: #e0e0e0;
+      --medium-gray: #333333;
+      --darker-bg: #0d0d0d;
+      --error-red: #ff1212;
+      --info-text: var(--medium-gray);
+      --card-bg: white;
+      --card-border: var(--light-gray);
+      --pill-radius: 50px;
+      --modal-bg: rgba(0, 0, 0, 0.7);
+      --modal-content-bg: #222;
+      --modal-content-border: #666;
+      --modal-text-color: #ddd;
+      --modal-input-bg: #444;
+      --modal-input-text-color: #eee;
+      --primary-red: #ff1212;
+      --dark-red: #8b0000;
+      --chart-blue: #3498db;
+      --chart-green: #2ecc71;
+      --chart-orange: #e67e22;
+      --chart-purple: #9b59b6;
+      --chart-yellow: #f1c40f;
+    }
+
+    body {
+      background-color: var(--light-gray);
+      font-family: 'Roboto Mono', monospace;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: var(--dark-bg);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      flex: 1;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--dark-bg);
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background-color: var(--darker-bg);
+      color: var(--light-text);
+      border-bottom: 1px solid var(--accent);
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      border: 2px solid transparent;
+      font-weight: 500;
+    }
+
+    .btn.primary {
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+    }
+
+    .btn.secondary {
+      background-color: transparent;
+      color: var(--light-text);
+      border-color: var(--light-text);
+    }
+
+    .btn:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      border-top: 2px solid var(--primary-action);
+    }
+
+    /* Analytics Page Specific Styles */
+    .analytics-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .date-filter {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .date-filter select {
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--pill-radius);
+      border: 1px solid var(--medium-gray);
+      background-color: var(--card-bg);
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.9rem;
+    }
+
+    .stats-overview {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background-color: var(--card-bg);
+      border-radius: var(--pill-radius);
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--card-border);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0.5rem 0;
+      color: var(--darker-bg);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--info-text);
+    }
+
+    .trend {
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .trend.up {
+      color: var(--chart-green);
+    }
+
+    .trend.down {
+      color: var(--primary-red);
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-container {
+      background-color: var(--card-bg);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--card-border);
+    }
+
+    .chart-container h2 {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+      color: var(--darker-bg);
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 300px;
+    }
+
+    .data-table {
+      background-color: var(--card-bg);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--card-border);
+      margin-bottom: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    table th, table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--light-gray);
+    }
+
+    table th {
+      font-weight: 700;
+      color: var(--darker-bg);
+    }
+
+    table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table h2 {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+      color: var(--darker-bg);
+    }
+
+    .map-container {
+      background-color: var(--card-bg);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--card-border);
+      height: 400px;
+    }
+
+    .map-container h2 {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+      color: var(--darker-bg);
+    }
+
+    .map-placeholder {
+      height: 300px;
+      background-color: var(--light-gray);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--info-text);
+      font-style: italic;
+    }
+
+    @media (max-width: 992px) {
+      .stats-overview {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .stats-overview {
+        grid-template-columns: 1fr;
+      }
+      
+      .analytics-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .date-filter {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      font-style: italic;
+      color: var(--info-text);
+    }
+
+    .world-map-container {
+      width: 100%;
+      height: 300px;
+      background-color: var(--light-gray);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .world-map {
+      width: 100%;
+      height: 100%;
+      background-color: #e8f4f8;
+      position: relative;
+    }
+
+    .region {
+      fill: #a8d5e5;
+      stroke: #fff;
+      stroke-width: 0.5;
+      cursor: pointer;
+      transition: fill 0.3s ease;
+    }
+
+    .region:hover {
+      fill: var(--chart-blue);
+    }
+
+    .region-marker {
+      fill: var(--chart-red);
+      stroke: white;
+      stroke-width: 1;
+    }
+
+    .data-point {
+      width: 8px;
+      height: 8px;
+      background-color: var(--primary-red);
+      border-radius: 50%;
+      position: absolute;
+      transform: translate(-50%, -50%);
+    }
+  </style>
 </head>
+
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
       <a href="dashboard.html" class="btn secondary">Dashboard</a>
-      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+      <button class="btn secondary" id="logoutBtn">Log Out</button>
     </div>
   </nav>
 
   <main class="container">
-    <div id="analyticsContent" class="analytics-content">
-      <h1>Website Analytics</h1>
-      <p id="authNotice">Checking Authentication...</p>
-      <div id="adminContent" class="hidden">
-        <p>Welcome, Admin! Here are your analytics:</p>
-        <ul id="analyticsList">
-          <li>Loading analytics...</li>
-        </ul>
-        <p id="noDataMessage" class="hidden" style="color: var(--error-red);">
-          Missing or insufficient permissions.
-        </p>
+    <div class="analytics-header">
+      <h1>Platform Analytics</h1>
+      <div class="date-filter">
+        <label for="timeframe">Timeframe:</label>
+        <select id="timeframe">
+          <option value="7d">Last 7 Days</option>
+          <option value="30d" selected>Last 30 Days</option>
+          <option value="3m">Last 3 Months</option>
+          <option value="6m">Last 6 Months</option>
+          <option value="1y">Last Year</option>
+        </select>
       </div>
-      <p id="errorMessage" class="hidden" style="color: var(--error-red);"></p>
+    </div>
+
+    <div class="stats-overview">
+      <div class="stat-card">
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value">12,547</div>
+        <div class="trend up">+15.2% ↑</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active Sessions</div>
+        <div class="stat-value">3,892</div>
+        <div class="trend up">+8.7% ↑</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg. Session Time</div>
+        <div class="stat-value">18:24</div>
+        <div class="trend up">+2.3% ↑</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Conversion Rate</div>
+        <div class="stat-value">9.8%</div>
+        <div class="trend down">-1.4% ↓</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-container">
+        <h2>User Activity Over Time</h2>
+        <div class="chart-wrapper">
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-container">
+        <h2>User Distribution</h2>
+        <div class="chart-wrapper">
+          <canvas id="userDistributionChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-container">
+        <h2>Performance Metrics</h2>
+        <div class="chart-wrapper">
+          <canvas id="performanceChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-container">
+        <h2>Subscription Types</h2>
+        <div class="chart-wrapper">
+          <canvas id="subscriptionChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-container">
+      <h2>Global User Distribution</h2>
+      <div class="world-map-container">
+        <svg id="worldMap" class="world-map" viewBox="0 0 1000 500">
+          <!-- Map will be drawn by JavaScript -->
+          <g id="regions"></g>
+          <g id="markers"></g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="data-table">
+      <h2>Top Performing Regions</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>Users</th>
+            <th>Sessions</th>
+            <th>Avg. Time</th>
+            <th>Conversion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>North America</td>
+            <td>5,243</td>
+            <td>18,752</td>
+            <td>22:14</td>
+            <td>12.8%</td>
+          </tr>
+          <tr>
+            <td>Europe</td>
+            <td>3,892</td>
+            <td>13,245</td>
+            <td>19:36</td>
+            <td>10.5%</td>
+          </tr>
+          <tr>
+            <td>Asia-Pacific</td>
+            <td>2,453</td>
+            <td>7,982</td>
+            <td>15:48</td>
+            <td>8.2%</td>
+          </tr>
+          <tr>
+            <td>Latin America</td>
+            <td>698</td>
+            <td>2,341</td>
+            <td>12:21</td>
+            <td>5.9%</td>
+          </tr>
+          <tr>
+            <td>Africa</td>
+            <td>261</td>
+            <td>843</td>
+            <td>9:15</td>
+            <td>3.4%</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </main>
 
+  <footer>
+    <p>© 2025 4SP</p>
+  </footer>
+
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      // Firebase references from firebase-config.js
-      const auth = window.auth;
-      const db = window.db;
-      const adminEmail = "4simpleproblems@gmail.com";
+    document.addEventListener('DOMContentLoaded', () => {
+      // Firebase Initialization
+      const auth = firebase.auth();
 
-      const analyticsContent = document.getElementById("analyticsContent");
-      const adminContent = document.getElementById("adminContent");
-      const authNotice = document.getElementById("authNotice");
-      const logoutBtn = document.getElementById("logoutBtn");
-      const analyticsList = document.getElementById("analyticsList");
-      const noDataMessage = document.getElementById("noDataMessage");
-      const errorMessage = document.getElementById("errorMessage");
-
-      function displayError(message) {
-        errorMessage.textContent = message;
-        errorMessage.classList.remove("hidden");
-      }
-
-      logoutBtn.addEventListener("click", () => {
-        auth
-          .signOut()
-          .then(() => {
-            window.location.href = "index.html";
-          })
-          .catch((error) => {
-            displayError("Sign out error: " + error.message);
-          });
-      });
-
-      auth.onAuthStateChanged(async (user) => {
-        if (user) {
-          if (user.email === adminEmail) {
-            authNotice.classList.add("hidden");
-            adminContent.classList.remove("hidden");
-            await loadAnalytics();
-          } else {
-            window.location.href = "index.html";
-          }
+      // Check Authentication Status
+      auth.onAuthStateChanged(user => {
+        if (!user) {
+          // Redirect to login page if user is not logged in
+          window.location.href = 'login.html';
         } else {
-          window.location.href = "index.html";
+          // User is logged in, load the analytics data
+          loadAnalyticsData();
         }
       });
 
-      // Helper: Format a key from camelCase or snake_case to Title Case
-      function formatKey(key) {
-        return key.replace(/[_\-]/g, ' ')
-                  .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-                  .replace(/\b\w/g, c => c.toUpperCase());
+      // Logout functionality
+      const logoutBtn = document.getElementById('logoutBtn');
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          await auth.signOut();
+          window.location.href = 'index.html';
+        } catch (error) {
+          console.error('Error signing out: ', error);
+          alert('Failed to log out. Please try again.');
+        }
+      });
+
+      // Initialize charts and load mock data
+      function loadAnalyticsData() {
+        // Time filter change event
+        const timeframeSelect = document.getElementById('timeframe');
+        timeframeSelect.addEventListener('change', () => {
+          updateCharts(timeframeSelect.value);
+          // You would normally fetch new data based on timeframe here
+        });
+
+        // Initialize charts with default timeframe (30d)
+        initializeCharts('30d');
+        drawWorldMap();
       }
 
-      async function loadAnalytics() {
-        try {
-          analyticsList.innerHTML = '<li>Loading analytics...</li>';
-          noDataMessage.classList.add("hidden");
-
-          // Aggregate statistics
-          const stats = {};
-
-          // Users collection: count
-          try {
-            const usersSnapshot = await db.collection("users").get();
-            stats["Total Users"] = usersSnapshot.size;
-          } catch (e) {
-            stats["Total Users"] = "Permission Denied";
-          }
-
-          // Requests collection: count
-          try {
-            const requestsSnapshot = await db.collection("requests").get();
-            stats["Total Requests"] = requestsSnapshot.size;
-          } catch (e) {
-            stats["Total Requests"] = "Permission Denied";
-          }
-
-          // Daily Analytics: show latest document's fields
-          let dailyFieldsHtml = "";
-          try {
-            const dailySnapshot = await db
-              .collection("dailyAnalytics")
-              .orderBy("date", "desc")
-              .limit(1)
-              .get();
-
-            if (!dailySnapshot.empty) {
-              const latest = dailySnapshot.docs[0].data();
-              stats["Latest Analytics Date"] = latest.date;
-              Object.keys(latest).forEach((key) => {
-                if (key !== "date") {
-                  dailyFieldsHtml += `<li>${formatKey(key)} (Latest): ${latest[key]}</li>`;
+      function initializeCharts(timeframe) {
+        // User Activity Chart (Line Chart)
+        const activityCtx = document.getElementById('activityChart').getContext('2d');
+        const activityChart = new Chart(activityCtx, {
+          type: 'line',
+          data: {
+            labels: generateDateLabels(30), // Last 30 days
+            datasets: [
+              {
+                label: 'Daily Active Users',
+                data: generateRandomData(30, 2000, 3500),
+                borderColor: '#3498db',
+                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true
+              },
+              {
+                label: 'New Registrations',
+                data: generateRandomData(30, 100, 500),
+                borderColor: '#2ecc71',
+                backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              tooltip: {
+                mode: 'index',
+                intersect: false,
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: 'rgba(0, 0, 0, 0.05)'
                 }
-              });
-            } else {
-              dailyFieldsHtml += "<li>No daily analytics data found.</li>";
+              },
+              x: {
+                grid: {
+                  display: false
+                }
+              }
             }
-          } catch (e) {
-            dailyFieldsHtml += "<li>Cannot access daily analytics (Permission Denied)</li>";
           }
+        });
 
-          // Render all stats as numbers in the list
-          let statsHtml = "";
-          Object.entries(stats).forEach(([key, value]) => {
-            statsHtml += `<li>${key}: ${value}</li>`;
-          });
-          analyticsList.innerHTML = statsHtml + dailyFieldsHtml;
+        // User Distribution Chart (Doughnut/Pie Chart)
+        const userDistributionCtx = document.getElementById('userDistributionChart').getContext('2d');
+        const userDistributionChart = new Chart(userDistributionCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Desktop', 'Mobile', 'Tablet'],
+            datasets: [{
+              data: [58, 35, 7],
+              backgroundColor: [
+                'rgba(52, 152, 219, 0.8)',
+                'rgba(46, 204, 113, 0.8)',
+                'rgba(155, 89, 182, 0.8)'
+              ],
+              borderColor: [
+                'rgba(52, 152, 219, 1)',
+                'rgba(46, 204, 113, 1)',
+                'rgba(155, 89, 182, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+              }
+            }
+          }
+        });
 
-          noDataMessage.classList.add("hidden");
-        } catch (error) {
-          displayError("Error fetching analytics: " + error.message);
-          analyticsList.innerHTML = "";
-          noDataMessage.classList.remove("hidden");
+        // Performance Metrics Chart (Bar Chart)
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        const performanceChart = new Chart(performanceCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Page Load', 'API Response', 'Database Query', 'Processing', 'Rendering'],
+            datasets: [{
+              label: 'Average Time (ms)',
+              data: [320, 145, 98, 215, 178],
+              backgroundColor: 'rgba(230, 126, 34, 0.8)',
+              borderColor: 'rgba(230, 126, 34, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Time (ms)'
+                },
+                grid: {
+                  color: 'rgba(0, 0, 0, 0.05)'
+                }
+              },
+              x: {
+                grid: {
+                  display: false
+                }
+              }
+            }
+          }
+        });
+
+        // Subscription Types Chart (Pie Chart)
+        const subscriptionCtx = document.getElementById('subscriptionChart').getContext('2d');
+        const subscriptionChart = new Chart(subscriptionCtx, {
+          type: 'pie',
+          data: {
+            labels: ['Free', 'Basic', 'Pro', 'Enterprise'],
+            datasets: [{
+              data: [45, 28, 18, 9],
+              backgroundColor: [
+                'rgba(241, 196, 15, 0.8)',
+                'rgba(52, 152, 219, 0.8)',
+                'rgba(46, 204, 113, 0.8)',
+                'rgba(155, 89, 182, 0.8)'
+              ],
+              borderColor: [
+                'rgba(241, 196, 15, 1)',
+                'rgba(52, 152, 219, 1)',
+                'rgba(46, 204, 113, 1)',
+                'rgba(155, 89, 182, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+              }
+            }
+          }
+        });
+      }
+
+      function updateCharts(timeframe) {
+        // In a real implementation, you would fetch new data
+        // For now, we'll just update with new random data
+        
+        // Get number of days based on timeframe
+        let days;
+        switch(timeframe) {
+          case '7d': days = 7; break;
+          case '30d': days = 30; break;
+          case '3m': days = 90; break;
+          case '6m': days = 180; break;
+          case '1y': days = 365; break;
+          default: days = 30;
         }
+        
+        // Update user activity chart
+        const activityChart = Chart.getChart('activityChart');
+        if (activityChart) {
+          activityChart.data.labels = generateDateLabels(days);
+          activityChart.data.datasets[0].data = generateRandomData(days, 2000, 3500);
+          activityChart.data.datasets[1].data = generateRandomData(days, 100, 500);
+          activityChart.update();
+        }
+      }
+
+      // Helper function to generate date labels
+      function generateDateLabels(days) {
+        const labels = [];
+        const today = new Date();
+        
+        for (let i = days - 1; i >= 0; i--) {
+          const date = new Date(today);
+          date.setDate(today.getDate() - i);
+          labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        }
+        
+        return labels;
+      }
+
+      // Helper function to generate random data
+      function generateRandomData(count, min, max) {
+        const data = [];
+        for (let i = 0; i < count; i++) {
+          data.push(Math.floor(Math.random() * (max - min + 1)) + min);
+        }
+        return data;
+      }
+
+      // Draw a simplified world map
+      function drawWorldMap() {
+        const regions = [
+          { id: 'na', name: 'North America', path: 'M200,120 L300,120 L350,200 L250,280 L150,250 Z', users: 5243 },
+          { id: 'sa', name: 'South America', path: 'M250,280 L300,380 L250,450 L200,380 Z', users: 698 },
+          { id: 'eu', name: 'Europe', path: 'M450,120 L550,100 L580,180 L450,200 Z', users: 3892 },
+          { id: 'af', name: 'Africa', path: 'M450,200 L550,200 L600,350 L450,350 Z', users: 261 },
+          { id: 'as', name: 'Asia', path: 'M580,180 L800,150 L850,300 L600,350 L580,180 Z', users: 2453 },
+          { id: 'au', name: 'Australia', path: 'M800,350 L900,320 L850,420 L750,400 Z', users: 950 }
+        ];
+
+        // Draw regions
+        const regionsGroup = document.getElementById('regions');
+        regions.forEach(region => {
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', region.path);
+          path.setAttribute('class', 'region');
+          path.setAttribute('id', region.id);
+          path.setAttribute('data-name', region.name);
+          path.setAttribute('data-users', region.users);
+          
+          // Add tooltip behavior
+          path.addEventListener('mouseover', (e) => {
+            const name = e.target.getAttribute('data-name');
+            const users = e.target.getAttribute('data-users');
+            showTooltip(name, users, e.clientX, e.clientY);
+          });
+          
+          path.addEventListener('mouseout', () => {
+            hideTooltip();
+          });
+          
+          regionsGroup.appendChild(path);
+        });
+
+        // Add user data points
+        const dataPoints = [
+          { x: 270, y: 150, size: 12 }, // North America
+          { x: 520, y: 140, size: 10 }, // Europe
+          { x: 700, y: 220, size: 8 }, // Asia
+          { x: 250, y: 350, size: 6 }, // South America
+          { x: 500, y: 270, size: 5 }, // Africa
+          { x: 830, y: 380, size: 7 }  // Australia
+        ];
+
+        const markersGroup = document.getElementById('markers');
+        dataPoints.forEach(point => {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', point.x);
+          circle.setAttribute('cy', point.y);
+          circle.setAttribute('r', point.size / 2);
+          circle.setAttribute('class', 'region-marker');
+          markersGroup.appendChild(circle);
+        });
+      }
+
+      // Tooltip functions (simplified)
+      function showTooltip(name, users, x, y) {
+        // In a real implementation, you would show a tooltip
+        console.log(`${name}: ${users} users`);
+      }
+
+      function hideTooltip() {
+        // Hide tooltip
       }
     });
   </script>
+
 </body>
+
 </html>
