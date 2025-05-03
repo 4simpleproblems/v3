@@ -1,4 +1,6 @@
-// Firebase configuration
+// Updated Firebase configuration and initialization
+
+// Your Firebase project configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCE8iictKO9DxGiB5YolWq5ZOfVBdqgwaI",
   authDomain: "sp-v2-899a3.firebaseapp.com",
@@ -9,60 +11,53 @@ const firebaseConfig = {
   measurementId: "G-Q1N35C57EV"
 };
 
-// Initialize Firebase when the document is ready
-document.addEventListener('DOMContentLoaded', () => {
-  try {
-    // Check if Firebase is loaded from the SDK scripts
-    if (typeof firebase === 'undefined') {
-        console.error('Firebase SDK not loaded. Check your script tags in the HTML.');
-        return; // Stop execution if Firebase object is not available
-    }
+// Initialize Firebase (check for existing app)
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+  console.log("Firebase initialized successfully");
+} else {
+  console.log("Firebase already initialized");
+}
 
-    // Initialize Firebase if it hasn't been initialized yet
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-      console.log("Firebase initialized successfully");
-    } else {
-      console.log("Firebase already initialized");
-    }
+// Initialize and expose Firebase services globally
+// Authentication
+if (firebase.auth) {
+  window.auth = firebase.auth();
+} else {
+  console.error('Firebase Auth SDK not loaded.');
+}
 
-    // Auth and Firestore references (attach to window for global access)
-    // Check if auth and firestore modules are loaded
-    if (typeof firebase.auth === 'undefined') {
-         console.error('Firebase Auth SDK not loaded.');
-    } else {
-         window.auth = firebase.auth();
-    }
+// Firestore
+if (firebase.firestore) {
+  window.db = firebase.firestore();
+} else {
+  console.error('Firebase Firestore SDK not loaded.');
+}
 
-    if (typeof firebase.firestore === 'undefined') {
-        console.error('Firebase Firestore SDK not loaded.');
-    } else {
-         window.db = firebase.firestore();
-    }
+// Storage
+if (firebase.storage) {
+  window.storage = firebase.storage();
+} else {
+  console.warn('Firebase Storage SDK not loaded.');
+}
 
+// Analytics
+if (firebase.analytics) {
+  window.analytics = firebase.analytics();
+} else {
+  console.warn('Firebase Analytics SDK not loaded.');
+}
 
-    // Set up Google Auth Provider
-    if (window.auth) { // Only set up provider if auth is available
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
-        googleProvider.addScope('profile');
-        googleProvider.addScope('email');
-        googleProvider.setCustomParameters({
-          prompt: 'select_account'
-        });
-        window.googleProvider = googleProvider;
+// Set up Google Auth Provider
+if (window.auth) {
+  const googleProvider = new firebase.auth.GoogleAuthProvider();
+  googleProvider.addScope('profile');
+  googleProvider.addScope('email');
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
+  window.googleProvider = googleProvider;
 
-        // Set persistence to LOCAL (keep user signed in)
-        window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-          .then(() => {
-            console.log("Auth persistence set to LOCAL");
-          })
-          .catch(error => {
-            console.error("Auth persistence error:", error);
-          });
-    }
-
-
-  } catch (error) {
-    console.error("Firebase initialization failed:", error);
-  }
-});
+  // Set persistence to LOCAL
+  window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .then(() => console.log("Auth persistence set to LOCAL"))
+    .catch(error => console.error("Auth persistence error:", error));
+}
