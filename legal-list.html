@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | Movie List</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        :root {
+            --dark-bg: #1a1a1a;
+            --darker-bg: #0d0d0d;
+            --light-text: #f0f0f0;
+            --light-gray: #e0e0e0;
+            --tile-height: 180px; /* Shorter height */
+        }
+
+        body {
+            background-color: var(--light-gray);
+            color: var(--dark-bg);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        main.container {
+            max-width: 1400px; /* Wider container */
+            margin: 2rem auto;
+            padding: 0 2rem;
+            flex: 1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem 0;
+            color: #333333;
+        }
+
+        /* Navigation bar styling using darker background */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            background-color: var(--darker-bg);
+            color: var(--light-text);
+            border-bottom: 1px solid var(--darker-bg);
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        /* Basic button styles ensuring correct height via padding/font-size */
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            line-height: normal;
+            cursor: pointer;
+            text-align: center;
+            border: 2px solid transparent;
+            font-weight: 500;
+            transition: none !important;
+        }
+        /* Secondary button style (copied from index.html) */
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--light-text);
+            border-color: var(--light-text);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Dashboard grid layout - modified for wider tiles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Changed to 2 columns instead of 3 */
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .dashboard-tile {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem;
+            text-decoration: none;
+            color: var(--dark-bg);
+            overflow: hidden;
+            height: var(--tile-height);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--light-gray);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+        }
+        .dashboard-tile .tile-content {
+            position: relative;
+            z-index: 2;
+        }
+        .dashboard-tile .tile-content h3 {
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        .dashboard-tile .tile-content p {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        .dashboard-tile .tile-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 3px solid rgba(0, 0, 0, 0.08);
+            border-radius: 22px;
+            z-index: 1;
+            transition: border-color 0.3s ease;
+        }
+        .dashboard-tile:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        .dashboard-tile:hover .tile-frame {
+            border-color: var(--dark-bg);
+        }
+
+        /* Page title */
+        .page-title {
+            font-size: 2.2rem;
+            margin: 2rem 0;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="dashboard.html" class="btn secondary">Back to Dashboard</a>
+            <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1 class="page-title">Movie List</h1>
+        <h1 class="hidden" id="authNotice">Please login to access your movie list</h1>
+
+        <div class="dashboard-grid" id="dashboardGrid">
+            <a href="privacy.html" class="dashboard-tile">
+                <div class="tile-content">
+                    <h3>Privacy Policy</h3>
+                    <p>The privacy policy for collecting data, for improvement of this website.</p>
+                </div>
+                <div class="tile-frame"></div>
+            </a>
+ 
+            <a href="terms.html" class="dashboard-tile">
+                <div class="tile-content">
+                    <h3>Terms of Service</h3>
+                    <p>The terms of the service provided by the use of this website.</p>
+                </div>
+                <div class="tile-frame"></div>
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2025 4SP</p>
+    </footer>
+
+    <script>
+        // Authentication state management
+        function handleAuthState(user) {
+            const authNotice = document.getElementById('authNotice');
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            const logoutBtn = document.getElementById('logoutBtn');
+
+            if (user) {
+                authNotice.classList.add('hidden');
+                dashboardGrid.classList.remove('hidden');
+                if (logoutBtn) logoutBtn.classList.remove('hidden');
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Initialize Firebase authentication and set up logout functionality
+        function initAuth() {
+            try {
+                const auth = firebase.auth();
+
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', (e) => {
+                        e.preventDefault(); // Prevent any default link behavior
+                        auth.signOut().then(() => {
+                            window.location.href = 'index.html';
+                        }).catch(error => {
+                            console.error("Logout error:", error);
+                        });
+                    });
+                } else {
+                    console.error("Logout button not found!");
+                }
+
+                auth.onAuthStateChanged(user => {
+                    handleAuthState(user);
+                });
+
+            } catch (error) {
+                console.error("Auth initialization error:", error);
+                window.location.href = 'index.html';
+            }
+        }
+
+        if (typeof firebase !== 'undefined') {
+            document.addEventListener('DOMContentLoaded', initAuth);
+        } else {
+            console.error("Firebase SDK not loaded.");
+            document.addEventListener('DOMContentLoaded', () => {
+                const notice = document.getElementById('authNotice');
+                if (notice) {
+                    notice.textContent = 'Error loading application components. Please try again later.';
+                    notice.classList.remove('hidden');
+                }
+                const grid = document.getElementById('dashboardGrid');
+                if (grid) grid.classList.add('hidden');
+            });
+        }
+    </script>
+</body>
+</html>
