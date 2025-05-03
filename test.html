@@ -84,6 +84,13 @@
             border-color: var(--light-text);
         }
 
+        /* Tips button style */
+        .btn.tips {
+            background-color: #3498db;
+            color: var(--light-text);
+            border-color: #2980b9;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -154,71 +161,131 @@
             border-color: #ccc;
         }
 
-        /* ─── Tips Popup Styles ───────────────────────────────────────────────── */
-        .tips-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .tips-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: calc(100% + 0.5rem);
-            background-color: var(--darker-bg);
-            border: 2px solid var(--light-text);
-            padding: 1rem;
-            border-radius: 30px;
-            color: var(--light-text);
-            z-index: 100;
-            min-width: 220px;
-            animation-duration: 0.3s;
-            animation-fill-mode: forwards;
-        }
-        .tips-content.fade-in {
-            display: block;
-            animation-name: fadeIn;
-        }
-        .tips-content.fade-out {
-            display: block;
-            animation-name: fadeOut;
-        }
-
-        /* Menu fade animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translateY(0); }
-            to   { opacity: 0; transform: translateY(-20px); }
-        }
-
-        /* Overlay for tips popup */
-        .overlay {
+        /* Tips Modal Styling */
+        .modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 50;
+            z-index: 100;
         }
-        .overlay.fade-in {
-            display: block;
-            animation: fadeInOverlay 0.3s ease forwards;
+
+        .modal-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            animation: fadeIn 0.3s ease-out;
         }
-        .overlay.fade-out {
-            display: block;
-            animation: fadeOutOverlay 0.3s ease forwards;
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--light-text);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 85%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease-out;
         }
-        @keyframes fadeInOverlay {
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--light-gray);
+            padding-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--dark-bg);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--dark-bg);
+            padding: 0.5rem;
+            border-radius: 50%;
+            line-height: 0.7;
+            transition: background-color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background-color: var(--light-gray);
+        }
+
+        .tips-list {
+            margin-bottom: 1.5rem;
+        }
+
+        .tip-item {
+            display: flex;
+            margin-bottom: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .tip-icon {
+            background-color: #3498db;
+            color: white;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+
+        .tip-content h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+        }
+
+        .tip-content p {
+            margin: 0;
+            color: #555;
+        }
+
+        .kbd {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            display: inline-block;
+            font-family: monospace;
+            font-size: 0.9em;
+            padding: 0.1em 0.6em;
+            margin: 0 0.2em;
+        }
+
+        @keyframes fadeIn {
             from { opacity: 0; }
-            to   { opacity: 1; }
+            to { opacity: 1; }
         }
-        @keyframes fadeOutOverlay {
-            from { opacity: 1; }
-            to   { opacity: 0; }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to { 
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
         }
     </style>
 </head>
@@ -226,18 +293,7 @@
     <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons">
-            <!-- Tips dropdown -->
-            <div class="tips-dropdown">
-                <button id="tipsBtn" class="btn secondary tips-button">Tips</button>
-                <div id="tipsMenu" class="tips-content">
-                    <div class="keyboard-shortcuts">
-                        <p><strong>Keyboard Shortcuts:</strong></p>
-                        <p>Ctrl + Shift + X: Redirect to Dashboard from any proxy page</p>
-                        <p>Shift + C: Mute & clear all sounds (Soundboard)</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Log Out -->
+            <button class="btn tips" id="tipsBtn">Tips & Shortcuts</button>
             <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
         </div>
     </nav>
@@ -245,7 +301,7 @@
     <main class="container">
         <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
 
-        <div class="dashboard-grid" id="dashboardGrid"><div class="dashboard-grid" id="dashboardGrid">
+        <div class="dashboard-grid" id="dashboardGrid">
             <a href="soundboard.html" class="dashboard-tile">
                 <div class="tile-content">
                     <h3>Open Soundboard</h3>
@@ -354,12 +410,43 @@
         </div>
     </main>
 
+    <!-- Tips Modal -->
+    <div id="tipsModal" class="modal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Keyboard Shortcuts</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="tips-list">
+                <div class="tip-item">
+                    <div class="tip-icon">1</div>
+                    <div class="tip-content">
+                        <h3>Quick Dashboard Access</h3>
+                        <p>Press <span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">X</span> on any proxy website to instantly redirect to the dashboard.</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-icon">2</div>
+                    <div class="tip-content">
+                        <h3>Clear Soundboard</h3>
+                        <p>Press <span class="kbd">Shift</span> + <span class="kbd">C</span> in the soundboard to instantly mute and stop all playing sounds.</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-icon">3</div>
+                    <div class="tip-content">
+                        <h3>Options Menu</h3>
+                        <p>Click the Options button in the soundboard to access additional features like auto-clicker and sound overlay.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <p>© 2025 4SP</p>
     </footer>
-
-    <!-- Overlay for Tips popup -->
-    <div class="overlay" id="tipsOverlay"></div>
 
     <script>
         // Authentication state management
@@ -370,97 +457,106 @@
             const analyticsTile = document.getElementById('analyticsTile');
             const editProfileTile = document.getElementById('editProfileTile');
             const subscriptionsTile = document.getElementById('subscriptionsTile');
-            const adminEmail = '4simpleproblems@gmail.com';
+            const adminEmail = '4simpleproblems@gmail.com'; // Replace with your admin email
 
             if (user) {
                 authNotice.classList.add('hidden');
                 dashboardGrid.classList.remove('hidden');
                 if (logoutBtn) logoutBtn.classList.remove('hidden');
 
+                // Check if user is admin
                 if (user.email === adminEmail) {
                     analyticsTile.classList.remove('hidden');
-                    editProfileTile.classList.remove('hidden');
-                    subscriptionsTile.classList.remove('hidden');
+                    editProfileTile?.classList.remove('hidden');
+                    subscriptionsTile?.classList.remove('hidden');
                 } else {
                     analyticsTile.classList.add('hidden');
-                    editProfileTile.classList.add('hidden');
-                    subscriptionsTile.classList.add('hidden');
+                    editProfileTile?.classList.add('hidden');
+                    subscriptionsTile?.classList.add('hidden');
                 }
             } else {
                 window.location.href = 'index.html';
             }
         }
 
-        // Initialize Firebase authentication and logout
+        // Initialize Firebase authentication and set up logout functionality
         function initAuth() {
             try {
                 const auth = firebase.auth();
+
                 const logoutBtn = document.getElementById('logoutBtn');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
+                        e.preventDefault(); // Prevent any default link behavior
                         auth.signOut().then(() => {
                             window.location.href = 'index.html';
-                        }).catch(console.error);
+                        }).catch(error => {
+                            console.error("Logout error:", error);
+                        });
                     });
+                } else {
+                    console.error("Logout button not found!");
                 }
-                auth.onAuthStateChanged(handleAuthState);
+
+                auth.onAuthStateChanged(user => {
+                    handleAuthState(user);
+                });
+
             } catch (error) {
-                console.error(error);
+                console.error("Auth initialization error:", error);
                 window.location.href = 'index.html';
             }
         }
-        if (typeof firebase !== 'undefined') {
-            document.addEventListener('DOMContentLoaded', initAuth);
-        } else {
-            document.addEventListener('DOMContentLoaded', () => {
-                const notice = document.getElementById('authNotice');
-                const grid = document.getElementById('dashboardGrid');
-                if (notice) {
-                    notice.textContent = 'Error loading application components. Please try again later.';
-                    notice.classList.remove('hidden');
+
+        // Tips modal functionality
+        function initTipsModal() {
+            const tipsBtn = document.getElementById('tipsBtn');
+            const tipsModal = document.getElementById('tipsModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const modalOverlay = document.getElementById('modalOverlay');
+
+            // Open modal
+            tipsBtn.addEventListener('click', () => {
+                tipsModal.style.display = 'block';
+            });
+
+            // Close modal when clicking the close button
+            closeModalBtn.addEventListener('click', () => {
+                tipsModal.style.display = 'none';
+            });
+
+            // Close modal when clicking outside the modal content
+            modalOverlay.addEventListener('click', () => {
+                tipsModal.style.display = 'none';
+            });
+
+            // Close modal when pressing Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && tipsModal.style.display === 'block') {
+                    tipsModal.style.display = 'none';
                 }
-                if (grid) grid.classList.add('hidden');
             });
         }
 
-        // ─── Tips popup toggle logic ───────────────────────────────────────────
-        const tipsBtn     = document.getElementById('tipsBtn');
-        const tipsMenu    = document.getElementById('tipsMenu');
-        const tipsOverlay = document.getElementById('tipsOverlay');
-        let tipsOpen      = false;
-
-        function openTips() {
-            tipsOpen = true;
-            tipsOverlay.style.display = 'block';
-            tipsOverlay.classList.add('fade-in');
-            tipsMenu.classList.remove('fade-out');
-            tipsMenu.classList.add('fade-in');
-        }
-
-        function closeTips() {
-            tipsOpen = false;
-            tipsOverlay.classList.remove('fade-in');
-            tipsOverlay.classList.add('fade-out');
-            tipsMenu.classList.remove('fade-in');
-            tipsMenu.classList.add('fade-out');
-            setTimeout(() => {
-                tipsOverlay.style.display = 'none';
-                tipsMenu.style.display   = 'none';
-                tipsMenu.classList.remove('fade-out');
-                tipsOverlay.classList.remove('fade-out');
-            }, 300);
-        }
-
-        tipsBtn.addEventListener('click', e => {
-            e.stopPropagation();
-            tipsOpen ? closeTips() : openTips();
-        });
-        tipsOverlay.addEventListener('click', closeTips);
-        document.addEventListener('click', e => {
-            if (tipsOpen && !tipsMenu.contains(e.target) && e.target !== tipsBtn) {
-                closeTips();
+        // Initialize both auth and tips modal functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof firebase !== 'undefined') {
+                initAuth();
+            } else {
+                console.error("Firebase SDK not loaded.");
+                document.addEventListener('DOMContentLoaded', () => {
+                    const notice = document.getElementById('authNotice');
+                    if (notice) {
+                        notice.textContent = 'Error loading application components. Please try again later.';
+                        notice.classList.remove('hidden');
+                    }
+                    const grid = document.getElementById('dashboardGrid');
+                    if (grid) grid.classList.add('hidden');
+                });
             }
+            
+            // Initialize tips modal regardless of Firebase status
+            initTipsModal();
         });
     </script>
 </body>
