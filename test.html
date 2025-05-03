@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -218,6 +218,23 @@
 
     .password-form button.delete:hover {
       background-color: #cc0000;
+    }
+    
+    /* Google re-authentication button style */
+    #googleReauthButton {
+      background-color: #3498db;
+      color: var(--light-text);
+      border: none;
+      border-radius: var(--pill-radius);
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    #googleReauthButton:hover {
+      background-color: #2980b9;
     }
 
     /* Styles for the modal/popup */
@@ -497,7 +514,7 @@
       <!-- Google users see re-auth button -->
       <div id="googleDeleteContent" style="display: none;">
         <p>Since you're signed in with Google, you'll need to re-authenticate to delete your account.</p>
-        <button id="googleReauthButton" class="delete">Re-authenticate with Google</button>
+        <button id="googleReauthButton">Re-authenticate with Google</button>
       </div>
     </div>
   </div>
