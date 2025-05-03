@@ -277,6 +277,11 @@
             to { opacity: 1; }
         }
 
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
         @keyframes slideIn {
             from { 
                 opacity: 0;
@@ -286,6 +291,25 @@
                 opacity: 1;
                 transform: translate(-50%, -50%);
             }
+        }
+
+        @keyframes slideOut {
+            from { 
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+            to { 
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+        }
+
+        .modal.fade-out .modal-overlay {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+
+        .modal.fade-out .modal-content {
+            animation: slideOut 0.3s ease-out forwards;
         }
     </style>
 </head>
@@ -517,23 +541,34 @@
 
             // Open modal
             tipsBtn.addEventListener('click', () => {
+                tipsModal.classList.remove('fade-out'); // Remove fade-out class if present
                 tipsModal.style.display = 'block';
             });
 
+            // Function to close modal with fade effect
+            function closeModalWithFade() {
+                tipsModal.classList.add('fade-out');
+                // Wait for animation to complete before hiding completely
+                setTimeout(() => {
+                    tipsModal.style.display = 'none';
+                    tipsModal.classList.remove('fade-out');
+                }, 300); // Match this to animation duration
+            }
+
             // Close modal when clicking the close button
             closeModalBtn.addEventListener('click', () => {
-                tipsModal.style.display = 'none';
+                closeModalWithFade();
             });
 
             // Close modal when clicking outside the modal content
             modalOverlay.addEventListener('click', () => {
-                tipsModal.style.display = 'none';
+                closeModalWithFade();
             });
 
             // Close modal when pressing Escape key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && tipsModal.style.display === 'block') {
-                    tipsModal.style.display = 'none';
+                    closeModalWithFade();
                 }
             });
         }
