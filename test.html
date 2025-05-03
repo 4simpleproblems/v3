@@ -2,288 +2,298 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4SP | Interstellar</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap"
-    rel="stylesheet"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>4SP | Create Playlist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <style>
-    :root {
-      --dark-bg: #0a0a0a;
-      --darker-bg: #070707;
-      --light-text: #f0f0f0;
-      --accent-color: #f0f0f0;
-      --button-height: 19px; /* Define button height as a variable */
-    }
-
+    /* Root and base */
     * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
       font-family: 'Roboto Mono', monospace;
-      font-weight: bold;
+      box-sizing: border-box;
     }
+    :root {
+      --black: #000;
+      --white: #fff;
+      --light-gray: #f0f0f0;
+      --dark-gray: #0d0d0d;
+      --pill-radius: 50px;
+      --card-radius: 24px;
 
+      /* Button color customization variables */
+      --btn-bg-unselected: #f9f9f9;
+      --btn-border-unselected: #bbb;
+      --btn-color-unselected: #555;
+
+      /* Selected button colors - changed to blue */
+      --btn-bg-selected: #007bff; /* A common primary blue */
+      --btn-border-selected: #0056b3; /* A darker blue border */
+      --btn-color-selected: #fff; /* White text for contrast */
+
+      /* Selected button hover darker shade - changed to blue */
+      --btn-bg-selected-hover: #0056b3; /* Darker shade of blue */
+      --btn-border-selected-hover: #004085; /* Even darker blue */
+      --btn-color-selected-hover: #fff; /* White text */
+    }
     body {
+      background: var(--light-gray);
       margin: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-      overflow: hidden;
+      color: var(--black);
     }
-
-    /* Navbar styles */
-    .navbar-container {
-      position: relative; /* Needed for absolute positioning of button */
-      transition: transform 0.3s ease; /* Animate vertical position */
-      overflow: visible; /* Allow the absolutely positioned button to be visible outside */
-      height: auto; /* Height is determined by content */
-      z-index: 100;
-      flex-shrink: 0; /* Prevent navbar from shrinking in flex column */
-    }
-
-    .navbar-container.hidden {
-      /* Translate up by 100% of its height */
-      /* The button, positioned relative to the bottom, will end up at the top */
-      transform: translateY(-100%);
-    }
-
+    /* Navbar - exactly same as before */
     .navbar {
-      background-color: var(--darker-bg);
-      color: var(--light-text);
-      padding: 0.75rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid var(--accent-color);
-      width: 100%; /* Ensure navbar takes full width of container */
+      padding: 1rem 2rem;
+      background: var(--dark-gray);
+      color: var(--white);
     }
-
-    .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-
     .nav-buttons {
       display: flex;
       gap: 1rem;
     }
-
     .btn {
-      padding: 0.5rem 0.5rem;
-      border-radius: 50px;
-      font-size: 0.9rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--pill-radius);
+      background: transparent;
+      border: 2px solid var(--white);
+      color: var(--white);
       cursor: pointer;
-      transition: all 0.2s ease;
-      text-decoration: none;
-      display: inline-flex;
+      font-weight: 500;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn.big {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+    }
+    .btn:hover {
+      background: var(--white);
+      color: var(--dark-gray);
+    }
+    /* Container */
+    .form-container {
+      max-width: 1000px; /* wider to fit buttons */
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--white);
+      border-radius: var(--card-radius);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--dark-gray);
+      border-radius: var(--pill-radius);
+      font-size: 1rem;
+      background: var(--white);
+      resize: vertical;
+    }
+    /* Sound sections */
+    .sound-section {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .sound-section h2 {
+      margin-bottom: 0.5rem;
+      font-size: 1.25rem;
+    }
+    /* Sound buttons container using flex-wrap */
+    .soundButtonsContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      padding: 1rem 0;
+      gap: 1.5rem;
+      width: 100%;
+    }
+    /* Sound button styles with customizable colors */
+    .sound-btn {
+      min-width: 100px;
+      height: 100px;
+      border-radius: var(--pill-radius);
+      background-color: var(--btn-bg-unselected);
+      color: var(--btn-color-unselected);
+      border: 2px solid var(--btn-border-unselected);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: bold;
+      padding: 0 1.5rem;
+      transition:
+        background-color 0.3s ease,
+        transform 0.1s ease,
+        color 0.3s ease,
+        border-color 0.3s ease;
+      display: flex;
       align-items: center;
       justify-content: center;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 250px;
+      white-space: nowrap; /* prevent word breaks */
+      overflow-wrap: normal;
+      word-break: normal;
     }
-
-    .btn.secondary {
-      background-color: transparent;
-      color: var(--light-text);
-      border: 2px solid var(--light-text);
+    .sound-btn.short-text {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      padding: 0.5rem;
+      white-space: nowrap;
     }
-
-    .btn.secondary:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+    .sound-btn.selected {
+      background-color: var(--btn-bg-selected);
+      border-color: var(--btn-border-selected);
+      color: var(--btn-color-selected);
     }
-
-    /* Toggle button with arrow */
-    .toggle-btn {
-      position: absolute; /* Position relative to the navbar-container */
-      right: 20px;
-      bottom: 0; /* Align button's bottom edge with container's bottom edge */
-      width: 32px;
-      height: var(--button-height);
-      background-color: var(--darker-bg);
-      border: 2px solid var(--accent-color);
-      border-top: none; /* Creates the tab shape */
-      border-radius: 0 0 16px 16px; /* Rounds the bottom corners */
-      cursor: pointer;
-      z-index: 101; /* Ensure it's above the navbar (100) */
-      /* Translate down by its own height so its top edge aligns with container's bottom */
-      transform: translateY(var(--button-height));
-      transition: transform 0.2s ease; /* Hover effect */
+    /* Hover for unselected buttons */
+    .sound-btn:hover {
+      background-color: var(--light-gray);
     }
-
-    .toggle-btn:hover {
-      /* Move down slightly more on hover */
-      transform: translateY(calc(var(--button-height) - 1px));
+    /* Hover for selected buttons - darker shade for readability */
+    .sound-btn.selected:hover {
+      background-color: var(--btn-bg-selected-hover);
+      border-color: var(--btn-border-selected-hover);
+      color: var(--btn-color-selected-hover);
     }
-
-    /* Arrow indicator using CSS */
-    .toggle-btn::after {
-      content: '';
-      position: absolute;
-      top: 4px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-bottom: 7px solid var(--accent-color);
-      transition: transform 0.3s ease;
+    .sound-btn:active {
+      transform: scale(0.95);
     }
-
-    .toggle-btn.collapsed::after {
-      border-bottom: none;
-      border-top: 6px solid var(--accent-color);
-      top: 6px;
-      transform: translateX(-50%) rotate(180deg);
-    }
-
-    /* Iframe container */
-    .iframe-container {
-      flex: 1; /* Take up remaining vertical space */
-      width: 100%;
-      position: relative;
-      /* Adjust margin-top to compensate for navbar space, controlled by JS */
-      transition: margin-top 0.3s ease; /* Smooth margin change */
-    }
-
-    .iframe-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
+    /* Primary button */
+    .btn.primary {
+      background: var(--dark-gray);
+      color: var(--white);
       border: none;
     }
-
-    /* Status message styles */
-    .status-message {
-      display: none;
-      padding: 0.3rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      background-color: rgba(0, 0, 0, 0.6);
-      text-align: center;
+    /* Notification */
+    #notification {
       position: fixed;
-      bottom: 20px;
+      bottom: 1rem;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 200; /* Highest z-index */
-      color: var(--light-text);
-      pointer-events: none;
-    }
-
-    .status-message.shown {
-      display: block;
-      animation: fadeInOut 2s ease forwards;
-    }
-
-    @keyframes fadeInOut {
-      0% {
-        opacity: 0;
-      }
-      20% {
-        opacity: 1;
-      }
-      80% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-      }
+      background: var(--dark-gray);
+      color: var(--white);
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--pill-radius);
+      display: none;
+      z-index: 1000;
     }
   </style>
 </head>
 <body>
-  <div class="navbar-container" id="navbarContainer">
-    <nav class="navbar">
-      <div class="logo">4SP</div>
-      <div class="nav-buttons">
-        <a href="dashboard.html" class="btn secondary">Dashboard</a>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <button id="dashboardBtn" class="btn big">Dashboard</button>
+      <button id="logoutBtn" class="btn big">Log Out</button>
+    </div>
+  </nav>
+
+  <main class="form-container">
+    <h1>Create Playlist</h1>
+    <form id="createForm">
+      <div id="normalSection" class="sound-section">
+        <h2>Normal Sounds</h2>
+        <div id="normalGrid" class="soundButtonsContainer"></div>
+        <h2>Explicit Sounds</h2>
+        <div id="explicitGrid" class="soundButtonsContainer"></div>
       </div>
-    </nav>
-    <button class="toggle-btn" id="toggleNavbar" aria-label="Toggle Navigation"></button>
-  </div>
 
-  <div class="status-message" id="statusMessage"></div>
+      <label for="name">Playlist Name</label>
+      <input type="text" id="name" required maxlength="25" />
+      <label for="description">Description</label>
+      <textarea id="description" required maxlength="85"></textarea>
+      <button type="submit" class="btn primary">Create Playlist</button>
+    </form>
+  </main>
 
-  <div class="iframe-container" id="iframeContainer">
-    <iframe
-      src="https://4sp.global.ssl.fastly.net/"
-      allowfullscreen
-      id="mainIframe"
-    ></iframe>
-  </div>
+  <div id="notification">Your playlist has been created! <a href="playlist.html" style="color:#fff; text-decoration:underline;">View Playlists</a></div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const toggleButton = document.getElementById('toggleNavbar');
-      const navbarContainer = document.getElementById('navbarContainer');
-      const statusMessage = document.getElementById('statusMessage');
-      const iframeContainer = document.getElementById('iframeContainer');
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const normalGrid = document.getElementById('normalGrid');
+    const explicitGrid = document.getElementById('explicitGrid');
+    const form = document.getElementById('createForm');
+    const notification = document.getElementById('notification');
+    const dashBtn = document.getElementById('dashboardBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    let selections = [];
 
-      let navbarVisible = true;
+    auth.onAuthStateChanged(user => {
+      if (!user) return window.location.href = 'index.html';
+      loadSoundButtons();
+    });
 
-      function showStatus(message) {
-        statusMessage.textContent = message;
-        statusMessage.classList.add('shown');
-        setTimeout(() => {
-          statusMessage.classList.remove('shown');
-        }, 2000);
+    dashBtn.addEventListener('click', () => window.location.href = 'dashboard.html');
+    logoutBtn.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'index.html'));
+
+    function loadSoundButtons() {
+      fetch('SoundboardSN.json')
+        .then(res => res.json())
+        .then(data => {
+          (data.NormalSounds || []).forEach(file => createBtn('NormalSounds', file, normalGrid));
+          (data.ExplicitSounds || []).forEach(file => createBtn('ExplicitSounds', file, explicitGrid));
+        });
+    }
+
+    function createBtn(folder, fileName, container) {
+      const label = fileName.replace(/\.(mp3|wav)$/i, '').replace(/_/g, ' ');
+      const btn = document.createElement('div');
+      btn.className = 'sound-btn';
+      btn.textContent = label;
+      if (label.length < 8) btn.classList.add('short-text');
+      btn.addEventListener('click', () => toggleSelection({folder, fileName, label}, btn));
+      container.appendChild(btn);
+    }
+
+    function toggleSelection(item, btn) {
+      const idx = selections.findIndex(i => i.fileName === item.fileName && i.folder === item.folder);
+      if (idx > -1) {
+        selections.splice(idx, 1);
+        btn.classList.remove('selected');
+      } else {
+        selections.push(item);
+        btn.classList.add('selected');
       }
+    }
 
-      // Function to adjust iframe margin
-      function adjustIframeMargin() {
-          // Get the current height of the navbar container
-          const currentNavbarHeight = navbarContainer.offsetHeight;
-          if (navbarVisible) {
-               iframeContainer.style.marginTop = '0'; // Iframe is below the navbar
-          } else {
-               // Iframe moves up by the full height of the navbar when it's hidden
-               iframeContainer.style.marginTop = `-${currentNavbarHeight}px`;
-          }
-      }
-
-      function toggleNavbarVisibility() {
-        navbarVisible = !navbarVisible;
-
-        if (navbarVisible) {
-          // Show navbar
-          navbarContainer.classList.remove('hidden');
-          toggleButton.classList.remove('collapsed');
-          showStatus('Navigation bar visible');
-          // Adjust iframe margin immediately for smooth layout change
-          adjustIframeMargin();
-        } else {
-          // Hide navbar
-           // Adjust iframe margin immediately before hiding starts
-           adjustIframeMargin();
-           // Add hidden class to trigger the transform animation
-          navbarContainer.classList.add('hidden');
-          toggleButton.classList.add('collapsed');
-          showStatus('Navigation bar hidden');
-        }
-        // The CSS transition on navbarContainer's transform will handle the visual movement
-      }
-
-      toggleButton.addEventListener('click', toggleNavbarVisibility);
-
-      // Initial adjustment of iframe margin on page load
-      // Use a small timeout to allow initial rendering and accurate height calculation
-      setTimeout(adjustIframeMargin, 50);
-
-
-      document.addEventListener('keydown', function (event) {
-        if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'x') {
-          window.location.href = 'dashboard.html';
-        }
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const desc = document.getElementById('description').value.trim();
+      const type = 'normal'; // always normal
+      const user = auth.currentUser;
+      const snap = await db.collection('playlists')
+        .where('owner', '==', user.uid).where('type', '==', 'normal').get();
+      if (snap.size >= 10) return alert('Max 10 normal playlists');
+      await db.collection('playlists').add({
+        owner: user.uid,
+        type,
+        name,
+        description: desc,
+        items: selections,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
-
-      document.addEventListener('keydown', function (event) {
-        if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'n') {
-          toggleNavbarVisibility();
-          event.preventDefault(); // Prevent default browser action for the shortcut
-        }
-      });
+      notification.style.display = 'block';
+      setTimeout(() => notification.style.display = 'none', 5000);
+      form.reset();
+      selections = [];
+      // Remove selected style from buttons
+      document.querySelectorAll('.sound-btn.selected').forEach(b => b.classList.remove('selected'));
     });
   </script>
 </body>
