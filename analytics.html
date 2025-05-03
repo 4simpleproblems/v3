@@ -258,60 +258,6 @@
       color: var(--darker-bg);
     }
 
-    .map-container {
-      background-color: var(--card-bg);
-      border-radius: 20px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--card-border);
-      height: 400px;
-    }
-
-    .map-container h2 {
-      margin-top: 0;
-      margin-bottom: 1.5rem;
-      font-size: 1.3rem;
-      color: var(--darker-bg);
-    }
-
-    .map-placeholder {
-      height: 300px;
-      background-color: var(--light-gray);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--info-text);
-      font-style: italic;
-    }
-
-    @media (max-width: 992px) {
-      .stats-overview {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      
-      .charts-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 576px) {
-      .stats-overview {
-        grid-template-columns: 1fr;
-      }
-      
-      .analytics-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-      }
-
-      .date-filter {
-        width: 100%;
-        justify-content: space-between;
-      }
-    }
-
     .loading {
       text-align: center;
       padding: 2rem;
@@ -319,47 +265,38 @@
       color: var(--info-text);
     }
 
-    .world-map-container {
-      width: 100%;
-      height: 300px;
-      background-color: var(--light-gray);
-      border-radius: 10px;
-      overflow: hidden;
-      position: relative;
+    .error-card {
+      background-color: #ffe6e6;
+      border-color: #ffb3b3;
+      color: #cc0000;
+    }
+    .error-message {
+      padding: 2rem;
+      text-align: center;
+      font-weight: bold;
     }
 
-    .world-map {
-      width: 100%;
-      height: 100%;
-      background-color: #e8f4f8;
-      position: relative;
+    @media (max-width: 992px) {
+      .stats-overview {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
     }
-
-    .region {
-      fill: #a8d5e5;
-      stroke: #fff;
-      stroke-width: 0.5;
-      cursor: pointer;
-      transition: fill 0.3s ease;
-    }
-
-    .region:hover {
-      fill: var(--chart-blue);
-    }
-
-    .region-marker {
-      fill: var(--chart-red);
-      stroke: white;
-      stroke-width: 1;
-    }
-
-    .data-point {
-      width: 8px;
-      height: 8px;
-      background-color: var(--primary-red);
-      border-radius: 50%;
-      position: absolute;
-      transform: translate(-50%, -50%);
+    @media (max-width: 576px) {
+      .stats-overview {
+        grid-template-columns: 1fr;
+      }
+      .analytics-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      .date-filter {
+        width: 100%;
+        justify-content: space-between;
+      }
     }
   </style>
 </head>
@@ -381,7 +318,7 @@
       <h1>Platform Analytics</h1>
       <div class="date-filter">
         <label for="timeframe">Timeframe:</label>
-        <select id="timeframe">
+        <select id="timeframe" disabled>
           <option value="7d">Last 7 Days</option>
           <option value="30d" selected>Last 30 Days</option>
           <option value="3m">Last 3 Months</option>
@@ -391,746 +328,65 @@
       </div>
     </div>
 
+    <div id="errorContainer" class="error-message" style="display: none;"></div>
+
     <div class="stats-overview">
-      <div class="stat-card" data-stat="totalUsers">
+      <div class="stat-card error-card">
         <div class="stat-label">Total Users</div>
-        <div class="stat-value">Loading...</div>
-        <div class="trend up">+0.0% ↑</div>
+        <div class="stat-value">N/A</div>
+        <div class="trend down">Data unavailable</div>
       </div>
-      <div class="stat-card" data-stat="activeSessions">
+      <div class="stat-card error-card">
         <div class="stat-label">Active Sessions</div>
-        <div class="stat-value">Loading...</div>
-        <div class="trend up">+0.0% ↑</div>
+        <div class="stat-value">N/A</div>
+        <div class="trend down">Data unavailable</div>
       </div>
-      <div class="stat-card" data-stat="avgSessionTime">
+      <div class="stat-card error-card">
         <div class="stat-label">Avg. Session Time</div>
-        <div class="stat-value">Loading...</div>
-        <div class="trend up">+0.0% ↑</div>
+        <div class="stat-value">N/A</div>
+        <div class="trend down">Data unavailable</div>
       </div>
-      <div class="stat-card" data-stat="conversionRate">
+      <div class="stat-card error-card">
         <div class="stat-label">Conversion Rate</div>
-        <div class="stat-value">Loading...</div>
-        <div class="trend down">+0.0% ↑</div>
+        <div class="stat-value">N/A</div>
+        <div class="trend down">Data unavailable</div>
       </div>
     </div>
 
     <div class="charts-grid">
-      <div class="chart-container">
+      <div class="chart-container error-card">
         <h2>User Activity Over Time</h2>
-        <div class="chart-wrapper">
-          <canvas id="activityChart"></canvas>
+        <div class="chart-wrapper" id="activityChartError">
+          Failed to load activity data
         </div>
       </div>
-      <div class="chart-container">
+      <div class="chart-container error-card">
         <h2>User Distribution</h2>
-        <div class="chart-wrapper">
-          <canvas id="userDistributionChart"></canvas>
+        <div class="chart-wrapper" id="userDistributionChartError">
+          Failed to load distribution data
         </div>
       </div>
     </div>
 
-    <div class="chart-container">
+    <div class="chart-container error-card">
       <h2>Performance Metrics</h2>
-      <div class="chart-wrapper">
-        <canvas id="performanceChart"></canvas>
+      <div class="chart-wrapper" id="performanceChartError">
+        Failed to load performance data
       </div>
     </div>
 
     <div class="data-table">
       <h2>Top Performing Regions</h2>
-      <table id="regionsTable">
-        <thead>
-          <tr>
-            <th>Region</th>
-            <th>Users</th>
-            <th>Sessions</th>
-            <th>Avg. Time</th>
-            <th>Conversion</th>
-          </tr>
-        </thead>
+      <div class="error-message">
+        Unable to retrieve region data: Data unavailable or permission denied.
+      </div>
+    </div>
   </main>
 
   <footer>
     <p>© 2025 4SP</p>
   </footer>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Firebase Initialization
-      const auth = firebase.auth();
-
-      // Check Authentication Status
-      auth.onAuthStateChanged(user => {
-        if (!user) {
-          // Redirect to login page if user is not logged in
-          window.location.href = 'login.html';
-        } else {
-          // User is logged in, load the analytics data
-          loadAnalyticsData();
-        }
-      });
-
-      // Logout functionality
-      const logoutBtn = document.getElementById('logoutBtn');
-      logoutBtn.addEventListener('click', async () => {
-        try {
-          await auth.signOut();
-          window.location.href = 'index.html';
-        } catch (error) {
-          console.error('Error signing out: ', error);
-          alert('Failed to log out. Please try again.');
-        }
-      });
-
-      // Initialize charts and load mock data
-      function loadAnalyticsData() {
-        // Time filter change event
-        const timeframeSelect = document.getElementById('timeframe');
-        timeframeSelect.addEventListener('change', () => {
-          updateCharts(timeframeSelect.value);
-          // You would normally fetch new data based on timeframe here
-        });
-
-        // Initialize charts with default timeframe (30d)
-        initializeCharts('30d');
-        drawWorldMap();
-      }
-
-      async function initializeCharts(timeframe) {
-        try {
-          // Get Firestore reference
-          const db = firebase.firestore();
-          let startDate;
-          const now = new Date();
-          
-          // Calculate start date based on timeframe
-          switch(timeframe) {
-            case '7d': 
-              startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-              break;
-            case '30d': 
-              startDate = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-              break;
-            case '3m': 
-              startDate = new Date(now.getTime() - (90 * 24 * 60 * 60 * 1000));
-              break;
-            case '6m': 
-              startDate = new Date(now.getTime() - (180 * 24 * 60 * 60 * 1000));
-              break;
-            case '1y': 
-              startDate = new Date(now.getTime() - (365 * 24 * 60 * 60 * 1000));
-              break;
-            default: 
-              startDate = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-          }
-
-          // Fetch analytics data from Firestore
-          const analyticsRef = db.collection('analytics');
-          
-          // Get user activity data
-          const userActivitySnapshot = await analyticsRef
-            .doc('userActivity')
-            .collection('daily')
-            .where('date', '>=', startDate)
-            .orderBy('date')
-            .get();
-          
-          // Process user activity data
-          const dates = [];
-          const activeUsers = [];
-          const newRegistrations = [];
-          
-          userActivitySnapshot.forEach(doc => {
-            const data = doc.data();
-            dates.push(data.date.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-            activeUsers.push(data.activeUsers || 0);
-            newRegistrations.push(data.newRegistrations || 0);
-          });
-          
-          // If no data is found, use the last 30 days with placeholder data
-          if (dates.length === 0) {
-            const dateLabels = generateDateLabels(30);
-            dates.push(...dateLabels);
-            
-            // Generate consistent placeholder data
-            for (let i = 0; i < 30; i++) {
-              // Use deterministic values based on date
-              const dayOfMonth = new Date(dateLabels[i]).getDate();
-              activeUsers.push(2000 + (dayOfMonth * 50));
-              newRegistrations.push(100 + (dayOfMonth * 10));
-            }
-          }
-
-          // Get user device distribution data
-          const deviceDistributionSnapshot = await analyticsRef.doc('deviceDistribution').get();
-          let deviceData = { desktop: 0, mobile: 0, tablet: 0 };
-          
-          if (deviceDistributionSnapshot.exists) {
-            deviceData = deviceDistributionSnapshot.data();
-          } else {
-            // Use placeholder data with slight variance by day of month
-            const dayOfMonth = now.getDate();
-            deviceData = { 
-              desktop: 55 + (dayOfMonth % 10), 
-              mobile: 35 - (dayOfMonth % 5), 
-              tablet: 10 - (dayOfMonth % 5)
-            };
-          }
-
-          // Get performance metrics data
-          const performanceSnapshot = await analyticsRef.doc('performance').get();
-          let performanceData = {
-            pageLoad: 0,
-            apiResponse: 0,
-            databaseQuery: 0,
-            processing: 0,
-            rendering: 0
-          };
-          
-          if (performanceSnapshot.exists) {
-            performanceData = performanceSnapshot.data();
-          } else {
-            // Use placeholder data with variance based on hour of day
-            const hourOfDay = now.getHours();
-            performanceData = {
-              pageLoad: 300 + (hourOfDay * 2),
-              apiResponse: 140 + (hourOfDay),
-              databaseQuery: 95 + (hourOfDay * 0.5),
-              processing: 200 + (hourOfDay * 1.5),
-              rendering: 170 + (hourOfDay)
-            };
-          }
-
-          // User Activity Chart (Line Chart)
-          const activityCtx = document.getElementById('activityChart').getContext('2d');
-          const activityChart = new Chart(activityCtx, {
-            type: 'line',
-            data: {
-              labels: dates,
-              datasets: [
-                {
-                  label: 'Daily Active Users',
-                  data: activeUsers,
-                  borderColor: '#3498db',
-                  backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                  borderWidth: 2,
-                  tension: 0.3,
-                  fill: true
-                },
-                {
-                  label: 'New Registrations',
-                  data: newRegistrations,
-                  borderColor: '#2ecc71',
-                  backgroundColor: 'rgba(46, 204, 113, 0.1)',
-                  borderWidth: 2,
-                  tension: 0.3,
-                  fill: true
-                }
-              ]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  position: 'top',
-                },
-                tooltip: {
-                  mode: 'index',
-                  intersect: false,
-                }
-              },
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  grid: {
-                    color: 'rgba(0, 0, 0, 0.05)'
-                  }
-                },
-                x: {
-                  grid: {
-                    display: false
-                  }
-                }
-              }
-            }
-          });
-
-          // User Distribution Chart (Doughnut/Pie Chart)
-          const userDistributionCtx = document.getElementById('userDistributionChart').getContext('2d');
-          const userDistributionChart = new Chart(userDistributionCtx, {
-            type: 'doughnut',
-            data: {
-              labels: ['Desktop', 'Mobile', 'Tablet'],
-              datasets: [{
-                data: [deviceData.desktop, deviceData.mobile, deviceData.tablet],
-                backgroundColor: [
-                  'rgba(52, 152, 219, 0.8)',
-                  'rgba(46, 204, 113, 0.8)',
-                  'rgba(155, 89, 182, 0.8)'
-                ],
-                borderColor: [
-                  'rgba(52, 152, 219, 1)',
-                  'rgba(46, 204, 113, 1)',
-                  'rgba(155, 89, 182, 1)'
-                ],
-                borderWidth: 1
-              }]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  position: 'bottom',
-                }
-              }
-            }
-          });
-
-          // Performance Metrics Chart (Bar Chart)
-          const performanceCtx = document.getElementById('performanceChart').getContext('2d');
-          const performanceChart = new Chart(performanceCtx, {
-            type: 'bar',
-            data: {
-              labels: ['Page Load', 'API Response', 'Database Query', 'Processing', 'Rendering'],
-              datasets: [{
-                label: 'Average Time (ms)',
-                data: [
-                  performanceData.pageLoad, 
-                  performanceData.apiResponse, 
-                  performanceData.databaseQuery, 
-                  performanceData.processing, 
-                  performanceData.rendering
-                ],
-                backgroundColor: 'rgba(230, 126, 34, 0.8)',
-                borderColor: 'rgba(230, 126, 34, 1)',
-                borderWidth: 1
-              }]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  display: false
-                }
-              },
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  title: {
-                    display: true,
-                    text: 'Time (ms)'
-                  },
-                  grid: {
-                    color: 'rgba(0, 0, 0, 0.05)'
-                  }
-                },
-                x: {
-                  grid: {
-                    display: false
-                  }
-                }
-              }
-            }
-          });
-          
-          // Update stats overview with real data
-          updateStatsOverview();
-
-        } catch (error) {
-          console.error("Error loading charts data:", error);
-          // Fallback to placeholder data if there's an error
-          showPlaceholderData();
-        }
-      }
-      
-      // Function to update the stats overview section with real data
-      async function updateStatsOverview() {
-        try {
-          const db = firebase.firestore();
-          const statsSnapshot = await db.collection('analytics').doc('stats').get();
-          
-          if (statsSnapshot.exists) {
-            const stats = statsSnapshot.data();
-            
-            // Update DOM elements with real data
-            document.querySelector('[data-stat="totalUsers"] .stat-value').textContent = 
-              formatNumber(stats.totalUsers || 0);
-            document.querySelector('[data-stat="activeSessions"] .stat-value').textContent = 
-              formatNumber(stats.activeSessions || 0);
-            document.querySelector('[data-stat="avgSessionTime"] .stat-value').textContent = 
-              formatTime(stats.avgSessionTime || 0);
-            document.querySelector('[data-stat="conversionRate"] .stat-value').textContent = 
-              `${(stats.conversionRate || 0).toFixed(1)}%`;
-            
-            // Update trends
-            updateTrendIndicator('totalUsers', stats.totalUsersTrend || 0);
-            updateTrendIndicator('activeSessions', stats.activeSessionsTrend || 0);
-            updateTrendIndicator('avgSessionTime', stats.avgSessionTimeTrend || 0);
-            updateTrendIndicator('conversionRate', stats.conversionRateTrend || 0);
-          } else {
-            // Use placeholder data with real-time variations
-            const now = new Date();
-            const hourOfDay = now.getHours();
-            const dayOfMonth = now.getDate();
-            
-            const placeholderStats = {
-              totalUsers: 10000 + (dayOfMonth * 100),
-              totalUsersTrend: 12.5 + (hourOfDay * 0.1),
-              activeSessions: 3000 + (hourOfDay * 50),
-              activeSessionsTrend: 8.7 - (hourOfDay * 0.05),
-              avgSessionTime: 15 * 60 + (dayOfMonth * 10),
-              avgSessionTimeTrend: 3.2 - (hourOfDay * 0.1),
-              conversionRate: 8.5 + (dayOfMonth * 0.05),
-              conversionRateTrend: -1.4 - (hourOfDay * 0.03)
-            };
-            
-            document.querySelector('[data-stat="totalUsers"] .stat-value').textContent = 
-              formatNumber(placeholderStats.totalUsers);
-            document.querySelector('[data-stat="activeSessions"] .stat-value').textContent = 
-              formatNumber(placeholderStats.activeSessions);
-            document.querySelector('[data-stat="avgSessionTime"] .stat-value').textContent = 
-              formatTime(placeholderStats.avgSessionTime);
-            document.querySelector('[data-stat="conversionRate"] .stat-value').textContent = 
-              `${placeholderStats.conversionRate.toFixed(1)}%`;
-            
-            updateTrendIndicator('totalUsers', placeholderStats.totalUsersTrend);
-            updateTrendIndicator('activeSessions', placeholderStats.activeSessionsTrend);
-            updateTrendIndicator('avgSessionTime', placeholderStats.avgSessionTimeTrend);
-            updateTrendIndicator('conversionRate', placeholderStats.conversionRateTrend);
-          }
-          
-          // Update table data
-          await updateRegionsTable();
-          
-        } catch (error) {
-          console.error("Error updating stats overview:", error);
-        }
-      }
-      
-      // Update trend indicators
-      function updateTrendIndicator(statId, trendValue) {
-        const trendElement = document.querySelector(`[data-stat="${statId}"] .trend`);
-        if (trendValue >= 0) {
-          trendElement.textContent = `+${trendValue.toFixed(1)}% ↑`;
-          trendElement.className = 'trend up';
-        } else {
-          trendElement.textContent = `${trendValue.toFixed(1)}% ↓`;
-          trendElement.className = 'trend down';
-        }
-      }
-      
-      // Format number with commas
-      function formatNumber(number) {
-        return new Intl.NumberFormat().format(number);
-      }
-      
-      // Format seconds to MM:SS
-      function formatTime(seconds) {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = Math.floor(seconds % 60);
-        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-      }
-      
-      // Update regions table with actual data
-      async function updateRegionsTable() {
-        try {
-          const db = firebase.firestore();
-          const regionsSnapshot = await db.collection('analytics').doc('regions').collection('data').get();
-          
-          if (!regionsSnapshot.empty) {
-            const tableBody = document.querySelector('#regionsTable tbody');
-            tableBody.innerHTML = ''; // Clear existing rows
-            
-            regionsSnapshot.forEach(doc => {
-              const region = doc.data();
-              const row = document.createElement('tr');
-              
-              row.innerHTML = `
-                <td>${region.name}</td>
-                <td>${formatNumber(region.users || 0)}</td>
-                <td>${formatNumber(region.sessions || 0)}</td>
-                <td>${formatTime(region.avgTime || 0)}</td>
-                <td>${(region.conversion || 0).toFixed(1)}%</td>
-              `;
-              
-              tableBody.appendChild(row);
-            });
-          }
-        } catch (error) {
-          console.error("Error updating regions table:", error);
-        }
-      }
-      
-      // Fallback to placeholder data if Firestore data isn't available
-      function showPlaceholderData() {
-        const activityCtx = document.getElementById('activityChart').getContext('2d');
-        const activityChart = new Chart(activityCtx, {
-          type: 'line',
-          data: {
-            labels: generateDateLabels(30),
-            datasets: [
-              {
-                label: 'Daily Active Users',
-                data: generateDeterministicData(30, 2000, 3500),
-                borderColor: '#3498db',
-                backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                borderWidth: 2,
-                tension: 0.3,
-                fill: true
-              },
-              {
-                label: 'New Registrations',
-                data: generateDeterministicData(30, 100, 500),
-                borderColor: '#2ecc71',
-                backgroundColor: 'rgba(46, 204, 113, 0.1)',
-                borderWidth: 2,
-                tension: 0.3,
-                fill: true
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'top',
-              },
-              tooltip: {
-                mode: 'index',
-                intersect: false,
-              }
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-                grid: {
-                  color: 'rgba(0, 0, 0, 0.05)'
-                }
-              },
-              x: {
-                grid: {
-                  display: false
-                }
-              }
-            }
-          }
-        });
-
-        const userDistributionCtx = document.getElementById('userDistributionChart').getContext('2d');
-        const userDistributionChart = new Chart(userDistributionCtx, {
-          type: 'doughnut',
-          data: {
-            labels: ['Desktop', 'Mobile', 'Tablet'],
-            datasets: [{
-              data: [58, 35, 7],
-              backgroundColor: [
-                'rgba(52, 152, 219, 0.8)',
-                'rgba(46, 204, 113, 0.8)',
-                'rgba(155, 89, 182, 0.8)'
-              ],
-              borderColor: [
-                'rgba(52, 152, 219, 1)',
-                'rgba(46, 204, 113, 1)',
-                'rgba(155, 89, 182, 1)'
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'bottom',
-              }
-            }
-          }
-        });
-
-        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
-        const performanceChart = new Chart(performanceCtx, {
-          type: 'bar',
-          data: {
-            labels: ['Page Load', 'API Response', 'Database Query', 'Processing', 'Rendering'],
-            datasets: [{
-              label: 'Average Time (ms)',
-              data: [320, 145, 98, 215, 178],
-              backgroundColor: 'rgba(230, 126, 34, 0.8)',
-              borderColor: 'rgba(230, 126, 34, 1)',
-              borderWidth: 1
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                display: false
-              }
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: 'Time (ms)'
-                },
-                grid: {
-                  color: 'rgba(0, 0, 0, 0.05)'
-                }
-              },
-              x: {
-                grid: {
-                  display: false
-                }
-              }
-            }
-          }
-        });
-      }
-      
-      // Generate deterministic data based on date
-      function generateDeterministicData(count, min, max) {
-        const data = [];
-        const today = new Date();
-        const range = max - min;
-        
-        for (let i = 0; i < count; i++) {
-          const date = new Date(today);
-          date.setDate(today.getDate() - (count - 1) + i);
-          
-          // Use date components to generate deterministic but varying values
-          const dayValue = date.getDate() / 31; // 0-1 range based on day of month
-          const monthValue = date.getMonth() / 12; // 0-1 range based on month
-          
-          // Create a value that varies but is deterministic for the same date
-          const value = Math.floor(min + (range * (0.5 + Math.sin(dayValue * 10) * 0.3 + Math.cos(monthValue * 8) * 0.2)));
-          data.push(value);
-        }
-        
-        return data;
-      }
-
-      function updateCharts(timeframe) {
-        // In a real implementation, you would fetch new data
-        // For now, we'll just update with new random data
-        
-        // Get number of days based on timeframe
-        let days;
-        switch(timeframe) {
-          case '7d': days = 7; break;
-          case '30d': days = 30; break;
-          case '3m': days = 90; break;
-          case '6m': days = 180; break;
-          case '1y': days = 365; break;
-          default: days = 30;
-        }
-        
-        // Update user activity chart
-        const activityChart = Chart.getChart('activityChart');
-        if (activityChart) {
-          activityChart.data.labels = generateDateLabels(days);
-          activityChart.data.datasets[0].data = generateRandomData(days, 2000, 3500);
-          activityChart.data.datasets[1].data = generateRandomData(days, 100, 500);
-          activityChart.update();
-        }
-      }
-
-      // Helper function to generate date labels
-      function generateDateLabels(days) {
-        const labels = [];
-        const today = new Date();
-        
-        for (let i = days - 1; i >= 0; i--) {
-          const date = new Date(today);
-          date.setDate(today.getDate() - i);
-          labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-        }
-        
-        return labels;
-      }
-
-      // Helper function to generate random data
-      function generateRandomData(count, min, max) {
-        const data = [];
-        for (let i = 0; i < count; i++) {
-          data.push(Math.floor(Math.random() * (max - min + 1)) + min);
-        }
-        return data;
-      }
-
-      // Draw a simplified world map
-      function drawWorldMap() {
-        const regions = [
-          { id: 'na', name: 'North America', path: 'M200,120 L300,120 L350,200 L250,280 L150,250 Z', users: 5243 },
-          { id: 'sa', name: 'South America', path: 'M250,280 L300,380 L250,450 L200,380 Z', users: 698 },
-          { id: 'eu', name: 'Europe', path: 'M450,120 L550,100 L580,180 L450,200 Z', users: 3892 },
-          { id: 'af', name: 'Africa', path: 'M450,200 L550,200 L600,350 L450,350 Z', users: 261 },
-          { id: 'as', name: 'Asia', path: 'M580,180 L800,150 L850,300 L600,350 L580,180 Z', users: 2453 },
-          { id: 'au', name: 'Australia', path: 'M800,350 L900,320 L850,420 L750,400 Z', users: 950 }
-        ];
-
-        // Draw regions
-        const regionsGroup = document.getElementById('regions');
-        regions.forEach(region => {
-          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-          path.setAttribute('d', region.path);
-          path.setAttribute('class', 'region');
-          path.setAttribute('id', region.id);
-          path.setAttribute('data-name', region.name);
-          path.setAttribute('data-users', region.users);
-          
-          // Add tooltip behavior
-          path.addEventListener('mouseover', (e) => {
-            const name = e.target.getAttribute('data-name');
-            const users = e.target.getAttribute('data-users');
-            showTooltip(name, users, e.clientX, e.clientY);
-          });
-          
-          path.addEventListener('mouseout', () => {
-            hideTooltip();
-          });
-          
-          regionsGroup.appendChild(path);
-        });
-
-        // Add user data points
-        const dataPoints = [
-          { x: 270, y: 150, size: 12 }, // North America
-          { x: 520, y: 140, size: 10 }, // Europe
-          { x: 700, y: 220, size: 8 }, // Asia
-          { x: 250, y: 350, size: 6 }, // South America
-          { x: 500, y: 270, size: 5 }, // Africa
-          { x: 830, y: 380, size: 7 }  // Australia
-        ];
-
-        const markersGroup = document.getElementById('markers');
-        dataPoints.forEach(point => {
-          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-          circle.setAttribute('cx', point.x);
-          circle.setAttribute('cy', point.y);
-          circle.setAttribute('r', point.size / 2);
-          circle.setAttribute('class', 'region-marker');
-          markersGroup.appendChild(circle);
-        });
-      }
-
-      // Tooltip functions (simplified)
-      function showTooltip(name, users, x, y) {
-        // In a real implementation, you would show a tooltip
-        console.log(`${name}: ${users} users`);
-      }
-
-      function hideTooltip() {
-        // Hide tooltip
-      }
-    });
-  </script>
-
+  <script src="analytics.js"></script>
 </body>
-
 </html>
