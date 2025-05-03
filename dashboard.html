@@ -84,6 +84,13 @@
             border-color: var(--light-text);
         }
 
+        /* Tips button style */
+        .btn.tips {
+            background-color: #3498db;
+            color: var(--light-text);
+            border-color: #2980b9;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -153,12 +160,164 @@
             background-color: #f9f9f9;
             border-color: #ccc;
         }
+
+        /* Tips Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--light-text);
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 85%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--light-gray);
+            padding-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--dark-bg);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--dark-bg);
+            padding: 0.5rem;
+            border-radius: 50%;
+            line-height: 0.7;
+            transition: background-color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background-color: var(--light-gray);
+        }
+
+        .tips-list {
+            margin-bottom: 1.5rem;
+        }
+
+        .tip-item {
+            display: flex;
+            margin-bottom: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .tip-icon {
+            background-color: #3498db;
+            color: white;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+
+        .tip-content h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+        }
+
+        .tip-content p {
+            margin: 0;
+            color: #555;
+        }
+
+        .kbd {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            display: inline-block;
+            font-family: monospace;
+            font-size: 0.9em;
+            padding: 0.1em 0.6em;
+            margin: 0 0.2em;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to { 
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        @keyframes slideOut {
+            from { 
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+            to { 
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+        }
+
+        .modal.fade-out .modal-overlay {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+
+        .modal.fade-out .modal-content {
+            animation: slideOut 0.3s ease-out forwards;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons">
+            <button class="btn tips" id="tipsBtn">Tips & Shortcuts</button>
             <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
         </div>
     </nav>
@@ -275,6 +434,40 @@
         </div>
     </main>
 
+    <!-- Tips Modal -->
+    <div id="tipsModal" class="modal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Keyboard Shortcuts</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="tips-list">
+                <div class="tip-item">
+                    <div class="tip-icon">1</div>
+                    <div class="tip-content">
+                        <h3>Quick Dashboard Access</h3>
+                        <p>Press <span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">X</span> on any proxy website to instantly redirect to the dashboard.</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-icon">2</div>
+                    <div class="tip-content">
+                        <h3>Clear Soundboard</h3>
+                        <p>Press <span class="kbd">Shift</span> + <span class="kbd">C</span> in the soundboard to instantly mute and stop all playing sounds.</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-icon">3</div>
+                    <div class="tip-content">
+                        <h3>Options Menu</h3>
+                        <p>Click the Options button in the soundboard to access additional features like auto-clicker and sound overlay.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <p>© 2025 4SP</p>
     </footer>
@@ -298,12 +491,12 @@
                 // Check if user is admin
                 if (user.email === adminEmail) {
                     analyticsTile.classList.remove('hidden');
-                    editProfileTile.classList.remove('hidden');
-                    subscriptionsTile.classList.remove('hidden');
+                    editProfileTile?.classList.remove('hidden');
+                    subscriptionsTile?.classList.remove('hidden');
                 } else {
                     analyticsTile.classList.add('hidden');
-                    editProfileTile.classList.add('hidden');
-                    subscriptionsTile.classList.add('hidden');
+                    editProfileTile?.classList.add('hidden');
+                    subscriptionsTile?.classList.add('hidden');
                 }
             } else {
                 window.location.href = 'index.html';
@@ -339,20 +532,67 @@
             }
         }
 
-        if (typeof firebase !== 'undefined') {
-            document.addEventListener('DOMContentLoaded', initAuth);
-        } else {
-            console.error("Firebase SDK not loaded.");
-            document.addEventListener('DOMContentLoaded', () => {
-                const notice = document.getElementById('authNotice');
-                if (notice) {
-                    notice.textContent = 'Error loading application components. Please try again later.';
-                    notice.classList.remove('hidden');
+        // Tips modal functionality
+        function initTipsModal() {
+            const tipsBtn = document.getElementById('tipsBtn');
+            const tipsModal = document.getElementById('tipsModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const modalOverlay = document.getElementById('modalOverlay');
+
+            // Open modal
+            tipsBtn.addEventListener('click', () => {
+                tipsModal.classList.remove('fade-out'); // Remove fade-out class if present
+                tipsModal.style.display = 'block';
+            });
+
+            // Function to close modal with fade effect
+            function closeModalWithFade() {
+                tipsModal.classList.add('fade-out');
+                // Wait for animation to complete before hiding completely
+                setTimeout(() => {
+                    tipsModal.style.display = 'none';
+                    tipsModal.classList.remove('fade-out');
+                }, 300); // Match this to animation duration
+            }
+
+            // Close modal when clicking the close button
+            closeModalBtn.addEventListener('click', () => {
+                closeModalWithFade();
+            });
+
+            // Close modal when clicking outside the modal content
+            modalOverlay.addEventListener('click', () => {
+                closeModalWithFade();
+            });
+
+            // Close modal when pressing Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && tipsModal.style.display === 'block') {
+                    closeModalWithFade();
                 }
-                const grid = document.getElementById('dashboardGrid');
-                if (grid) grid.classList.add('hidden');
             });
         }
+
+        // Initialize both auth and tips modal functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof firebase !== 'undefined') {
+                initAuth();
+            } else {
+                console.error("Firebase SDK not loaded.");
+                document.addEventListener('DOMContentLoaded', () => {
+                    const notice = document.getElementById('authNotice');
+                    if (notice) {
+                        notice.textContent = 'Error loading application components. Please try again later.';
+                        notice.classList.remove('hidden');
+                    }
+                    const grid = document.getElementById('dashboardGrid');
+                    if (grid) grid.classList.add('hidden');
+                });
+            }
+            
+            // Initialize tips modal regardless of Firebase status
+            initTipsModal();
+        });
     </script>
 </body>
 </html>
