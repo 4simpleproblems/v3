@@ -1,344 +1,311 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>4SP | Create Playlist</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-  <style>
-    /* Root and base */
-    * {
-      font-family: 'Roboto Mono', monospace;
-      box-sizing: border-box;
-    }
-    :root {
-      --black: #000;
-      --white: #fff;
-      --light-gray: #f0f0f0;
-      --dark-gray: #0d0d0d;
-      --pill-radius: 50px;
-      --card-radius: 24px;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>4SP | Create Playlist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    /* Root and base */
+    * {
+      font-family: 'Roboto Mono', monospace;
+      box-sizing: border-box;
+    }
+    :root {
+      --black: #000;
+      --white: #fff;
+      --light-gray: #f0f0f0;
+      --dark-gray: #0d0d0d;
+      --pill-radius: 50px;
+      --card-radius: 24px;
 
-      /* Button color customization variables */
-      --btn-bg-unselected: #f9f9f9;
-      --btn-border-unselected: #bbb;
-      --btn-color-unselected: #555;
+      /* Button color customization variables */
+      --btn-bg-unselected: #f9f9f9;
+      --btn-border-unselected: #bbb;
+      --btn-color-unselected: #555;
 
-      /* Selected button colors - changed to blue */
-      --btn-bg-selected: #007bff; /* A common primary blue */
-      --btn-border-selected: #0056b3; /* A darker blue border */
-      --btn-color-selected: #fff; /* White text for contrast */
+      //* Selected button colors - changed to blue */
+      --btn-bg-selected: #007bff; /* A common primary blue */
+      --btn-border-selected: #0056b3; /* A darker blue border */
+      --btn-color-selected: #fff; /* White text for contrast */
 
-      /* Selected button hover darker shade - changed to blue */
-      --btn-bg-selected-hover: #0056b3; /* Darker shade of blue */
-      --btn-border-selected-hover: #004085; /* Even darker blue */
-      --btn-color-selected-hover: #fff; /* White text */
-    }
-    body {
-      background: var(--light-gray);
-      margin: 0;
-      color: var(--black);
-    }
-    /* Navbar */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background: var(--dark-gray);
-      color: var(--white);
-    }
-    /* Added back the logo styling */
-    .logo {
-        font-size: 1.8rem;
-        font-weight: 700; /* Makes it bold */
-        letter-spacing: -1.5px;
-    }
-    .nav-buttons {
-      display: flex;
-      gap: 1rem;
-    }
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border-radius: var(--pill-radius);
-      background: transparent;
-      border: 2px solid var(--white);
-      color: var(--white);
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.2s, color 0.2s;
-    }
-    .btn.big {
-      padding: 1rem 2rem;
-      font-size: 1.1rem;
-    }
-    .btn:hover {
-      background: var(--white);
-      color: var(--dark-gray);
-    }
-    /* Container */
-    .form-container {
-      max-width: 1000px; /* wider to fit buttons */
-      margin: 2rem auto;
-      padding: 2rem;
-      background: var(--white);
-      border-radius: var(--card-radius);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    h1 {
-      margin-bottom: 1.5rem;
-    }
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-    }
-    input[type="text"],
-    textarea {
-      width: 100%;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      border: 1px solid var(--dark-gray);
-      border-radius: var(--pill-radius);
-      font-size: 1rem;
-      background: var(--white);
-      resize: vertical;
-    }
-    /* Sound sections */
-    .sound-section {
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-    .sound-section h2 {
-      margin-bottom: 0.5rem;
-      font-size: 1.25rem;
-    }
-    /* Sound buttons container using flex-wrap */
-    .soundButtonsContainer {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-start;
-      padding: 1rem 0;
-      gap: 1.5rem;
-      width: 100%;
-    }
-    /* Sound button styles with customizable colors */
-    .sound-btn {
-      min-width: 100px;
-      height: 100px;
-      border-radius: var(--pill-radius);
-      background-color: var(--btn-bg-unselected);
-      color: var(--btn-color-unselected);
-      border: 2px solid var(--btn-border-unselected);
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: bold;
-      padding: 0 1.5rem;
-      transition:
-        background-color 0.3s ease,
-        transform 0.1s ease,
-        color 0.3s ease,
-        border-color 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      line-height: 1.2;
-      max-width: 250px;
-      white-space: nowrap; /* prevent word breaks */
-      overflow-wrap: normal;
-      word-break: normal;
-    }
-    .sound-btn.short-text {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      padding: 0.5rem;
-      white-space: nowrap;
-    }
-    .sound-btn.selected {
-      background-color: var(--btn-bg-selected);
-      border-color: var(--btn-border-selected);
-      color: var(--btn-color-selected);
-    }
-    /* Hover for unselected buttons */
-    .sound-btn:hover {
-      background-color: var(--light-gray);
-    }
-    /* Hover for selected buttons - darker shade for readability */
-    .sound-btn.selected:hover {
-      background-color: var(--btn-bg-selected-hover);
-      border-color: var(--btn-border-selected-hover);
-      color: var(--btn-color-selected-hover);
-    }
-    .sound-btn:active {
-      transform: scale(0.95);
-    }
-    /* Primary button */
-    .btn.primary {
-      background: var(--dark-gray);
-      color: var(--white);
-      border: none;
-    }
-    /* Notification */
-    #notification {
-      position: fixed;
-      bottom: 1rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--dark-gray);
-      color: var(--white);
-      padding: 0.75rem 1.5rem;
-      border-radius: var(--pill-radius);
-      display: none;
-      z-index: 1000;
-    }
-  </style>
+      /* Selected button hover darker shade - changed to blue */
+      --btn-bg-selected-hover: #0056b3; /* Darker shade of blue */
+      --btn-border-selected-hover: #004085; /* Even darker blue */
+      --btn-color-selected-hover: #fff; /* White text */
+    }
+    body {
+      background: var(--light-gray);
+      margin: 0;
+      color: var(--black);
+    }
+    /* Navbar - exactly same as before */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: var(--dark-gray);
+      color: var(--white);
+    }
+    .nav-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--pill-radius);
+      background: transparent;
+      border: 2px solid var(--white);
+      color: var(--white);
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn.big {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+    }
+    .btn:hover {
+      background: var(--white);
+      color: var(--dark-gray);
+    }
+    /* Container */
+    .form-container {
+      max-width: 1000px; /* wider to fit buttons */
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--white);
+      border-radius: var(--card-radius);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--dark-gray);
+      border-radius: var(--pill-radius);
+      font-size: 1rem;
+      background: var(--white);
+      resize: vertical;
+    }
+    /* Sound sections */
+    .sound-section {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .sound-section h2 {
+      margin-bottom: 0.5rem;
+      font-size: 1.25rem;
+    }
+    /* Sound buttons container using flex-wrap */
+    .soundButtonsContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      padding: 1rem 0;
+      gap: 1.5rem;
+      width: 100%;
+    }
+    /* Sound button styles with customizable colors */
+    .sound-btn {
+      min-width: 100px;
+      height: 100px;
+      border-radius: var(--pill-radius);
+      background-color: var(--btn-bg-unselected);
+      color: var(--btn-color-unselected);
+      border: 2px solid var(--btn-border-unselected);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: bold;
+      padding: 0 1.5rem;
+      transition:
+        background-color 0.3s ease,
+        transform 0.1s ease,
+        color 0.3s ease,
+        border-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 250px;
+      white-space: nowrap; /* prevent word breaks */
+      overflow-wrap: normal;
+      word-break: normal;
+    }
+    .sound-btn.short-text {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      padding: 0.5rem;
+      white-space: nowrap;
+    }
+
+    /* Default selected state (blue background) */
+    .sound-btn.selected {
+      background-color: var(--btn-bg-selected);
+      border-color: var(--btn-border-selected);
+      color: var(--btn-color-selected);
+    }
+
+    /* Ensure selected state is blue when NOT hovered - Added specificity */
+    .sound-btn.selected:not(:hover) {
+      background-color: var(--btn-bg-selected);
+      border-color: var(--btn-border-selected);
+      color: var(--btn-color-selected);
+    }
+
+
+    /* Hover for unselected buttons */
+    .sound-btn:hover {
+      background-color: var(--light-gray);
+    }
+    /* Hover for selected buttons - darker shade for readability */
+    .sound-btn.selected:hover {
+      background-color: var(--btn-bg-selected-hover);
+      border-color: var(--btn-border-selected-hover);
+      color: var(--btn-color-selected-hover);
+    }
+    .sound-btn:active {
+      transform: scale(0.95);
+    }
+    /* Primary button */
+    .btn.primary {
+      background: var(--dark-gray);
+      color: var(--white);
+      border: none;
+    }
+    /* Notification */
+    #notification {
+      position: fixed;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--dark-gray);
+      color: var(--white);
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--pill-radius);
+      display: none;
+      z-index: 1000;
+    }
+  </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <button id="dashboardBtn" class="btn big">Dashboard</button>
-      <button id="logoutBtn" class="btn big">Log Out</button>
-    </div>
-  </nav>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <button id="dashboardBtn" class="btn big">Dashboard</button>
+      <button id="logoutBtn" class="btn big">Log Out</button>
+    </div>
+  </nav>
 
-  <main class="form-container">
-    <h1>Create Playlist</h1>
-    <form id="createForm">
-      <div id="normalSection" class="sound-section">
-        <h2>Normal Sounds</h2>
-        <div id="normalGrid" class="soundButtonsContainer"></div>
-        <h2>Explicit Sounds</h2>
-        <div id="explicitGrid" class="soundButtonsContainer"></div>
-      </div>
+  <main class="form-container">
+    <h1>Create Playlist</h1>
+        <form id="createForm">
+      <div id="normalSection" class="sound-section">
+        <h2>Normal Sounds</h2>
+        <div id="normalGrid" class="soundButtonsContainer"></div>
+        <h2>Explicit Sounds</h2>
+        <div id="explicitGrid" class="soundButtonsContainer"></div>
+      </div>
 
-      <label for="name">Playlist Name</label>
-      <input type="text" id="name" required maxlength="25" />
-      <label for="description">Description</label>
-      <textarea id="description" required maxlength="85"></textarea>
-      <button type="submit" class="btn primary">Create Playlist</button>
-    </form>
-  </main>
+      <label for="name">Playlist Name</label>
+      <input type="text" id="name" required maxlength="25" />
+      <label for="description">Description</label>
+      <textarea id="description" required maxlength="85"></textarea>
+      <button type="submit" class="btn primary">Create Playlist</button>
+    </form>
+  </main>
 
-  <div id="notification">Your playlist has been created! <a href="playlist.html" style="color:#fff; text-decoration:underline;">View Playlists</a></div>
+  <div id="notification">Your playlist has been created! <a href="playlist.html" style="color:#fff; text-decoration:underline;">View Playlists</a></div>
 
-  <script>
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const normalGrid = document.getElementById('normalGrid');
-    const explicitGrid = document.getElementById('explicitGrid');
-    const form = document.getElementById('createForm');
-    const notification = document.getElementById('notification');
-    const dashBtn = document.getElementById('dashboardBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    let selections = [];
+  <script>
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const normalGrid = document.getElementById('normalGrid');
+    const explicitGrid = document.getElementById('explicitGrid');
+    const form = document.getElementById('createForm');
+    const notification = document.getElementById('notification');
+    const dashBtn = document.getElementById('dashboardBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    let selections = [];
 
-    auth.onAuthStateChanged(user => {
-      if (!user) return window.location.href = 'index.html';
-      loadSoundButtons();
-    });
+    auth.onAuthStateChanged(user => {
+      if (!user) return window.location.href = 'index.html';
+      loadSoundButtons();
+    });
 
-    dashBtn.addEventListener('click', () => window.location.href = 'dashboard.html');
-    logoutBtn.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'index.html'));
+    dashBtn.addEventListener('click', () => window.location.href = 'dashboard.html');
+    logoutBtn.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'index.html'));
 
-    function loadSoundButtons() {
-      // IMPORTANT: Ensure SoundboardSN.json is in the correct path relative to test.html
-      fetch('SoundboardSN.json')
-        .then(res => {
-            if (!res.ok) {
-                console.error('Failed to load SoundboardSN.json:', res.status, res.statusText);
-                // Optionally display an error to the user
-                return Promise.reject('Failed to load sounds');
-            }
-            return res.json();
-        })
-        .then(data => {
-          (data.NormalSounds || []).forEach(file => createBtn('NormalSounds', file, normalGrid));
-          (data.ExplicitSounds || []).forEach(file => createBtn('ExplicitSounds', file, explicitGrid));
-        })
-        .catch(error => {
-            console.error("Error fetching or processing sounds:", error);
-            // Handle the error, e.g., display a message
-        });
-    }
+    function loadSoundButtons() {
+      fetch('SoundboardSN.json')
+        .then(res => res.json())
+        .then(data => {
+          (data.NormalSounds || []).forEach(file => createBtn('NormalSounds', file, normalGrid));
+          (data.ExplicitSounds || []).forEach(file => createBtn('ExplicitSounds', file, explicitGrid));
+        });
+    }
 
-    function createBtn(folder, fileName, container) {
-      const label = fileName.replace(/\.(mp3|wav)$/i, '').replace(/_/g, ' ');
-      const btn = document.createElement('div');
-      btn.className = 'sound-btn';
-      btn.textContent = label;
-      if (label.length < 8) btn.classList.add('short-text');
-      btn.addEventListener('click', () => toggleSelection({folder, fileName, label}, btn));
-      container.appendChild(btn);
-    }
+    function createBtn(folder, fileName, container) {
+      const label = fileName.replace(/\.(mp3|wav)$/i, '').replace(/_/g, ' ');
+      const btn = document.createElement('div');
+      btn.className = 'sound-btn';
+      btn.textContent = label;
+      if (label.length < 8) btn.classList.add('short-text');
+      btn.addEventListener('click', () => toggleSelection({folder, fileName, label}, btn));
+      container.appendChild(btn);
+    }
 
-    function toggleSelection(item, btn) {
-      const idx = selections.findIndex(i => i.fileName === item.fileName && i.folder === item.folder);
-      if (idx > -1) {
-        selections.splice(idx, 1);
-        btn.classList.remove('selected');
-      } else {
-        selections.push(item);
-        btn.classList.add('selected');
-      }
-    }
+    function toggleSelection(item, btn) {
+      const idx = selections.findIndex(i => i.fileName === item.fileName && i.folder === item.folder);
+      if (idx > -1) {
+        selections.splice(idx, 1);
+        btn.classList.remove('selected');
+      } else {
+        selections.push(item);
+        btn.classList.add('selected');
+      }
+    }
 
-    form.addEventListener('submit', async e => {
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const desc = document.getElementById('description').value.trim();
-      const type = 'normal'; // always normal
-      const user = auth.currentUser;
-
-      if (!user) {
-           alert('You must be logged in to create a playlist.');
-           return;
-      }
-      if (!name) {
-           alert('Playlist name is required.');
-           return;
-      }
-       if (selections.length === 0) {
-           alert('Select at least one sound for your playlist.');
-           return;
-       }
-
-
-      try {
-          const snap = await db.collection('playlists')
-            .where('owner', '==', user.uid).where('type', '==', 'normal').get();
-          if (snap.size >= 10) {
-              alert('You have reached the maximum of 10 normal playlists.');
-              return;
-          }
-
-          await db.collection('playlists').add({
-            owner: user.uid,
-            type,
-            name,
-            description: desc,
-            items: selections,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-
-          notification.style.display = 'block';
-          setTimeout(() => notification.style.display = 'none', 5000);
-          form.reset();
-          selections = [];
-          // Remove selected style from buttons
-          document.querySelectorAll('.sound-btn.selected').forEach(b => b.classList.remove('selected'));
-
-      } catch (error) {
-           console.error("Error creating playlist:", error);
-           alert("An error occurred while creating the playlist. Please try again.");
-      }
-    });
-  </script>
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const desc = document.getElementById('description').value.trim();
+      const type = 'normal'; // always normal
+      const user = auth.currentUser;
+      const snap = await db.collection('playlists')
+        .where('owner', '==', user.uid).where('type', '==', 'normal').get();
+      if (snap.size >= 10) return alert('Max 10 normal playlists');
+      await db.collection('playlists').add({
+        owner: user.uid,
+        type,
+        name,
+        description: desc,
+        items: selections,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      notification.style.display = 'block';
+      setTimeout(() => notification.style.display = 'none', 5000);
+      form.reset();
+      selections = [];
+      // Remove selected style from buttons
+      document.querySelectorAll('.sound-btn.selected').forEach(b => b.classList.remove('selected'));
+    });
+  </script>
 </body>
 </html>
