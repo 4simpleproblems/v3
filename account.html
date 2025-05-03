@@ -180,6 +180,32 @@
       border: 2px solid var(--dark-red);
     }
 
+    .account-buttons button.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .provider-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+      font-weight: 500;
+    }
+
+    .provider-badge.google {
+      background-color: #4285F4;
+      color: white;
+    }
+
+    .provider-badge.email {
+      background-color: var(--dark-bg);
+      color: white;
+    }
+
     /* Modal & Forms */
     /* ... keep unchanged modal styles ... */
 
@@ -192,6 +218,23 @@
 
     .password-form button.delete:hover {
       background-color: #cc0000;
+    }
+    
+    /* Google re-authentication button style */
+    #googleReauthButton {
+      background-color: #3498db;
+      color: var(--light-text);
+      border-radius: var(--pill-radius);
+      border: 3px solid var(#2980b9);
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    #googleReauthButton:hover {
+      background-color: #2980b9;
     }
 
     /* Styles for the modal/popup */
@@ -364,6 +407,19 @@
     #logoutBtn:hover {
       background-color: var(--darker-bg);
     }
+
+    /* Message for Google users who can't change password */
+    .google-auth-message {
+      color: var(--modal-text-color);
+      text-align: center;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .google-auth-message a {
+      color: #4285F4;
+      text-decoration: underline;
+    }
   </style>
 </head>
 
@@ -384,6 +440,7 @@
       <div class="account-info">
         <h2>User Details</h2>
         <p id="userEmail">Email: Loading...</p>
+        <p id="authProvider">Sign-in Method: Loading...</p>
         <p id="creationTime">Created: Loading...</p>
         <div class="additional-info">
           <h3>Additional Information</h3>
@@ -410,21 +467,33 @@
     <div class="modal-content">
       <span class="close">&times;</span>
       <h2>Change Password</h2>
-      <p>Confirm your current password, then enter a new password.</p>
-      <form class="password-form password-confirmation-form" id="confirmPasswordForm">
-        <label for="currentPassword">Current Password:</label>
-        <input type="password" id="currentPassword" required>
-        <button type="submit" class="confirm">Confirm Password</button>
-      </form>
+      
+      <!-- Regular password change flow for email users -->
+      <div id="emailAuthContent">
+        <p>Confirm your current password, then enter a new password.</p>
+        <form class="password-form password-confirmation-form" id="confirmPasswordForm">
+          <label for="currentPassword">Current Password:</label>
+          <input type="password" id="currentPassword" required>
+          <button type="submit" class="confirm">Confirm Password</button>
+        </form>
 
-      <p style="display:none;" id="change-password-message">Now enter your new password!</p>
-      <form class="password-form" id="newPasswordForm" style="display: none;">
-        <label for="newPassword">New Password:</label>
-        <input type="password" id="newPassword" required minlength="6">
-        <label for="confirmNewPassword">Confirm New Password:</label>
-        <input type="password" id="confirmNewPassword" required minlength="6">
-        <button type="submit" class="confirm">Change Password</button>
-      </form>
+        <p style="display:none;" id="change-password-message">Now enter your new password!</p>
+        <form class="password-form" id="newPasswordForm" style="display: none;">
+          <label for="newPassword">New Password:</label>
+          <input type="password" id="newPassword" required minlength="6">
+          <label for="confirmNewPassword">Confirm New Password:</label>
+          <input type="password" id="confirmNewPassword" required minlength="6">
+          <button type="submit" class="confirm">Change Password</button>
+        </form>
+      </div>
+      
+      <!-- Message for Google users -->
+      <div id="googleAuthContent" style="display: none;">
+        <div class="google-auth-message">
+          <p>You're signed in with Google, so your password is managed through your Google account.</p>
+          <p>To change your password, please visit <a href="https://myaccount.google.com/security" target="_blank">Google Account Settings</a>.</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -434,11 +503,19 @@
       <span class="close">&times;</span>
       <h2>Delete Account</h2>
       <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+      
+      <!-- Email auth users see password confirmation -->
       <form class="password-form" id="deleteAccountForm">
-        <label for="deletePassword">Enter Password to Confirm:</label>
+        <label for="deletePassword" id="deletePasswordLabel">Enter Password to Confirm:</label>
         <input type="password" id="deletePassword" required>
         <button type="submit" class="delete">Delete Account</button>
       </form>
+      
+      <!-- Google users see re-auth button -->
+      <div id="googleDeleteContent" style="display: none;">
+        <p>Since you're signed in with Google, you'll need to re-authenticate to delete your account.</p>
+        <button id="googleReauthButton">Re-authenticate with Google</button>
+      </div>
     </div>
   </div>
 
@@ -449,6 +526,7 @@
 
       // Get DOM Elements
       const userEmailElement = document.getElementById('userEmail');
+      const authProviderElement = document.getElementById('authProvider');
       const creationTimeElement = document.getElementById('creationTime');
       const lastSignInElement = document.getElementById('lastSignIn');
       const userUIDElement = document.getElementById('userUID');
@@ -470,6 +548,16 @@
       const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
       const deletePasswordInput = document.getElementById('deletePassword');
       const changePasswordMessage = document.getElementById('change-password-message');
+      
+      // Google auth specific elements
+      const emailAuthContent = document.getElementById('emailAuthContent');
+      const googleAuthContent = document.getElementById('googleAuthContent');
+      const googleDeleteContent = document.getElementById('googleDeleteContent');
+      const googleReauthButton = document.getElementById('googleReauthButton');
+      const deletePasswordLabel = document.getElementById('deletePasswordLabel');
+
+      // Track if user is Google authenticated
+      let isGoogleUser = false;
 
       // Functions
       const openModal = (modal) => {
@@ -486,9 +574,59 @@
         }, 300);
       };
 
+      // Check if user is signed in with Google
+      const checkAuthProvider = (user) => {
+        if (user) {
+          // Check for Google provider in providerData
+          const googleProvider = user.providerData.find(
+            provider => provider.providerId === 'google.com'
+          );
+          
+          isGoogleUser = googleProvider !== undefined;
+          
+          // Update UI based on auth provider
+          if (isGoogleUser) {
+            // Show Google badge
+            authProviderElement.innerHTML = `Sign-in Method: Google <span class="provider-badge google">Google</span>`;
+            
+            // Disable change password button
+            changePasswordBtn.classList.add('disabled');
+            changePasswordBtn.title = "Password is managed by your Google account";
+            
+            // Configure change password modal for Google users
+            emailAuthContent.style.display = 'none';
+            googleAuthContent.style.display = 'block';
+            
+            // Configure delete account modal for Google users
+            deleteAccountForm.style.display = 'none';
+            googleDeleteContent.style.display = 'block';
+          } else {
+            // Show Email badge
+            authProviderElement.innerHTML = `Sign-in Method: Email <span class="provider-badge email">Email</span>`;
+            
+            // Make sure change password button is enabled
+            changePasswordBtn.classList.remove('disabled');
+            changePasswordBtn.title = "";
+            
+            // Configure change password modal for email users
+            emailAuthContent.style.display = 'block';
+            googleAuthContent.style.display = 'none';
+            
+            // Configure delete account modal for email users
+            deleteAccountForm.style.display = 'block';
+            googleDeleteContent.style.display = 'none';
+          }
+        }
+      };
+
       // Event Listeners
       changePasswordBtn.addEventListener('click', () => {
-        openModal(changePasswordModal);
+        if (!isGoogleUser) {
+          openModal(changePasswordModal);
+        } else {
+          // Could redirect to Google account settings
+          window.open('https://myaccount.google.com/security', '_blank');
+        }
       });
 
       deleteAccountBtn.addEventListener('click', () => {
@@ -546,7 +684,6 @@
         }
       });
 
-
       logoutBtn.addEventListener('click', async () => {
         try {
           await auth.signOut();
@@ -572,6 +709,22 @@
           alert('Error deleting account: ' + error.message);
         }
       });
+      
+      // Google reauthentication for account deletion
+      googleReauthButton.addEventListener('click', async () => {
+        try {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          await auth.currentUser.reauthenticateWithPopup(provider);
+          
+          // Now delete the account after successful reauthentication
+          await auth.currentUser.delete();
+          alert('Account deleted successfully.');
+          window.location.href = 'index.html';
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Failed to delete account: ' + error.message);
+        }
+      });
 
       // Fetch user data and populate the account page
       auth.onAuthStateChanged(user => {
@@ -580,6 +733,9 @@
           creationTimeElement.textContent = `Created: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
           lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
           userUIDElement.textContent = `User ID: ${user.uid}`;
+          
+          // Check authentication provider and update UI accordingly
+          checkAuthProvider(user);
         } else {
           // Redirect to login page if user is not logged in
           window.location.href = 'login.html';
