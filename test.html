@@ -14,44 +14,88 @@
     iframe {
       display: block;
     }
+    #keyboard-trap {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
+  <!-- Hidden overlay to capture keystrokes -->
+  <div id="keyboard-trap" tabindex="-1"></div>
+  
   <iframe id="content-frame" src="https://4sp.global.ssl.fastly.net/" allowfullscreen></iframe>
   
   <script>
-    // Create a global hotkey handler using window.addEventListener
-    window.addEventListener('keydown', function(event) {
+    // The main issue is that we need to capture keyboard events
+    // without interfering with normal typing in the iframe
+    
+    // Our keyboard trap div
+    const keyboardTrap = document.getElementById('keyboard-trap');
+    
+    // Setup the global shortcut listener on the trap element
+    keyboardTrap.addEventListener('keydown', function(event) {
       if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'x') {
         window.location.href = 'dashboard.html';
+        event.preventDefault();
       }
-    }, true); // true enables capturing phase which happens before bubbling phase
-
-    // Approach 2: For browsers or scenarios where the above doesn't work
-    // We need to make the iframe communicate with the parent
-    const iframe = document.getElementById('content-frame');
+    });
     
-    // Once the iframe loads, we'll inject a script to relay keyboard events
+    // Cross-browser solution that uses postMessage
+    // This allows communication between iframe and parent even across domains
+    window.addEventListener('message', function(event) {
+      // Optional: Check origin for security
+      // if (event.origin !== 'https://expected-origin.com') return;
+      
+      const data = event.data;
+      if (data && data.type === 'keyEvent' && 
+          data.ctrlKey && data.shiftKey && data.key.toLowerCase() === 'x') {
+        window.location.href = 'dashboard.html';
+      }
+    });
+    
+    // For cases where we can inject code into the iframe
+    const iframe = document.getElementById('content-frame');
     iframe.addEventListener('load', function() {
       try {
-        // Only works if iframe is same-origin
-        const iframeWindow = iframe.contentWindow;
+        // Try to access the iframe content (works only for same-origin)
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
         
-        // Inject event listener into the iframe
-        iframeWindow.addEventListener('keydown', function(event) {
+        // Create and inject a script element into the iframe
+        const script = iframeDoc.createElement('script');
+        script.textContent = `
+          document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'x') {
+              // Send message to parent window
+              window.parent.postMessage({
+                type: 'keyEvent',
+                ctrlKey: event.ctrlKey,
+                shiftKey: event.shiftKey,
+                key: event.key
+              }, '*');
+              
+              // Prevent default behavior in iframe
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          }, true);
+        `;
+        iframeDoc.head.appendChild(script);
+      } catch (e) {
+        console.log('Cannot inject script into iframe (likely cross-origin): ', e);
+        
+        // Alternative approach for cross-origin iframes:
+        // Use the global keydown event but don't steal focus
+        window.addEventListener('keydown', function(event) {
           if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'x') {
             window.location.href = 'dashboard.html';
           }
         }, true);
-      } catch (e) {
-        // If access is denied due to cross-origin policy, we'll try a different approach
-        console.log('Could not access iframe content: ', e);
-        
-        // Fallback: Focus the main window periodically
-        // This is less reliable but can work in some cases
-        setInterval(function() {
-          window.focus();
-        }, 1000);
       }
     });
   </script>
