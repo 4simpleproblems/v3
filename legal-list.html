@@ -193,21 +193,6 @@
     </footer>
 
     <script>
-        // Authentication state management
-        function handleAuthState(user) {
-            const authNotice = document.getElementById('authNotice');
-            const dashboardGrid = document.getElementById('dashboardGrid');
-            const logoutBtn = document.getElementById('logoutBtn');
-
-            if (user) {
-                authNotice.classList.add('hidden');
-                dashboardGrid.classList.remove('hidden');
-                if (logoutBtn) logoutBtn.classList.remove('hidden');
-            } else {
-                window.location.href = 'index.html';
-            }
-        }
-
         // Initialize Firebase authentication and set up logout functionality
         function initAuth() {
             try {
