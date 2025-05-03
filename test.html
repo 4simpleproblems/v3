@@ -1,301 +1,732 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>4SP | Create Playlist</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4SP | Account</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <style>
-    /* Root and base */
-    * {
-      font-family: 'Roboto Mono', monospace;
-      box-sizing: border-box;
-    }
     :root {
-      --black: #000;
-      --white: #fff;
-      --light-gray: #f0f0f0;
-      --dark-gray: #0d0d0d;
+      --primary-action: var(--dark-bg);
+      --secondary-action-text: var(--dark-bg);
+      --secondary-action-bg: var(--light-gray);
+      --danger-action: var(--primary-red);
+      --light-text: #f0f0f0;
+      --dark-bg: #1a1a1a;
+      --light-gray: #e0e0e0;
+      --medium-gray: #333333;
+      --darker-bg: #0d0d0d;
+      --error-red: #ff1212;
+      --info-text: var(--medium-gray);
+      --card-bg: white;
+      --card-border: var(--light-gray);
       --pill-radius: 50px;
-      --card-radius: 24px;
-
-      /* Button color customization variables */
-      --btn-bg-unselected: #f9f9f9;
-      --btn-border-unselected: #bbb;
-      --btn-color-unselected: #555;
-
-      /* Selected button colors - blue-purple theme */
-      --btn-bg-selected: #3399ff;       /* Slate Blue background */
-      --btn-border-selected: #0077cc;   /* Dark Slate Blue border */
-      --btn-color-selected: #ebf7ff;    /* Light lavender/white text */
-
-      /* Selected button hover darker shade */
-      --btn-bg-selected-hover: #0077cc;
-      --btn-border-selected-hover: #0055a3;
-      --btn-color-selected-hover: #ebf7ff;
+      --modal-bg: rgba(0, 0, 0, 0.7);
+      --modal-content-bg: #222;
+      --modal-content-border: #666;
+      --modal-text-color: #ddd;
+      --modal-input-bg: #444;
+      --modal-input-text-color: #eee;
+      --primary-red: #ff1212;
+      --dark-red: #8b0000;
     }
+
     body {
-      background: var(--light-gray);
+      background-color: var(--light-gray);
+      font-family: 'Roboto Mono', monospace;
       margin: 0;
-      color: var(--black);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: var(--dark-bg);
     }
-    /* Navbar - exactly same as before */
+
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      flex: 1;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--dark-bg);
+    }
+
     .navbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 2rem;
-      background: var(--dark-gray);
-      color: var(--white);
+      padding: 1.5rem 3rem;
+      background-color: var(--darker-bg);
+      color: var(--light-text);
+      border-bottom: 1px solid var(--accent);
     }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+    }
+
     .nav-buttons {
       display: flex;
+      align-items: center;
       gap: 1rem;
     }
+
     .btn {
-      padding: 0.75rem 1.5rem;
-      border-radius: var(--pill-radius);
-      background: transparent;
-      border: 2px solid var(--white);
-      color: var(--white);
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.2s, color 0.2s;
-    }
-    .btn.big {
+      display: inline-block;
       padding: 1rem 2rem;
-      font-size: 1.1rem;
-    }
-    .btn:hover {
-      background: var(--white);
-      color: var(--dark-gray);
-    }
-    /* Container */
-    .form-container {
-      max-width: 1000px; /* wider to fit buttons */
-      margin: 2rem auto;
-      padding: 2rem;
-      background: var(--white);
-      border-radius: var(--card-radius);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    h1 {
-      margin-bottom: 1.5rem;
-    }
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      border: 2px solid transparent;
       font-weight: 500;
     }
-    input[type="text"],
-    textarea {
-      width: 100%;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-      border: 1px solid var(--dark-gray);
-      border-radius: var(--pill-radius);
-      font-size: 1rem;
-      background: var(--white);
-      resize: vertical;
+
+    .btn.primary {
+      background-color: var(--dark-bg);
+      color: var(--light-text);
     }
-    /* Sound sections */
-    .sound-section {
-      margin-bottom: 1.5rem;
+
+    .btn.secondary {
+      background-color: transparent;
+      color: var(--light-text);
+      border-color: var(--light-text);
+    }
+
+    .btn:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    footer {
       text-align: center;
+      padding: 1rem;
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      border-top: 2px solid var(--primary-action);
     }
-    .sound-section h2 {
-      margin-bottom: 0.5rem;
-      font-size: 1.25rem;
+
+    .account-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      margin-top: 2rem;
     }
-    /* Sound buttons container using flex-wrap */
-    .soundButtonsContainer {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-start;
-      padding: 1rem 0;
-      gap: 1.5rem;
-      width: 100%;
-    }
-    /* Sound button styles with customizable colors */
-    .sound-btn {
-      min-width: 100px;
-      height: 100px;
+
+    .account-info {
+      padding: 1.5rem;
+      background-color: var(--card-bg);
       border-radius: var(--pill-radius);
-      background-color: var(--btn-bg-unselected);
-      color: var(--btn-color-unselected);
-      border: 2px solid var(--btn-border-unselected);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--card-border);
+    }
+
+    .account-info h2 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: var(--dark-bg);
+    }
+
+    .account-info p {
+      margin-bottom: 0.75rem;
+      color: var(--info-text);
+    }
+
+    .account-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1.5rem;
+    }
+
+    .account-buttons button {
+      padding: 1rem 1.5rem;
+      border-radius: var(--pill-radius);
+      border: 2px solid var(--dark-bg);
+      background-color: transparent;
+      color: var(--dark-bg);
+      font-size: 1rem;
+      font-weight: 500;
       cursor: pointer;
+      transition: background-color 0.3s ease;
+      text-align: center;
+      width: 100%;
+      display: inline-block;
+      box-sizing: border-box;
+    }
+
+    .account-buttons button:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .account-buttons button.secondary {
+      border-color: var(--dark-bg);
+    }
+
+    .account-buttons button.danger {
+      background-color: var(--danger-action);
+      color: var(--light-text);
+      border: 2px solid var(--dark-red);
+    }
+
+    .account-buttons button.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .provider-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
       font-size: 0.85rem;
-      font-weight: bold;
-      padding: 0 1.5rem;
-      transition:
-        background-color 0.3s ease,
-        transform 0.1s ease,
-        color 0.3s ease,
-        border-color 0.3s ease;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+      font-weight: 500;
+    }
+
+    .provider-badge.google {
+      background-color: #4285F4;
+      color: white;
+    }
+
+    .provider-badge.email {
+      background-color: var(--dark-bg);
+      color: white;
+    }
+
+    /* Modal & Forms */
+    /* ... keep unchanged modal styles ... */
+
+    .password-form button.delete {
+      background-color: var(--danger-action);
+      color: var(--light-text);
+      border: 2px solid var(--dark-red);
+      transition: background-color 0.2s ease;
+    }
+
+    .password-form button.delete:hover {
+      background-color: #cc0000;
+    }
+
+    /* Styles for the modal/popup */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: var(--modal-bg);
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
-      line-height: 1.2;
-      max-width: 250px;
-      white-space: nowrap; /* prevent word breaks */
-      overflow-wrap: normal;
-      word-break: normal;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0s linear 0.3s;
     }
-    .sound-btn.short-text {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      padding: 0.5rem;
-      white-space: nowrap;
+
+    .modal.show {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.3s ease, visibility 0s linear 0s;
     }
-    .sound-btn.selected {
-      background-color: var(--btn-bg-selected);
-      border-color: var(--btn-border-selected);
-      color: var(--btn-color-selected);
-    }
-    /* Hover for unselected buttons */
-    .sound-btn:hover {
-      background-color: var(--light-gray);
-    }
-    /* Hover for selected buttons - darker shade for readability */
-    .sound-btn.selected:hover {
-      background-color: var(--btn-bg-selected-hover);
-      border-color: var(--btn-border-selected-hover);
-      color: var(--btn-color-selected-hover);
-    }
-    .sound-btn:active {
-      transform: scale(0.95);
-    }
-    /* Primary button */
-    .btn.primary {
-      background: var(--dark-gray);
-      color: var(--white);
-      border: none;
-    }
-    /* Notification */
-    #notification {
-      position: fixed;
-      bottom: 1rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--dark-gray);
-      color: var(--white);
-      padding: 0.75rem 1.5rem;
+
+
+    /* Modal Content/Box */
+    .modal-content {
+      background-color: var(--modal-content-bg);
+      padding: 2rem;
+      border: 1px solid var(--modal-content-border);
+      width: 90%;
+      max-width: 500px;
       border-radius: var(--pill-radius);
-      display: none;
-      z-index: 1000;
+      position: relative;
+      color: var(--modal-text-color);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* The Close Button */
+    .close {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      color: var(--modal-text-color);
+      font-size: 28px;
+      font-weight: bold;
+      transition: color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    /* Style for the password confirmation form & change password form */
+    .password-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .password-form label {
+      font-weight: bold;
+      color: var(--modal-text-color);
+      display: block;
+    }
+
+    .password-form input[type="password"] {
+      padding: 1rem;
+      font-size: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--pill-radius);
+      color: var(--modal-input-text-color);
+      background-color: var(--modal-input-bg);
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease;
+    }
+
+    .password-form input[type="password"]:focus {
+      outline: none;
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3);
+    }
+
+    .password-form button {
+      display: inline-block;
+      padding: 1rem 2rem;
+      border-radius: var(--pill-radius);
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      border: none;
+      font-weight: 500;
+      color: var(--light-text);
+      transition: background-color 0.2s ease;
+    }
+
+    .password-form button.confirm {
+      background-color: var(--primary-red);
+    }
+
+    .password-form button.confirm:hover {
+      background-color: #cc0c0c;
+    }
+
+    .password-form button.delete {
+      background-color: var(--danger-action);
+    }
+
+    .password-form button.delete:hover {
+      background-color: #cc0000;
+    }
+
+    .modal h2 {
+      margin: 0;
+      color: var(--modal-text-color);
+      font-size: 1.75rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .modal p {
+      color: rgba(240, 240, 240, 0.8);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    /* Specific style adjustments */
+    #confirmPasswordForm .password-form button {
+      margin-top: 1rem;
+    }
+
+    #changePasswordForm .password-form button {
+      margin-top: 0.5rem;
+    }
+
+    #deleteAccountModal .modal-content {
+      text-align: center;
+    }
+
+    #deleteAccountModal .modal-content p {
+      margin-bottom: 1.5rem;
+    }
+
+    #deleteAccountModal .password-form button {
+      margin-top: 1.5rem;
+      padding: 1rem 2.5rem;
+    }
+
+    /* Styles for the logout button */
+    #logoutBtn {
+      background-color: var(--primary-action);
+      color: var(--light-text);
+      border: none;
+      border-radius: var(--pill-radius);
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #logoutBtn:hover {
+      background-color: var(--darker-bg);
+    }
+
+    /* Message for Google users who can't change password */
+    .google-auth-message {
+      color: var(--modal-text-color);
+      text-align: center;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .google-auth-message a {
+      color: #4285F4;
+      text-decoration: underline;
     }
   </style>
 </head>
+
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
-      <button id="dashboardBtn" class="btn big">Dashboard</button>
-      <button id="logoutBtn" class="btn big">Log Out</button>
+      <a href="index.html" class="btn secondary">Home</a>
+      <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      <a href="account.html" class="btn primary">Account</a>
+      <button class="btn secondary" id="logoutBtn">Log Out</button>
     </div>
   </nav>
 
-  <main class="form-container">
-    <h1>Create Playlist</h1>
-    <!-- Removed playlist type dropdown as requested -->
-    <form id="createForm">
-      <div id="normalSection" class="sound-section">
-        <h2>Normal Sounds</h2>
-        <div id="normalGrid" class="soundButtonsContainer"></div>
-        <h2>Explicit Sounds</h2>
-        <div id="explicitGrid" class="soundButtonsContainer"></div>
+  <main class="container">
+    <h1>Account Information</h1>
+    <div class="account-grid">
+      <div class="account-info">
+        <h2>User Details</h2>
+        <p id="userEmail">Email: Loading...</p>
+        <p id="authProvider">Sign-in Method: Loading...</p>
+        <p id="creationTime">Created: Loading...</p>
+        <div class="additional-info">
+          <h3>Additional Information</h3>
+          <p id="lastSignIn">Last Sign-in: Loading...</p>
+          <p id="userUID">User ID: Loading...</p>
+        </div>
       </div>
 
-      <label for="name">Playlist Name</label>
-      <input type="text" id="name" required maxlength="25" />
-      <label for="description">Description</label>
-      <textarea id="description" required maxlength="85"></textarea>
-      <button type="submit" class="btn primary">Create Playlist</button>
-    </form>
+      <div class="account-buttons">
+        <button id="changePasswordBtn" class="secondary">Change Password</button>
+        <button id="editProfileBtn" class="edit-profile">Edit Profile</button>
+        <button id="manageSubscriptionsBtn" class="manage-subscriptions">Manage Subscriptions</button>
+        <button id="deleteAccountBtn" class="danger">Delete Account</button>
+      </div>
+    </div>
   </main>
 
-  <div id="notification">Your playlist has been created! <a href="playlist.html" style="color:#fff; text-decoration:underline;">View Playlists</a></div>
+  <footer>
+    <p>© 2025 4SP</p>
+  </footer>
+
+  <!-- Change Password Modal -->
+  <div id="changePasswordModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Change Password</h2>
+      
+      <!-- Regular password change flow for email users -->
+      <div id="emailAuthContent">
+        <p>Confirm your current password, then enter a new password.</p>
+        <form class="password-form password-confirmation-form" id="confirmPasswordForm">
+          <label for="currentPassword">Current Password:</label>
+          <input type="password" id="currentPassword" required>
+          <button type="submit" class="confirm">Confirm Password</button>
+        </form>
+
+        <p style="display:none;" id="change-password-message">Now enter your new password!</p>
+        <form class="password-form" id="newPasswordForm" style="display: none;">
+          <label for="newPassword">New Password:</label>
+          <input type="password" id="newPassword" required minlength="6">
+          <label for="confirmNewPassword">Confirm New Password:</label>
+          <input type="password" id="confirmNewPassword" required minlength="6">
+          <button type="submit" class="confirm">Change Password</button>
+        </form>
+      </div>
+      
+      <!-- Message for Google users -->
+      <div id="googleAuthContent" style="display: none;">
+        <div class="google-auth-message">
+          <p>You're signed in with Google, so your password is managed through your Google account.</p>
+          <p>To change your password, please visit <a href="https://myaccount.google.com/security" target="_blank">Google Account Settings</a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Account Modal -->
+  <div id="deleteAccountModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Delete Account</h2>
+      <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+      
+      <!-- Email auth users see password confirmation -->
+      <form class="password-form" id="deleteAccountForm">
+        <label for="deletePassword" id="deletePasswordLabel">Enter Password to Confirm:</label>
+        <input type="password" id="deletePassword" required>
+        <button type="submit" class="delete">Delete Account</button>
+      </form>
+      
+      <!-- Google users see re-auth button -->
+      <div id="googleDeleteContent" style="display: none;">
+        <p>Since you're signed in with Google, you'll need to re-authenticate to delete your account.</p>
+        <button id="googleReauthButton" class="delete">Re-authenticate with Google</button>
+      </div>
+    </div>
+  </div>
 
   <script>
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const normalGrid = document.getElementById('normalGrid');
-    const explicitGrid = document.getElementById('explicitGrid');
-    const form = document.getElementById('createForm');
-    const notification = document.getElementById('notification');
-    const dashBtn = document.getElementById('dashboardBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    let selections = [];
+    document.addEventListener('DOMContentLoaded', () => {
+      // Firebase Initialization
+      const auth = firebase.auth();
 
-    auth.onAuthStateChanged(user => {
-      if (!user) return window.location.href = 'index.html';
-      loadSoundButtons();
-    });
+      // Get DOM Elements
+      const userEmailElement = document.getElementById('userEmail');
+      const authProviderElement = document.getElementById('authProvider');
+      const creationTimeElement = document.getElementById('creationTime');
+      const lastSignInElement = document.getElementById('lastSignIn');
+      const userUIDElement = document.getElementById('userUID');
+      const changePasswordBtn = document.getElementById('changePasswordBtn');
+      const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const editProfileBtn = document.getElementById('editProfileBtn');
+      const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
 
-    dashBtn.addEventListener('click', () => window.location.href = 'dashboard.html');
-    logoutBtn.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'index.html'));
+      // Get Modal Elements
+      const changePasswordModal = document.getElementById('changePasswordModal');
+      const deleteAccountModal = document.getElementById('deleteAccountModal');
+      const passwordConfirmationForm = document.getElementById('confirmPasswordForm');
+      const newPasswordForm = document.getElementById('newPasswordForm');
+      const deleteAccountForm = document.getElementById('deleteAccountForm');
+      const closeModalButtons = document.querySelectorAll('.close');
+      const currentPasswordInput = document.getElementById('currentPassword');
+      const newPasswordInput = document.getElementById('newPassword');
+      const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+      const deletePasswordInput = document.getElementById('deletePassword');
+      const changePasswordMessage = document.getElementById('change-password-message');
+      
+      // Google auth specific elements
+      const emailAuthContent = document.getElementById('emailAuthContent');
+      const googleAuthContent = document.getElementById('googleAuthContent');
+      const googleDeleteContent = document.getElementById('googleDeleteContent');
+      const googleReauthButton = document.getElementById('googleReauthButton');
+      const deletePasswordLabel = document.getElementById('deletePasswordLabel');
 
-    function loadSoundButtons() {
-      fetch('SoundboardSN.json')
-        .then(res => res.json())
-        .then(data => {
-          (data.NormalSounds || []).forEach(file => createBtn('NormalSounds', file, normalGrid));
-          (data.ExplicitSounds || []).forEach(file => createBtn('ExplicitSounds', file, explicitGrid));
-        });
-    }
+      // Track if user is Google authenticated
+      let isGoogleUser = false;
 
-    function createBtn(folder, fileName, container) {
-      const label = fileName.replace(/\.(mp3|wav)$/i, '').replace(/_/g, ' ');
-      const btn = document.createElement('div');
-      btn.className = 'sound-btn';
-      btn.textContent = label;
-      if (label.length < 8) btn.classList.add('short-text');
-      btn.addEventListener('click', () => toggleSelection({folder, fileName, label}, btn));
-      container.appendChild(btn);
-    }
+      // Functions
+      const openModal = (modal) => {
+        modal.style.display = 'flex';
+        // Force reflow to trigger the transition
+        void modal.offsetWidth;
+        modal.classList.add('show');
+      };
 
-    function toggleSelection(item, btn) {
-      const idx = selections.findIndex(i => i.fileName === item.fileName && i.folder === item.folder);
-      if (idx > -1) {
-        selections.splice(idx, 1);
-        btn.classList.remove('selected');
-      } else {
-        selections.push(item);
-        btn.classList.add('selected');
-      }
-    }
+      const closeModal = (modal) => {
+        modal.classList.remove('show');
+        setTimeout(() => {
+          modal.style.display = 'none';
+        }, 300);
+      };
 
-    form.addEventListener('submit', async e => {
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const desc = document.getElementById('description').value.trim();
-      const type = 'normal'; // always normal
-      const user = auth.currentUser;
-      const snap = await db.collection('playlists')
-        .where('owner', '==', user.uid).where('type', '==', 'normal').get();
-      if (snap.size >= 10) return alert('Max 10 normal playlists');
-      await db.collection('playlists').add({
-        owner: user.uid,
-        type,
-        name,
-        description: desc,
-        items: selections,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      // Check if user is signed in with Google
+      const checkAuthProvider = (user) => {
+        if (user) {
+          // Check for Google provider in providerData
+          const googleProvider = user.providerData.find(
+            provider => provider.providerId === 'google.com'
+          );
+          
+          isGoogleUser = googleProvider !== undefined;
+          
+          // Update UI based on auth provider
+          if (isGoogleUser) {
+            // Show Google badge
+            authProviderElement.innerHTML = `Sign-in Method: Google <span class="provider-badge google">Google</span>`;
+            
+            // Disable change password button
+            changePasswordBtn.classList.add('disabled');
+            changePasswordBtn.title = "Password is managed by your Google account";
+            
+            // Configure change password modal for Google users
+            emailAuthContent.style.display = 'none';
+            googleAuthContent.style.display = 'block';
+            
+            // Configure delete account modal for Google users
+            deleteAccountForm.style.display = 'none';
+            googleDeleteContent.style.display = 'block';
+          } else {
+            // Show Email badge
+            authProviderElement.innerHTML = `Sign-in Method: Email <span class="provider-badge email">Email</span>`;
+            
+            // Make sure change password button is enabled
+            changePasswordBtn.classList.remove('disabled');
+            changePasswordBtn.title = "";
+            
+            // Configure change password modal for email users
+            emailAuthContent.style.display = 'block';
+            googleAuthContent.style.display = 'none';
+            
+            // Configure delete account modal for email users
+            deleteAccountForm.style.display = 'block';
+            googleDeleteContent.style.display = 'none';
+          }
+        }
+      };
+
+      // Event Listeners
+      changePasswordBtn.addEventListener('click', () => {
+        if (!isGoogleUser) {
+          openModal(changePasswordModal);
+        } else {
+          // Could redirect to Google account settings
+          window.open('https://myaccount.google.com/security', '_blank');
+        }
       });
-      notification.style.display = 'block';
-      setTimeout(() => notification.style.display = 'none', 5000);
-      form.reset();
-      selections = [];
-      // Remove selected style from buttons
-      document.querySelectorAll('.sound-btn.selected').forEach(b => b.classList.remove('selected'));
+
+      deleteAccountBtn.addEventListener('click', () => {
+        openModal(deleteAccountModal);
+      });
+
+      closeModalButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const modal = button.closest('.modal');
+          closeModal(modal);
+        });
+      });
+
+      window.addEventListener('click', (event) => {
+        if (event.target.classList.contains('modal')) {
+          closeModal(event.target);
+        }
+      });
+
+      passwordConfirmationForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const password = currentPasswordInput.value;
+
+        try {
+          const user = auth.currentUser;
+          const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+          await user.reauthenticateWithCredential(credential);
+          // Show new password form
+          passwordConfirmationForm.style.display = "none";
+          changePasswordMessage.style.display = "block";
+          newPasswordForm.style.display = "block";
+
+        } catch (error) {
+          alert('Incorrect password. Please try again.');
+        }
+      });
+
+      newPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newPassword = newPasswordInput.value;
+        const confirmNewPassword = confirmNewPasswordInput.value;
+
+        if (newPassword !== confirmNewPassword) {
+          alert("New passwords do not match. Please try again.");
+          return;
+        }
+
+        try {
+          const user = auth.currentUser;
+          await user.updatePassword(newPassword);
+          alert('Password updated successfully!');
+          closeModal(changePasswordModal); // Close modal after successful update
+        } catch (error) {
+          alert('Error updating password: ' + error.message);
+        }
+      });
+
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          await auth.signOut();
+          window.location.href = 'index.html';
+        } catch (error) {
+          console.error('Error signing out: ', error);
+          alert('Failed to log out. Please try again.');
+        }
+      });
+
+      deleteAccountForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const password = deletePasswordInput.value;
+
+        try {
+          const user = auth.currentUser;
+          const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+          await user.reauthenticateWithCredential(credential);
+          await user.delete();
+          alert('Account deleted successfully.');
+          window.location.href = 'index.html';
+        } catch (error) {
+          alert('Error deleting account: ' + error.message);
+        }
+      });
+      
+      // Google reauthentication for account deletion
+      googleReauthButton.addEventListener('click', async () => {
+        try {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          await auth.currentUser.reauthenticateWithPopup(provider);
+          
+          // Now delete the account after successful reauthentication
+          await auth.currentUser.delete();
+          alert('Account deleted successfully.');
+          window.location.href = 'index.html';
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Failed to delete account: ' + error.message);
+        }
+      });
+
+      // Fetch user data and populate the account page
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          userEmailElement.textContent = `Email: ${user.email}`;
+          creationTimeElement.textContent = `Created: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
+          lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
+          userUIDElement.textContent = `User ID: ${user.uid}`;
+          
+          // Check authentication provider and update UI accordingly
+          checkAuthProvider(user);
+        } else {
+          // Redirect to login page if user is not logged in
+          window.location.href = 'login.html';
+        }
+      });
     });
   </script>
+
 </body>
+
 </html>
