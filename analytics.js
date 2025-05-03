@@ -1,13 +1,13 @@
-// analytics.js
+// analytics.js - Updated error handling
 document.addEventListener('DOMContentLoaded', () => {
   const auth = firebase.auth();
   const errorContainer = document.getElementById('errorContainer');
 
   const showError = (message) => {
-    errorContainer.textContent = `Unable to retrieve data: ${message}`;
+    errorContainer.textContent = `Firestore Error: ${message}`;
     errorContainer.style.display = 'block';
-    document.querySelectorAll('.stat-card').forEach(card => {
-      card.classList.add('error-card');
+    document.querySelectorAll('.stat-card, .chart-container').forEach(el => {
+      el.classList.add('error-card');
     });
   };
 
@@ -16,30 +16,31 @@ document.addEventListener('DOMContentLoaded', () => {
     
     try {
       const db = firebase.firestore();
-      const configDoc = await db.collection('config').doc('analytics').get();
       
-      if (!configDoc.exists) {
-        throw new Error('Analytics configuration missing in Firestore');
+      // Verify user token first
+      const token = await user.getIdTokenResult();
+      if (!token.claims.analyticsAccess) {
+        throw new Error('User not authorized for analytics access');
       }
 
-      const [userActivity, deviceData] = await Promise.all([
+      const [configDoc, userActivity, deviceData] = await Promise.all([
+        db.collection('config').doc('analytics').get(),
         db.collection('analytics').doc('userActivity').get(),
         db.collection('analytics').doc('deviceDistribution').get()
       ]);
 
-      if (!userActivity.exists || !deviceData.exists) {
-        throw new Error('Required analytics documents not found in Firestore');
+      if (!configDoc.exists || !userActivity.exists || !deviceData.exists) {
+        throw new Error('Required analytics data not found in Firestore');
       }
 
-      // If we reach here, data exists - process normally
+      // Process valid data here
 
     } catch (error) {
-      console.error('Analytics Error:', error);
-      showError(error.message.includes('Firestore') ? 
-        'Firestore connection failed - check security rules' : 
-        error.message);
-        
-      document.getElementById('timeframe').disabled = true;
+      console.error('Firestore Error:', error);
+      const errorMsg = error.message.includes('permission-denied') ? 
+        'Firestore security rules blocked access - check authentication status' : 
+        error.message;
+      showError(errorMsg);
     }
   });
 });
