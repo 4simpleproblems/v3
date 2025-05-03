@@ -43,7 +43,7 @@
       margin: 0;
       color: var(--black);
     }
-    /* Navbar - exactly same as before */
+    /* Navbar */
     .navbar {
       display: flex;
       justify-content: space-between;
@@ -51,6 +51,12 @@
       padding: 1rem 2rem;
       background: var(--dark-gray);
       color: var(--white);
+    }
+    /* Added back the logo styling */
+    .logo {
+        font-size: 1.8rem;
+        font-weight: 700; /* Makes it bold */
+        letter-spacing: -1.5px;
     }
     .nav-buttons {
       display: flex;
@@ -242,11 +248,23 @@
     logoutBtn.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'index.html'));
 
     function loadSoundButtons() {
+      // IMPORTANT: Ensure SoundboardSN.json is in the correct path relative to test.html
       fetch('SoundboardSN.json')
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                console.error('Failed to load SoundboardSN.json:', res.status, res.statusText);
+                // Optionally display an error to the user
+                return Promise.reject('Failed to load sounds');
+            }
+            return res.json();
+        })
         .then(data => {
           (data.NormalSounds || []).forEach(file => createBtn('NormalSounds', file, normalGrid));
           (data.ExplicitSounds || []).forEach(file => createBtn('ExplicitSounds', file, explicitGrid));
+        })
+        .catch(error => {
+            console.error("Error fetching or processing sounds:", error);
+            // Handle the error, e.g., display a message
         });
     }
 
@@ -277,23 +295,49 @@
       const desc = document.getElementById('description').value.trim();
       const type = 'normal'; // always normal
       const user = auth.currentUser;
-      const snap = await db.collection('playlists')
-        .where('owner', '==', user.uid).where('type', '==', 'normal').get();
-      if (snap.size >= 10) return alert('Max 10 normal playlists');
-      await db.collection('playlists').add({
-        owner: user.uid,
-        type,
-        name,
-        description: desc,
-        items: selections,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      notification.style.display = 'block';
-      setTimeout(() => notification.style.display = 'none', 5000);
-      form.reset();
-      selections = [];
-      // Remove selected style from buttons
-      document.querySelectorAll('.sound-btn.selected').forEach(b => b.classList.remove('selected'));
+
+      if (!user) {
+           alert('You must be logged in to create a playlist.');
+           return;
+      }
+      if (!name) {
+           alert('Playlist name is required.');
+           return;
+      }
+       if (selections.length === 0) {
+           alert('Select at least one sound for your playlist.');
+           return;
+       }
+
+
+      try {
+          const snap = await db.collection('playlists')
+            .where('owner', '==', user.uid).where('type', '==', 'normal').get();
+          if (snap.size >= 10) {
+              alert('You have reached the maximum of 10 normal playlists.');
+              return;
+          }
+
+          await db.collection('playlists').add({
+            owner: user.uid,
+            type,
+            name,
+            description: desc,
+            items: selections,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+
+          notification.style.display = 'block';
+          setTimeout(() => notification.style.display = 'none', 5000);
+          form.reset();
+          selections = [];
+          // Remove selected style from buttons
+          document.querySelectorAll('.sound-btn.selected').forEach(b => b.classList.remove('selected'));
+
+      } catch (error) {
+           console.error("Error creating playlist:", error);
+           alert("An error occurred while creating the playlist. Please try again.");
+      }
     });
   </script>
 </body>
