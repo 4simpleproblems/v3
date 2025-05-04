@@ -14,9 +14,8 @@
       --darker-bg: #070707;
       --light-text: #f0f0f0;
       --accent-color: #f0f0f0;
-      --button-height: 19px; /* Define button height as a variable */
+      --button-height: 19px;
     }
-
     * {
       box-sizing: border-box;
       margin: 0;
@@ -24,7 +23,6 @@
       font-family: 'Roboto Mono', monospace;
       font-weight: bold;
     }
-
     body {
       margin: 0;
       height: 100vh;
@@ -34,23 +32,17 @@
       color: var(--light-text);
       overflow: hidden;
     }
-
-    /* Navbar styles */
     .navbar-container {
-      position: relative; /* Needed for absolute positioning of button */
-      transition: transform 0.3s ease; /* Animate vertical position */
-      overflow: visible; /* Allow the absolutely positioned button to be visible outside */
-      height: auto; /* Height is determined by content */
+      position: relative;
+      transition: transform 0.3s ease;
+      overflow: visible;
+      height: auto;
       z-index: 100;
-      flex-shrink: 0; /* Prevent navbar from shrinking in flex column */
+      flex-shrink: 0;
     }
-
     .navbar-container.hidden {
-      /* Translate up by 100% of its height */
-      /* The button, positioned relative to the bottom, will end up at the top */
       transform: translateY(-100%);
     }
-
     .navbar {
       background-color: var(--darker-bg);
       color: var(--light-text);
@@ -59,19 +51,16 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 2px solid var(--accent-color);
-      width: 100%; /* Ensure navbar takes full width of container */
+      width: 100%;
     }
-
     .logo {
       font-size: 1.5rem;
       font-weight: bold;
     }
-
     .nav-buttons {
       display: flex;
       gap: 1rem;
     }
-
     .btn {
       padding: 0.5rem 0.5rem;
       border-radius: 50px;
@@ -83,41 +72,32 @@
       align-items: center;
       justify-content: center;
     }
-
     .btn.secondary {
       background-color: transparent;
       color: var(--light-text);
       border: 2px solid var(--light-text);
     }
-
     .btn.secondary:hover {
       background-color: rgba(255, 255, 255, 0.1);
     }
-
-    /* Toggle button with arrow */
     .toggle-btn {
-      position: absolute; /* Position relative to the navbar-container */
+      position: absolute;
       right: 0px;
-      bottom: 0; /* Align button's bottom edge with container's bottom edge */
+      bottom: 0;
       width: 32px;
       height: var(--button-height);
       background-color: var(--darker-bg);
       border: 2px solid var(--accent-color);
-      border-top: none; /* Creates the tab shape */
-      border-radius: 0 0 16px 16px; /* Rounds the bottom corners */
+      border-top: none;
+      border-radius: 0 0 16px 16px;
       cursor: pointer;
-      z-index: 101; /* Ensure it's above the navbar (100) */
-      /* Translate down by its own height so its top edge aligns with container's bottom */
+      z-index: 101;
       transform: translateY(var(--button-height));
-      transition: transform 0.2s ease; /* Hover effect */
+      transition: transform 0.2s ease;
     }
-
     .toggle-btn:hover {
-      /* Move down slightly more on hover */
       transform: translateY(calc(var(--button-height) - 1px));
     }
-
-    /* Arrow indicator using CSS */
     .toggle-btn::after {
       content: '';
       position: absolute;
@@ -129,23 +109,18 @@
       border-bottom: 7px solid var(--accent-color);
       transition: transform 0.3s ease;
     }
-
     .toggle-btn.collapsed::after {
       border-bottom: none;
       border-top: 6px solid var(--accent-color);
       top: 6px;
       transform: translateX(-50%) rotate(180deg);
     }
-
-    /* Iframe container */
     .iframe-container {
-      flex: 1; /* Take up remaining vertical space */
+      flex: 1;
       width: 100%;
       position: relative;
-      /* Adjust margin-top to compensate for navbar space, controlled by JS */
-      transition: margin-top 0.3s ease; /* Smooth margin change */
+      transition: margin-top 0.3s ease;
     }
-
     .iframe-container iframe {
       position: absolute;
       top: 0;
@@ -154,8 +129,6 @@
       width: 100%;
       border: none;
     }
-
-    /* Status message styles */
     .status-message {
       display: none;
       padding: 0.3rem 0.8rem;
@@ -167,29 +140,19 @@
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 200; /* Highest z-index */
+      z-index: 200;
       color: var(--light-text);
       pointer-events: none;
     }
-
     .status-message.shown {
       display: block;
       animation: fadeInOut 2s ease forwards;
     }
-
     @keyframes fadeInOut {
-      0% {
-        opacity: 0;
-      }
-      20% {
-        opacity: 1;
-      }
-      80% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-      }
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
     }
   </style>
 </head>
@@ -211,6 +174,8 @@
       src="https://4sp.global.ssl.fastly.net/"
       allowfullscreen
       id="mainIframe"
+      tabindex="0"
+      title="4SP App"
     ></iframe>
   </div>
 
@@ -220,6 +185,7 @@
       const navbarContainer = document.getElementById('navbarContainer');
       const statusMessage = document.getElementById('statusMessage');
       const iframeContainer = document.getElementById('iframeContainer');
+      const iframe = document.getElementById('mainIframe');
 
       let navbarVisible = true;
 
@@ -233,55 +199,106 @@
 
       // Function to adjust iframe margin
       function adjustIframeMargin() {
-          // Get the current height of the navbar container
-          const currentNavbarHeight = navbarContainer.offsetHeight;
-          if (navbarVisible) {
-               iframeContainer.style.marginTop = '0'; // Iframe is below the navbar
-          } else {
-               // Iframe moves up by the full height of the navbar when it's hidden
-               iframeContainer.style.marginTop = `-${currentNavbarHeight}px`;
-          }
+        const currentNavbarHeight = navbarContainer.offsetHeight;
+        if (navbarVisible) {
+          iframeContainer.style.marginTop = '0';
+        } else {
+          iframeContainer.style.marginTop = `-${currentNavbarHeight}px`;
+        }
       }
 
       function toggleNavbarVisibility() {
         navbarVisible = !navbarVisible;
-
         if (navbarVisible) {
-          // Show navbar
           navbarContainer.classList.remove('hidden');
           toggleButton.classList.remove('collapsed');
           showStatus('Navigation bar visible');
-          // Adjust iframe margin immediately for smooth layout change
           adjustIframeMargin();
         } else {
-          // Hide navbar
-           // Adjust iframe margin immediately before hiding starts
-           adjustIframeMargin();
-           // Add hidden class to trigger the transform animation
+          adjustIframeMargin();
           navbarContainer.classList.add('hidden');
           toggleButton.classList.add('collapsed');
           showStatus('Navigation bar hidden');
         }
-        // The CSS transition on navbarContainer's transform will handle the visual movement
       }
 
       toggleButton.addEventListener('click', toggleNavbarVisibility);
 
-      // Initial adjustment of iframe margin on page load
-      // Use a small timeout to allow initial rendering and accurate height calculation
       setTimeout(adjustIframeMargin, 50);
 
-
+      // Dashboard shortcut
       document.addEventListener('keydown', function (event) {
         if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'x') {
           window.location.href = 'dashboard.html';
         }
       });
 
+      // Navbar toggle shortcut
       document.addEventListener('keydown', function (event) {
         if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'n') {
           toggleNavbarVisibility();
-          event.preventDefault(); // Prevent default browser action for the shortcut
+          event.preventDefault();
+        }
+      });
+
+      // === ADVANCED IFRAME INTERACTION ===
+
+      // 1. Focus iframe with Ctrl+Shift+I
+      document.addEventListener('keydown', function (event) {
+        if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'i') {
+          iframe.focus();
+          showStatus('Iframe focused! Press Enter to interact.');
+          event.preventDefault();
+        }
+      });
+
+      // 2. Show status when iframe gains or loses focus
+      iframe.addEventListener('focus', function () {
+        showStatus('You are now inside the iframe. Press Esc to return.');
+      });
+
+      iframe.addEventListener('blur', function () {
+        showStatus('You left the iframe.');
+      });
+
+      // 3. Press Esc to return focus to parent page
+      window.addEventListener('message', function (event) {
+        // Listen for "return-focus" message from iframe (if supported)
+        if (event.data === 'return-focus') {
+          window.focus();
+          showStatus('Focus returned to parent page.');
+        }
+      });
+
+      // 4. Send message to iframe with Ctrl+Shift+M (if supported)
+      document.addEventListener('keydown', function (event) {
+        if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'm') {
+          iframe.contentWindow.postMessage('Hello from parent!', '*');
+          showStatus('Message sent to iframe!');
+          event.preventDefault();
+        }
+      });
+
+      // 5. Optional: Listen for Enter key in parent and warn if not in iframe
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' && document.activeElement !== iframe) {
+          showStatus('Press Ctrl+Shift+I to focus the iframe first!');
+        }
+      });
+
+      // 6. Optional: Press Esc to blur iframe and return focus to parent
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && document.activeElement === iframe) {
+          iframe.blur();
+          window.focus();
+          showStatus('Focus returned to parent page.');
+        }
+      });
+
+      // 7. Optional: Show a message when receiving a response from the iframe
+      window.addEventListener('message', function (event) {
+        if (event.origin.startsWith('https://4sp.global.ssl.fastly.net')) {
+          showStatus('Received from iframe: ' + event.data);
         }
       });
     });
