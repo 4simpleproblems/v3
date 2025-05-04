@@ -197,14 +197,9 @@
         }, 2000);
       }
 
-      // Function to adjust iframe margin
       function adjustIframeMargin() {
-        const currentNavbarHeight = navbarContainer.offsetHeight;
-        if (navbarVisible) {
-          iframeContainer.style.marginTop = '0';
-        } else {
-          iframeContainer.style.marginTop = `-${currentNavbarHeight}px`;
-        }
+        const h = navbarContainer.offsetHeight;
+        iframeContainer.style.marginTop = navbarVisible ? '0' : `-${h}px`;
       }
 
       function toggleNavbarVisibility() {
@@ -213,94 +208,77 @@
           navbarContainer.classList.remove('hidden');
           toggleButton.classList.remove('collapsed');
           showStatus('Navigation bar visible');
-          adjustIframeMargin();
         } else {
-          adjustIframeMargin();
           navbarContainer.classList.add('hidden');
           toggleButton.classList.add('collapsed');
           showStatus('Navigation bar hidden');
         }
+        adjustIframeMargin();
       }
 
+      // Basic toggles & shortcuts…
       toggleButton.addEventListener('click', toggleNavbarVisibility);
-
-      setTimeout(adjustIframeMargin, 50);
-
-      // Dashboard shortcut
-      document.addEventListener('keydown', function (event) {
-        if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'x') {
-          window.location.href = 'dashboard.html';
+      document.addEventListener('keydown', e => {
+        const k = e.key.toLowerCase();
+        if (e.ctrlKey && e.shiftKey) {
+          if (k === 'x') window.location = 'dashboard.html';
+          if (k === 'n') { toggleNavbarVisibility(); e.preventDefault(); }
+          if (k === 'i') { iframe.focus(); showStatus('Iframe focused! Press Enter to interact.'); e.preventDefault(); }
+          if (k === 'm') { iframe.contentWindow.postMessage('Hello from parent!', '*'); showStatus('Message sent to iframe!'); e.preventDefault(); }
         }
-      });
-
-      // Navbar toggle shortcut
-      document.addEventListener('keydown', function (event) {
-        if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'n') {
-          toggleNavbarVisibility();
-          event.preventDefault();
-        }
-      });
-
-      // === ADVANCED IFRAME INTERACTION ===
-
-      // 1. Focus iframe with Ctrl+Shift+I
-      document.addEventListener('keydown', function (event) {
-        if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'i') {
-          iframe.focus();
-          showStatus('Iframe focused! Press Enter to interact.');
-          event.preventDefault();
-        }
-      });
-
-      // 2. Show status when iframe gains or loses focus
-      iframe.addEventListener('focus', function () {
-        showStatus('You are now inside the iframe. Press Esc to return.');
-      });
-
-      iframe.addEventListener('blur', function () {
-        showStatus('You left the iframe.');
-      });
-
-      // 3. Press Esc to return focus to parent page
-      window.addEventListener('message', function (event) {
-        // Listen for "return-focus" message from iframe (if supported)
-        if (event.data === 'return-focus') {
-          window.focus();
-          showStatus('Focus returned to parent page.');
-        }
-      });
-
-      // 4. Send message to iframe with Ctrl+Shift+M (if supported)
-      document.addEventListener('keydown', function (event) {
-        if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'm') {
-          iframe.contentWindow.postMessage('Hello from parent!', '*');
-          showStatus('Message sent to iframe!');
-          event.preventDefault();
-        }
-      });
-
-      // 5. Optional: Listen for Enter key in parent and warn if not in iframe
-      document.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter' && document.activeElement !== iframe) {
+        if (e.key === 'Enter' && document.activeElement !== iframe) {
           showStatus('Press Ctrl+Shift+I to focus the iframe first!');
         }
-      });
-
-      // 6. Optional: Press Esc to blur iframe and return focus to parent
-      document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape' && document.activeElement === iframe) {
-          iframe.blur();
-          window.focus();
-          showStatus('Focus returned to parent page.');
+        if (e.key === 'Escape' && document.activeElement === iframe) {
+          iframe.blur(); window.focus(); showStatus('Focus returned to parent page.');
         }
       });
 
-      // 7. Optional: Show a message when receiving a response from the iframe
-      window.addEventListener('message', function (event) {
-        if (event.origin.startsWith('https://4sp.global.ssl.fastly.net')) {
-          showStatus('Received from iframe: ' + event.data);
+      iframe.addEventListener('focus', () => showStatus('You are now inside the iframe. Press Esc to return.'));
+      iframe.addEventListener('blur',  () => showStatus('You left the iframe.'));
+
+      // === RELAYED ALERTS BETWEEN IFRAME ↔ PARENT ===
+
+      // 1) Inject override into the iframe (same-origin only)
+      iframe.addEventListener('load', () => {
+        try {
+          const cw = iframe.contentWindow;
+          cw.eval(`
+            (function(){
+              const realAlert = window.alert;
+              window.alert = function(msg){
+                window.parent.postMessage({ type: 'relayAlert', message: msg }, '*');
+              };
+              window.addEventListener('message', ev => {
+                if (ev.data && ev.data.type === 'relayAlertResponse') {
+                  // handle the boolean response here:
+                  // ev.data.accepted is true (OK) or false (Cancel)
+                  console.log('User chose:', ev.data.accepted);
+                }
+              });
+            })();
+          `);
+        } catch (err) {
+          console.warn('Could not inject alert-override into iframe:', err);
         }
       });
+
+      // 2) Parent listens for relayAlert → shows confirm → posts back relayAlertResponse
+      window.addEventListener('message', ev => {
+        const d = ev.data;
+        if (d && d.type === 'relayAlert') {
+          const ok = confirm(d.message);
+          ev.source.postMessage({ type: 'relayAlertResponse', accepted: ok }, '*');
+          showStatus('Popup handled: ' + (ok ? 'OK' : 'Cancel'));
+        }
+        // you already had other listeners below…
+        if (typeof d === 'string' && ev.origin.startsWith('https://tszpszgtrixp75vn1pre21jghbnaldli.global.ssl.fastly.net')) {
+          showStatus('Received from iframe: ' + d);
+        }
+      });
+
+      // initial layout fix
+      setTimeout(adjustIframeMargin, 50);
     });
   </script>
 </body>
