@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4SP | Space</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --dark-bg: #0a0a0a;
+      --darker-bg: #070707;
+      --light-text: #f0f0f0;
+      --accent-color: #f0f0f0;
+      --button-height: 19px;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto Mono', monospace;
+      font-weight: bold;
+    }
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      overflow: hidden;
+    }
+    .navbar-container {
+      position: relative;
+      transition: transform 0.3s ease;
+      overflow: visible;
+      height: auto;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+    .navbar-container.hidden {
+      transform: translateY(-100%);
+    }
+    .navbar {
+      background-color: var(--darker-bg);
+      color: var(--light-text);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--accent-color);
+      width: 100%;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .nav-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    .btn {
+      padding: 0.5rem 0.5rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn.secondary {
+      background-color: transparent;
+      color: var(--light-text);
+      border: 2px solid var(--light-text);
+    }
+    .btn.secondary:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .toggle-btn {
+      position: absolute;
+      right: 0px;
+      bottom: 0;
+      width: 32px;
+      height: var(--button-height);
+      background-color: var(--darker-bg);
+      border: 2px solid var(--accent-color);
+      border-top: none;
+      border-radius: 0 0 16px 16px;
+      cursor: pointer;
+      z-index: 101;
+      transform: translateY(var(--button-height));
+      transition: transform 0.2s ease;
+    }
+    .toggle-btn:hover {
+      transform: translateY(calc(var(--button-height) - 1px));
+    }
+    .toggle-btn::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 7px solid var(--accent-color);
+      transition: transform 0.3s ease;
+    }
+    .toggle-btn.collapsed::after {
+      border-bottom: none;
+      border-top: 6px solid var(--accent-color);
+      top: 6px;
+      transform: translateX(-50%) rotate(180deg);
+    }
+    .iframe-container {
+      flex: 1;
+      width: 100%;
+      position: relative;
+      transition: margin-top 0.3s ease;
+    }
+    .iframe-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      border: none;
+    }
+    .status-message {
+      display: none;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      background-color: rgba(0, 0, 0, 0.6);
+      text-align: center;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      color: var(--light-text);
+      pointer-events: none;
+    }
+    .status-message.shown {
+      display: block;
+      animation: fadeInOut 2s ease forwards;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar-container" id="navbarContainer">
+    <nav class="navbar">
+      <div class="logo">4SP</div>
+      <div class="nav-buttons">
+        <a href="proxy-list.html" class="btn secondary">Back to Proxies</a> 
+        <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      </div>
+    </nav>
+    <button class="toggle-btn" id="toggleNavbar" aria-label="Toggle Navigation"></button>
+  </div>
+
+  <div class="status-message" id="statusMessage"></div>
+
+  <div class="iframe-container" id="iframeContainer">
+    <iframe
+      src="https://n10BZWiie8.global.ssl.fastly.net/"
+      allowfullscreen
+      id="mainIframe"
+      tabindex="0"
+      title="Home"
+    ></iframe>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleButton = document.getElementById('toggleNavbar');
+      const navbarContainer = document.getElementById('navbarContainer');
+      const statusMessage = document.getElementById('statusMessage');
+      const iframeContainer = document.getElementById('iframeContainer');
+      const iframe = document.getElementById('mainIframe');
+
+      let navbarVisible = true;
+
+      function showStatus(message) {
+        statusMessage.textContent = message;
+        statusMessage.classList.add('shown');
+        setTimeout(() => {
+          statusMessage.classList.remove('shown');
+        }, 2000);
+      }
+
+      function adjustIframeMargin() {
+        const h = navbarContainer.offsetHeight;
+        iframeContainer.style.marginTop = navbarVisible ? '0' : `-${h}px`;
+      }
+
+      function toggleNavbarVisibility() {
+        navbarVisible = !navbarVisible;
+        if (navbarVisible) {
+          navbarContainer.classList.remove('hidden');
+          toggleButton.classList.remove('collapsed');
+          showStatus('Navigation bar visible');
+        } else {
+          navbarContainer.classList.add('hidden');
+          toggleButton.classList.add('collapsed');
+          showStatus('Navigation bar hidden');
+        }
+        adjustIframeMargin();
+      }
+
+      // Basic toggles & shortcuts…
+      toggleButton.addEventListener('click', toggleNavbarVisibility);
+      document.addEventListener('keydown', e => {
+        const k = e.key.toLowerCase();
+        if (e.ctrlKey && e.shiftKey) {
+          if (k === 'x') window.location = 'dashboard.html';
+          if (k === 'n') { toggleNavbarVisibility(); e.preventDefault(); }
+          if (k === 'i') { iframe.focus(); showStatus('Iframe focused! Press Enter to interact.'); e.preventDefault(); }
+          if (k === 'm') { iframe.contentWindow.postMessage('Hello from parent!', '*'); showStatus('Message sent to iframe!'); e.preventDefault(); }
+        }
+        if (e.key === 'Enter' && document.activeElement !== iframe) {
+          showStatus('Press Ctrl+Shift+I to focus the iframe first!');
+        }
+        if (e.key === 'Escape' && document.activeElement === iframe) {
+          iframe.blur(); window.focus(); showStatus('Focus returned to parent page.');
+        }
+      });
+
+      iframe.addEventListener('focus', () => showStatus('You are now inside the iframe. Press Esc to return.'));
+      iframe.addEventListener('blur',  () => showStatus('You left the iframe.'));
+
+      // === RELAYED ALERTS BETWEEN IFRAME ↔ PARENT ===
+
+      // 1) Inject override into the iframe (same-origin only)
+      iframe.addEventListener('load', () => {
+        try {
+          const cw = iframe.contentWindow;
+          cw.eval(`
+            (function(){
+              const realAlert = window.alert;
+              window.alert = function(msg){
+                window.parent.postMessage({ type: 'relayAlert', message: msg }, '*');
+              };
+              window.addEventListener('message', ev => {
+                if (ev.data && ev.data.type === 'relayAlertResponse') {
+                  // handle the boolean response here:
+                  // ev.data.accepted is true (OK) or false (Cancel)
+                  console.log('User chose:', ev.data.accepted);
+                }
+              });
+            })();
+          `);
+        } catch (err) {
+          console.warn('Could not inject alert-override into iframe:', err);
+        }
+      });
+
+      // 2) Parent listens for relayAlert → shows confirm → posts back relayAlertResponse
+      window.addEventListener('message', ev => {
+        const d = ev.data;
+        if (d && d.type === 'relayAlert') {
+          const ok = confirm(d.message);
+          ev.source.postMessage({ type: 'relayAlertResponse', accepted: ok }, '*');
+          showStatus('Popup handled: ' + (ok ? 'OK' : 'Cancel'));
+        }
+        // you already had other listeners below…
+        if (typeof d === 'string' && ev.origin.startsWith('https://vern.global.ssl.fastly.net')) {
+          showStatus('Received from iframe: ' + d);
+        }
+      });
+
+      // initial layout fix
+      setTimeout(adjustIframeMargin, 50);
+    });
+  </script>
+</body>
+</html>
