@@ -45,33 +45,30 @@
   <footer>
     <p>© 2025 4SP</p>
   </footer>
-  <script>
-    // Firebase
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+ <script>
+  // Firebase
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-    // Change this to your admin UIDs or use a Firestore "admins" collection
-    const ADMIN_UIDS = ['YOUR_ADMIN_UID_HERE'];
-
-    // DOM
-    const userCountEl = document.getElementById('userCount');
-    const adminControls = document.getElementById('adminControls');
-    const manualCountInput = document.getElementById('manualCount');
-    const updateCountBtn = document.getElementById('updateCountBtn');
-    const autoNote = document.getElementById('autoNote');
-
-    // Listen to user count in real-time
-    function listenToUserCount() {
-      db.doc('siteData/userCount').onSnapshot(doc => {
-        if (doc.exists) {
-          userCountEl.textContent = doc.data().count;
-          manualCountInput.value = doc.data().count;
-        } else {
-          userCountEl.textContent = '0';
-          manualCountInput.value = 0;
-        }
-      });
-    }
+  // Listen to user count and auto-create if missing
+  function listenToUserCount() {
+    const userCountRef = db.doc('siteData/userCount');
+    
+    userCountRef.onSnapshot(async doc => {
+      if (doc.exists) {
+        userCountEl.textContent = doc.data().count;
+        manualCountInput.value = doc.data().count;
+      } else {
+        // Create document with default 10 if missing
+        await db.runTransaction(async transaction => {
+          const freshDoc = await transaction.get(userCountRef);
+          if (!freshDoc.exists) {
+            transaction.set(userCountRef, { count: 10 });
+          }
+        });
+      }
+    });
+  }
 
     // Update user count manually (admin only)
     updateCountBtn.addEventListener('click', () => {
