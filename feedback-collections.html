@@ -19,10 +19,18 @@
         .nav-buttons { display: flex; gap: 1.5rem; }
         .btn { padding: 1rem 2rem; border-radius: var(--pill-radius); font-size: 1rem; cursor: pointer; transition: all 0.3s ease; }
         .btn.secondary { background-color: transparent; color: var(--light-text); border: 2px solid var(--light-text); }
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; display: flex; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; display: flex; flex-direction: column; }
+        .filter-container { margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; }
+        .filter-label { font-weight: 500; margin-right: 0.5rem; }
+        select { padding: 0.75rem 2rem 0.75rem 1rem; border-radius: var(--pill-radius); font-size: 1rem; border: 2px solid var(--dark-bg); cursor: pointer; background-color: white; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%231a1a1a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.75rem center; }
         .requests-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; flex: 1; }
         .request-card { background: white; border-radius: var(--card-radius); padding: 1.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .request-card .category-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: var(--pill-radius); font-size: 0.75rem; margin-bottom: 0.5rem; color: white; }
+        .category-badge.feedback { background-color: #3498db; }
+        .category-badge.feature { background-color: #2ecc71; }
+        .category-badge.proxy { background-color: #e74c3c; }
         #loadingMessage { text-align: center; padding: 2rem; }
+        .section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
     </style>
 </head>
 <body>
@@ -35,10 +43,21 @@
     </nav>
 
     <main class="container">
-        <section class="main-content">
+        <div class="section-title">
             <h1>Feedback Collection</h1>
-            <div id="feedbackContainer" class="requests-grid"><p id="loadingMessage">Loading feedback...</p></div>
-        </section>
+            <div class="filter-container">
+                <span class="filter-label">View:</span>
+                <select id="categoryFilter">
+                    <option value="all">All Submissions</option>
+                    <option value="feedback">Feedback</option>
+                    <option value="feature">Feature Requests</option>
+                    <option value="proxy">Proxy Reports</option>
+                </select>
+            </div>
+        </div>
+        <div id="feedbackContainer" class="requests-grid">
+            <p id="loadingMessage">Loading submissions...</p>
+        </div>
     </main>
 
     <script>
@@ -46,26 +65,57 @@
             const db = firebase.firestore(), auth = firebase.auth();
             const container = document.getElementById('feedbackContainer');
             const logoutBtn = document.getElementById('logoutBtn');
+            const categoryFilter = document.getElementById('categoryFilter');
             const adminEmail = '4simpleproblems@gmail.com';
+            let allItems = [];
 
             auth.onAuthStateChanged(user => {
                 if (!user) return window.location.href = 'index.html';
                 if (user.email !== adminEmail) return window.location.href = 'feedback.html';
+                
                 db.collection('feedback').orderBy('timestamp', 'desc').onSnapshot(snap => {
-                    const items = snap.docs.map(d => ({ id: d.id, ...d.data(), timestamp: d.data().timestamp?.toDate() }));
-                    render(items);
-                }, e => container.innerHTML = '<p>Error loading feedback</p>');
+                    allItems = snap.docs.map(d => ({ 
+                        id: d.id, 
+                        ...d.data(), 
+                        timestamp: d.data().timestamp?.toDate(),
+                        // Set default category for older entries that don't have one
+                        category: d.data().category || 'feedback'
+                    }));
+                    filterAndRender();
+                }, e => container.innerHTML = '<p>Error loading submissions</p>');
             });
 
+            categoryFilter.addEventListener('change', filterAndRender);
+
+            function filterAndRender() {
+                const selectedCategory = categoryFilter.value;
+                const filteredItems = selectedCategory === 'all' 
+                    ? allItems 
+                    : allItems.filter(item => item.category === selectedCategory);
+                
+                render(filteredItems);
+            }
+
             function render(list) {
-                if (!list.length) return container.innerHTML = '<p>No feedback found</p>';
-                container.innerHTML = list.map(item => `
+                if (!list.length) return container.innerHTML = '<p>No submissions found</p>';
+                
+                container.innerHTML = list.map(item => {
+                    // Get category display name
+                    let categoryName = 'Feedback';
+                    if (item.category === 'feature') categoryName = 'Feature Request';
+                    if (item.category === 'proxy') categoryName = 'Proxy Report';
+                    
+                    return `
                     <div class="request-card">
+                        <span class="category-badge ${item.category}">${categoryName}</span>
                         <h3>${item.title}</h3>
                         <p>${item.description}</p>
-                        <div class="request-meta"><span>${item.timestamp?.toLocaleString() || ''}</span> <span>| From: ${item.submittedBy}</span></div>
-                    </div>`
-                ).join('');
+                        <div class="request-meta">
+                            <span>${item.timestamp?.toLocaleString() || ''}</span>
+                            <span>| From: ${item.submittedBy}</span>
+                        </div>
+                    </div>`;
+                }).join('');
             }
 
             logoutBtn.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'index.html'));
