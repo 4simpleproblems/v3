@@ -24,7 +24,8 @@
         .form-container { max-width: 700px; margin: 2rem auto; padding: 2rem; background: var(--white); border-radius: var(--card-radius); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 1.5rem; }
         label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        input[type="text"], textarea { width: 100%; padding: 1rem; border: 1px solid var(--dark-gray); border-radius: var(--pill-radius); font-size: 1rem; background-color: var(--white); }
+        input[type="text"], textarea, select { width: 100%; padding: 1rem; border: 1px solid var(--dark-gray); border-radius: var(--pill-radius); font-size: 1rem; background-color: var(--white); }
+        select { cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; }
         textarea { min-height: 120px; resize: vertical; }
         .submit-btn { width: 100%; padding: 1rem; background-color: var(--black); color: var(--white); border: none; border-radius: var(--pill-radius); font-size: 1rem; cursor: pointer; transition: all 0.3s ease; }
         .submit-btn:hover { background-color: var(--dark-gray); }
@@ -48,6 +49,14 @@
         <h1>Submit Feedback</h1>
         <form id="feedbackForm">
             <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" required>
+                    <option value="feedback">Feedback</option>
+                    <option value="feature">Feature Request</option>
+                    <option value="proxy">Proxy Report</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="title">Title</label>
                 <input type="text" id="title" required maxlength="50">
             </div>
@@ -55,7 +64,7 @@
                 <label for="description">Description</label>
                 <textarea id="description" required maxlength="200"></textarea>
             </div>
-            <button type="submit" class="submit-btn">Submit Feedback</button>
+            <button type="submit" class="submit-btn">Submit</button>
             <div id="message" class="message"></div>
         </form>
     </main>
@@ -77,12 +86,19 @@
 
             feedbackForm.addEventListener('submit', async e => {
                 e.preventDefault();
+                const category = document.getElementById('category').value;
                 const title = document.getElementById('title').value.trim();
                 const description = document.getElementById('description').value.trim();
                 const userEmail = auth.currentUser.email;
                 try {
-                    await db.collection('feedback').add({ title, description, submittedBy: userEmail, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-                    showMessage('Feedback submitted successfully!', 'success');
+                    await db.collection('feedback').add({ 
+                        category,
+                        title, 
+                        description, 
+                        submittedBy: userEmail, 
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+                    });
+                    showMessage('Submission successful!', 'success');
                     feedbackForm.reset();
                 } catch (err) {
                     showMessage('Error: ' + err.message, 'error');
