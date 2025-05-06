@@ -172,7 +172,7 @@
 
   <div class="iframe-container" id="iframeContainer">
     <iframe
-      src="https://ewmdv6ll88eps0jvnchli5v9i4zujgnzlxzu6hp35kdfd7e6ua937fzrmn.global.ssl.fastly.net/"
+      src="https://vern.surge.sh/"
       allowfullscreen
       id="mainIframe"
       tabindex="0"
@@ -273,7 +273,7 @@
           showStatus('Popup handled: ' + (ok ? 'OK' : 'Cancel'));
         }
         // you already had other listeners below…
-        if (typeof d === 'string' && ev.origin.startsWith('https://ewmdv6ll88eps0jvnchli5v9i4zujgnzlxzu6hp35kdfd7e6ua937fzrmn.global.ssl.fastly.net/')) {
+        if (typeof d === 'string' && ev.origin.startsWith('https://vern.surge.sh/')) {
           showStatus('Received from iframe: ' + d);
         }
       });
