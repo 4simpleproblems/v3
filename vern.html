@@ -115,15 +115,20 @@
       top: 6px;
       transform: translateX(-50%) rotate(180deg);
     }
-    .content-container { /* Renamed for clarity, original CSS also works */
+    .iframe-container {
       flex: 1;
       width: 100%;
-      position: relative; /* Needed for absolute positioning if you add content inside */
+      position: relative;
       transition: margin-top 0.3s ease;
-      overflow: auto; /* Add scrollbars if content is too large */
     }
-    /* Note: Styles targeting iframe inside container are removed/not applicable */
-
+    .iframe-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      border: none;
+    }
     .status-message {
       display: none;
       padding: 0.3rem 0.8rem;
@@ -149,11 +154,6 @@
       80% { opacity: 1; }
       100% { opacity: 0; }
     }
-    .error-message {
-        color: red;
-        padding: 20px;
-        text-align: center;
-    }
   </style>
 </head>
 <body>
@@ -161,7 +161,7 @@
     <nav class="navbar">
       <div class="logo">4SP</div>
       <div class="nav-buttons">
-        <a href="proxy-list.html" class="btn secondary">Back to Proxies</a>
+        <a href="proxy-list.html" class="btn secondary">Back to Proxies</a> 
         <a href="dashboard.html" class="btn secondary">Dashboard</a>
       </div>
     </nav>
@@ -170,8 +170,14 @@
 
   <div class="status-message" id="statusMessage"></div>
 
-  <div class="content-container" id="contentContainer">
-      <div class="error-message">Attempting to load content...</div>
+  <div class="iframe-container" id="iframeContainer">
+    <iframe
+      src="https://vern-alf.pages.dev/"
+      allowfullscreen
+      id="mainIframe"
+      tabindex="0"
+      title="Home"
+    ></iframe>
   </div>
 
   <script>
@@ -179,10 +185,10 @@
       const toggleButton = document.getElementById('toggleNavbar');
       const navbarContainer = document.getElementById('navbarContainer');
       const statusMessage = document.getElementById('statusMessage');
-      const contentContainer = document.getElementById('contentContainer'); // Updated ID
+      const iframeContainer = document.getElementById('iframeContainer');
+      const iframe = document.getElementById('mainIframe');
 
       let navbarVisible = true;
-      const externalUrl = 'https://vern-alf.pages.dev/'; // URL to load
 
       function showStatus(message) {
         statusMessage.textContent = message;
@@ -192,9 +198,9 @@
         }, 2000);
       }
 
-      function adjustContentMargin() {
+      function adjustIframeMargin() {
         const h = navbarContainer.offsetHeight;
-        contentContainer.style.marginTop = navbarVisible ? '0' : `-${h}px`;
+        iframeContainer.style.marginTop = navbarVisible ? '0' : `-${h}px`;
       }
 
       function toggleNavbarVisibility() {
@@ -208,71 +214,72 @@
           toggleButton.classList.add('collapsed');
           showStatus('Navigation bar hidden');
         }
-        adjustContentMargin();
+        adjustIframeMargin();
       }
-
-      // Function to load external content
-      async function loadExternalContent() {
-          try {
-              // **IMPORTANT:** This fetch request is subject to CORS (Cross-Origin Resource Sharing)
-              // It will likely be blocked by the browser unless vern.global.ssl.fastly.net
-              // explicitly allows requests from your origin.
-              showStatus('Fetching content...');
-              const response = await fetch(externalUrl);
-
-              if (!response.ok) {
-                  // Handle HTTP errors (like 404, 500, etc.)
-                  // Cross-origin fetch might not even reach this point on failure,
-                  // the promise might reject instead.
-                  throw new Error(`HTTP error! Status: ${response.status}`);
-              }
-
-              const htmlContent = await response.text();
-
-              // Inject the fetched HTML into the container
-              contentContainer.innerHTML = htmlContent; // Be cautious with innerHTML and untrusted sources
-
-              showStatus('Content loaded successfully (subject to CORS limitations)');
-
-              // Note: Scripts within the fetched HTML might not execute correctly
-              // or interact as expected when injected this way. Styles might also conflict.
-
-          } catch (error) {
-              console.error('Failed to load external content:', error);
-              contentContainer.innerHTML = `
-                  <div class="error-message">
-                      Failed to load content from ${externalUrl}.<br>
-                      This is likely due to browser security restrictions (CORS).<br>
-                      Directly fetching content from another website using client-side JavaScript is usually not allowed.
-                  </div>
-              `;
-              showStatus('Failed to load content (CORS issue likely)');
-          }
-      }
-
 
       // Basic toggles & shortcuts…
       toggleButton.addEventListener('click', toggleNavbarVisibility);
-
-      // Adjusted shortcut handling - removed iframe focus/message shortcuts
       document.addEventListener('keydown', e => {
         const k = e.key.toLowerCase();
         if (e.ctrlKey && e.shiftKey) {
           if (k === 'x') window.location = 'dashboard.html';
           if (k === 'n') { toggleNavbarVisibility(); e.preventDefault(); }
-          // Removed iframe-specific shortcuts (i, m)
+          if (k === 'i') { iframe.focus(); showStatus('Iframe focused! Press Enter to interact.'); e.preventDefault(); }
+          if (k === 'm') { iframe.contentWindow.postMessage('Hello from parent!', '*'); showStatus('Message sent to iframe!'); e.preventDefault(); }
         }
-        // Removed Enter key check related to iframe focus
-        // Removed Escape key check related to iframe blur
+        if (e.key === 'Enter' && document.activeElement !== iframe) {
+          showStatus('Press Ctrl+Shift+I to focus the iframe first!');
+        }
+        if (e.key === 'Escape' && document.activeElement === iframe) {
+          iframe.blur(); window.focus(); showStatus('Focus returned to parent page.');
+        }
       });
 
-      // Removed iframe-specific event listeners (focus, blur, message from iframe)
+      iframe.addEventListener('focus', () => showStatus('You are now inside the iframe. Press Esc to return.'));
+      iframe.addEventListener('blur',  () => showStatus('You left the iframe.'));
 
-      // Attempt to load content on page load
-      loadExternalContent();
+      // === RELAYED ALERTS BETWEEN IFRAME ↔ PARENT ===
+
+      // 1) Inject override into the iframe (same-origin only)
+      iframe.addEventListener('load', () => {
+        try {
+          const cw = iframe.contentWindow;
+          cw.eval(`
+            (function(){
+              const realAlert = window.alert;
+              window.alert = function(msg){
+                window.parent.postMessage({ type: 'relayAlert', message: msg }, '*');
+              };
+              window.addEventListener('message', ev => {
+                if (ev.data && ev.data.type === 'relayAlertResponse') {
+                  // handle the boolean response here:
+                  // ev.data.accepted is true (OK) or false (Cancel)
+                  console.log('User chose:', ev.data.accepted);
+                }
+              });
+            })();
+          `);
+        } catch (err) {
+          console.warn('Could not inject alert-override into iframe:', err);
+        }
+      });
+
+      // 2) Parent listens for relayAlert → shows confirm → posts back relayAlertResponse
+      window.addEventListener('message', ev => {
+        const d = ev.data;
+        if (d && d.type === 'relayAlert') {
+          const ok = confirm(d.message);
+          ev.source.postMessage({ type: 'relayAlertResponse', accepted: ok }, '*');
+          showStatus('Popup handled: ' + (ok ? 'OK' : 'Cancel'));
+        }
+        // you already had other listeners below…
+        if (typeof d === 'string' && ev.origin.startsWith('https://vern-alf.pages.dev/')) {
+          showStatus('Received from iframe: ' + d);
+        }
+      });
 
       // initial layout fix
-      setTimeout(adjustContentMargin, 50);
+      setTimeout(adjustIframeMargin, 50);
     });
   </script>
 </body>
