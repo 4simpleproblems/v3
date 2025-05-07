@@ -18,6 +18,7 @@
             --light-text: #f0f0f0;
             --light-gray: #e0e0e0;
             --tile-height: 280px;
+            --section-color: #3498db;
         }
 
         body {
@@ -95,10 +96,25 @@
             display: none !important;
         }
 
+        /* Dashboard section headers */
+        .section-header {
+            margin: 3rem 0 1.5rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--section-color);
+            color: var(--dark-bg);
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        /* First section header needs less top margin */
+        .section-header:first-of-type {
+            margin-top: 1rem;
+        }
+
         /* Dashboard grid layout */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
             margin: 2rem 0;
         }
@@ -155,7 +171,17 @@
             border-color: var(--dark-bg);
         }
 
-        /* Admin Tiles */
+        /* Section specific tiles */
+        .entertainment-tile {
+            background-color: #f9f9f9;
+            border-color: #e6e6e6;
+        }
+        
+        .games-tile {
+            background-color: #e8f4ff;
+            border-color: #d5ebff;
+        }
+        
         .admin-tile {
             background-color: #f9f9f9;
             border-color: #ccc;
@@ -325,7 +351,9 @@
     <main class="container">
         <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
 
-        <div class="dashboard-grid" id="dashboardGrid">
+        <!-- Main Section -->
+        <h2 class="section-header">Media & Entertainment</h2>
+        <div class="dashboard-grid">
             <a href="soundboard.html" class="dashboard-tile">
                 <div class="tile-content">
                     <h3>Soundboard</h3>
@@ -333,23 +361,7 @@
                 </div>
                 <div class="tile-frame"></div>
             </a>
- 
-            <a href="vern.html" class="dashboard-tile">
-              <div class="tile-content">
-                <h3>Vern</h3>
-                <p>The only proxy that works, so why bother showing the rest.</p>
-              </div>
-              <div class="tile-frame"></div>
-            </a>
-
-            <a href="links.html" class="dashboard-tile">
-                <div class="tile-content">
-                    <h3>Links</h3>
-                    <p>Uploaded links by 4SP, including Eaglercraft, and other crap.</p>
-                </div>
-                <div class="tile-frame"></div>
-            </a>
-           
+            
             <a href="media-list.html" class="dashboard-tile">
                 <div class="tile-content">
                     <h3>Media</h3>
@@ -358,12 +370,12 @@
                 <div class="tile-frame"></div>
             </a>
 
-             <a href="playlist.html" class="dashboard-tile">
-              <div class="tile-content">
-                <h3>Playlists (Beta)</h3>
-                <p>Access and store sounds you like.</p>
-              </div>
-              <div class="tile-frame"></div>
+            <a href="playlist.html" class="dashboard-tile">
+                <div class="tile-content">
+                    <h3>Playlists (Beta)</h3>
+                    <p>Access and store sounds you like.</p>
+                </div>
+                <div class="tile-frame"></div>
             </a>
 
             <a href="localsounds.html" class="dashboard-tile">
@@ -374,6 +386,38 @@
                 <div class="tile-frame"></div>
             </a>
             
+            <a href="4simpleproblems.github.io/games/" class="dashboard-tile games-tile">
+                <div class="tile-content">
+                    <h3>Games</h3>
+                    <p>Play a variety of browser games from our curated collection.</p>
+                </div>
+                <div class="tile-frame"></div>
+            </a>
+        </div>
+
+        <!-- Web Access Section -->
+        <h2 class="section-header">Web Access</h2>
+        <div class="dashboard-grid">
+            <a href="vern.html" class="dashboard-tile">
+                <div class="tile-content">
+                    <h3>Vern</h3>
+                    <p>The only proxy that works, so why bother showing the rest.</p>
+                </div>
+                <div class="tile-frame"></div>
+            </a>
+
+            <a href="links.html" class="dashboard-tile">
+                <div class="tile-content">
+                    <h3>Links</h3>
+                    <p>Uploaded links by 4SP, including Eaglercraft, and other crap.</p>
+                </div>
+                <div class="tile-frame"></div>
+            </a>
+        </div>
+
+        <!-- User Interaction Section -->
+        <h2 class="section-header">User Interaction</h2>
+        <div class="dashboard-grid">
             <a href="requests.html" class="dashboard-tile">
                 <div class="tile-content">
                     <h3>Request Sound</h3>
@@ -382,22 +426,26 @@
                 <div class="tile-frame"></div>
             </a>
 
-          <a href="collections.html" class="dashboard-tile">
-              <div class="tile-content">
-                <h3>Request Collections</h3>
-                <p>View sound requests organized by category.</p>
-              </div>
-              <div class="tile-frame"></div>
+            <a href="collections.html" class="dashboard-tile">
+                <div class="tile-content">
+                    <h3>Request Collections</h3>
+                    <p>View sound requests organized by category.</p>
+                </div>
+                <div class="tile-frame"></div>
             </a>
             
             <a href="feedback.html" class="dashboard-tile">
-              <div class="tile-content">
-                <h3>Feedback</h3>
-                <p>Suggest user feedback to 4SP for improvement in the website.</p>
-              </div>
-              <div class="tile-frame"></div>
+                <div class="tile-content">
+                    <h3>Feedback</h3>
+                    <p>Suggest user feedback to 4SP for improvement in the website.</p>
+                </div>
+                <div class="tile-frame"></div>
             </a>
-            
+        </div>
+
+        <!-- User Settings Section -->
+        <h2 class="section-header">User Settings</h2>
+        <div class="dashboard-grid">
             <a href="account.html" class="dashboard-tile">
                 <div class="tile-content">
                     <h3>Account</h3>
@@ -407,22 +455,24 @@
             </a>
 
             <a href="legal-list.html" class="dashboard-tile">
-              <div class="tile-content">
-                <h3>Legal & Policies</h3>
-                <p>Legal center for our website, including privacy policy and our terms of service.</p>
-              </div>
-              <div class="tile-frame"></div>
+                <div class="tile-content">
+                    <h3>Legal & Policies</h3>
+                    <p>Legal center for our website, including privacy policy and our terms of service.</p>
+                </div>
+                <div class="tile-frame"></div>
             </a>
+        </div>
             
-            <!-- Admin-Only Tiles -->
-            <a href="feedback-collections.html" class="dashboard-tile admin-tile hidden" id="analyticsTile">
+        <!-- Admin-Only Section - Hidden by default -->
+        <h2 class="section-header hidden" id="adminSectionHeader">Admin Controls</h2>
+        <div class="dashboard-grid hidden" id="adminSection">
+            <a href="feedback-collections.html" class="dashboard-tile admin-tile" id="analyticsTile">
                 <div class="tile-content">
                     <h3>Feedback Collection</h3>
                     <p>Access user feedback and suggestions.</p>
                 </div>
                 <div class="tile-frame"></div>
             </a>
-
         </div>
     </main>
 
@@ -461,27 +511,24 @@
         // Authentication state management
         function handleAuthState(user) {
             const authNotice = document.getElementById('authNotice');
-            const dashboardGrid = document.getElementById('dashboardGrid');
+            const dashboardSections = document.querySelectorAll('.dashboard-grid');
             const logoutBtn = document.getElementById('logoutBtn');
-            const analyticsTile = document.getElementById('analyticsTile');
-            const editProfileTile = document.getElementById('editProfileTile');
-            const subscriptionsTile = document.getElementById('subscriptionsTile');
+            const adminSectionHeader = document.getElementById('adminSectionHeader');
+            const adminSection = document.getElementById('adminSection');
             const adminEmail = '4simpleproblems@gmail.com'; // Replace with your admin email
 
             if (user) {
                 authNotice.classList.add('hidden');
-                dashboardGrid.classList.remove('hidden');
+                dashboardSections.forEach(section => section.classList.remove('hidden'));
                 if (logoutBtn) logoutBtn.classList.remove('hidden');
 
                 // Check if user is admin
                 if (user.email === adminEmail) {
-                    analyticsTile.classList.remove('hidden');
-                    editProfileTile?.classList.remove('hidden');
-                    subscriptionsTile?.classList.remove('hidden');
+                    adminSectionHeader.classList.remove('hidden');
+                    adminSection.classList.remove('hidden');
                 } else {
-                    analyticsTile.classList.add('hidden');
-                    editProfileTile?.classList.add('hidden');
-                    subscriptionsTile?.classList.add('hidden');
+                    adminSectionHeader.classList.add('hidden');
+                    adminSection.classList.add('hidden');
                 }
             } else {
                 window.location.href = 'index.html';
