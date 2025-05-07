@@ -138,6 +138,9 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border: 1px solid var(--light-gray);
             box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+
+            /* ensure each tile fills its grid cell */
+            width: 100%;
         }
         .dashboard-tile .tile-content {
             position: relative;
@@ -177,9 +180,10 @@
             border-color: #e6e6e6;
         }
         
+        /* Remove blue styling from Games tile */
         .games-tile {
-            background-color: #e8f4ff;
-            border-color: #d5ebff;
+            background-color: #fff;
+            border-color: var(--light-gray);
         }
         
         .admin-tile {
@@ -354,7 +358,7 @@
         <!-- Main Section -->
         <h2 class="section-header">Media & Entertainment</h2>
         <div class="dashboard-grid">
-            <a href="soundboard.html" class="dashboard-tile">
+            <a href="soundboard.html" class="dashboard-tile entertainment-tile">
                 <div class="tile-content">
                     <h3>Soundboard</h3>
                     <p>Access all available sound clips and categories. Play, hear, and admire these amazing sounds.</p>
@@ -362,7 +366,7 @@
                 <div class="tile-frame"></div>
             </a>
             
-            <a href="media-list.html" class="dashboard-tile">
+            <a href="media-list.html" class="dashboard-tile entertainment-tile">
                 <div class="tile-content">
                     <h3>Media</h3>
                     <p>Listen/Watch media using multiple sites.</p>
@@ -370,7 +374,7 @@
                 <div class="tile-frame"></div>
             </a>
 
-            <a href="playlist.html" class="dashboard-tile">
+            <a href="playlist.html" class="dashboard-tile entertainment-tile">
                 <div class="tile-content">
                     <h3>Playlists (Beta)</h3>
                     <p>Access and store sounds you like.</p>
@@ -378,7 +382,7 @@
                 <div class="tile-frame"></div>
             </a>
 
-            <a href="localsounds.html" class="dashboard-tile">
+            <a href="localsounds.html" class="dashboard-tile entertainment-tile">
                 <div class="tile-content">
                     <h3>Local Sounds</h3>
                     <p>Upload and play your own local MP3 files.</p>
@@ -386,7 +390,7 @@
                 <div class="tile-frame"></div>
             </a>
             
-            <a href="4simpleproblems.github.io/games/" class="dashboard-tile games-tile">
+            <a href="https://4simpleproblems.github.io/game/" target="_blank" rel="noopener" class="dashboard-tile games-tile">
                 <div class="tile-content">
                     <h3>Games</h3>
                     <p>Play a variety of browser games from our curated collection.</p>
