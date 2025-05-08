@@ -14,7 +14,7 @@
   <!-- Firebase Configuration -->
   <script src="firebase-config.js"></script>
 
-  <style>
+    <style>
     /* Hide logout until auth state is confirmed */
     #logoutBtn {
       display: none;
@@ -446,16 +446,33 @@
           <div class="options-section">
             <h3>Playback Options</h3>
             <label>
-              <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
+              <input type="checkbox" id="soundOverlayCheckbox" /> Sound Overlay
             </label>
             <label>
-              <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
+              <input type="checkbox" id="autoClickerCheckbox" /> Auto Clicker
             </label>
             <label id="autoClickDelayLabel" style="display: none;">
               Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" />
               <button id="applyDelayBtn">Apply</button>
             </label>
+
+            <!-- New Options -->
+            <label>
+              <input type="checkbox" id="stableVolumeCheckbox" /> Stable Volume
+            </label>
+            <label>
+              <input type="checkbox" id="repeatSoundsCheckbox" /> Repeat Sounds
+            </label>
+            <label>
+              Playback Speed: <input type="number" id="playbackSpeedInput" value="1" step="0.05" min="0.25" max="3" />
+            </label>
+            <div class="speed-presets">
+              <button type="button" class="preset-button" data-speed="0.5">Slow</button>
+              <button type="button" class="preset-button" data-speed="1">Normal</button>
+              <button type="button" class="preset-button" data-speed="2">Fast</button>
+            </div>
           </div>
+
           <div class="options-section">
             <h3>Management</h3>
             <button id="clearAllSoundsBtn" class="btn secondary">
@@ -507,13 +524,16 @@
       const autoClickDelayInput = document.getElementById('autoClickDelay');
       const autoClickDelayLabel = document.getElementById('autoClickDelayLabel');
       const applyDelayBtn = document.getElementById('applyDelayBtn');
+      const stableVolumeCheckbox = document.getElementById('stableVolumeCheckbox');
+      const repeatSoundsCheckbox = document.getElementById('repeatSoundsCheckbox');
+      const playbackSpeedInput = document.getElementById('playbackSpeedInput');
+      const presetButtons = document.querySelectorAll('.preset-button');
       const overlay = document.getElementById('overlay');
       const optionsButton = document.querySelector('.options-button');
       const optionsMenu = document.getElementById('optionsMenu');
       const statusMessage = document.getElementById('statusMessage');
       const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
       const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
-      const logoutBtn = document.getElementById('logoutBtn');
 
       // State variables
       let playingAudios = [];
@@ -695,6 +715,10 @@
           if (!soundOverlayCheckbox.checked) stopAllAudios();
           try {
             const audio = new Audio(soundPath);
+            // apply new options
+            audio.volume = stableVolumeCheckbox.checked ? 1 : 1;
+            audio.loop = repeatSoundsCheckbox.checked;
+            audio.playbackRate = parseFloat(playbackSpeedInput.value) || 1;
             audio.addEventListener('ended', () => {
               playingAudios = playingAudios.filter(a => a !== audio);
             });
@@ -717,40 +741,26 @@
         container.appendChild(button);
       }
 
-      // Event Listeners
-      soundOverlayCheckbox.addEventListener('change', function() {
-        if (!this.checked) stopAllAudios();
-        localStorage.setItem('soundOverlay', this.checked);
+      // Listeners for new options
+      stableVolumeCheckbox.addEventListener('change', () => {
+        localStorage.setItem('stableVolume', stableVolumeCheckbox.checked);
       });
-      autoClickerCheckbox.addEventListener('change', function() {
-        autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
-        if (this.checked && currentlyHoveredButton) startAutoClicker();
-        if (!this.checked) stopAutoClicker();
-        localStorage.setItem('autoClicker', this.checked);
+      repeatSoundsCheckbox.addEventListener('change', () => {
+        localStorage.setItem('repeatSounds', repeatSoundsCheckbox.checked);
       });
-      autoClickDelayInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          applyAutoClickerDelay();
-        }
+      playbackSpeedInput.addEventListener('change', () => {
+        let val = parseFloat(playbackSpeedInput.value);
+        if (isNaN(val) || val < 0.25) val = 0.25;
+        if (val > 3) val = 3;
+        playbackSpeedInput.value = val;
+        localStorage.setItem('playbackSpeed', playbackSpeedInput.value);
       });
-      applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
-      clearAllSoundsBtn.addEventListener('click', function(e) {
-        createRipple(e);
-        this.classList.add('active');
-        setTimeout(() => this.classList.remove('active'), 400);
-        clearAllSounds(false);
-      });
-      document.addEventListener('keydown', function(e) {
-        if (e.shiftKey && e.key.toLowerCase() === 'c') clearAllSounds(true);
-      });
-      optionsButton.addEventListener('click', function(e) {
-        e.stopPropagation();
-        menuIsOpen ? closeOptionsMenu() : openOptionsMenu();
-      });
-      overlay.addEventListener('click', closeOptionsMenu);
+      presetButtons.forEach(btn => btn.addEventListener('click', () => {
+        playbackSpeedInput.value = btn.dataset.speed;
+        playbackSpeedInput.dispatchEvent(new Event('change'));
+      }));
 
-      // Load preferences & sounds
+      // Load preferences
       (function loadPreferences() {
         if (localStorage.getItem('soundOverlay') === 'true') soundOverlayCheckbox.checked = true;
         if (localStorage.getItem('autoClicker') === 'true') {
@@ -759,8 +769,13 @@
         }
         const savedDelay = localStorage.getItem('autoClickDelay');
         if (savedDelay !== null) autoClickDelayInput.value = savedDelay;
+        if (localStorage.getItem('stableVolume') === 'true') stableVolumeCheckbox.checked = true;
+        if (localStorage.getItem('repeatSounds') === 'true') repeatSoundsCheckbox.checked = true;
+        const savedSpeed = localStorage.getItem('playbackSpeed');
+        if (savedSpeed) playbackSpeedInput.value = savedSpeed;
       })();
 
+      // Fetch and render sound buttons
       fetch('SoundboardSN.json')
         .then(r => r.json())
         .then(data => {
@@ -768,6 +783,20 @@
           (data.ExplicitSounds || []).forEach(f => createSoundButton('ExplicitSounds', f, explicitSoundsContainer));
         })
         .catch(console.error);
+
+      // Existing management and menu event listeners...
+      clearAllSoundsBtn.addEventListener('click', e => {
+        createRipple(e);
+        clearAllSounds(false);
+      });
+      document.addEventListener('keydown', e => {
+        if (e.shiftKey && e.key.toLowerCase() === 'c') clearAllSounds(true);
+      });
+      optionsButton.addEventListener('click', e => {
+        e.stopPropagation();
+        menuIsOpen ? closeOptionsMenu() : openOptionsMenu();
+      });
+      overlay.addEventListener('click', closeOptionsMenu);
     });
   </script>
 </body>
