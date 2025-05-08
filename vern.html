@@ -170,12 +170,13 @@
   <div class="status-message" id="statusMessage"></div>
 
   <div class="iframe-container" id="iframeContainer">
+    <!-- Updated src to point to your local verndisplay.html -->
     <iframe
-      src="https://vern.surge.sh/"
+      src="verndisplay.html"
       allowfullscreen
       id="mainIframe"
       tabindex="0"
-      title="Home"
+      title="Vern Display"
     ></iframe>
   </div>
 
@@ -216,7 +217,6 @@
         adjustIframeMargin();
       }
 
-      // Basic toggles & shortcuts…
       toggleButton.addEventListener('click', toggleNavbarVisibility);
       document.addEventListener('keydown', e => {
         const k = e.key.toLowerCase();
@@ -237,13 +237,9 @@
       iframe.addEventListener('focus', () => showStatus('You are now inside the iframe. Press Esc to return.'));
       iframe.addEventListener('blur',  () => showStatus('You left the iframe.'));
 
-      // === RELAYED ALERTS BETWEEN IFRAME ↔ PARENT ===
-
-      // 1) Inject override into the iframe (same-origin only)
       iframe.addEventListener('load', () => {
         try {
-          const cw = iframe.contentWindow;
-          cw.eval(`
+          iframe.contentWindow.eval(`
             (function(){
               const realAlert = window.alert;
               window.alert = function(msg){
@@ -251,8 +247,6 @@
               };
               window.addEventListener('message', ev => {
                 if (ev.data && ev.data.type === 'relayAlertResponse') {
-                  // handle the boolean response here:
-                  // ev.data.accepted is true (OK) or false (Cancel)
                   console.log('User chose:', ev.data.accepted);
                 }
               });
@@ -263,7 +257,6 @@
         }
       });
 
-      // 2) Parent listens for relayAlert → shows confirm → posts back relayAlertResponse
       window.addEventListener('message', ev => {
         const d = ev.data;
         if (d && d.type === 'relayAlert') {
@@ -271,13 +264,11 @@
           ev.source.postMessage({ type: 'relayAlertResponse', accepted: ok }, '*');
           showStatus('Popup handled: ' + (ok ? 'OK' : 'Cancel'));
         }
-        // you already had other listeners below…
-        if (typeof d === 'string' && ev.origin.startsWith('https://vern.surge.sh/')) {
+        if (typeof d === 'string') {
           showStatus('Received from iframe: ' + d);
         }
       });
 
-      // initial layout fix
       setTimeout(adjustIframeMargin, 50);
     });
   </script>
