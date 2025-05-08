@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>vern.surge.sh Viewer</title>
+  <title>Vern Viewer</title>
   <style>
     html, body {
       margin: 0;
@@ -18,6 +18,42 @@
   </style>
 </head>
 <body>
-  <iframe src="https://vern.surge.sh" title="vern.surge.sh"></iframe>
+  <iframe 
+    id="viewer" 
+    src="https://vern.surge.sh" 
+    title="vern.surge.sh" 
+    allowfullscreen="true"
+    allow="fullscreen; payment; geolocation"
+    referrerpolicy="origin"></iframe>
+
+  <script>
+    // Handle messages from the iframe for potential redirect requests
+    window.addEventListener('message', function(event) {
+      // You can add origin checking for security if needed
+      // if (event.origin !== "https://vern.surge.sh") return;
+      
+      if (event.data && event.data.type === 'redirect') {
+        if (event.data.url) {
+          window.location.href = event.data.url;
+        }
+      }
+    });
+
+    // Add keyboard shortcut for fullscreen (F11 functionality)
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'f' || e.keyCode === 70) {
+        const iframe = document.getElementById('viewer');
+        if (iframe.requestFullscreen) {
+          iframe.requestFullscreen();
+        } else if (iframe.mozRequestFullScreen) {
+          iframe.mozRequestFullScreen();
+        } else if (iframe.webkitRequestFullscreen) {
+          iframe.webkitRequestFullscreen();
+        } else if (iframe.msRequestFullscreen) {
+          iframe.msRequestFullscreen();
+        }
+      }
+    });
+  </script>
 </body>
 </html>
