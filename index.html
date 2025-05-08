@@ -2,68 +2,144 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>4SP | Home</title>
-  <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
+  
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="firebase-config.js"></script>
-
-  <!-- Inline styles to override any fading (transition) behavior -->
+  
   <style>
-    :root {
-      --dark-bg: #1a1a1a;
-      --light-text: #f0f0f0;
-      --light-gray: #e0e0e0;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    /* Basic button styles from your external CSS might be here as well. */
+    body {
+      font-family: 'Roboto Mono', monospace;
+      background-color: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+    }
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    /* Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #111;
+      color: #fff;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+    }
     .btn {
-      display: inline-block;
-      padding: 1rem 2rem;
-      border-radius: 50px;
-      font-size: 1rem;
-      cursor: pointer;
-      text-align: center;
-      border: 2px solid transparent;
+      padding: 8px 16px;
+      border-radius: 30px;
+      text-decoration: none;
       font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      font-family: 'Roboto Mono', monospace;
     }
     .btn.primary {
-      background-color: var(--dark-bg);
-      color: var(--light-text);
+      background-color: #4285F4;
+      color: #fff;
+      border: 1px solid ;
+
     }
     .btn.secondary {
       background-color: transparent;
-      color: var(--light-text);
-      border-color: var(--light-text);
+      color: white;
+      border: 1px solid white;
     }
-    /* Remove any transition from buttons in the navigation */
-    .nav-buttons .btn,
-    .nav-buttons .middle-login-btn,
-    .auth-form .middle-login-btn {
-      transition: none !important;
+        .btn.google {
+      background-color: #1e1e1e;
+      color: white;
+      border: 3px solid #000;
     }
-    /* Ensure the hidden class remains as intended */
-    .hidden {
+    .btn.primary:hover {
+      background-color: #3367d6;
+    }
+    .btn.secondary:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+    .btn.full-width {
+      width: 100%;
+      margin-top: 15px;
+    }
+    /* Card / Auth Container */
+    .home-container {
+      width: 100%;
+      max-width: 900px;
+      margin: 40px auto;
+      background-color: #fff;
+      border-radius: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+      padding: 40px 30px;
+      text-align: center;
+    }
+    .home-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .home-quote {
+      font-size: 18px;
+      color: #666;
+      margin-bottom: 30px;
+      min-height: 24px;
+    }
+    .auth-form {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+    .auth-separator {
+      margin: 15px 0;
+      color: #bbb;
+    }
+    .message {
+      padding: 10px;
+      border-radius: 15px;
+      margin-bottom: 20px;
       display: none;
     }
-
-    /* If you have a specific rule for .middle-login-btn from previous code, override it */
-    .middle-login-btn {
-      background-color: transparent;
-      color: var(--dark-bg);
-      border: 2px solid var(--dark-bg);
-      width: 100%;
-      padding: 1rem;
-      border-radius: 50px;
-      font-size: 1rem;
-      cursor: pointer;
+    .message.success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .message.error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    footer {
       text-align: center;
-      font-weight: 500;
-      margin-top: 0.5rem;
-      transition: none !important;
+      padding: 20px;
+      color: #666;
+      font-size: 14px;
+    }
+    /* Hide elements utility */
+    .hidden {
+      display: none;
     }
   </style>
 </head>
@@ -80,17 +156,16 @@
   </nav>
 
   <main class="container">
-    <section class="card">
-      <h1>Welcome to 4SP</h1>
-      <p id="randomQuote">Loading your daily inspiration...</p>
-      
+    <div class="home-container">
+      <h1 class="home-title">Welcome to 4SP</h1>
+      <p class="home-quote" id="randomQuote">Loading your daily inspiration...</p>
       <div class="auth-form">
         <a href="signup.html" class="btn primary full-width" id="getStartedBtn">Get Started</a>
         <div class="auth-separator">or</div>
-        <a href="login.html" class="middle-login-btn" id="loginCtaBtn">Login</a>
+        <a href="login.html" class="btn google full-width" id="loginCtaBtn">Login</a>
         <a href="dashboard.html" class="btn primary full-width hidden" id="goToDashboardBtn">Go to Dashboard</a>
       </div>
-    </section>
+    </div>
   </main>
 
   <footer>
@@ -148,22 +223,18 @@
     // Toggle the authentication UI by showing/hiding elements
     function toggleAuthUI(user) {
       if (user) {
-        // Authenticated: Hide unauthenticated buttons
         document.getElementById('loginNavBtn').classList.add('hidden');
         document.getElementById('signupNavBtn').classList.add('hidden');
         document.getElementById('loginCtaBtn').classList.add('hidden');
         document.getElementById('getStartedBtn').classList.add('hidden');
-        // Show authenticated options
         document.getElementById('dashboardNavBtn').classList.remove('hidden');
         document.getElementById('logoutNavBtn').classList.remove('hidden');
         document.getElementById('goToDashboardBtn').classList.remove('hidden');
       } else {
-        // Unauthenticated: Show login/signup options
         document.getElementById('loginNavBtn').classList.remove('hidden');
         document.getElementById('signupNavBtn').classList.remove('hidden');
         document.getElementById('loginCtaBtn').classList.remove('hidden');
         document.getElementById('getStartedBtn').classList.remove('hidden');
-        // Hide authenticated options
         document.getElementById('dashboardNavBtn').classList.add('hidden');
         document.getElementById('logoutNavBtn').classList.add('hidden');
         document.getElementById('goToDashboardBtn').classList.add('hidden');
@@ -192,3 +263,4 @@
   </script>
 </body>
 </html>
+ 
