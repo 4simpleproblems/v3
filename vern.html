@@ -8,13 +8,15 @@
     href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap"
     rel="stylesheet"
   />
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <style>
     :root {
       --dark-bg: #0a0a0a;
       --darker-bg: #070707;
       --light-text: #f0f0f0;
       --accent-color: #f0f0f0;
-      --button-height: 19px;
     }
     * {
       box-sizing: border-box;
@@ -34,14 +36,10 @@
     }
     .navbar-container {
       position: relative;
-      transition: transform 0.3s ease;
       overflow: visible;
       height: auto;
       z-index: 100;
       flex-shrink: 0;
-    }
-    .navbar-container.hidden {
-      transform: translateY(-100%);
     }
     .navbar {
       background-color: var(--darker-bg);
@@ -80,46 +78,11 @@
     .btn.secondary:hover {
       background-color: rgba(255, 255, 255, 0.1);
     }
-    .toggle-btn {
-      position: absolute;
-      right: 0px;
-      bottom: 0;
-      width: 32px;
-      height: var(--button-height);
-      background-color: var(--darker-bg);
-      border: 2px solid var(--accent-color);
-      border-top: none;
-      border-radius: 0 0 16px 16px;
-      cursor: pointer;
-      z-index: 101;
-      transform: translateY(var(--button-height));
-      transition: transform 0.2s ease;
-    }
-    .toggle-btn:hover {
-      transform: translateY(calc(var(--button-height) - 1px));
-    }
-    .toggle-btn::after {
-      content: '';
-      position: absolute;
-      top: 4px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-bottom: 7px solid var(--accent-color);
-      transition: transform 0.3s ease;
-    }
-    .toggle-btn.collapsed::after {
-      border-bottom: none;
-      border-top: 6px solid var(--accent-color);
-      top: 6px;
-      transform: translateX(-50%) rotate(180deg);
-    }
+
     .iframe-container {
       flex: 1;
       width: 100%;
       position: relative;
-      transition: margin-top 0.3s ease;
     }
     .iframe-container iframe {
       position: absolute;
@@ -162,9 +125,9 @@
       <div class="logo">4SP</div>
       <div class="nav-buttons">
         <a href="dashboard.html" class="btn secondary">Dashboard</a>
+        <button class="btn secondary" id="logoutBtn">Logout</button>
       </div>
     </nav>
-    <button class="toggle-btn" id="toggleNavbar" aria-label="Toggle Navigation"></button>
   </div>
 
   <div class="status-message" id="statusMessage"></div>
@@ -181,14 +144,28 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const toggleButton = document.getElementById('toggleNavbar');
-      const navbarContainer = document.getElementById('navbarContainer');
-      const statusMessage = document.getElementById('statusMessage');
-      const iframeContainer = document.getElementById('iframeContainer');
-      const iframe = document.getElementById('mainIframe');
+    // Initialize Firebase (you'll need to replace this with your actual Firebase config)
+    const firebaseConfig = {
+      // Your Firebase configuration should be placed here
+      // apiKey: "YOUR_API_KEY",
+      // authDomain: "YOUR_AUTH_DOMAIN",
+      // projectId: "YOUR_PROJECT_ID",
+      // storageBucket: "YOUR_STORAGE_BUCKET",
+      // messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      // appId: "YOUR_APP_ID"
+    };
+    
+    // Initialize Firebase
+    if (firebaseConfig.apiKey) {
+      firebase.initializeApp(firebaseConfig);
+    } else {
+      console.warn("Firebase configuration is missing. Please add your Firebase config.");
+    }
 
-      let navbarVisible = true;
+    document.addEventListener('DOMContentLoaded', () => {
+      const statusMessage = document.getElementById('statusMessage');
+      const iframe = document.getElementById('mainIframe');
+      const logoutBtn = document.getElementById('logoutBtn');
 
       function showStatus(message) {
         statusMessage.textContent = message;
@@ -198,31 +175,30 @@
         }, 2000);
       }
 
-      function adjustIframeMargin() {
-        const h = navbarContainer.offsetHeight;
-        iframeContainer.style.marginTop = navbarVisible ? '0' : `-${h}px`;
-      }
-
-      function toggleNavbarVisibility() {
-        navbarVisible = !navbarVisible;
-        if (navbarVisible) {
-          navbarContainer.classList.remove('hidden');
-          toggleButton.classList.remove('collapsed');
-          showStatus('Navigation bar visible');
+      // Handle logout button click
+      logoutBtn.addEventListener('click', () => {
+        // Check if Firebase is initialized
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+          firebase.auth().signOut().then(() => {
+            showStatus('Logged out successfully');
+            // Redirect to login page after successful logout
+            setTimeout(() => {
+              window.location.href = 'login.html';
+            }, 1000);
+          }).catch((error) => {
+            showStatus('Error logging out: ' + error.message);
+            console.error('Logout error:', error);
+          });
         } else {
-          navbarContainer.classList.add('hidden');
-          toggleButton.classList.add('collapsed');
-          showStatus('Navigation bar hidden');
+          showStatus('Firebase not initialized');
+          console.error('Firebase not initialized');
         }
-        adjustIframeMargin();
-      }
+      });
 
-      toggleButton.addEventListener('click', toggleNavbarVisibility);
       document.addEventListener('keydown', e => {
         const k = e.key.toLowerCase();
         if (e.ctrlKey && e.shiftKey) {
           if (k === 'x') window.location = 'dashboard.html';
-          if (k === 'n') { toggleNavbarVisibility(); e.preventDefault(); }
           if (k === 'i') { iframe.focus(); showStatus('Iframe focused! Press Enter to interact.'); e.preventDefault(); }
           if (k === 'm') { iframe.contentWindow.postMessage('Hello from parent!', '*'); showStatus('Message sent to iframe!'); e.preventDefault(); }
         }
@@ -268,8 +244,6 @@
           showStatus('Received from iframe: ' + d);
         }
       });
-
-      setTimeout(adjustIframeMargin, 50);
     });
   </script>
 </body>
