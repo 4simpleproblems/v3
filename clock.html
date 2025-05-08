@@ -28,7 +28,7 @@
       --controls-text: #333333;
       --controls-border: #e0e0e0;
       --controls-option-bg: #f0f0f0;
-      --controls-option-active-bg: #3498db;
+      --controls-option-active-bg: #333333; /* Changed from #3498db to #333333 for black theme */
       --controls-option-active-text: #ffffff;
     }
 
@@ -202,7 +202,7 @@
       padding: 0.75rem 1.5rem;
       cursor: pointer;
       transition: all 0.2s ease;
-      color: var(--controls-text);
+      color: var(--controls-text); /* This will keep dark text for unselected buttons */
     }
 
     .control-option:hover {
@@ -506,7 +506,7 @@
         <div class="control-group">
           <span class="control-label">Color Theme</span>
           <div class="control-options">
-            <div class="color-swatch active" style="background-color: #333333;" data-color="#333333" data-bg="#ffffff" data-section="#3498db" data-controls-bg="#ffffff" data-controls-text="#333333"></div>
+            <div class="color-swatch active" style="background-color: #333333;" data-color="#333333" data-bg="#ffffff" data-section="#333333" data-controls-bg="#ffffff" data-controls-text="#333333"></div>
             <div class="color-swatch" style="background-color: #3498db;" data-color="#3498db" data-bg="#f0f8ff" data-section="#3498db" data-controls-bg="#f0f8ff" data-controls-text="#3498db"></div>
             <div class="color-swatch" style="background-color: #2ecc71;" data-color="#2ecc71" data-bg="#f0fff0" data-section="#2ecc71" data-controls-bg="#f0fff0" data-controls-text="#2ecc71"></div>
             <div class="color-swatch" style="background-color: #9b59b6;" data-color="#9b59b6" data-bg="#f9f0ff" data-section="#9b59b6" data-controls-bg="#f9f0ff" data-controls-text="#9b59b6"></div>
@@ -596,7 +596,7 @@
         background: '#ffffff',
         controlsBg: '#ffffff',
         controlsText: '#333333',
-        sectionColor: '#3498db',
+        sectionColor: '#333333', // Changed from #3498db to #333333 for black theme
         fullscreenLayout: 'vertical', // vertical, horizontal, date-above
         fullscreenSize: 'medium' // small, medium, large
       };
@@ -686,10 +686,21 @@
         document.documentElement.style.setProperty('--controls-bg', settings.controlsBg);
         document.documentElement.style.setProperty('--controls-text', settings.controlsText);
         document.documentElement.style.setProperty('--section-color', settings.sectionColor);
-        document.documentElement.style.setProperty('--controls-option-active-bg', settings.sectionColor);
+        
+        // Determine if we should use black or theme color for active buttons
+        if (settings.background === '#ffffff' && settings.color === '#333333') {
+          // For default black theme, use black buttons
+          document.documentElement.style.setProperty('--controls-option-active-bg', '#333333');
+        } else {
+          // For other themes, use the section color
+          document.documentElement.style.setProperty('--controls-option-active-bg', settings.sectionColor);
+        }
         
         // Apply fullscreen layout/size
-        fullscreenClock.className = 'fullscreen-clock hidden';
+        fullscreenClock.className = 'fullscreen-clock';
+        if (fullscreenClock.classList.contains('hidden')) {
+          fullscreenClock.classList.add('hidden');
+        }
         fullscreenClock.classList.add('layout-' + settings.fullscreenLayout);
         fullscreenClock.classList.add('size-' + settings.fullscreenSize);
         
@@ -783,42 +794,49 @@
           background: '#ffffff',
           controlsBg: '#ffffff',
           controlsText: '#333333',
-          sectionColor: '#3498db',
+          sectionColor: '#333333', // Changed from #3498db to #333333 for black theme
           fullscreenLayout: 'vertical',
           fullscreenSize: 'medium'
         };
         applySettings(clockSettings);
       });
       
-      // Fullscreen layout controls
+      // Fullscreen layout controls - prevent exiting fullscreen when selecting options
       document.querySelectorAll('[id^=fs-layout-]').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation(); // Prevent event bubbling
           const layout = btn.id.replace('fs-layout-', '');
           clockSettings.fullscreenLayout = layout;
           applySettings(clockSettings);
         });
       });
       
-      // Fullscreen size controls
+    // Fullscreen size controls - prevent exiting fullscreen when selecting options
       document.querySelectorAll('[id^=fs-size-]').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation(); // Prevent event bubbling
           const size = btn.id.replace('fs-size-', '');
           clockSettings.fullscreenSize = size;
           applySettings(clockSettings);
         });
       });
       
-      // Initial clock update
-      updateClock();
+      // Set up the interval to update the clock
+      updateClock(); // Initial update
+      setInterval(updateClock, 1000); // Update every second
       
-      // Update clock every second
-      setInterval(updateClock, 1000);
+      // Initial settings application
+      applySettings(clockSettings);
     }
 
-    // Initialize everything when DOM is loaded
+    // Initialize everything when DOM is fully loaded
     document.addEventListener('DOMContentLoaded', () => {
-      initAuth();
-      initClock();
+      try {
+        initAuth();
+        initClock();
+      } catch (error) {
+        console.error("Initialization error:", error);
+      }
     });
   </script>
 </body>
