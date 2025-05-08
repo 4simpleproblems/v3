@@ -7,7 +7,19 @@
   <title>4SP | Soundboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <!-- Firebase Configuration -->
+  <script src="firebase-config.js"></script>
+
   <style>
+    /* Hide logout until auth state is confirmed */
+    #logoutBtn {
+      display: none;
+    }
+
     /* Updated Styles */
     .sound-section {
       margin-bottom: 2rem;
@@ -30,11 +42,10 @@
       width: 100%;
     }
 
-    /* Updated Sound Button Style - Text Box Style */
     .sound-button {
       min-width: 100px;
       height: 100px;
-      border-radius: 50px; /* Rounded corners instead of perfect circle */
+      border-radius: 50px;
       background-color: var(--light-text);
       color: var(--dark-bg);
       border: 2px solid var(--dark-bg);
@@ -48,16 +59,15 @@
       justify-content: center;
       text-align: center;
       line-height: 1.2;
-      max-width: 500px; /* Maximum width to prevent extremely long buttons */
+      max-width: 500px;
       word-wrap: break-word;
       hyphens: auto;
     }
 
-    /* Make shorter text still appear circular */
     .sound-button.short-text {
       width: 100px;
       padding: 0.5rem;
-      border-radius: 50%; /* Perfect circle for short text */
+      border-radius: 50%;
     }
 
     .sound-button:hover {
@@ -68,7 +78,6 @@
       transform: scale(0.95);
     }
 
-    /* Options Dropdown Styles - Enhanced with more pronounced animations */
     .options-dropdown {
       position: relative;
       display: inline-block;
@@ -84,7 +93,6 @@
       cursor: pointer;
     }
 
-    /* Options Menu Fade Animation */
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -170,7 +178,6 @@
       color: var(--light-text);
     }
 
-    /* Options Sections */
     .options-section {
       margin-bottom: 1rem;
       padding-bottom: 1rem;
@@ -190,7 +197,6 @@
       opacity: 0.8;
     }
 
-    /* Keyboard shortcuts info */
     .keyboard-shortcuts {
       margin-top: 1rem;
       padding: 0.5rem;
@@ -205,7 +211,6 @@
       opacity: 0.8;
     }
 
-    /* Apply button for autoclicker delay */
     #applyDelayBtn {
       padding: 0.25rem 0.5rem;
       border: 1px solid var(--light-text);
@@ -216,12 +221,11 @@
       margin-left: 4px;
       font-size: 0.8rem;
     }
-    
+
     #applyDelayBtn:hover {
       background-color: rgba(255, 255, 255, 0.2);
     }
 
-    /* Enhanced Clear all sounds button with much more satisfying pop effect */
     #clearAllSoundsBtn {
       width: 100%;
       margin-top: 0.5rem;
@@ -232,15 +236,21 @@
       overflow: hidden;
     }
 
-    /* Clear button pop animation */
     @keyframes buttonPop {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.15); }
-      75% { transform: scale(0.95); }
-      100% { transform: scale(1); }
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.15);
+      }
+      75% {
+        transform: scale(0.95);
+      }
+      100% {
+        transform: scale(1);
+      }
     }
 
-    /* Ripple effect */
     @keyframes ripple {
       0% {
         transform: scale(0);
@@ -257,7 +267,6 @@
       background-color: rgba(255, 0, 0, 0.4);
     }
 
-    /* Ripple container to prevent glitches */
     .ripple-container {
       position: absolute;
       top: 0;
@@ -281,15 +290,22 @@
       pointer-events: none;
     }
 
-    /* Animated overlay fade effect */
     @keyframes fadeInOverlay {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
 
     @keyframes fadeOutOverlay {
-      from { opacity: 1; }
-      to { opacity: 0; }
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
     }
 
     .overlay {
@@ -312,8 +328,7 @@
       display: block;
       animation: fadeOutOverlay 0.3s ease forwards;
     }
-    
-    /* Status message with enhanced fade animation */
+
     @keyframes fadeInUp {
       from {
         opacity: 0;
@@ -375,6 +390,50 @@
       border: 1px solid blue;
     }
   </style>
+
+  <script>
+    // --- Firebase initialization & Auth guard ---
+    try {
+      if (typeof firebaseConfig !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+      } else {
+        console.error("Firebase configuration not found.");
+      }
+    } catch (e) {
+      console.error("Firebase initialization error:", e);
+    }
+
+    function handleAuthState(user) {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (user) {
+        logoutBtn.style.display = 'inline-flex';
+      } else {
+        window.location.href = 'login.html';
+      }
+    }
+
+    function initAuth() {
+      const auth = firebase.auth();
+      auth.onAuthStateChanged(handleAuthState);
+
+      const logoutBtn = document.getElementById('logoutBtn');
+      logoutBtn.addEventListener('click', e => {
+        e.preventDefault();
+        auth.signOut()
+          .then(() => window.location.href = 'login.html')
+          .catch(err => console.error("Logout error:", err));
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.firebase && firebase.auth) {
+        initAuth();
+      } else {
+        console.error("Firebase Auth SDK not available.");
+        window.location.href = 'login.html';
+      }
+    });
+  </script>
 </head>
 
 <body>
@@ -397,7 +456,6 @@
               <button id="applyDelayBtn">Apply</button>
             </label>
           </div>
-          
           <div class="options-section">
             <h3>Management</h3>
             <button id="clearAllSoundsBtn" class="btn secondary">
@@ -405,7 +463,6 @@
               <div class="ripple-container"></div>
             </button>
           </div>
-          
           <div class="keyboard-shortcuts">
             <p><strong>Keyboard Shortcuts:</strong></p>
             <p>Shift + C: Mute & clear all sounds</p>
@@ -465,39 +522,27 @@
       let currentlyHoveredButton = null;
       let statusMessageTimeout = null;
       let menuIsOpen = false;
-      let isRippling = false; // Flag to prevent multiple ripples
+      let isRippling = false;
 
-      // Enhanced show status message with proper fade animation
       function showStatus(message, type = 'info') {
-        // Clear any existing timeout
         if (statusMessageTimeout) {
           clearTimeout(statusMessageTimeout);
           statusMessage.classList.remove('fade-in', 'fade-out');
         }
-        
-        // Set the message and prepare to show it
         statusMessage.textContent = message;
         statusMessage.className = 'status-message ' + type;
-        
-        // First check if already displayed, if so remove it briefly
+
         if (statusMessage.style.display === 'block') {
           statusMessage.classList.add('fade-out');
-          
           setTimeout(() => {
             statusMessage.classList.remove('fade-out');
             statusMessage.style.display = 'none';
-            
-            // Then show the new message after a brief pause
             setTimeout(() => {
               statusMessage.style.display = 'block';
               statusMessage.classList.add('fade-in');
-              
-              // Set timeout to hide the message
               statusMessageTimeout = setTimeout(() => {
                 statusMessage.classList.remove('fade-in');
                 statusMessage.classList.add('fade-out');
-                
-                // When fadeout animation finishes, hide the element
                 setTimeout(() => {
                   statusMessage.style.display = 'none';
                   statusMessage.classList.remove('fade-out');
@@ -506,16 +551,11 @@
             }, 50);
           }, 300);
         } else {
-          // If not displayed, show it directly
           statusMessage.style.display = 'block';
           statusMessage.classList.add('fade-in');
-          
-          // Set timeout to hide the message
           statusMessageTimeout = setTimeout(() => {
             statusMessage.classList.remove('fade-in');
             statusMessage.classList.add('fade-out');
-            
-            // When fadeout animation finishes, hide the element
             setTimeout(() => {
               statusMessage.style.display = 'none';
               statusMessage.classList.remove('fade-out');
@@ -524,90 +564,56 @@
         }
       }
 
-      // Open options menu with fade effect
       function openOptionsMenu() {
         if (menuIsOpen) return;
-        
         menuIsOpen = true;
-        
-        // Show overlay with fade-in
         overlay.style.display = 'block';
         overlay.classList.add('fade-in');
-        
-        // Show menu with fade-in
         optionsMenu.style.display = 'block';
         optionsMenu.classList.add('fade-in');
       }
 
-      // Close options menu with fade effect
       function closeOptionsMenu() {
         if (!menuIsOpen) return;
-        
         menuIsOpen = false;
-        
-        // Fade out the overlay
         overlay.classList.remove('fade-in');
         overlay.classList.add('fade-out');
-        
-        // Fade out the menu
         optionsMenu.classList.remove('fade-in');
         optionsMenu.classList.add('fade-out');
-        
-        // After animation completes, hide elements and reset classes
         setTimeout(() => {
           overlay.style.display = 'none';
           overlay.classList.remove('fade-out');
-          
           optionsMenu.style.display = 'none';
           optionsMenu.classList.remove('fade-out');
         }, 300);
       }
 
-      // Fixed create ripple effect to prevent glitches
       function createRipple(event) {
-        // Prevent multiple ripples
         if (isRippling) return;
         isRippling = true;
-        
         const rect = clearAllSoundsBtn.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-        
-        // Create a ripple element
         const ripple = document.createElement('span');
         ripple.classList.add('ripple');
         ripple.style.left = x + 'px';
         ripple.style.top = y + 'px';
-        
-        // Clear any existing ripples first
         rippleContainer.innerHTML = '';
-        
-        // Add ripple to container
         rippleContainer.appendChild(ripple);
-        
-        // Set timeout to remove ripple and reset flag
         setTimeout(() => {
           ripple.remove();
           isRippling = false;
         }, 600);
       }
 
-      // Immediately mute all sounds without stopping them
       function muteAllSounds() {
-        playingAudios.forEach(audio => {
-          audio.volume = 0;
-        });
+        playingAudios.forEach(audio => audio.volume = 0);
       }
 
-      // Stop all playing sounds (with optional delay)
       function stopAllAudios(delay = 0) {
-        if (playingAudios.length === 0) return; // Don't proceed if no sounds are playing
-        
+        if (playingAudios.length === 0) return;
         if (delay > 0) {
-          // First mute them immediately
           muteAllSounds();
-          
-          // Then stop them after the delay
           setTimeout(() => {
             playingAudios.forEach(audio => {
               audio.pause();
@@ -616,7 +622,6 @@
             playingAudios = [];
           }, delay);
         } else {
-          // Stop them immediately
           playingAudios.forEach(audio => {
             audio.pause();
             audio.currentTime = 0;
@@ -625,30 +630,21 @@
         }
       }
 
-      // Clear all sounds function (mutes immediately, then stops)
       function clearAllSounds(instantMute = false) {
         const wasPlaying = playingAudios.length > 0;
-        
         if (wasPlaying) {
           if (instantMute) {
-            // Mute immediately, then stop after a short delay
             muteAllSounds();
-            stopAllAudios(100); // Small delay to ensure smooth transition
+            stopAllAudios(100);
             showStatus('All sounds muted and cleared', 'success');
           } else {
-            // Normal stop
             stopAllAudios();
             showStatus('All sounds stopped', 'success');
           }
         }
-        
-        // Only close menu when using keyboard shortcut
-        if (instantMute) {
-          closeOptionsMenu();
-        }
+        if (instantMute) closeOptionsMenu();
       }
 
-      // Fast clicking function using requestAnimationFrame for 0ms delay
       function fastClicker() {
         if (currentlyHoveredButton && autoClickerCheckbox.checked) {
           currentlyHoveredButton.click();
@@ -656,18 +652,13 @@
         }
       }
 
-      // Auto clicker functions
       function startAutoClicker() {
         stopAutoClicker();
         const delay = parseInt(autoClickDelayInput.value, 10) || 0;
-
         if (!currentlyHoveredButton || !autoClickerCheckbox.checked) return;
-
-        // Use requestAnimationFrame for "instant" clicking (0ms)
         if (delay === 0) {
           requestAnimationFrameId = requestAnimationFrame(fastClicker);
         } else {
-          // Use setInterval for timed clicking
           autoClickInterval = setInterval(() => {
             currentlyHoveredButton.click();
           }, delay);
@@ -679,201 +670,104 @@
           clearInterval(autoClickInterval);
           autoClickInterval = null;
         }
-        
         if (requestAnimationFrameId) {
           cancelAnimationFrame(requestAnimationFrameId);
           requestAnimationFrameId = null;
         }
       }
 
-      // Apply autoclicker delay setting and close menu
       function applyAutoClickerDelay() {
         const delay = parseInt(autoClickDelayInput.value, 10);
-        
-        // Allow 0ms delay (instant clicking)
-        if (isNaN(delay) || delay < 0) {
-          autoClickDelayInput.value = 0;
-        }
-        
+        if (isNaN(delay) || delay < 0) autoClickDelayInput.value = 0;
         localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
-        
-        // Restart autoclicker if active
-        if (autoClickerCheckbox.checked && currentlyHoveredButton) {
-          startAutoClicker();
-        }
-        
+        if (autoClickerCheckbox.checked && currentlyHoveredButton) startAutoClicker();
         closeOptionsMenu();
       }
 
-      // Create a sound button for the soundboard with adaptive styling
       function createSoundButton(folder, fileName, container) {
         const soundName = fileName.replace('.mp3', '').replace(/_/g, ' ');
         const soundPath = `${folder}/${fileName}`;
         const button = document.createElement('button');
         button.classList.add('sound-button');
         button.textContent = soundName;
-        
-        // Add special class for short text to maintain circle shape
-        if (soundName.length < 10) {
-          button.classList.add('short-text');
-        }
-
+        if (soundName.length < 10) button.classList.add('short-text');
         button.addEventListener('click', () => {
-          if (!soundOverlayCheckbox.checked) {
-            stopAllAudios();
-          }
-          
+          if (!soundOverlayCheckbox.checked) stopAllAudios();
           try {
             const audio = new Audio(soundPath);
             audio.addEventListener('ended', () => {
               playingAudios = playingAudios.filter(a => a !== audio);
             });
             playingAudios.push(audio);
-            audio.play().catch(error => {
-              console.error("Error playing sound:", error);
-            });
-          } catch (error) {
-            console.error("Error creating audio:", error);
+            audio.play().catch(console.error);
+          } catch (e) {
+            console.error("Error creating audio:", e);
           }
         });
-
         button.addEventListener('mouseenter', () => {
           currentlyHoveredButton = button;
-          if (autoClickerCheckbox.checked) {
-            startAutoClicker();
-          }
+          if (autoClickerCheckbox.checked) startAutoClicker();
         });
-
         button.addEventListener('mouseleave', () => {
           if (currentlyHoveredButton === button) {
             currentlyHoveredButton = null;
             stopAutoClicker();
           }
         });
-
         container.appendChild(button);
       }
 
       // Event Listeners
-      
-      // Sound Overlay checkbox
       soundOverlayCheckbox.addEventListener('change', function() {
-        if (!this.checked) {
-          stopAllAudios();
-        }
+        if (!this.checked) stopAllAudios();
         localStorage.setItem('soundOverlay', this.checked);
       });
-      
-      // Auto Clicker checkbox
       autoClickerCheckbox.addEventListener('change', function() {
         autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
-        
-        if (this.checked) {
-          if (currentlyHoveredButton) {
-            startAutoClicker();
-          }
-        } else {
-          stopAutoClicker();
-        }
-        
+        if (this.checked && currentlyHoveredButton) startAutoClicker();
+        if (!this.checked) stopAutoClicker();
         localStorage.setItem('autoClicker', this.checked);
       });
-      
-      // Auto Clicker delay input - handle Enter key press
       autoClickDelayInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
           e.preventDefault();
           applyAutoClickerDelay();
         }
       });
-      
-      // Auto Clicker delay apply button
       applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
-
-      // Clear all sounds button with enhanced pop effect & ripple
-      clearAllSoundsBtn.addEventListener('click', function(event) {
-        // Create ripple effect
-        createRipple(event);
-        
-        // Add animation class
+      clearAllSoundsBtn.addEventListener('click', function(e) {
+        createRipple(e);
         this.classList.add('active');
-        
-        // Remove animation class after animation completes
-        setTimeout(() => {
-          this.classList.remove('active');
-        }, 400);
-        
-        clearAllSounds(false); // Normal clear without instant mute
+        setTimeout(() => this.classList.remove('active'), 400);
+        clearAllSounds(false);
       });
-      
-      // Keyboard shortcut: Shift+C to instantly mute and clear all sounds
       document.addEventListener('keydown', function(e) {
-        if (e.shiftKey && e.key.toLowerCase() === 'c') {
-          clearAllSounds(true); // With instant mute
-        }
+        if (e.shiftKey && e.key.toLowerCase() === 'c') clearAllSounds(true);
       });
-
-      // Options menu toggle with enhanced fade effect
       optionsButton.addEventListener('click', function(e) {
         e.stopPropagation();
-        
-        if (menuIsOpen) {
-          closeOptionsMenu();
-        } else {
-          openOptionsMenu();
-        }
+        menuIsOpen ? closeOptionsMenu() : openOptionsMenu();
       });
+      overlay.addEventListener('click', closeOptionsMenu);
 
-      // Close options when clicking overlay
-      overlay.addEventListener('click', function() {
-        closeOptionsMenu();
-      });
-      
-      // Logout button
-      logoutBtn.addEventListener('click', function() {
-        window.location.href = 'index.html';
-      });
-
-      // Load user preferences from localStorage
-      function loadUserPreferences() {
-        // Sound overlay preference
-        if (localStorage.getItem('soundOverlay') === 'true') {
-          soundOverlayCheckbox.checked = true;
-        }
-        
-        // Auto clicker preference
+      // Load preferences & sounds
+      (function loadPreferences() {
+        if (localStorage.getItem('soundOverlay') === 'true') soundOverlayCheckbox.checked = true;
         if (localStorage.getItem('autoClicker') === 'true') {
           autoClickerCheckbox.checked = true;
           autoClickDelayLabel.style.display = 'block';
         }
-        
-        // Auto clicker delay preference
         const savedDelay = localStorage.getItem('autoClickDelay');
-        if (savedDelay !== null) {
-          autoClickDelayInput.value = savedDelay;
-        }
-      }
+        if (savedDelay !== null) autoClickDelayInput.value = savedDelay;
+      })();
 
-      // Fetch and load sounds
       fetch('SoundboardSN.json')
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
-          // Create normal sound buttons
-          (data.NormalSounds || []).forEach(file => {
-            createSoundButton('NormalSounds', file, normalSoundsContainer);
-          });
-          
-          // Create explicit sound buttons
-          (data.ExplicitSounds || []).forEach(file => {
-            createSoundButton('ExplicitSounds', file, explicitSoundsContainer);
-          });
-          
-          // Load preferences after sounds are loaded
-          loadUserPreferences();
+          (data.NormalSounds || []).forEach(f => createSoundButton('NormalSounds', f, normalSoundsContainer));
+          (data.ExplicitSounds || []).forEach(f => createSoundButton('ExplicitSounds', f, explicitSoundsContainer));
         })
-        .catch(error => {
-          console.error('Error loading sound manifest:', error);
-        });
+        .catch(console.error);
     });
   </script>
 </body>
