@@ -2,1123 +2,774 @@
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>4SP | Soundboard</title>
-	<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-	<link rel="stylesheet" href="styles.css" />
-
-	<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-	<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-	<script src="firebase-config.js"></script>
-
-	<style>
-		/* Hide logout until auth state is confirmed */
-		#logoutBtn {
-			display: none;
-		}
-
-		/* Updated Styles */
-		.sound-section {
-			margin-bottom: 2rem;
-		}
-
-		.sound-section h2 {
-			margin-bottom: 0.5rem;
-			font-size: 1.5rem;
-			padding-bottom: 0.25rem;
-			border-bottom: 2px solid var(--dark-bg);
-			width: 100%;
-		}
-
-		.soundButtonsContainer {
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: flex-start;
-			padding: 1rem;
-			gap: 1.5rem;
-			width: 100%;
-		}
-
-		.sound-button {
-			min-width: 100px;
-			height: 100px;
-			border-radius: 50px;
-			background-color: var(--light-text);
-			color: var(--dark-bg);
-			border: 3px solid var(--dark-bg);
-			cursor: pointer;
-			font-size: 0.85rem;
-			font-weight: bold;
-			padding: 0 1.5rem;
-			transition: background-color 0.3s ease, transform 0.1s ease;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			text-align: center;
-			line-height: 1.2;
-			max-width: 500px;
-			word-wrap: break-word;
-			hyphens: auto;
-		}
-
-		.sound-button.short-text {
-			width: 100px;
-			padding: 0.5rem;
-			border-radius: 50%;
-		}
-
-		.sound-button:hover {
-			background-color: var(--light-gray);
-		}
-
-		.sound-button:active {
-			transform: scale(0.95);
-		}
-
-		.options-dropdown {
-			position: relative;
-			display: inline-block;
-		}
-
-		.options-button {
-			background-color: transparent;
-			color: var(--light-text);
-			padding: 0.75rem 1.5rem;
-			font-size: 1rem;
-			border: 2px solid var(--light-text);
-			border-radius: 50px;
-			cursor: pointer;
-		}
-
-		@keyframes fadeIn {
-			from {
-				opacity: 0;
-				transform: translateY(-20px);
-			}
-
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
-		}
-
-		@keyframes fadeOut {
-			from {
-				opacity: 1;
-				transform: translateY(0);
-			}
-
-			to {
-				opacity: 0;
-				transform: translateY(-20px);
-			}
-		}
-
-		.options-content {
-			display: none;
-			position: absolute;
-			background-color: var(--darker-bg);
-			/* Adjusted min-width for wider menu */
-			min-width: 300px;
-			border: 2px solid var(--light-text);
-			padding: 1rem;
-			z-index: 2;
-			right: 0;
-			border-radius: 30px;
-			color: var(--light-text);
-		}
-
-		.options-content.fade-in {
-			display: block;
-			animation: fadeIn 0.3s ease forwards;
-		}
-
-		.options-content.fade-out {
-			display: block;
-			animation: fadeOut 0.3s ease forwards;
-		}
-
-		.options-content label {
-			display: block;
-			margin-bottom: 0.5rem;
-			color: var(--light-text);
-		}
-
-		.options-content input[type="checkbox"] {
-			margin-right: 0.5rem;
-			vertical-align: middle;
-			background-color: var(--darker-bg);
-			border: 2px solid var(--light-text);
-			appearance: none;
-			width: 16px;
-			height: 16px;
-			cursor: pointer;
-			position: relative;
-			border-radius: 5px;
-		}
-
-		.options-content input[type="checkbox"]:checked {
-			background-image: url('checkmark.png');
-			/* Make sure you have a checkmark.png or use an SVG/font icon */
-			background-size: contain;
-			background-repeat: no-repeat;
-			background-position: center;
-		}
-
-		.options-content input[type="number"],
-		.options-content input[type="text"] {
-			width: 60px;
-			padding: 0.25rem;
-			border-radius: 30px;
-			border: 2px solid var(--light-text);
-			background-color: var(--darker-bg);
-			color: var(--light-text);
-			margin-left: 0.5rem;
-		}
-
-		.options-section {
-			margin-bottom: 1rem;
-			padding-bottom: 1rem;
-			border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-		}
-
-		.options-section:last-child {
-			margin-bottom: 0;
-			padding-bottom: 0;
-			border-bottom: none;
-		}
-
-		.options-section h3 {
-			font-size: 0.9rem;
-			margin-bottom: 0.5rem;
-			color: var(--light-text);
-			opacity: 0.8;
-		}
-
-		.keyboard-shortcuts {
-			margin-top: 1rem;
-			padding: 0.5rem;
-			border-radius: 10px;
-			background-color: rgba(255, 255, 255, 0.1);
-		}
-
-		.keyboard-shortcuts p {
-			margin: 0.25rem 0;
-			font-size: 0.85rem;
-			color: var(--light-text);
-			opacity: 0.8;
-		}
-
-		.pill-button-group {
-			display: flex;
-			gap: 0.5rem;
-			margin-top: 0.5rem;
-			flex-wrap: wrap;
-		}
-
-		.pill-button {
-			padding: 0.25rem 1rem;
-			border: 2px solid var(--light-text);
-			border-radius: 50px;
-			background-color: transparent;
-			color: var(--light-text);
-			font-size: 0.8rem;
-			cursor: pointer;
-			transition: background-color 0.3s ease, color 0.3s ease;
-		}
-
-		.pill-button:hover {
-			background-color: rgba(255, 255, 255, 0.2);
-		}
-
-		.pill-button.active {
-			background-color: var(--light-text);
-			color: var(--darker-bg);
-		}
-
-
-		#applyAutoClickDelayBtn,
-		#applyRepeatDelayBtn,
-		#applyPlaybackSpeedBtn {
-			padding: 0.25rem 0.5rem;
-			border: 1px solid var(--light-text);
-			border-radius: 30px;
-			background-color: rgba(255, 255, 255, 0.1);
-			color: var(--light-text);
-			cursor: pointer;
-			margin-left: 4px;
-			font-size: 0.8rem;
-		}
-
-		#applyAutoClickDelayBtn:hover,
-		#applyRepeatDelayBtn:hover,
-		#applyPlaybackSpeedBtn:hover {
-			background-color: rgba(255, 255, 255, 0.2);
-		}
-
-		#clearAllSoundsBtn {
-			width: 100%;
-			margin-top: 0.5rem;
-			background-color: rgba(255, 0, 0, 0.2);
-			color: var(--light-text);
-			border: 1px solid var(--light-text);
-			position: relative;
-			overflow: hidden;
-		}
-
-		@keyframes buttonPop {
-			0% {
-				transform: scale(1);
-			}
-
-			50% {
-				transform: scale(1.15);
-			}
-
-			75% {
-				transform: scale(0.95);
-			}
-
-			100% {
-				transform: scale(1);
-			}
-		}
-
-		@keyframes ripple {
-			0% {
-				transform: scale(0);
-				opacity: 0.5;
-			}
-
-			100% {
-				transform: scale(4);
-				opacity: 0;
-			}
-		}
-
-		#clearAllSoundsBtn.active {
-			animation: buttonPop 0.4s ease-in-out;
-			background-color: rgba(255, 0, 0, 0.4);
-		}
-
-		.ripple-container {
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			overflow: hidden;
-			border-radius: inherit;
-			pointer-events: none;
-		}
-
-		.ripple {
-			position: absolute;
-			border-radius: 50%;
-			background-color: rgba(255, 255, 255, 0.4);
-			width: 100px;
-			height: 100px;
-			margin-top: -50px;
-			margin-left: -50px;
-			animation: ripple 0.6s ease-out;
-			pointer-events: none;
-		}
-
-		@keyframes fadeInOverlay {
-			from {
-				opacity: 0;
-			}
-
-			to {
-				opacity: 1;
-			}
-		}
-
-		@keyframes fadeOutOverlay {
-			from {
-				opacity: 1;
-			}
-
-			to {
-				opacity: 0;
-			}
-		}
-
-		.overlay {
-			display: none;
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			background-color: rgba(0, 0, 0, 0.5);
-			z-index: 1;
-		}
-
-		.overlay.fade-in {
-			display: block;
-			animation: fadeInOverlay 0.3s ease forwards;
-		}
-
-		.overlay.fade-out {
-			display: block;
-			animation: fadeOutOverlay 0.3s ease forwards;
-		}
-
-		@keyframes fadeInUp {
-			from {
-				opacity: 0;
-				transform: translateY(20px);
-			}
-
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
-		}
-
-		@keyframes fadeOutDown {
-			from {
-				opacity: 1;
-			}
-
-			to {
-				opacity: 0;
-				transform: translateY(20px);
-			}
-		}
-
-		.status-message {
-			display: none;
-			padding: 0.5rem 1rem;
-			margin: 1rem auto;
-			border-radius: 50px;
-			font-size: 0.9rem;
-			background-color: rgba(0, 0, 0, 0.1);
-			text-align: center;
-			max-width: 80%;
-		}
-
-		.status-message.fade-in {
-			display: block;
-			animation: fadeInUp 0.3s ease forwards;
-		}
-
-		.status-message.fade-out {
-			display: block;
-			animation: fadeOutDown 0.3s ease forwards;
-		}
-
-		.status-message.success {
-			background-color: rgba(0, 255, 0, 0.1);
-			color: green;
-			border: 1px solid green;
-		}
-
-		.status-message.error {
-			background-color: rgba(255, 0, 0, 0.1);
-			color: red;
-			border: 1px solid red;
-		}
-
-		.status-message.info {
-			background-color: rgba(0, 0, 255, 0.1);
-			color: blue;
-			border: 1px solid blue;
-		}
-	</style>
-
-	<script>
-		// --- Firebase initialization & Auth guard ---
-		try {
-			if (typeof firebaseConfig !== 'undefined') {
-				firebase.initializeApp(firebaseConfig);
-			} else {
-				console.error("Firebase configuration not found.");
-			}
-		} catch (e) {
-			console.error("Firebase initialization error:", e);
-		}
-
-		function handleAuthState(user) {
-			const logoutBtn = document.getElementById('logoutBtn');
-			if (user) {
-				logoutBtn.style.display = 'inline-flex';
-			} else {
-				window.location.href = 'login.html';
-			}
-		}
-
-		function initAuth() {
-			const auth = firebase.auth();
-			auth.onAuthStateChanged(handleAuthState);
-
-			const logoutBtn = document.getElementById('logoutBtn');
-			logoutBtn.addEventListener('click', e => {
-				e.preventDefault();
-				auth.signOut()
-					.then(() => window.location.href = 'login.html')
-					.catch(err => console.error("Logout error:", err));
-			});
-		}
-
-		document.addEventListener('DOMContentLoaded', () => {
-			if (window.firebase && firebase.auth) {
-				initAuth();
-			} else {
-				console.error("Firebase Auth SDK not available.");
-				// Potentially redirect or show an error message on the page itself
-				// For now, keeping the redirect as it was.
-				// window.location.href = 'login.html';
-			}
-		});
-	</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4SP | Soundboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <!-- Firebase Configuration -->
+  <script src="firebase-config.js"></script>
+
+  <style>
+    /* Hide logout until auth state is confirmed */
+    #logoutBtn {
+      display: none;
+    }
+
+    /* Updated Styles */
+    .sound-section {
+      margin-bottom: 2rem;
+    }
+
+    .sound-section h2 {
+      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 2px solid var(--dark-bg);
+      width: 100%;
+    }
+
+    .soundButtonsContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      padding: 1rem;
+      gap: 1.5rem;
+      width: 100%;
+    }
+
+    .sound-button {
+      min-width: 100px;
+      height: 100px;
+      border-radius: 50px;
+      background-color: var(--light-text);
+      color: var(--dark-bg);
+      border: 3px solid var(--dark-bg);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: bold;
+      padding: 0 1.5rem;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 500px;
+      word-wrap: break-word;
+      hyphens: auto;
+    }
+
+    .sound-button.short-text {
+      width: 100px;
+      padding: 0.5rem;
+      border-radius: 50%;
+    }
+
+    .sound-button:hover {
+      background-color: var(--light-gray);
+    }
+
+    .sound-button:active {
+      transform: scale(0.95);
+    }
+
+    .options-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .options-button {
+      background-color: transparent;
+      color: var(--light-text);
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: 2px solid var(--light-text);
+      border-radius: 50px;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+    }
+
+    .options-content {
+      display: none;
+      position: absolute;
+      background-color: var(--darker-bg);
+      min-width: 250px;
+      border: 2px solid var(--light-text);
+      padding: 1rem;
+      z-index: 2;
+      right: 0;
+      border-radius: 30px;
+      color: var(--light-text);
+    }
+
+    .options-content.fade-in {
+      display: block;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .options-content.fade-out {
+      display: block;
+      animation: fadeOut 0.3s ease forwards;
+    }
+
+    .options-content label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--light-text);
+    }
+
+    .options-content input[type="checkbox"] {
+      margin-right: 0.5rem;
+      vertical-align: middle;
+      background-color: var(--darker-bg);
+      border: 2px solid var(--light-text);
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      position: relative;
+      border-radius: 5px;
+    }
+
+    .options-content input[type="checkbox"]:checked {
+      background-image: url('checkmark.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .options-content #autoClickDelayLabel {
+      margin-top: 0.5rem;
+      display: block;
+    }
+
+    .options-content #autoClickDelay {
+      width: 60px;
+      padding: 0.25rem;
+      border-radius: 30px;
+      border: 2px solid var(--light-text);
+      background-color: var(--darker-bg);
+      color: var(--light-text);
+    }
+
+    .options-section {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .options-section:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .options-section h3 {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      color: var(--light-text);
+      opacity: 0.8;
+    }
+
+    .keyboard-shortcuts {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .keyboard-shortcuts p {
+      margin: 0.25rem 0;
+      font-size: 0.85rem;
+      color: var(--light-text);
+      opacity: 0.8;
+    }
+
+    #applyDelayBtn {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--light-text);
+      border-radius: 30px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--light-text);
+      cursor: pointer;
+      margin-left: 4px;
+      font-size: 0.8rem;
+    }
+
+    #applyDelayBtn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    #clearAllSoundsBtn {
+      width: 100%;
+      margin-top: 0.5rem;
+      background-color: rgba(255, 0, 0, 0.2);
+      color: var(--light-text);
+      border: 1px solid var(--light-text);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes buttonPop {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.15);
+      }
+      75% {
+        transform: scale(0.95);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    #clearAllSoundsBtn.active {
+      animation: buttonPop 0.4s ease-in-out;
+      background-color: rgba(255, 0, 0, 0.4);
+    }
+
+    .ripple-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.4);
+      width: 100px;
+      height: 100px;
+      margin-top: -50px;
+      margin-left: -50px;
+      animation: ripple 0.6s ease-out;
+      pointer-events: none;
+    }
+
+    @keyframes fadeInOverlay {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOutOverlay {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1;
+    }
+
+    .overlay.fade-in {
+      display: block;
+      animation: fadeInOverlay 0.3s ease forwards;
+    }
+
+    .overlay.fade-out {
+      display: block;
+      animation: fadeOutOverlay 0.3s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOutDown {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    }
+
+    .status-message {
+      display: none;
+      padding: 0.5rem 1rem;
+      margin: 1rem auto;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      background-color: rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 80%;
+    }
+
+    .status-message.fade-in {
+      display: block;
+      animation: fadeInUp 0.3s ease forwards;
+    }
+
+    .status-message.fade-out {
+      display: block;
+      animation: fadeOutDown 0.3s ease forwards;
+    }
+
+    .status-message.success {
+      background-color: rgba(0, 255, 0, 0.1);
+      color: green;
+      border: 1px solid green;
+    }
+
+    .status-message.error {
+      background-color: rgba(255, 0, 0, 0.1);
+      color: red;
+      border: 1px solid red;
+    }
+
+    .status-message.info {
+      background-color: rgba(0, 0, 255, 0.1);
+      color: blue;
+      border: 1px solid blue;
+    }
+  </style>
+
+  <script>
+    // --- Firebase initialization & Auth guard ---
+    try {
+      if (typeof firebaseConfig !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+      } else {
+        console.error("Firebase configuration not found.");
+      }
+    } catch (e) {
+      console.error("Firebase initialization error:", e);
+    }
+
+    function handleAuthState(user) {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (user) {
+        logoutBtn.style.display = 'inline-flex';
+      } else {
+        window.location.href = 'login.html';
+      }
+    }
+
+    function initAuth() {
+      const auth = firebase.auth();
+      auth.onAuthStateChanged(handleAuthState);
+
+      const logoutBtn = document.getElementById('logoutBtn');
+      logoutBtn.addEventListener('click', e => {
+        e.preventDefault();
+        auth.signOut()
+          .then(() => window.location.href = 'login.html')
+          .catch(err => console.error("Logout error:", err));
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.firebase && firebase.auth) {
+        initAuth();
+      } else {
+        console.error("Firebase Auth SDK not available.");
+        window.location.href = 'login.html';
+      }
+    });
+  </script>
 </head>
 
 <body>
-	<nav class="navbar">
-		<div class="logo">4SP</div>
-		<div class="nav-buttons">
-			<div class="options-dropdown">
-				<button class="btn secondary options-button">Options</button>
-				<div class="options-content" id="optionsMenu">
-					<div class="options-section">
-						<h3>Playback Options</h3>
-						<label>
-							<input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
-						</label>
-						<label>
-							<input type="checkbox" id="stableVolumeCheckbox" />Stable Volume
-						</label>
-						<label>
-							<input type="checkbox" id="autoClickerCheckbox" />Auto Clicker (on hover)
-						</label>
-						<div id="autoClickerOptions" style="display: none; margin-left: 1.5rem;">
-							<label id="autoClickDelayLabel">
-								Delay (ms): <input type="number" id="autoClickDelay" value="100" min="0" />
-								<button id="applyAutoClickDelayBtn">Apply</button>
-							</label>
-						</div>
-						<label>
-							<input type="checkbox" id="repeatSoundsCheckbox" />Repeat Sound (after finish)
-						</label>
-						<div id="repeatSoundsOptions" style="display: none; margin-left: 1.5rem;">
-							<label id="repeatDelayLabel">
-								Delay (ms): <input type="number" id="repeatDelay" value="1000" min="0" />
-								<button id="applyRepeatDelayBtn">Apply</button>
-							</label>
-						</div>
-						<label>
-							<input type="checkbox" id="playbackSpeedCheckbox" />Playback Speed
-						</label>
-						<div id="playbackSpeedOptions" style="display: none; margin-left: 1.5rem;">
-							<label id="playbackSpeedLabel">
-								Speed (x): <input type="number" id="playbackSpeedInput" value="1" min="0.25" max="3"
-									step="0.01" />
-								<button id="applyPlaybackSpeedBtn">Apply</button>
-							</label>
-							<div class="pill-button-group">
-								<button class="pill-button" data-speed="0.5">Slow</button>
-								<button class="pill-button active" data-speed="1">Normal</button>
-								<button class="pill-button" data-speed="2">Fast</button>
-							</div>
-						</div>
-					</div>
-					<div class="options-section">
-						<h3>Management</h3>
-						<button id="clearAllSoundsBtn" class="btn secondary">
-							Clear All Sounds
-							<div class="ripple-container"></div>
-						</button>
-					</div>
-					<div class="keyboard-shortcuts">
-						<p><strong>Keyboard Shortcuts:</strong></p>
-						<p>Shift + C: Mute & clear all sounds</p>
-					</div>
-				</div>
-			</div>
-			<a href="dashboard.html" class="btn secondary">Dashboard</a>
-			<a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
-		</div>
-	</nav>
-
-	<main class="container">
-		<h1>Soundboard</h1>
-		<p>Click the buttons to play a sound!</p>
-
-		<div class="status-message" id="statusMessage"></div>
-
-		<div class="sound-section">
-			<h2>Normal Sounds</h2>
-			<div id="normalSoundsContainer" class="soundButtonsContainer normal"></div>
-		</div>
-
-		<div class="sound-section">
-			<h2>Explicit Sounds</h2>
-			<div id="explicitSoundsContainer" class="soundButtonsContainer explicit"></div>
-		</div>
-	</main>
-
-	<footer>
-		<p>© 2025 4SP</p>
-	</footer>
-
-	<div class="overlay" id="overlay"></div>
-
-	<script>
-		document.addEventListener('DOMContentLoaded', () => {
-			// DOM Elements
-			const normalSoundsContainer = document.getElementById('normalSoundsContainer');
-			const explicitSoundsContainer = document.getElementById('explicitSoundsContainer');
-			const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
-			const stableVolumeCheckbox = document.getElementById('stableVolumeCheckbox');
-			const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
-			const autoClickerOptions = document.getElementById('autoClickerOptions');
-			const autoClickDelayInput = document.getElementById('autoClickDelay');
-			const applyAutoClickDelayBtn = document.getElementById('applyAutoClickDelayBtn');
-			const repeatSoundsCheckbox = document.getElementById('repeatSoundsCheckbox');
-			const repeatSoundsOptions = document.getElementById('repeatSoundsOptions');
-			const repeatDelayInput = document.getElementById('repeatDelay');
-			const applyRepeatDelayBtn = document.getElementById('applyRepeatDelayBtn');
-			const playbackSpeedCheckbox = document.getElementById('playbackSpeedCheckbox');
-			const playbackSpeedOptions = document.getElementById('playbackSpeedOptions');
-			const playbackSpeedInput = document.getElementById('playbackSpeedInput');
-			const applyPlaybackSpeedBtn = document.getElementById('applyPlaybackSpeedBtn');
-			const speedPresetButtons = document.querySelectorAll('.pill-button-group .pill-button');
-			const overlay = document.getElementById('overlay');
-			const optionsButton = document.querySelector('.options-button');
-			const optionsMenu = document.getElementById('optionsMenu');
-			const statusMessage = document.getElementById('statusMessage');
-			const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
-			const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
-			// const logoutBtn = document.getElementById('logoutBtn'); // Already defined in auth guard scope
-
-			// State variables
-			let playingAudios = [];
-			const MAX_CONCURRENT_SOUNDS = 500; // New limit
-			let autoClickInterval = null;
-			let requestAnimationFrameId = null;
-			let currentlyHoveredButton = null;
-			let statusMessageTimeout = null;
-			let menuIsOpen = false;
-			let isRippling = false;
-
-			let repeatSoundSource = null; // Stores the path of the sound to be repeated
-			let repeatTimeoutId = null;   // Stores the timeout ID for the delayed repeat
-
-			function showStatus(message, type = 'info') {
-				if (statusMessageTimeout) {
-					clearTimeout(statusMessageTimeout);
-					statusMessage.classList.remove('fade-in', 'fade-out');
-				}
-				statusMessage.textContent = message;
-				statusMessage.className = 'status-message ' + type;
-
-				// Simplified show/hide logic for status
-				statusMessage.style.display = 'block';
-				statusMessage.classList.remove('fade-out');
-				statusMessage.classList.add('fade-in');
-
-				statusMessageTimeout = setTimeout(() => {
-					statusMessage.classList.remove('fade-in');
-					statusMessage.classList.add('fade-out');
-					setTimeout(() => {
-						statusMessage.style.display = 'none';
-						statusMessage.classList.remove('fade-out');
-					}, 300);
-				}, 3000);
-			}
-
-			function openOptionsMenu() {
-				if (menuIsOpen) return;
-				menuIsOpen = true;
-				overlay.classList.remove('fade-out'); // Ensure no competing animations
-				optionsMenu.classList.remove('fade-out');
-				overlay.style.display = 'block';
-				overlay.classList.add('fade-in');
-				optionsMenu.style.display = 'block';
-				optionsMenu.classList.add('fade-in');
-			}
-
-			function closeOptionsMenu() {
-				if (!menuIsOpen) return;
-				menuIsOpen = false;
-				overlay.classList.remove('fade-in');
-				optionsMenu.classList.remove('fade-in');
-				overlay.classList.add('fade-out');
-				optionsMenu.classList.add('fade-out');
-				setTimeout(() => {
-					overlay.style.display = 'none';
-					optionsMenu.style.display = 'none';
-					// No need to remove fade-out class here if display is none
-				}, 300);
-			}
-
-			function createRipple(event) {
-				if (isRippling) return;
-				isRippling = true;
-				const rect = clearAllSoundsBtn.getBoundingClientRect();
-				const x = event.clientX - rect.left;
-				const y = event.clientY - rect.top;
-				const ripple = document.createElement('span');
-				ripple.classList.add('ripple');
-				ripple.style.left = x + 'px';
-				ripple.style.top = y + 'px';
-				rippleContainer.innerHTML = '';
-				rippleContainer.appendChild(ripple);
-				setTimeout(() => {
-					ripple.remove();
-					isRippling = false;
-				}, 600);
-			}
-
-			function muteAllSounds() {
-				playingAudios.forEach(audio => audio.volume = 0);
-			}
-
-            function stopCurrentRepeatSequence() {
-                if (repeatTimeoutId) {
-                    clearTimeout(repeatTimeoutId);
-                    repeatTimeoutId = null;
-                }
-                // repeatSoundSource is managed by the calling context (e.g., unchecking box, new sound click)
-            }
-
-			function stopAllAudios(delay = 0) {
-				const audiosToStop = [...playingAudios]; // Copy array as it will be modified by 'ended' events
-				if (audiosToStop.length === 0) return;
-
-                stopCurrentRepeatSequence(); // Stop any pending repeats
-
-				if (delay > 0) {
-					audiosToStop.forEach(audio => audio.volume = 0); // Mute immediately
-					setTimeout(() => {
-						audiosToStop.forEach(audio => {
-							audio.pause();
-							audio.currentTime = 0;
-                            // Event listeners are removed on 'ended' or when manually discarded
-						});
-						playingAudios = []; // Clear the main array after actual stopping
-					}, delay);
-				} else {
-					audiosToStop.forEach(audio => {
-						audio.pause();
-						audio.currentTime = 0;
-					});
-					playingAudios = [];
-				}
-			}
-
-			function clearAllSounds(instantMute = false) {
-				const wasPlaying = playingAudios.length > 0 || repeatSoundSource;
-                
-                stopCurrentRepeatSequence();
-                repeatSoundSource = null; // Crucial: stop any sound from being designated to repeat
-
-				if (playingAudios.length > 0) {
-					if (instantMute) {
-						muteAllSounds(); // Mutes currently audible sounds
-						stopAllAudios(100); // Stops them after a short delay
-						showStatus('All sounds muted and cleared', 'success');
-					} else {
-						stopAllAudios();
-						showStatus('All sounds stopped', 'success');
-					}
-				} else if (wasPlaying) { // Case where only a repeat was scheduled but no sound playing
-                    showStatus('Repeat cleared', 'info');
-                }
-				
-				stopAutoClicker();
-
-				if (instantMute) closeOptionsMenu();
-			}
-
-			// --- Auto Clicker Logic ---
-			function fastClicker() {
-				if (currentlyHoveredButton && autoClickerCheckbox.checked) {
-					currentlyHoveredButton.click();
-					requestAnimationFrameId = requestAnimationFrame(fastClicker);
-				}
-			}
-
-			function startAutoClicker() {
-				stopAutoClicker();
-                stopCurrentRepeatSequence(); // Auto-clicker takes precedence over repeating
-                repeatSoundSource = null;
-
-				const delay = parseInt(autoClickDelayInput.value, 10) || 0;
-				if (!currentlyHoveredButton || !autoClickerCheckbox.checked) return;
-
-				if (delay === 0) {
-					requestAnimationFrameId = requestAnimationFrame(fastClicker);
-				} else {
-					autoClickInterval = setInterval(() => {
-                        if (currentlyHoveredButton) currentlyHoveredButton.click();
-					}, delay);
-				}
-			}
-
-			function stopAutoClicker() {
-				if (autoClickInterval) {
-					clearInterval(autoClickInterval);
-					autoClickInterval = null;
-				}
-				if (requestAnimationFrameId) {
-					cancelAnimationFrame(requestAnimationFrameId);
-					requestAnimationFrameId = null;
-				}
-			}
-
-			function applyAutoClickerDelay() {
-				const delay = parseInt(autoClickDelayInput.value, 10);
-				if (isNaN(delay) || delay < 0) autoClickDelayInput.value = 0;
-				localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
-				if (autoClickerCheckbox.checked && currentlyHoveredButton) startAutoClicker();
-				closeOptionsMenu();
-			}
-
-			// --- Repeat Sounds Logic (New: applied on sound end) ---
-			function applyRepeatDelay() {
-				const delay = parseInt(repeatDelayInput.value, 10);
-				if (isNaN(delay) || delay < 0) repeatDelayInput.value = 0; // Default to 0 if invalid
-				localStorage.setItem('repeatSoundDelay', repeatDelayInput.value);
-				// No need to restart anything here, the 'ended' event will pick up the new delay
-				closeOptionsMenu();
-			}
-
-			// --- Playback Speed Logic ---
-			function applyPlaybackSpeedToAudios(speed) {
-				playingAudios.forEach(audio => {
-					audio.playbackRate = speed;
-				});
-			}
-
-			function setPlaybackSpeed(speed) {
-				const s = parseFloat(speed);
-				if (isNaN(s)) return;
-				const clampedSpeed = Math.max(0.25, Math.min(3, s));
-				playbackSpeedInput.value = clampedSpeed;
-				localStorage.setItem('playbackSpeed', clampedSpeed);
-				if (playbackSpeedCheckbox.checked) { // Only apply if enabled
-				    applyPlaybackSpeedToAudios(clampedSpeed);
-                }
-
-				speedPresetButtons.forEach(button => {
-					button.classList.toggle('active', parseFloat(button.dataset.speed) === clampedSpeed);
-				});
-			}
-
-			function applyPlaybackSpeedFromInput() {
-				const speed = parseFloat(playbackSpeedInput.value);
-				setPlaybackSpeed(speed);
-				closeOptionsMenu();
-			}
-
-
-			// --- Unified Sound Playback Function ---
-			function playSingleSound(soundPath) {
-				try {
-                    // MAX SOUNDS LIMIT
-                    if (playingAudios.length >= MAX_CONCURRENT_SOUNDS) {
-                        const oldestAudio = playingAudios.shift(); // Remove from the front
-                        if (oldestAudio) {
-                            oldestAudio.pause();
-                            oldestAudio.currentTime = 0;
-                            oldestAudio.src = ''; // Release resources
-                            // Event listeners should be removed via their own logic or explicitly if needed
-                            // For 'ended', it removes itself.
-                            console.log("Max sound limit reached, stopped oldest sound.");
-                        }
-                    }
-
-					const audio = new Audio(soundPath);
-
-					if (stableVolumeCheckbox.checked) {
-						audio.volume = 0.5;
-					} else {
-						audio.volume = 1;
-					}
-
-					if (playbackSpeedCheckbox.checked) {
-						audio.playbackRate = parseFloat(playbackSpeedInput.value) || 1;
-					} else {
-						audio.playbackRate = 1;
-					}
-
-                    const onEnded = () => {
-                        audio.removeEventListener('ended', onEnded); // Clean up self
-                        playingAudios = playingAudios.filter(a => a !== audio);
-
-                        // Check if this specific sound (by its original path) is still the one meant to be repeated
-                        if (repeatSoundsCheckbox.checked && repeatSoundSource && audio.src.endsWith(repeatSoundSource)) {
-                            stopCurrentRepeatSequence(); // Clear any previous stray timeout for this source before setting a new one
-                            const delay = parseInt(repeatDelayInput.value, 10) || 0;
-                            repeatTimeoutId = setTimeout(() => {
-                                // Double check conditions before playing again, in case state changed during timeout
-                                if (repeatSoundsCheckbox.checked && repeatSoundSource && audio.src.endsWith(repeatSoundSource)) {
-                                    playSingleSound(repeatSoundSource); // Play the same source again
-                                }
-                            }, delay);
-                        }
-                    };
-                    audio.addEventListener('ended', onEnded);
-
-                    audio.addEventListener('error', (e) => {
-                        console.error("Error with audio element:", e);
-                        showStatus(`Error playing: ${soundPath.split('/').pop()}`, "error");
-                        playingAudios = playingAudios.filter(a => a !== audio); // Remove from playing list
-                    });
-                    
-					playingAudios.push(audio);
-					audio.play().catch(e => {
-						console.error("Error playing audio:", e);
-						showStatus("Error playing sound.", "error");
-						playingAudios = playingAudios.filter(a => a !== audio); // Remove on play error
-					});
-
-				} catch (e) {
-					console.error("Error creating audio:", e);
-					showStatus("Error creating audio element.", "error");
-				}
-			}
-
-			function createSoundButton(folder, fileName, container) {
-				const soundName = fileName.replace('.mp3', '').replace(/_/g, ' ');
-				const soundPath = `${folder}/${fileName}`;
-				const button = document.createElement('button');
-				button.classList.add('sound-button');
-				button.textContent = soundName;
-				if (soundName.length < 10) button.classList.add('short-text');
-
-				button.addEventListener('click', () => {
-					if (!soundOverlayCheckbox.checked) {
-                        stopAllAudios(); // This also stops repeats
-                    } else {
-                        // If overlay is on, we don't stop all, but a new click should stop the *current* repeat sequence
-                        // if it's for a different sound or to establish a new one.
-                        stopCurrentRepeatSequence();
-                    }
-
-					if (repeatSoundsCheckbox.checked) {
-						stopAutoClicker(); 
-						currentlyHoveredButton = null; 
-                        repeatSoundSource = soundPath; // This is now the sound to repeat
-						playSingleSound(soundPath); // Play it once, 'ended' will handle repeat
-					} else {
-                        repeatSoundSource = null; // Ensure no sound is marked for repeat if checkbox is off
-						playSingleSound(soundPath);
-					}
-				});
-
-				button.addEventListener('mouseenter', () => {
-					currentlyHoveredButton = button;
-					if (autoClickerCheckbox.checked) {
-                        stopCurrentRepeatSequence(); // Stop any sound repeat if auto-clicker starts
-                        repeatSoundSource = null;
-						startAutoClicker();
-					}
-				});
-				button.addEventListener('mouseleave', () => {
-					if (currentlyHoveredButton === button) { // only stop if leaving the button that triggered it
-						currentlyHoveredButton = null;
-						stopAutoClicker();
-					}
-				});
-
-				container.appendChild(button);
-			}
-
-			// Event Listeners
-			soundOverlayCheckbox.addEventListener('change', function() {
-				if (!this.checked) {
-                    stopAllAudios(); // This also clears repeatSoundSource via stopAllAudios -> stopCurrentRepeatSequence
-                }
-				localStorage.setItem('soundOverlay', this.checked);
-			});
-
-			stableVolumeCheckbox.addEventListener('change', function() {
-				localStorage.setItem('stableVolume', this.checked);
-				playingAudios.forEach(audio => audio.volume = this.checked ? 0.5 : 1);
-			});
-
-			autoClickerCheckbox.addEventListener('change', function() {
-				autoClickerOptions.style.display = this.checked ? 'block' : 'none';
-				localStorage.setItem('autoClicker', this.checked);
-				if (!this.checked) {
-					stopAutoClicker();
-					currentlyHoveredButton = null; 
-				} else { // If enabling auto-clicker
-                    stopCurrentRepeatSequence(); // Stop any existing sound repeat
-                    repeatSoundSource = null;
-					if (currentlyHoveredButton) { // And if already hovering a button
-						startAutoClicker();
-					}
-				}
-			});
-
-			autoClickDelayInput.addEventListener('keydown', function(e) {
-				if (e.key === 'Enter') {
-					e.preventDefault();
-					applyAutoClickerDelay();
-				}
-			});
-			applyAutoClickDelayBtn.addEventListener('click', applyAutoClickerDelay);
-
-			repeatSoundsCheckbox.addEventListener('change', function() {
-				repeatSoundsOptions.style.display = this.checked ? 'block' : 'none';
-				localStorage.setItem('repeatSounds', this.checked);
-				if (!this.checked) {
-                    stopCurrentRepeatSequence(); // Stop any active repeat sequence
-					repeatSoundSource = null;    // And forget which sound was repeating
-				} else {
-                    // If checked, the next sound clicked will become the repeatSoundSource.
-                    // We don't automatically restart a previously set repeatSoundSource here
-                    // to avoid confusion. User must click a sound again to designate it for repeat.
-                    // Also, if auto-clicker is on, disable it as they are conflicting.
-                    if (autoClickerCheckbox.checked) {
-                        autoClickerCheckbox.checked = false; // Turn off auto-clicker
-                        autoClickerOptions.style.display = 'none';
-                        localStorage.setItem('autoClicker', false);
-                        stopAutoClicker();
-                        currentlyHoveredButton = null;
-                        showStatus("Auto-clicker disabled for sound repeat.", "info");
-                    }
-                }
-			});
-
-			repeatDelayInput.addEventListener('keydown', function(e) {
-				if (e.key === 'Enter') {
-					e.preventDefault();
-					applyRepeatDelay();
-				}
-			});
-			applyRepeatDelayBtn.addEventListener('click', applyRepeatDelay);
-
-			playbackSpeedCheckbox.addEventListener('change', function() {
-				playbackSpeedOptions.style.display = this.checked ? 'block' : 'none';
-				localStorage.setItem('playbackSpeedEnabled', this.checked);
-				if (!this.checked) {
-					applyPlaybackSpeedToAudios(1); // Reset to normal speed for all playing
-				} else {
-					applyPlaybackSpeedToAudios(parseFloat(playbackSpeedInput.value) || 1);
-				}
-			});
-
-			playbackSpeedInput.addEventListener('input', function() {
-				const value = parseFloat(this.value);
-                let clampedValue = value;
-				if (!isNaN(value)) {
-					clampedValue = Math.max(0.25, Math.min(3, value));
-                    if (value !== clampedValue) this.value = clampedValue; // Update input if clamped
-				} else {
-                    clampedValue = 1; // Default to 1 if input is not a number
-                }
-				speedPresetButtons.forEach(button => {
-					button.classList.toggle('active', parseFloat(button.dataset.speed) === clampedValue);
-				});
-                if (playbackSpeedCheckbox.checked) { // Apply live if checkbox is checked
-                    applyPlaybackSpeedToAudios(clampedValue);
-                }
-			});
-
-
-			playbackSpeedInput.addEventListener('keydown', function(e) {
-				if (e.key === 'Enter') {
-					e.preventDefault();
-					applyPlaybackSpeedFromInput();
-				}
-			});
-			applyPlaybackSpeedBtn.addEventListener('click', applyPlaybackSpeedFromInput);
-
-			speedPresetButtons.forEach(button => {
-				button.addEventListener('click', function() {
-					const speed = this.dataset.speed;
-					setPlaybackSpeed(speed); // This will update input and apply if checked
-					// closeOptionsMenu(); // Optional: close menu after preset click
-				});
-			});
-
-
-			clearAllSoundsBtn.addEventListener('click', function(e) {
-				createRipple(e);
-				this.classList.add('active');
-				setTimeout(() => this.classList.remove('active'), 400);
-				clearAllSounds(false); // This will also stop repeats and clear repeatSoundSource
-			});
-
-			document.addEventListener('keydown', function(e) {
-				if (e.shiftKey && e.key.toLowerCase() === 'c') {
-                    e.preventDefault(); // Prevent browser's default action for Shift+C if any
-                    clearAllSounds(true);
-                }
-			});
-
-			optionsButton.addEventListener('click', function(e) {
-				e.stopPropagation();
-				menuIsOpen ? closeOptionsMenu() : openOptionsMenu();
-			});
-
-			overlay.addEventListener('click', closeOptionsMenu);
-            document.addEventListener('keydown', (e) => {
-                if (e.key === "Escape" && menuIsOpen) {
-                    closeOptionsMenu();
-                }
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <div class="options-dropdown">
+        <button class="btn secondary options-button">Options</button>
+        <div class="options-content" id="optionsMenu">
+          <div class="options-section">
+            <h3>Playback Options</h3>
+            <label>
+              <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
+            </label>
+            <label>
+              <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
+            </label>
+            <label id="autoClickDelayLabel" style="display: none;">
+              Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" />
+              <button id="applyDelayBtn">Apply</button>
+            </label>
+          </div>
+          <div class="options-section">
+            <h3>Management</h3>
+            <button id="clearAllSoundsBtn" class="btn secondary">
+              Clear All Sounds
+              <div class="ripple-container"></div>
+            </button>
+          </div>
+          <div class="keyboard-shortcuts">
+            <p><strong>Keyboard Shortcuts:</strong></p>
+            <p>Shift + C: Mute & clear all sounds</p>
+          </div>
+        </div>
+      </div>
+      <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h1>Soundboard</h1>
+    <p>Click the buttons to play a sound!</p>
+
+    <div class="status-message" id="statusMessage"></div>
+
+    <div class="sound-section">
+      <h2>Normal Sounds</h2>
+      <div id="normalSoundsContainer" class="soundButtonsContainer normal"></div>
+    </div>
+
+    <div class="sound-section">
+      <h2>Explicit Sounds</h2>
+      <div id="explicitSoundsContainer" class="soundButtonsContainer explicit"></div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 4SP</p>
+  </footer>
+
+  <div class="overlay" id="overlay"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // DOM Elements
+      const normalSoundsContainer = document.getElementById('normalSoundsContainer');
+      const explicitSoundsContainer = document.getElementById('explicitSoundsContainer');
+      const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
+      const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
+      const autoClickDelayInput = document.getElementById('autoClickDelay');
+      const autoClickDelayLabel = document.getElementById('autoClickDelayLabel');
+      const applyDelayBtn = document.getElementById('applyDelayBtn');
+      const overlay = document.getElementById('overlay');
+      const optionsButton = document.querySelector('.options-button');
+      const optionsMenu = document.getElementById('optionsMenu');
+      const statusMessage = document.getElementById('statusMessage');
+      const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
+      const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
+      const logoutBtn = document.getElementById('logoutBtn');
+
+      // State variables
+      let playingAudios = [];
+      let autoClickInterval;
+      let requestAnimationFrameId = null;
+      let currentlyHoveredButton = null;
+      let statusMessageTimeout = null;
+      let menuIsOpen = false;
+      let isRippling = false;
+
+      function showStatus(message, type = 'info') {
+        if (statusMessageTimeout) {
+          clearTimeout(statusMessageTimeout);
+          statusMessage.classList.remove('fade-in', 'fade-out');
+        }
+        statusMessage.textContent = message;
+        statusMessage.className = 'status-message ' + type;
+
+        if (statusMessage.style.display === 'block') {
+          statusMessage.classList.add('fade-out');
+          setTimeout(() => {
+            statusMessage.classList.remove('fade-out');
+            statusMessage.style.display = 'none';
+            setTimeout(() => {
+              statusMessage.style.display = 'block';
+              statusMessage.classList.add('fade-in');
+              statusMessageTimeout = setTimeout(() => {
+                statusMessage.classList.remove('fade-in');
+                statusMessage.classList.add('fade-out');
+                setTimeout(() => {
+                  statusMessage.style.display = 'none';
+                  statusMessage.classList.remove('fade-out');
+                }, 300);
+              }, 3000);
+            }, 50);
+          }, 300);
+        } else {
+          statusMessage.style.display = 'block';
+          statusMessage.classList.add('fade-in');
+          statusMessageTimeout = setTimeout(() => {
+            statusMessage.classList.remove('fade-in');
+            statusMessage.classList.add('fade-out');
+            setTimeout(() => {
+              statusMessage.style.display = 'none';
+              statusMessage.classList.remove('fade-out');
+            }, 300);
+          }, 3000);
+        }
+      }
+
+      function openOptionsMenu() {
+        if (menuIsOpen) return;
+        menuIsOpen = true;
+        overlay.style.display = 'block';
+        overlay.classList.add('fade-in');
+        optionsMenu.style.display = 'block';
+        optionsMenu.classList.add('fade-in');
+      }
+
+      function closeOptionsMenu() {
+        if (!menuIsOpen) return;
+        menuIsOpen = false;
+        overlay.classList.remove('fade-in');
+        overlay.classList.add('fade-out');
+        optionsMenu.classList.remove('fade-in');
+        optionsMenu.classList.add('fade-out');
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          overlay.classList.remove('fade-out');
+          optionsMenu.style.display = 'none';
+          optionsMenu.classList.remove('fade-out');
+        }, 300);
+      }
+
+      function createRipple(event) {
+        if (isRippling) return;
+        isRippling = true;
+        const rect = clearAllSoundsBtn.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        rippleContainer.innerHTML = '';
+        rippleContainer.appendChild(ripple);
+        setTimeout(() => {
+          ripple.remove();
+          isRippling = false;
+        }, 600);
+      }
+
+      function muteAllSounds() {
+        playingAudios.forEach(audio => audio.volume = 0);
+      }
+
+      function stopAllAudios(delay = 0) {
+        if (playingAudios.length === 0) return;
+        if (delay > 0) {
+          muteAllSounds();
+          setTimeout(() => {
+            playingAudios.forEach(audio => {
+              audio.pause();
+              audio.currentTime = 0;
             });
+            playingAudios = [];
+          }, delay);
+        } else {
+          playingAudios.forEach(audio => {
+            audio.pause();
+            audio.currentTime = 0;
+          });
+          playingAudios = [];
+        }
+      }
 
+      function clearAllSounds(instantMute = false) {
+        const wasPlaying = playingAudios.length > 0;
+        if (wasPlaying) {
+          if (instantMute) {
+            muteAllSounds();
+            stopAllAudios(100);
+            showStatus('All sounds muted and cleared', 'success');
+          } else {
+            stopAllAudios();
+            showStatus('All sounds stopped', 'success');
+          }
+        }
+        if (instantMute) closeOptionsMenu();
+      }
 
-			// Load preferences & sounds
-			(function loadPreferences() {
-				if (localStorage.getItem('soundOverlay') === 'true') soundOverlayCheckbox.checked = true;
-				if (localStorage.getItem('stableVolume') === 'true') stableVolumeCheckbox.checked = true;
+      function fastClicker() {
+        if (currentlyHoveredButton && autoClickerCheckbox.checked) {
+          currentlyHoveredButton.click();
+          requestAnimationFrameId = requestAnimationFrame(fastClicker);
+        }
+      }
 
-				if (localStorage.getItem('autoClicker') === 'true') {
-					autoClickerCheckbox.checked = true;
-					autoClickerOptions.style.display = 'block';
-				}
-				const savedAutoClickDelay = localStorage.getItem('autoClickDelay');
-				if (savedAutoClickDelay !== null) autoClickDelayInput.value = savedAutoClickDelay;
+      function startAutoClicker() {
+        stopAutoClicker();
+        const delay = parseInt(autoClickDelayInput.value, 10) || 0;
+        if (!currentlyHoveredButton || !autoClickerCheckbox.checked) return;
+        if (delay === 0) {
+          requestAnimationFrameId = requestAnimationFrame(fastClicker);
+        } else {
+          autoClickInterval = setInterval(() => {
+            currentlyHoveredButton.click();
+          }, delay);
+        }
+      }
 
+      function stopAutoClicker() {
+        if (autoClickInterval) {
+          clearInterval(autoClickInterval);
+          autoClickInterval = null;
+        }
+        if (requestAnimationFrameId) {
+          cancelAnimationFrame(requestAnimationFrameId);
+          requestAnimationFrameId = null;
+        }
+      }
 
-				if (localStorage.getItem('repeatSounds') === 'true') {
-					repeatSoundsCheckbox.checked = true;
-					repeatSoundsOptions.style.display = 'block';
-				}
-				const savedRepeatDelay = localStorage.getItem('repeatSoundDelay');
-				if (savedRepeatDelay !== null) repeatDelayInput.value = savedRepeatDelay;
+      function applyAutoClickerDelay() {
+        const delay = parseInt(autoClickDelayInput.value, 10);
+        if (isNaN(delay) || delay < 0) autoClickDelayInput.value = 0;
+        localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
+        if (autoClickerCheckbox.checked && currentlyHoveredButton) startAutoClicker();
+        closeOptionsMenu();
+      }
 
-				if (localStorage.getItem('playbackSpeedEnabled') === 'true') {
-					playbackSpeedCheckbox.checked = true;
-					playbackSpeedOptions.style.display = 'block';
-				}
-				const savedPlaybackSpeed = localStorage.getItem('playbackSpeed');
-				if (savedPlaybackSpeed !== null) {
-					playbackSpeedInput.value = savedPlaybackSpeed;
-				} else {
-					playbackSpeedInput.value = 1; 
-				}
-                setPlaybackSpeed(playbackSpeedInput.value); // Ensure presets are correctly highlighted
+      function createSoundButton(folder, fileName, container) {
+        const soundName = fileName.replace('.mp3', '').replace(/_/g, ' ');
+        const soundPath = `${folder}/${fileName}`;
+        const button = document.createElement('button');
+        button.classList.add('sound-button');
+        button.textContent = soundName;
+        if (soundName.length < 10) button.classList.add('short-text');
+        button.addEventListener('click', () => {
+          if (!soundOverlayCheckbox.checked) stopAllAudios();
+          try {
+            const audio = new Audio(soundPath);
+            audio.addEventListener('ended', () => {
+              playingAudios = playingAudios.filter(a => a !== audio);
+            });
+            playingAudios.push(audio);
+            audio.play().catch(console.error);
+          } catch (e) {
+            console.error("Error creating audio:", e);
+          }
+        });
+        button.addEventListener('mouseenter', () => {
+          currentlyHoveredButton = button;
+          if (autoClickerCheckbox.checked) startAutoClicker();
+        });
+        button.addEventListener('mouseleave', () => {
+          if (currentlyHoveredButton === button) {
+            currentlyHoveredButton = null;
+            stopAutoClicker();
+          }
+        });
+        container.appendChild(button);
+      }
 
-			})();
+      // Event Listeners
+      soundOverlayCheckbox.addEventListener('change', function() {
+        if (!this.checked) stopAllAudios();
+        localStorage.setItem('soundOverlay', this.checked);
+      });
+      autoClickerCheckbox.addEventListener('change', function() {
+        autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
+        if (this.checked && currentlyHoveredButton) startAutoClicker();
+        if (!this.checked) stopAutoClicker();
+        localStorage.setItem('autoClicker', this.checked);
+      });
+      autoClickDelayInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          applyAutoClickerDelay();
+        }
+      });
+      applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
+      clearAllSoundsBtn.addEventListener('click', function(e) {
+        createRipple(e);
+        this.classList.add('active');
+        setTimeout(() => this.classList.remove('active'), 400);
+        clearAllSounds(false);
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.shiftKey && e.key.toLowerCase() === 'c') clearAllSounds(true);
+      });
+      optionsButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        menuIsOpen ? closeOptionsMenu() : openOptionsMenu();
+      });
+      overlay.addEventListener('click', closeOptionsMenu);
 
-			fetch('SoundboardSN.json')
-				.then(r => {
-                    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
-                    return r.json();
-                })
-				.then(data => {
-					(data.NormalSounds || []).forEach(f => createSoundButton('NormalSounds', f, normalSoundsContainer));
-					(data.ExplicitSounds || []).forEach(f => createSoundButton('ExplicitSounds', f, explicitSoundsContainer));
-                    if ((data.NormalSounds || []).length === 0 && (data.ExplicitSounds || []).length === 0) {
-                        showStatus("No sounds loaded. Check SoundboardSN.json.", "error");
-                    }
-				})
-				.catch(err => {
-                    console.error("Error fetching or parsing SoundboardSN.json:", err);
-                    showStatus("Could not load sound list. See console for details.", "error");
-                });
-		});
-	</script>
+      // Load preferences & sounds
+      (function loadPreferences() {
+        if (localStorage.getItem('soundOverlay') === 'true') soundOverlayCheckbox.checked = true;
+        if (localStorage.getItem('autoClicker') === 'true') {
+          autoClickerCheckbox.checked = true;
+          autoClickDelayLabel.style.display = 'block';
+        }
+        const savedDelay = localStorage.getItem('autoClickDelay');
+        if (savedDelay !== null) autoClickDelayInput.value = savedDelay;
+      })();
+
+      fetch('SoundboardSN.json')
+        .then(r => r.json())
+        .then(data => {
+          (data.NormalSounds || []).forEach(f => createSoundButton('NormalSounds', f, normalSoundsContainer));
+          (data.ExplicitSounds || []).forEach(f => createSoundButton('ExplicitSounds', f, explicitSoundsContainer));
+        })
+        .catch(console.error);
+    });
+  </script>
 </body>
 
 </html>
