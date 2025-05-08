@@ -468,7 +468,9 @@
 				initAuth();
 			} else {
 				console.error("Firebase Auth SDK not available.");
-				window.location.href = 'login.html';
+				// Potentially redirect or show an error message on the page itself
+				// For now, keeping the redirect as it was.
+				// window.location.href = 'login.html';
 			}
 		});
 	</script>
@@ -499,7 +501,7 @@
 							</label>
 						</div>
 						<label>
-							<input type="checkbox" id="repeatSoundsCheckbox" />Repeat Sounds (on click)
+							<input type="checkbox" id="repeatSoundsCheckbox" />Repeat Sound (after finish)
 						</label>
 						<div id="repeatSoundsOptions" style="display: none; margin-left: 1.5rem;">
 							<label id="repeatDelayLabel">
@@ -571,10 +573,10 @@
 			const explicitSoundsContainer = document.getElementById('explicitSoundsContainer');
 			const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
 			const stableVolumeCheckbox = document.getElementById('stableVolumeCheckbox');
-			const autoClickerCheckbox = document.getElementById('autoClickerCheckbox'); // Re-added
-			const autoClickerOptions = document.getElementById('autoClickerOptions'); // Re-added
-			const autoClickDelayInput = document.getElementById('autoClickDelay'); // Re-added
-			const applyAutoClickDelayBtn = document.getElementById('applyAutoClickDelayBtn'); // Re-added
+			const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
+			const autoClickerOptions = document.getElementById('autoClickerOptions');
+			const autoClickDelayInput = document.getElementById('autoClickDelay');
+			const applyAutoClickDelayBtn = document.getElementById('applyAutoClickDelayBtn');
 			const repeatSoundsCheckbox = document.getElementById('repeatSoundsCheckbox');
 			const repeatSoundsOptions = document.getElementById('repeatSoundsOptions');
 			const repeatDelayInput = document.getElementById('repeatDelay');
@@ -590,18 +592,20 @@
 			const statusMessage = document.getElementById('statusMessage');
 			const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
 			const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
-			const logoutBtn = document.getElementById('logoutBtn');
+			// const logoutBtn = document.getElementById('logoutBtn'); // Already defined in auth guard scope
 
 			// State variables
 			let playingAudios = [];
-			let autoClickInterval = null; // Re-added
-			let repeatSoundInterval = null;
+			const MAX_CONCURRENT_SOUNDS = 500; // New limit
+			let autoClickInterval = null;
 			let requestAnimationFrameId = null;
 			let currentlyHoveredButton = null;
 			let statusMessageTimeout = null;
 			let menuIsOpen = false;
 			let isRippling = false;
-			let repeatSoundSource = null;
+
+			let repeatSoundSource = null; // Stores the path of the sound to be repeated
+			let repeatTimeoutId = null;   // Stores the timeout ID for the delayed repeat
 
 			function showStatus(message, type = 'info') {
 				if (statusMessageTimeout) {
@@ -611,41 +615,26 @@
 				statusMessage.textContent = message;
 				statusMessage.className = 'status-message ' + type;
 
-				if (statusMessage.style.display === 'block') {
+				// Simplified show/hide logic for status
+				statusMessage.style.display = 'block';
+				statusMessage.classList.remove('fade-out');
+				statusMessage.classList.add('fade-in');
+
+				statusMessageTimeout = setTimeout(() => {
+					statusMessage.classList.remove('fade-in');
 					statusMessage.classList.add('fade-out');
 					setTimeout(() => {
-						statusMessage.classList.remove('fade-out');
 						statusMessage.style.display = 'none';
-						setTimeout(() => {
-							statusMessage.style.display = 'block';
-							statusMessage.classList.add('fade-in');
-							statusMessageTimeout = setTimeout(() => {
-								statusMessage.classList.remove('fade-in');
-								statusMessage.classList.add('fade-out');
-								setTimeout(() => {
-									statusMessage.style.display = 'none';
-									statusMessage.classList.remove('fade-out');
-								}, 300);
-							}, 3000);
-						}, 50);
+						statusMessage.classList.remove('fade-out');
 					}, 300);
-				} else {
-					statusMessage.style.display = 'block';
-					statusMessage.classList.add('fade-in');
-					statusMessageTimeout = setTimeout(() => {
-						statusMessage.classList.remove('fade-in');
-						statusMessage.classList.add('fade-out');
-						setTimeout(() => {
-							statusMessage.style.display = 'none';
-							statusMessage.classList.remove('fade-out');
-						}, 300);
-					}, 3000);
-				}
+				}, 3000);
 			}
 
 			function openOptionsMenu() {
 				if (menuIsOpen) return;
 				menuIsOpen = true;
+				overlay.classList.remove('fade-out'); // Ensure no competing animations
+				optionsMenu.classList.remove('fade-out');
 				overlay.style.display = 'block';
 				overlay.classList.add('fade-in');
 				optionsMenu.style.display = 'block';
@@ -656,14 +645,13 @@
 				if (!menuIsOpen) return;
 				menuIsOpen = false;
 				overlay.classList.remove('fade-in');
-				overlay.classList.add('fade-out');
 				optionsMenu.classList.remove('fade-in');
+				overlay.classList.add('fade-out');
 				optionsMenu.classList.add('fade-out');
 				setTimeout(() => {
 					overlay.style.display = 'none';
-					overlay.classList.remove('fade-out');
 					optionsMenu.style.display = 'none';
-					optionsMenu.classList.remove('fade-out');
+					// No need to remove fade-out class here if display is none
 				}, 300);
 			}
 
@@ -689,19 +677,32 @@
 				playingAudios.forEach(audio => audio.volume = 0);
 			}
 
+            function stopCurrentRepeatSequence() {
+                if (repeatTimeoutId) {
+                    clearTimeout(repeatTimeoutId);
+                    repeatTimeoutId = null;
+                }
+                // repeatSoundSource is managed by the calling context (e.g., unchecking box, new sound click)
+            }
+
 			function stopAllAudios(delay = 0) {
-				if (playingAudios.length === 0) return;
+				const audiosToStop = [...playingAudios]; // Copy array as it will be modified by 'ended' events
+				if (audiosToStop.length === 0) return;
+
+                stopCurrentRepeatSequence(); // Stop any pending repeats
+
 				if (delay > 0) {
-					muteAllSounds();
+					audiosToStop.forEach(audio => audio.volume = 0); // Mute immediately
 					setTimeout(() => {
-						playingAudios.forEach(audio => {
+						audiosToStop.forEach(audio => {
 							audio.pause();
 							audio.currentTime = 0;
+                            // Event listeners are removed on 'ended' or when manually discarded
 						});
-						playingAudios = [];
+						playingAudios = []; // Clear the main array after actual stopping
 					}, delay);
 				} else {
-					playingAudios.forEach(audio => {
+					audiosToStop.forEach(audio => {
 						audio.pause();
 						audio.currentTime = 0;
 					});
@@ -710,45 +711,50 @@
 			}
 
 			function clearAllSounds(instantMute = false) {
-				const wasPlaying = playingAudios.length > 0;
-				if (wasPlaying) {
+				const wasPlaying = playingAudios.length > 0 || repeatSoundSource;
+                
+                stopCurrentRepeatSequence();
+                repeatSoundSource = null; // Crucial: stop any sound from being designated to repeat
+
+				if (playingAudios.length > 0) {
 					if (instantMute) {
-						muteAllSounds();
-						stopAllAudios(100);
+						muteAllSounds(); // Mutes currently audible sounds
+						stopAllAudios(100); // Stops them after a short delay
 						showStatus('All sounds muted and cleared', 'success');
 					} else {
 						stopAllAudios();
 						showStatus('All sounds stopped', 'success');
 					}
-				}
-				stopRepeatSounds();
-				repeatSoundSource = null;
-				stopAutoClicker(); // Also stop auto-clicker
+				} else if (wasPlaying) { // Case where only a repeat was scheduled but no sound playing
+                    showStatus('Repeat cleared', 'info');
+                }
+				
+				stopAutoClicker();
 
 				if (instantMute) closeOptionsMenu();
 			}
 
-			// --- Auto Clicker Logic (Re-added) ---
+			// --- Auto Clicker Logic ---
 			function fastClicker() {
 				if (currentlyHoveredButton && autoClickerCheckbox.checked) {
-					// Trigger the sound button's click event
 					currentlyHoveredButton.click();
 					requestAnimationFrameId = requestAnimationFrame(fastClicker);
 				}
 			}
 
 			function startAutoClicker() {
-				stopAutoClicker(); // Stop any existing auto-clicker
-				const delay = parseInt(autoClickDelayInput.value, 10) || 0;
+				stopAutoClicker();
+                stopCurrentRepeatSequence(); // Auto-clicker takes precedence over repeating
+                repeatSoundSource = null;
 
+				const delay = parseInt(autoClickDelayInput.value, 10) || 0;
 				if (!currentlyHoveredButton || !autoClickerCheckbox.checked) return;
 
 				if (delay === 0) {
 					requestAnimationFrameId = requestAnimationFrame(fastClicker);
 				} else {
 					autoClickInterval = setInterval(() => {
-						// Trigger the sound button's click event
-						currentlyHoveredButton.click();
+                        if (currentlyHoveredButton) currentlyHoveredButton.click();
 					}, delay);
 				}
 			}
@@ -768,45 +774,16 @@
 				const delay = parseInt(autoClickDelayInput.value, 10);
 				if (isNaN(delay) || delay < 0) autoClickDelayInput.value = 0;
 				localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
-				// If auto-clicker is active and hovering over a button, restart it with the new delay
 				if (autoClickerCheckbox.checked && currentlyHoveredButton) startAutoClicker();
 				closeOptionsMenu();
 			}
 
-
-			// --- Repeat Sounds Logic ---
-			function startRepeatSounds(soundPath) {
-				stopRepeatSounds(); // Stop any existing repeat
-				repeatSoundSource = soundPath; // Set the sound to repeat
-				const delay = parseInt(repeatDelayInput.value, 10) || 0;
-
-				if (delay === 0) {
-					console.warn("Repeat delay is 0ms. This might cause performance issues.");
-					repeatSoundInterval = setInterval(() => {
-						playSingleSound(repeatSoundSource);
-					}, 1); // Use a minimal interval
-				} else {
-					repeatSoundInterval = setInterval(() => {
-						playSingleSound(repeatSoundSource);
-					}, delay);
-				}
-			}
-
-			function stopRepeatSounds() {
-				if (repeatSoundInterval) {
-					clearInterval(repeatSoundInterval);
-					repeatSoundInterval = null;
-				}
-			}
-
+			// --- Repeat Sounds Logic (New: applied on sound end) ---
 			function applyRepeatDelay() {
 				const delay = parseInt(repeatDelayInput.value, 10);
-				if (isNaN(delay) || delay < 0) repeatDelayInput.value = 0;
+				if (isNaN(delay) || delay < 0) repeatDelayInput.value = 0; // Default to 0 if invalid
 				localStorage.setItem('repeatSoundDelay', repeatDelayInput.value);
-				// If repeating is active, restart with the new delay
-				if (repeatSoundsCheckbox.checked && repeatSoundSource) {
-					startRepeatSounds(repeatSoundSource);
-				}
+				// No need to restart anything here, the 'ended' event will pick up the new delay
 				closeOptionsMenu();
 			}
 
@@ -823,14 +800,12 @@
 				const clampedSpeed = Math.max(0.25, Math.min(3, s));
 				playbackSpeedInput.value = clampedSpeed;
 				localStorage.setItem('playbackSpeed', clampedSpeed);
-				applyPlaybackSpeedToAudios(clampedSpeed);
+				if (playbackSpeedCheckbox.checked) { // Only apply if enabled
+				    applyPlaybackSpeedToAudios(clampedSpeed);
+                }
 
 				speedPresetButtons.forEach(button => {
-					if (parseFloat(button.dataset.speed) === clampedSpeed) {
-						button.classList.add('active');
-					} else {
-						button.classList.remove('active');
-					}
+					button.classList.toggle('active', parseFloat(button.dataset.speed) === clampedSpeed);
 				});
 			}
 
@@ -844,10 +819,23 @@
 			// --- Unified Sound Playback Function ---
 			function playSingleSound(soundPath) {
 				try {
+                    // MAX SOUNDS LIMIT
+                    if (playingAudios.length >= MAX_CONCURRENT_SOUNDS) {
+                        const oldestAudio = playingAudios.shift(); // Remove from the front
+                        if (oldestAudio) {
+                            oldestAudio.pause();
+                            oldestAudio.currentTime = 0;
+                            oldestAudio.src = ''; // Release resources
+                            // Event listeners should be removed via their own logic or explicitly if needed
+                            // For 'ended', it removes itself.
+                            console.log("Max sound limit reached, stopped oldest sound.");
+                        }
+                    }
+
 					const audio = new Audio(soundPath);
 
 					if (stableVolumeCheckbox.checked) {
-						audio.volume = 0.5; // You can adjust this value
+						audio.volume = 0.5;
 					} else {
 						audio.volume = 1;
 					}
@@ -858,15 +846,37 @@
 						audio.playbackRate = 1;
 					}
 
-					audio.addEventListener('ended', () => {
-						playingAudios = playingAudios.filter(a => a !== audio);
-					});
+                    const onEnded = () => {
+                        audio.removeEventListener('ended', onEnded); // Clean up self
+                        playingAudios = playingAudios.filter(a => a !== audio);
 
+                        // Check if this specific sound (by its original path) is still the one meant to be repeated
+                        if (repeatSoundsCheckbox.checked && repeatSoundSource && audio.src.endsWith(repeatSoundSource)) {
+                            stopCurrentRepeatSequence(); // Clear any previous stray timeout for this source before setting a new one
+                            const delay = parseInt(repeatDelayInput.value, 10) || 0;
+                            repeatTimeoutId = setTimeout(() => {
+                                // Double check conditions before playing again, in case state changed during timeout
+                                if (repeatSoundsCheckbox.checked && repeatSoundSource && audio.src.endsWith(repeatSoundSource)) {
+                                    playSingleSound(repeatSoundSource); // Play the same source again
+                                }
+                            }, delay);
+                        }
+                    };
+                    audio.addEventListener('ended', onEnded);
+
+                    audio.addEventListener('error', (e) => {
+                        console.error("Error with audio element:", e);
+                        showStatus(`Error playing: ${soundPath.split('/').pop()}`, "error");
+                        playingAudios = playingAudios.filter(a => a !== audio); // Remove from playing list
+                    });
+                    
 					playingAudios.push(audio);
 					audio.play().catch(e => {
 						console.error("Error playing audio:", e);
 						showStatus("Error playing sound.", "error");
+						playingAudios = playingAudios.filter(a => a !== audio); // Remove on play error
 					});
+
 				} catch (e) {
 					console.error("Error creating audio:", e);
 					showStatus("Error creating audio element.", "error");
@@ -882,32 +892,35 @@
 				if (soundName.length < 10) button.classList.add('short-text');
 
 				button.addEventListener('click', () => {
-					if (!soundOverlayCheckbox.checked) stopAllAudios(); // Stop previous if overlay is off
+					if (!soundOverlayCheckbox.checked) {
+                        stopAllAudios(); // This also stops repeats
+                    } else {
+                        // If overlay is on, we don't stop all, but a new click should stop the *current* repeat sequence
+                        // if it's for a different sound or to establish a new one.
+                        stopCurrentRepeatSequence();
+                    }
 
-					// If repeat sounds is checked, this click sets the sound to repeat
 					if (repeatSoundsCheckbox.checked) {
-						stopAutoClicker(); // Stop auto-clicker if repeat sound is clicked
-						currentlyHoveredButton = null; // Clear hovered button
-						startRepeatSounds(soundPath);
+						stopAutoClicker(); 
+						currentlyHoveredButton = null; 
+                        repeatSoundSource = soundPath; // This is now the sound to repeat
+						playSingleSound(soundPath); // Play it once, 'ended' will handle repeat
 					} else {
-						// Otherwise, just play the sound once
+                        repeatSoundSource = null; // Ensure no sound is marked for repeat if checkbox is off
 						playSingleSound(soundPath);
-						// If auto-clicker is active, this click was triggered by it,
-						// so let the mouseenter/mouseleave handle the auto-clicker state.
 					}
 				});
 
-				// Auto-clicker logic on hover
 				button.addEventListener('mouseenter', () => {
 					currentlyHoveredButton = button;
 					if (autoClickerCheckbox.checked) {
-						stopRepeatSounds(); // Stop repeat if auto-clicker is active on hover
-						repeatSoundSource = null; // Clear the sound source
+                        stopCurrentRepeatSequence(); // Stop any sound repeat if auto-clicker starts
+                        repeatSoundSource = null;
 						startAutoClicker();
 					}
 				});
 				button.addEventListener('mouseleave', () => {
-					if (currentlyHoveredButton === button) {
+					if (currentlyHoveredButton === button) { // only stop if leaving the button that triggered it
 						currentlyHoveredButton = null;
 						stopAutoClicker();
 					}
@@ -918,7 +931,9 @@
 
 			// Event Listeners
 			soundOverlayCheckbox.addEventListener('change', function() {
-				if (!this.checked) stopAllAudios();
+				if (!this.checked) {
+                    stopAllAudios(); // This also clears repeatSoundSource via stopAllAudios -> stopCurrentRepeatSequence
+                }
 				localStorage.setItem('soundOverlay', this.checked);
 			});
 
@@ -927,19 +942,18 @@
 				playingAudios.forEach(audio => audio.volume = this.checked ? 0.5 : 1);
 			});
 
-			// Auto Clicker Event Listeners (Re-added)
 			autoClickerCheckbox.addEventListener('change', function() {
 				autoClickerOptions.style.display = this.checked ? 'block' : 'none';
 				localStorage.setItem('autoClicker', this.checked);
 				if (!this.checked) {
 					stopAutoClicker();
-					currentlyHoveredButton = null; // Clear hovered button if auto-clicker is off
-				}
-				// If checked and hovering, start auto-clicker
-				if (this.checked && currentlyHoveredButton) {
-					stopRepeatSounds(); // Stop repeat if auto-clicker is enabled and hovering
-					repeatSoundSource = null; // Clear the sound source
-					startAutoClicker();
+					currentlyHoveredButton = null; 
+				} else { // If enabling auto-clicker
+                    stopCurrentRepeatSequence(); // Stop any existing sound repeat
+                    repeatSoundSource = null;
+					if (currentlyHoveredButton) { // And if already hovering a button
+						startAutoClicker();
+					}
 				}
 			});
 
@@ -955,16 +969,22 @@
 				repeatSoundsOptions.style.display = this.checked ? 'block' : 'none';
 				localStorage.setItem('repeatSounds', this.checked);
 				if (!this.checked) {
-					stopRepeatSounds();
-					repeatSoundSource = null;
+                    stopCurrentRepeatSequence(); // Stop any active repeat sequence
+					repeatSoundSource = null;    // And forget which sound was repeating
 				} else {
-					// If checking and a sound was previously selected for repeat, restart it
-					if (repeatSoundSource) {
-						stopAutoClicker(); // Stop auto-clicker if repeat is enabled
-						currentlyHoveredButton = null; // Clear hovered button
-						startRepeatSounds(repeatSoundSource);
-					}
-				}
+                    // If checked, the next sound clicked will become the repeatSoundSource.
+                    // We don't automatically restart a previously set repeatSoundSource here
+                    // to avoid confusion. User must click a sound again to designate it for repeat.
+                    // Also, if auto-clicker is on, disable it as they are conflicting.
+                    if (autoClickerCheckbox.checked) {
+                        autoClickerCheckbox.checked = false; // Turn off auto-clicker
+                        autoClickerOptions.style.display = 'none';
+                        localStorage.setItem('autoClicker', false);
+                        stopAutoClicker();
+                        currentlyHoveredButton = null;
+                        showStatus("Auto-clicker disabled for sound repeat.", "info");
+                    }
+                }
 			});
 
 			repeatDelayInput.addEventListener('keydown', function(e) {
@@ -979,7 +999,7 @@
 				playbackSpeedOptions.style.display = this.checked ? 'block' : 'none';
 				localStorage.setItem('playbackSpeedEnabled', this.checked);
 				if (!this.checked) {
-					applyPlaybackSpeedToAudios(1);
+					applyPlaybackSpeedToAudios(1); // Reset to normal speed for all playing
 				} else {
 					applyPlaybackSpeedToAudios(parseFloat(playbackSpeedInput.value) || 1);
 				}
@@ -987,16 +1007,19 @@
 
 			playbackSpeedInput.addEventListener('input', function() {
 				const value = parseFloat(this.value);
+                let clampedValue = value;
 				if (!isNaN(value)) {
-					this.value = Math.max(0.25, Math.min(3, value));
-				}
+					clampedValue = Math.max(0.25, Math.min(3, value));
+                    if (value !== clampedValue) this.value = clampedValue; // Update input if clamped
+				} else {
+                    clampedValue = 1; // Default to 1 if input is not a number
+                }
 				speedPresetButtons.forEach(button => {
-					if (parseFloat(button.dataset.speed) === parseFloat(this.value)) {
-						button.classList.add('active');
-					} else {
-						button.classList.remove('active');
-					}
+					button.classList.toggle('active', parseFloat(button.dataset.speed) === clampedValue);
 				});
+                if (playbackSpeedCheckbox.checked) { // Apply live if checkbox is checked
+                    applyPlaybackSpeedToAudios(clampedValue);
+                }
 			});
 
 
@@ -1011,8 +1034,8 @@
 			speedPresetButtons.forEach(button => {
 				button.addEventListener('click', function() {
 					const speed = this.dataset.speed;
-					setPlaybackSpeed(speed);
-					// closeOptionsMenu(); // Decide if you want to close menu here
+					setPlaybackSpeed(speed); // This will update input and apply if checked
+					// closeOptionsMenu(); // Optional: close menu after preset click
 				});
 			});
 
@@ -1021,11 +1044,14 @@
 				createRipple(e);
 				this.classList.add('active');
 				setTimeout(() => this.classList.remove('active'), 400);
-				clearAllSounds(false);
+				clearAllSounds(false); // This will also stop repeats and clear repeatSoundSource
 			});
 
 			document.addEventListener('keydown', function(e) {
-				if (e.shiftKey && e.key.toLowerCase() === 'c') clearAllSounds(true);
+				if (e.shiftKey && e.key.toLowerCase() === 'c') {
+                    e.preventDefault(); // Prevent browser's default action for Shift+C if any
+                    clearAllSounds(true);
+                }
 			});
 
 			optionsButton.addEventListener('click', function(e) {
@@ -1034,16 +1060,18 @@
 			});
 
 			overlay.addEventListener('click', closeOptionsMenu);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === "Escape" && menuIsOpen) {
+                    closeOptionsMenu();
+                }
+            });
+
 
 			// Load preferences & sounds
 			(function loadPreferences() {
 				if (localStorage.getItem('soundOverlay') === 'true') soundOverlayCheckbox.checked = true;
+				if (localStorage.getItem('stableVolume') === 'true') stableVolumeCheckbox.checked = true;
 
-				if (localStorage.getItem('stableVolume') === 'true') {
-					stableVolumeCheckbox.checked = true;
-				}
-
-				// Load Auto Clicker (Re-added)
 				if (localStorage.getItem('autoClicker') === 'true') {
 					autoClickerCheckbox.checked = true;
 					autoClickerOptions.style.display = 'block';
@@ -1052,7 +1080,6 @@
 				if (savedAutoClickDelay !== null) autoClickDelayInput.value = savedAutoClickDelay;
 
 
-				// Load Repeat Sounds
 				if (localStorage.getItem('repeatSounds') === 'true') {
 					repeatSoundsCheckbox.checked = true;
 					repeatSoundsOptions.style.display = 'block';
@@ -1060,7 +1087,6 @@
 				const savedRepeatDelay = localStorage.getItem('repeatSoundDelay');
 				if (savedRepeatDelay !== null) repeatDelayInput.value = savedRepeatDelay;
 
-				// Load Playback Speed
 				if (localStorage.getItem('playbackSpeedEnabled') === 'true') {
 					playbackSpeedCheckbox.checked = true;
 					playbackSpeedOptions.style.display = 'block';
@@ -1069,24 +1095,28 @@
 				if (savedPlaybackSpeed !== null) {
 					playbackSpeedInput.value = savedPlaybackSpeed;
 				} else {
-					playbackSpeedInput.value = 1; // Default to 1x speed
+					playbackSpeedInput.value = 1; 
 				}
-				speedPresetButtons.forEach(button => {
-					if (parseFloat(button.dataset.speed) === parseFloat(playbackSpeedInput.value)) {
-						button.classList.add('active');
-					}
-				});
-
+                setPlaybackSpeed(playbackSpeedInput.value); // Ensure presets are correctly highlighted
 
 			})();
 
 			fetch('SoundboardSN.json')
-				.then(r => r.json())
+				.then(r => {
+                    if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+                    return r.json();
+                })
 				.then(data => {
 					(data.NormalSounds || []).forEach(f => createSoundButton('NormalSounds', f, normalSoundsContainer));
 					(data.ExplicitSounds || []).forEach(f => createSoundButton('ExplicitSounds', f, explicitSoundsContainer));
+                    if ((data.NormalSounds || []).length === 0 && (data.ExplicitSounds || []).length === 0) {
+                        showStatus("No sounds loaded. Check SoundboardSN.json.", "error");
+                    }
 				})
-				.catch(console.error);
+				.catch(err => {
+                    console.error("Error fetching or parsing SoundboardSN.json:", err);
+                    showStatus("Could not load sound list. See console for details.", "error");
+                });
 		});
 	</script>
 </body>
