@@ -13,6 +13,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <!-- Firebase Configuration -->
   <script src="firebase-config.js"></script>
+
   <style>
     :root {
       --dark-bg: #0a0a0a;
@@ -81,6 +82,11 @@
       background-color: rgba(255, 255, 255, 0.1);
     }
 
+    /* Hide logout button until we know user is logged in */
+    #logoutBtn {
+      display: none;
+    }
+
     .iframe-container {
       flex: 1;
       width: 100%;
@@ -146,10 +152,8 @@
   </div>
 
   <script>
-    // Initialize Firebase using configuration from firebase-config.js
-    // The firebase-config.js file should export the firebaseConfig object
+    // --- Firebase initialization ---
     try {
-      // firebaseConfig should be globally available from firebase-config.js
       if (typeof firebaseConfig !== 'undefined') {
         firebase.initializeApp(firebaseConfig);
       } else {
@@ -159,7 +163,32 @@
       console.error("Error initializing Firebase:", error);
     }
 
+    // --- Auth guard: redirect logged-out users ---
+    function handleAuthState(user) {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (user) {
+        // Reveal logout when authenticated
+        logoutBtn.style.display = 'inline-flex';
+      } else {
+        // Not authenticated → back to login
+        window.location.href = 'login.html';
+      }
+    }
+    function initAuthGuard() {
+      const auth = firebase.auth();
+      auth.onAuthStateChanged(handleAuthState);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+      // Start auth guard
+      if (window.firebase && firebase.auth) {
+        initAuthGuard();
+      } else {
+        console.error("Firebase Auth SDK not loaded.");
+        // Force redirect if auth unavailable
+        window.location.href = 'login.html';
+      }
+
       const statusMessage = document.getElementById('statusMessage');
       const iframe = document.getElementById('mainIframe');
       const logoutBtn = document.getElementById('logoutBtn');
@@ -174,30 +203,30 @@
 
       // Handle logout button click
       logoutBtn.addEventListener('click', () => {
-        // Check if Firebase is initialized
-        if (typeof firebase !== 'undefined' && firebase.auth) {
-          firebase.auth().signOut().then(() => {
+        firebase.auth().signOut()
+          .then(() => {
             showStatus('Logged out successfully');
-            // Redirect to login page after successful logout
             setTimeout(() => {
               window.location.href = 'login.html';
             }, 1000);
-          }).catch((error) => {
+          })
+          .catch((error) => {
             showStatus('Error logging out: ' + error.message);
             console.error('Logout error:', error);
           });
-        } else {
-          showStatus('Firebase not initialized');
-          console.error('Firebase not initialized');
-        }
       });
 
+      // Keyboard shortcuts & iframe messaging...
       document.addEventListener('keydown', e => {
         const k = e.key.toLowerCase();
         if (e.ctrlKey && e.shiftKey) {
           if (k === 'x') window.location = 'dashboard.html';
           if (k === 'i') { iframe.focus(); showStatus('Iframe focused! Press Enter to interact.'); e.preventDefault(); }
-          if (k === 'm') { iframe.contentWindow.postMessage('Hello from parent!', '*'); showStatus('Message sent to iframe!'); e.preventDefault(); }
+          if (k === 'm') { 
+            iframe.contentWindow.postMessage('Hello from parent!', '*'); 
+            showStatus('Message sent to iframe!'); 
+            e.preventDefault(); 
+          }
         }
         if (e.key === 'Enter' && document.activeElement !== iframe) {
           showStatus('Press Ctrl+Shift+I to focus the iframe first!');
