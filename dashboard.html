@@ -105,14 +105,28 @@
       margin-top: 1rem;
     }
 
-    /* Grid */
+    /* Grid - UPDATED to limit to max 3 columns */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
       gap: 2rem;
       margin: 2rem 0;
     }
-    @media (max-width: 768px) {
+    
+    /* Media queries for responsive grid */
+    @media (min-width: 992px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    @media (min-width: 768px) and (max-width: 991px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 767px) {
       .dashboard-grid {
         grid-template-columns: 1fr;
       }
@@ -181,6 +195,7 @@
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
+    <div class="nav-buttons">
       <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
     </div>
   </nav>
@@ -382,11 +397,14 @@
             const closeModalBtn = document.getElementById('closeModalBtn');
             const modalOverlay = document.getElementById('modalOverlay');
 
-            // Open modal
-            tipsBtn.addEventListener('click', () => {
-                tipsModal.classList.remove('fade-out'); // Remove fade-out class if present
-                tipsModal.style.display = 'block';
-            });
+            // Check if tips button exists before adding event listener
+            if (tipsBtn) {
+                // Open modal
+                tipsBtn.addEventListener('click', () => {
+                    tipsModal.classList.remove('fade-out'); // Remove fade-out class if present
+                    tipsModal.style.display = 'block';
+                });
+            }
 
             // Function to close modal with fade effect
             function closeModalWithFade() {
@@ -399,14 +417,18 @@
             }
 
             // Close modal when clicking the close button
-            closeModalBtn.addEventListener('click', () => {
-                closeModalWithFade();
-            });
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', () => {
+                    closeModalWithFade();
+                });
+            }
 
             // Close modal when clicking outside the modal content
-            modalOverlay.addEventListener('click', () => {
-                closeModalWithFade();
-            });
+            if (modalOverlay) {
+                modalOverlay.addEventListener('click', () => {
+                    closeModalWithFade();
+                });
+            }
 
             // Close modal when pressing Escape key
             document.addEventListener('keydown', (e) => {
@@ -422,15 +444,13 @@
                 initAuth();
             } else {
                 console.error("Firebase SDK not loaded.");
-                document.addEventListener('DOMContentLoaded', () => {
-                    const notice = document.getElementById('authNotice');
-                    if (notice) {
-                        notice.textContent = 'Error loading application components. Please try again later.';
-                        notice.classList.remove('hidden');
-                    }
-                    const grid = document.getElementById('dashboardGrid');
-                    if (grid) grid.classList.add('hidden');
-                });
+                const notice = document.getElementById('authNotice');
+                if (notice) {
+                    notice.textContent = 'Error loading application components. Please try again later.';
+                    notice.classList.remove('hidden');
+                }
+                const grids = document.querySelectorAll('.dashboard-grid');
+                grids.forEach(grid => grid.classList.add('hidden'));
             }
             
             // Initialize tips modal regardless of Firebase status
