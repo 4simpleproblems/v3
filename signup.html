@@ -95,10 +95,8 @@
       overflow: hidden;
     }
     #authMessage {
-      padding: 15px 30px;
-      margin-bottom: 0;
-      border-bottom: 1px solid #eee;
       display: none;
+      padding: 30px;
     }
 
     .split-layout {
@@ -185,7 +183,7 @@
     .message {
       padding: 10px;
       border-radius: 15px;
-      margin-bottom: 0;
+      margin-bottom: 20px;
     }
     .message.success {
       background-color: #d4edda;
@@ -194,10 +192,6 @@
     .message.error {
       background-color: #f8d7da;
       color: #721c24;
-    }
-    .message.warning {
-      background-color: #fff3cd;
-      color: #856404;
     }
     footer {
       text-align: center;
@@ -239,67 +233,6 @@
       justify-content: center;
       gap: 1rem;
       margin-top: 1.5rem;
-    }
-    .disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-    /* Added styles for alerts */
-    .alert {
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      font-weight: 500;
-      text-align: center;
-    }
-    .alert-success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-    .alert-danger {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-    .alert-warning {
-      background-color: #fff3cd;
-      color: #856404;
-      border: 1px solid #ffeeba;
-    }
-    .alert-info {
-      background-color: #d1ecf1;
-      color: #0c5460;
-      border: 1px solid #bee5eb;
-    }
-    .fade-in {
-      animation: fadeIn 0.5s;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    #verificationContent {
-      margin: 1rem 0;
-    }
-    #verificationContent img {
-      max-width: 100px;
-      margin: 10px auto;
-    }
-    .email-highlight {
-      font-weight: bold;
-      color: #4285F4;
-    }
-    .check-gmail {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 15px 0;
-    }
-    .check-gmail img {
-      width: 24px;
-      height: 24px;
-      margin-right: 10px;
     }
   </style>
 </head>
@@ -366,30 +299,11 @@
   <div id="verificationModal" class="modal">
     <div class="modal-content">
       <h2>Verify Your Email</h2>
-      <div id="verificationContent">
-        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzQyODVGNCI+PHBhdGggZD0iTTIwIDRINEMyLjkgNCAyIDQuOSAyIDZ2MTJjMCAxLjEuOSAyIDIgMmgxNmMxLjEgMCAyLS45IDItMlY2YzAtMS4xLS45LTItMi0yem0wIDRsLTggNS04LTVWNmw4IDUgOC01djJ6Ii8+PC9zdmc+" alt="Email Icon">
-        <p>We've sent a verification email to <span id="verificationEmail" class="email-highlight"></span></p>
-        <p class="check-gmail">
-          <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0VBNDMzNSI+PHBhdGggZD0iTTI0IDUuNDU3djEzLjkwOWMwIC45MDQtLjczMiAxLjYzNi0xLjYzNiAxLjYzNmgtMy44MTlWOC41bC0yLjg2IDEuOTItMS42ODMgMS4xMzQtLjgzNS41NTYtLjgzNS0uNTU2LTEuNjgtMS4xMzRMMTAgOC41VjIxaC04LjM2NEMuNzMyIDIxIDAgMjAuMjY4IDAgMTkuMzY0VjUuNDU3YzAtLjkwMy43MzItMS42MzYgMS42MzYtMS42MzZoMS45OUwxMiAxMC43M2w4LjM3NC02LjkwOWgxLjk5Yy45MDQgMCAxLjYzNi43MzMgMS42MzYgMS42MzZ6Ii8+PC9zdmc+" alt="Gmail Icon">
-          <span>Please check your Gmail inbox and spam folder</span>
-        </p>
-        <p>Click the verification link in the email to activate your account</p>
-      </div>
+      <p>We've sent a verification email to <span id="verificationEmail"></span></p>
+      <p>Please check your inbox and click the verification link to activate your account.</p>
       <div class="modal-buttons">
         <button id="resendVerificationBtn" class="btn secondary">Resend Email</button>
         <button id="closeModalBtn" class="btn primary">OK</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Ban Modal -->
-  <div id="banModal" class="modal">
-    <div class="modal-content">
-      <h2>Account Access Denied</h2>
-      <p>We're sorry, but this email address has been banned from our platform.</p>
-      <p>If you believe this is an error, please contact support.</p>
-      <div class="modal-buttons">
-        <button id="closeBanModalBtn" class="btn primary">OK</button>
       </div>
     </div>
   </div>
@@ -422,12 +336,6 @@
       const verificationEmail = document.getElementById('verificationEmail');
       const resendVerificationBtn = document.getElementById('resendVerificationBtn');
       const closeModalBtn = document.getElementById('closeModalBtn');
-      const banModal = document.getElementById('banModal');
-      const closeBanModalBtn = document.getElementById('closeBanModalBtn');
-
-      // Store temporary user data before account creation
-      let pendingUserData = null;
-      let tempUser = null;
 
       // Username validation function
       function validateUsername(username) {
@@ -465,23 +373,6 @@
         }
       });
 
-      // Check if email is banned
-      async function checkIfBanned(email) {
-        try {
-          // Check banned users from firebase-config.js
-          if (typeof bannedUsers !== 'undefined' && Array.isArray(bannedUsers)) {
-            return bannedUsers.includes(email);
-          } else {
-            // Fallback to Firestore if bannedUsers is not available in firebase-config.js
-            const bannedRef = await db.collection('banned').doc(email).get();
-            return bannedRef.exists;
-          }
-        } catch (error) {
-          console.error("Error checking ban status:", error);
-          return false;
-        }
-      }
-
       // Email/password signup
       signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -508,51 +399,26 @@
           showMessage(usernameValidation.message, 'error');
           return;
         }
-        
-        // Check if the email is banned
-        const isBanned = await checkIfBanned(email);
-        if (isBanned) {
-          banModal.style.display = 'flex';
-          return;
-        }
 
         try {
-          // Check if the username is already taken
-          const usernameQuerySnapshot = await db.collection('users')
-            .where('username', '==', username)
-            .get();
-          
-          if (!usernameQuerySnapshot.empty) {
-            showMessage('Username is already taken. Please choose another one.', 'error');
-            return;
-          }
-          
-          // Create user but don't save to database yet
           const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-          tempUser = userCredential.user;
-          
-          // Store pending user data
-          pendingUserData = {
+          const user = userCredential.user;
+
+          // Save username to Firestore
+          await db.collection('users').doc(user.uid).set({
             username: username,
             email: email,
-            emailVerified: false,
-            createdAt: new Date().toISOString(),
-            // Store the UID from Firebase Auth to link them later
-            uid: tempUser.uid
-          };
+            emailVerified: false
+          });
           
           // Send email verification
-          await tempUser.sendEmailVerification();
+          await user.sendEmailVerification();
           
           // Show verification modal
           verificationEmail.textContent = email;
           verificationModal.style.display = 'flex';
           
-          // Show alert in page
-          showMessage('Verification email sent! Please check your Gmail inbox.', 'success');
-          
-          // Browser alert for additional notification
-          alert(`Verification email sent to ${email}. Please check your Gmail inbox and verify your account.`);
+          showMessage('Account created! Please verify your email.', 'success');
         } catch (error) {
           handleAuthError(error);
         }
@@ -564,8 +430,7 @@
           const user = auth.currentUser;
           if (user) {
             await user.sendEmailVerification();
-            showMessage('Verification email resent! Please check your Gmail inbox.', 'success');
-            alert('Verification email resent! Please check your Gmail inbox.');
+            showMessage('Verification email resent!', 'success');
           } else {
             showMessage('No user signed in. Please try again.', 'error');
           }
@@ -576,10 +441,6 @@
       
       closeModalBtn.addEventListener('click', () => {
         verificationModal.style.display = 'none';
-      });
-      
-      closeBanModalBtn.addEventListener('click', () => {
-        banModal.style.display = 'none';
       });
 
       // Google signup
@@ -592,112 +453,59 @@
             prompt: 'select_account'
           });
 
-          // First, check if the email is banned without creating an account
-          // We'll do a pre-check with Google Auth first
           const result = await auth.signInWithPopup(provider);
           const user = result.user;
-          const email = user.email;
-          
-          // Check if the email is banned
-          const isBanned = await checkIfBanned(email);
-          if (isBanned) {
-            // Sign out the user immediately
-            await auth.signOut();
-            banModal.style.display = 'flex';
-            return;
-          }
 
           // Check if this is a new user
           const isNewUser = result.additionalUserInfo.isNewUser;
 
           if (isNewUser) {
-            // If this is a new user, we need to wait for email verification
-            if (!user.emailVerified) {
-              // Google accounts are typically pre-verified, but just in case
-              await user.sendEmailVerification();
-              verificationEmail.textContent = email;
-              verificationModal.style.display = 'flex';
-              showMessage('Please verify your email before continuing.', 'warning');
-              alert(`Please verify your email at ${email} before continuing.`);
-              return;
-            }
-            
             // Automatically generate a username from Google profile
             let username = generateUsernameFromGoogle(user);
 
             // Ensure uniqueness by checking Firestore
-            const usernameQuerySnapshot = await db.collection('users')
-              .where('username', '==', username)
-              .get();
-            
-            if(!usernameQuerySnapshot.empty) {
+            const usernameRef = db.collection('usernames').doc(username);
+            const usernameDoc = await usernameRef.get();
+
+            if(usernameDoc.exists){
               const usersSnapshot = await db.collection('users').get();
               username = `NONAME-${usersSnapshot.size + 1}`;
             }
 
-            // Store user data in Firestore now that we have verified email
+            // Save username to Firestore
             await db.collection('users').doc(user.uid).set({
               username: username,
               email: user.email,
-              emailVerified: true,
-              createdAt: new Date().toISOString()
+              emailVerified: user.emailVerified
             });
-            
+          }
+          
+          // Google Auth typically verifies email automatically
+          if (user.emailVerified) {
             showMessage('Google signup successful! Redirecting...', 'success');
-            alert('Google signup successful! Redirecting to dashboard...');
             setTimeout(() => window.location.href = 'dashboard.html', 1500);
           } else {
-            // Existing user
-            showMessage('Welcome back! Redirecting...', 'success');
-            alert('Welcome back! Redirecting to dashboard...');
-            setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            // Rare case: Google account with unverified email
+            await user.sendEmailVerification();
+            verificationEmail.textContent = user.email;
+            verificationModal.style.display = 'flex';
+            showMessage('Please verify your email before continuing.', 'warning');
           }
         } catch (error) {
           handleAuthError(error);
         }
       });
 
-      // Set up auth state listener to check email verification and complete account creation
-      firebase.auth().onAuthStateChanged(async function(user) {
+      // Set up auth state listener to check email verification
+      firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
+          // User is signed in
           console.log("User signed in with verification status:", user.emailVerified);
           
           if (user.emailVerified) {
-            // User email is verified, check if we need to save pending user data
-            if (pendingUserData && pendingUserData.uid === user.uid) {
-              try {
-                // Now save the user data to Firestore since email is verified
-                pendingUserData.emailVerified = true;
-                await db.collection('users').doc(user.uid).set(pendingUserData);
-                
-                // Clear the pending data
-                pendingUserData = null;
-                
-                // Show success message and redirect
-                showMessage('Email verified! Redirecting to dashboard...', 'success');
-                alert('Email verified successfully! Redirecting to dashboard...');
-                setTimeout(() => window.location.href = 'dashboard.html', 1500);
-              } catch (error) {
-                console.error("Error saving verified user:", error);
-                showMessage('Email verified but there was an error saving your account. Please try again.', 'error');
-                alert('Email verified but there was an error saving your account. Please try again.');
-              }
-            } else {
-              // This is an existing verified user, check if they have a Firestore entry
-              const userDoc = await db.collection('users').doc(user.uid).get();
-              
-              if (!userDoc.exists) {
-                // User record doesn't exist in Firestore, but they're verified in Auth
-                // This might happen if verification happened on another device/session
-                showMessage('Your account is verified! Please complete the sign up process.', 'warning');
-                alert('Your account is verified! Please complete the sign up process.');
-              } else {
-                // User is verified and already has a record in Firestore
-                showMessage('You're already signed up! Redirecting to dashboard...', 'success');
-                alert('You're already signed up! Redirecting to dashboard...');
-                setTimeout(() => window.location.href = 'dashboard.html', 1500);
-              }
-            }
+            // User email is verified, redirect to dashboard
+            showMessage('Email verified! Redirecting to dashboard...', 'success');
+            setTimeout(() => window.location.href = 'dashboard.html', 1500);
           }
         }
       });
@@ -711,24 +519,11 @@
 
       // Helper functions
       function showMessage(message, type) {
-        // Map message types to alert classes
-        const alertType = type === 'error' ? 'danger' : 
-                          type === 'success' ? 'success' : 
-                          type === 'warning' ? 'warning' : 'info';
-        
-        // Create alert HTML
-        authMessage.innerHTML = `<div class="alert alert-${alertType} fade-in">${message}</div>`;
+        authMessage.innerHTML = `<div class="message ${type}">${message}</div>`;
         authMessage.style.display = 'block';
-        
-        // Auto-hide after 10 seconds for success messages
-        if (type === 'success') {
-          setTimeout(() => {
-            authMessage.style.display = 'none';
-          }, 10000);
-        }
       }
 
-     function handleAuthError(error) {
+      function handleAuthError(error) {
         console.error('Auth Error:', error);
         let message = error.message;
         if (error.code === 'auth/email-already-in-use') {
@@ -739,50 +534,13 @@
           message = 'Password must be at least 6 characters.';
         } else if (error.code === 'auth/popup-blocked') {
           message = 'Popup blocked. Please allow popups for this site.';
-        } else if (error.code === 'auth/popup-closed-by-user') {
-          message = 'Sign-in popup was closed before completing. Please try again.';
-        } else if (error.code === 'auth/network-request-failed') {
-          message = 'Network error. Please check your internet connection and try again.';
+        } else if (error.code === 'auth/cancelled-popup-request') {
+          message = 'Sign up was cancelled. Please try again.';
+        } else {
+          message = 'An error occurred during sign up: ' + error.message;
         }
-        
         showMessage(message, 'error');
       }
-
-      // When a user clicks anywhere outside of the modal, close it
-      window.addEventListener('click', (event) => {
-        if (event.target === verificationModal) {
-          verificationModal.style.display = 'none';
-        }
-        if (event.target === banModal) {
-          banModal.style.display = 'none';
-        }
-      });
-
-      // Auto-reload when coming back to the page (might be returning after email verification)
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-          // Refresh the auth state to check if email has been verified
-          const currentUser = auth.currentUser;
-          if (currentUser) {
-            currentUser.reload().then(() => {
-              console.log("User reloaded, email verified:", currentUser.emailVerified);
-            }).catch(error => {
-              console.error("Error reloading user:", error);
-            });
-          }
-        }
-      });
-
-      // Listen for form input changes to clear error messages when user starts typing
-      const formInputs = document.querySelectorAll('#signupForm input');
-      formInputs.forEach(input => {
-        input.addEventListener('input', () => {
-          // Clear error messages when user starts typing
-          if (authMessage.style.display !== 'none') {
-            authMessage.style.display = 'none';
-          }
-        });
-      });
     });
   </script>
 </body>
