@@ -95,8 +95,10 @@
       overflow: hidden;
     }
     #authMessage {
+      padding: 15px 30px;
+      margin-bottom: 0;
+      border-bottom: 1px solid #eee;
       display: none;
-      padding: 30px;
     }
 
     .split-layout {
@@ -183,7 +185,7 @@
     .message {
       padding: 10px;
       border-radius: 15px;
-      margin-bottom: 20px;
+      margin-bottom: 0;
     }
     .message.success {
       background-color: #d4edda;
@@ -241,6 +243,63 @@
     .disabled {
       opacity: 0.7;
       cursor: not-allowed;
+    }
+    /* Added styles for alerts */
+    .alert {
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      text-align: center;
+    }
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .alert-warning {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+    }
+    .alert-info {
+      background-color: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    .fade-in {
+      animation: fadeIn 0.5s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    #verificationContent {
+      margin: 1rem 0;
+    }
+    #verificationContent img {
+      max-width: 100px;
+      margin: 10px auto;
+    }
+    .email-highlight {
+      font-weight: bold;
+      color: #4285F4;
+    }
+    .check-gmail {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 15px 0;
+    }
+    .check-gmail img {
+      width: 24px;
+      height: 24px;
+      margin-right: 10px;
     }
   </style>
 </head>
@@ -307,8 +366,15 @@
   <div id="verificationModal" class="modal">
     <div class="modal-content">
       <h2>Verify Your Email</h2>
-      <p>We've sent a verification email to <span id="verificationEmail"></span></p>
-      <p>Please check your inbox and click the verification link to activate your account.</p>
+      <div id="verificationContent">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzQyODVGNCI+PHBhdGggZD0iTTIwIDRINEMyLjkgNCAyIDQuOSAyIDZ2MTJjMCAxLjEuOSAyIDIgMmgxNmMxLjEgMCAyLS45IDItMlY2YzAtMS4xLS45LTItMi0yem0wIDRsLTggNS04LTVWNmw4IDUgOC01djJ6Ii8+PC9zdmc+" alt="Email Icon">
+        <p>We've sent a verification email to <span id="verificationEmail" class="email-highlight"></span></p>
+        <p class="check-gmail">
+          <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI0VBNDMzNSI+PHBhdGggZD0iTTI0IDUuNDU3djEzLjkwOWMwIC45MDQtLjczMiAxLjYzNi0xLjYzNiAxLjYzNmgtMy44MTlWOC41bC0yLjg2IDEuOTItMS42ODMgMS4xMzQtLjgzNS41NTYtLjgzNS0uNTU2LTEuNjgtMS4xMzRMMTAgOC41VjIxaC04LjM2NEMuNzMyIDIxIDAgMjAuMjY4IDAgMTkuMzY0VjUuNDU3YzAtLjkwMy43MzItMS42MzYgMS42MzYtMS42MzZoMS45OUwxMiAxMC43M2w4LjM3NC02LjkwOWgxLjk5Yy45MDQgMCAxLjYzNi43MzMgMS42MzYgMS42MzZ6Ii8+PC9zdmc+" alt="Gmail Icon">
+          <span>Please check your Gmail inbox and spam folder</span>
+        </p>
+        <p>Click the verification link in the email to activate your account</p>
+      </div>
       <div class="modal-buttons">
         <button id="resendVerificationBtn" class="btn secondary">Resend Email</button>
         <button id="closeModalBtn" class="btn primary">OK</button>
@@ -482,7 +548,11 @@
           verificationEmail.textContent = email;
           verificationModal.style.display = 'flex';
           
-          showMessage('Verification email sent! Please check your inbox.', 'success');
+          // Show alert in page
+          showMessage('Verification email sent! Please check your Gmail inbox.', 'success');
+          
+          // Browser alert for additional notification
+          alert(`Verification email sent to ${email}. Please check your Gmail inbox and verify your account.`);
         } catch (error) {
           handleAuthError(error);
         }
@@ -494,7 +564,8 @@
           const user = auth.currentUser;
           if (user) {
             await user.sendEmailVerification();
-            showMessage('Verification email resent!', 'success');
+            showMessage('Verification email resent! Please check your Gmail inbox.', 'success');
+            alert('Verification email resent! Please check your Gmail inbox.');
           } else {
             showMessage('No user signed in. Please try again.', 'error');
           }
@@ -547,6 +618,7 @@
               verificationEmail.textContent = email;
               verificationModal.style.display = 'flex';
               showMessage('Please verify your email before continuing.', 'warning');
+              alert(`Please verify your email at ${email} before continuing.`);
               return;
             }
             
@@ -572,10 +644,12 @@
             });
             
             showMessage('Google signup successful! Redirecting...', 'success');
+            alert('Google signup successful! Redirecting to dashboard...');
             setTimeout(() => window.location.href = 'dashboard.html', 1500);
           } else {
             // Existing user
             showMessage('Welcome back! Redirecting...', 'success');
+            alert('Welcome back! Redirecting to dashboard...');
             setTimeout(() => window.location.href = 'dashboard.html', 1500);
           }
         } catch (error) {
@@ -601,10 +675,12 @@
                 
                 // Show success message and redirect
                 showMessage('Email verified! Redirecting to dashboard...', 'success');
+                alert('Email verified successfully! Redirecting to dashboard...');
                 setTimeout(() => window.location.href = 'dashboard.html', 1500);
               } catch (error) {
                 console.error("Error saving verified user:", error);
                 showMessage('Email verified but there was an error saving your account. Please try again.', 'error');
+                alert('Email verified but there was an error saving your account. Please try again.');
               }
             } else {
               // This is an existing verified user, check if they have a Firestore entry
@@ -614,9 +690,11 @@
                 // User record doesn't exist in Firestore, but they're verified in Auth
                 // This might happen if verification happened on another device/session
                 showMessage('Your account is verified! Please complete the sign up process.', 'warning');
+                alert('Your account is verified! Please complete the sign up process.');
               } else {
                 // User is verified and already has a record in Firestore
                 showMessage('You're already signed up! Redirecting to dashboard...', 'success');
+                alert('You're already signed up! Redirecting to dashboard...');
                 setTimeout(() => window.location.href = 'dashboard.html', 1500);
               }
             }
@@ -633,11 +711,24 @@
 
       // Helper functions
       function showMessage(message, type) {
-        authMessage.innerHTML = `<div class="message ${type}">${message}</div>`;
+        // Map message types to alert classes
+        const alertType = type === 'error' ? 'danger' : 
+                          type === 'success' ? 'success' : 
+                          type === 'warning' ? 'warning' : 'info';
+        
+        // Create alert HTML
+        authMessage.innerHTML = `<div class="alert alert-${alertType} fade-in">${message}</div>`;
         authMessage.style.display = 'block';
+        
+        // Auto-hide after 10 seconds for success messages
+        if (type === 'success') {
+          setTimeout(() => {
+            authMessage.style.display = 'none';
+          }, 10000);
+        }
       }
 
-      function handleAuthError(error) {
+     function handleAuthError(error) {
         console.error('Auth Error:', error);
         let message = error.message;
         if (error.code === 'auth/email-already-in-use') {
@@ -648,13 +739,50 @@
           message = 'Password must be at least 6 characters.';
         } else if (error.code === 'auth/popup-blocked') {
           message = 'Popup blocked. Please allow popups for this site.';
-        } else if (error.code === 'auth/cancelled-popup-request') {
-          message = 'Sign up was cancelled. Please try again.';
-        } else {
-          message = 'An error occurred during sign up: ' + error.message;
+        } else if (error.code === 'auth/popup-closed-by-user') {
+          message = 'Sign-in popup was closed before completing. Please try again.';
+        } else if (error.code === 'auth/network-request-failed') {
+          message = 'Network error. Please check your internet connection and try again.';
         }
+        
         showMessage(message, 'error');
       }
+
+      // When a user clicks anywhere outside of the modal, close it
+      window.addEventListener('click', (event) => {
+        if (event.target === verificationModal) {
+          verificationModal.style.display = 'none';
+        }
+        if (event.target === banModal) {
+          banModal.style.display = 'none';
+        }
+      });
+
+      // Auto-reload when coming back to the page (might be returning after email verification)
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          // Refresh the auth state to check if email has been verified
+          const currentUser = auth.currentUser;
+          if (currentUser) {
+            currentUser.reload().then(() => {
+              console.log("User reloaded, email verified:", currentUser.emailVerified);
+            }).catch(error => {
+              console.error("Error reloading user:", error);
+            });
+          }
+        }
+      });
+
+      // Listen for form input changes to clear error messages when user starts typing
+      const formInputs = document.querySelectorAll('#signupForm input');
+      formInputs.forEach(input => {
+        input.addEventListener('input', () => {
+          // Clear error messages when user starts typing
+          if (authMessage.style.display !== 'none') {
+            authMessage.style.display = 'none';
+          }
+        });
+      });
     });
   </script>
 </body>
