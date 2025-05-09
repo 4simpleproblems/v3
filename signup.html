@@ -350,6 +350,9 @@
       const resendVerificationBtn = document.getElementById('resendVerificationBtn');
       const closeModalBtn = document.getElementById('closeModalBtn');
 
+      // Set a flag for users created before the email verification requirement
+      const VERIFICATION_REQUIREMENT_DATE = new Date('2025-05-09').getTime();
+
       // Username validation function
       function validateUsername(username) {
         if (username.length < 4) {
@@ -490,11 +493,15 @@
           const userCredential = await auth.createUserWithEmailAndPassword(email, password);
           const user = userCredential.user;
 
+          // Send email verification immediately after account creation
+          await user.sendEmailVerification();
+
           // Save username to Firestore in users collection
           await db.collection('users').doc(user.uid).set({
             username: username.toLowerCase(),
             email: email,
             emailVerified: false,
+            requiresVerification: true, // Flag to indicate this account needs verification
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           
@@ -504,14 +511,11 @@
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           
-          // Send email verification
-          await user.sendEmailVerification();
-          
           // Show verification modal
           verificationEmail.textContent = email;
           verificationModal.style.display = 'flex';
           
-          showMessage('Account created! Please verify your email.', 'success');
+          showMessage('Account created! Please verify your email before logging in.', 'success');
         } catch (error) {
           handleAuthError(error);
         }
@@ -575,11 +579,15 @@
               usernameExists = await checkUsernameExists(username);
             }
 
+            // Google accounts typically have verified emails already, but let's check
+            const requiresVerification = false; // Google OAuth handles verification
+
             // Save username to users collection
             await db.collection('users').doc(user.uid).set({
               username: username.toLowerCase(),
-              email: user.email,
+              email: user.email, 
               emailVerified: user.emailVerified,
+              requiresVerification: requiresVerification,
               createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             
@@ -610,15 +618,49 @@
             db.collection('users').doc(user.uid).update({
               emailVerified: true
             }).then(() => {
-              // User email is verified, redirect to dashboard
-              showMessage('Email verified! Redirecting to dashboard...', 'success');
-              setTimeout(() => window.location.href = 'dashboard.html', 1500);
+              // Only redirect if we're on the signup page and not just initializing
+              if (window.location.pathname.includes('signup.html')) {
+                showMessage('Email verified! Redirecting to dashboard...', 'success');
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+              }
             }).catch(error => {
               console.error('Error updating verified status:', error);
             });
           }
         }
       });
+
+      // Run a one-time function to mark older accounts as not requiring verification
+      // This ensures backward compatibility with existing accounts
+      async function markOlderAccountsAsVerified() {
+        try {
+          // Get all user accounts created before the verification date
+          const olderUsers = await db.collection('users')
+            .where('createdAt', '<', new Date(VERIFICATION_REQUIREMENT_DATE))
+            .get();
+          
+          // Batch update for performance
+          const batch = db.batch();
+          
+          olderUsers.forEach(doc => {
+            const userRef = db.collection('users').doc(doc.id);
+            // Set requiresVerification to false for older accounts
+            batch.update(userRef, { 
+              requiresVerification: false,
+              // If they don't have emailVerified field yet, set it to true for old accounts
+              emailVerified: doc.data().emailVerified !== undefined ? doc.data().emailVerified : true
+            });
+          });
+          
+          await batch.commit();
+          console.log(`Updated verification status for ${olderUsers.size} older accounts`);
+        } catch (error) {
+          console.error('Error updating older accounts:', error);
+        }
+      }
+      
+      // Execute this once to ensure older accounts work properly
+      markOlderAccountsAsVerified();
     });
   </script>
 </body>
