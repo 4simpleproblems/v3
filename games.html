@@ -1,406 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-K8CCSDNPV3"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-K8CCSDNPV3');
-    </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="icon" href="https://raw.githubusercontent.com/voucan/voucan.github.io/refs/heads/main/googleclassroom.png" type="image/png">
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: url('/bg.gif') repeat center center fixed;
-            background-color: black;
-            background-size: 100%;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding-top: 60px;
-        }
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            color: white;
-            z-index: 1000;
-            overflow-x: auto;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Game Library</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: white;
+    }
 
-        .nav-buttons a {
-            color: white;
-            margin-left: 15px;
-            text-decoration: none;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        .logo-text img {
-            height: 40px;
-            margin-right: 10px;
-        }
-        .game-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            padding: 20px 0;
-        }
-        .game-button {
-            position: relative;
-            background-color: #333;
-            border: 2px solid #444;
-            border-radius: 10px;
-            width: 150px;
-            height: 150px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            overflow: hidden;
-        }
-        .game-button img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 10px;
-            transition: opacity 0.3s ease;
-        }
-        .game-button:hover img {
-            opacity: 0.3;
-        }
-        .overlay-text {
-            position: absolute;
-            color: white;
-            font-family: 'Comfortaa', sans-serif;
-            font-size: 18px;
-            text-align: center;
-            opacity: 0; 
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-            z-index: 1; 
-            width: 100%; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-        }
-        .game-button:hover .overlay-text {
-            opacity: 1; 
-        }
-        .game-title {
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            font-size: 36px;
-            margin: 20px 0 10px 0;
-        }
-        .games-title {
-            text-align: center;
-            color: white;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        a {
-            text-decoration: none;
-        }
-        .search-bar-container {
-            display: flex;
-            justify-content: center;
-            margin: 20px;
-        }
-        .search-bar {
-            width: 50%;
-            padding: 10px;
-            border-radius: 20px;
-            border: 2px solid #444;
-            background-color: #333;
-            color: white;
-            font-size: 16px;
-        }
-    </style>
+    header {
+      background-color: #1f1f1f;
+      padding: 1rem;
+      text-align: center;
+      font-size: 2rem;
+      border-bottom: 2px solid #333;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.5rem;
+      padding: 2rem;
+    }
+
+    .game-card {
+      background-color: #1e1e1e;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .game-card:hover {
+      transform: scale(1.05);
+    }
+
+    .game-card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
+
+    .game-card .title {
+      padding: 0.5rem;
+      font-weight: bold;
+      text-align: center;
+      font-size: 1rem;
+    }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo-text">
-     <script type="text/javascript" src="/nav-bars/title.js"></script>
-        </div>
-        <div class="nav-buttons">
-            <script type="text/javascript" src="/nav-bars/nav-games.js"></script>
-        </div>
-    </div>
+  <header>🎮 Game Library</header>
+  <main class="games-grid" id="gamesContainer"></main>
 
-    <div class="game-title">Games</div>
-    <div class="games-title">Select from a variety of games!</div> 
+  <script>
+    const container = document.getElementById('gamesContainer');
 
-    <div class="search-bar-container">
-        <input type="text" id="gameSearch" class="search-bar" placeholder="Search for a game..." oninput="filterGames()">
-    </div>
+    // Update with your actual raw GitHub repo link
+    const gamesJsonURL = 'https://raw.githubusercontent.com/4simpleproblems/<your-repo-name>/main/games.json';
 
-    <div class="game-grid" id="gameGrid">
-        <div class="game-button">
-            <a href="/games/retro-bowl">
-                <img src="/retro-bowl/retro-bowl.png" alt="Retro Bowl">
-                <div class="overlay-text">Retro Bowl</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/retro-bowl-college">
-                <img src="/retro-bowl/download.png" alt="Retro Bowl College">
-                <div class="overlay-text">Retro Bowl College</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/clusterrush">
-                <img src="/clusterrush/clusterrush.png" alt="Cluster Rush">
-                <div class="overlay-text">Cluster Rush</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/subwaysurfers">
-                <img src="/SubwaySurfers/subway.jfif" alt="Subway Surfers">
-                <div class="overlay-text">Subway Surfers</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/boxingrandom">
-                <img src="/Boxing-Random/boxingrandom.jfif" alt="Boxing Random">
-                <div class="overlay-text">Boxing Random</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/soccerrandom">
-                <img src="/SoccerRandom2/soccerrandom.jfif" alt="Soccer Random">
-                <div class="overlay-text">Soccer Random</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/basketrandom">
-                <img src="/basketrandom/basketrandom.jfif" alt="Basket Random">
-                <div class="overlay-text">Basket Random</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/volleyrandom">
-                <img src="/volleyrandom/volleyrandom.jfif" alt="Volley Random">
-                <div class="overlay-text">Volley Random</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/paperio">
-                <img src="/games-repo/paper-io-2/paperio.jfif" alt="Paper.io">
-                <div class="overlay-text">Paper.io</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/snowrider">
-                <img src="/games-repo/snow-rider/snowrider.png" alt="Snow Rider 3D">
-                <div class="overlay-text">Snow Rider 3D</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/holeio">
-                <img src="/hole-io/holeio.png" alt="Hole.io">
-                <div class="overlay-text">Hole.io</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/run3">
-                <img src="/Run-3/Run3.png" alt="Run 3">
-                <div class="overlay-text">Run 3</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/ovo">
-                <img src="/OvO/OvO.jfif" alt="OvO">
-                <div class="overlay-text">OvO</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/bitlife">
-                <img src="/bitlife/logo.png" alt="Bitlife">
-                <div class="overlay-text">Bitlife</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/slope">
-                <img src="/Slope/slope.png" alt="Slope">
-                <div class="overlay-text">Slope</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/doom">
-                <img src="/webDOOM/doom.png" alt="Doom">
-                <div class="overlay-text">Doom</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/flappybird">
-                <img src="/Flappybird/flap.png" alt="Flappy Bird">
-                <div class="overlay-text">Flappy Bird</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/snowballio">
-                <img src="/snowball/snow.png" alt="Snowball.io">
-                <div class="overlay-text">Snowball.io</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/basketball-legends">
-                <img src="/basketballlegends/download.png" alt="Basketball Legends">
-                <div class="overlay-text">Basketball Legends</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/2048">
-                <img src="/BrunysIXLWork/storage/load/2048/meta/apple-touch-icon.png" alt="2048">
-                <div class="overlay-text">2048</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/fridaynightfunkin">
-                <img src="/fnf/download.png" alt="friday night funkin, fnf">
-                <div class="overlay-text">Friday Night Funkin (FNF)</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/ducklife">
-                <img src="/dl3/download.png" alt="Duck Life">
-                <div class="overlay-text">Duck Life - Collection</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/supermario64">
-                <img src="/sm64/download.png" alt="Super Mario 64">
-                <div class="overlay-text">Super Mario 64</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/riddleschool">
-                <img src="/BrunysIXLWork/storage/load/riddleschool/IMG_5260.png" alt="Riddle School">
-                <div class="overlay-text">Riddle School - Collection</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/roblox">
-                <img src="/BrunysIXLWork/storage/load/roblox/roblox.jpeg" alt="Roblox">
-                <div class="overlay-text">Roblox</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/smashkarts">
-                <img src="/BrunysIXLWork/storage/load/smashkarts/smashkarts.webp" alt="Smashkarts">
-                <div class="overlay-text">Smashkarts</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/baconmaydie">
-                <img src="/bacon-may-die/download.png" alt="Bacon May Die">
-                <div class="overlay-text">Bacon May Die</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/1v1.lol">
-                <img src="/BrunysIXLWork/storage/load/1v1lol/splash.png" alt="1v1.lol">
-                <div class="overlay-text">1v1.lol</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/henrystickmin">
-                <img src="/henrystickmin/download.png" alt="Henry Stickmin - Collection">
-                <div class="overlay-text">Henry Stickmin - Collection</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/infinitecraft">
-                <img src="/infcraft/download.png" alt="Infinite Craft">
-                <div class="overlay-text">Infinite Craft</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/blockblast">
-                <img src="/blockblast/download.png" alt="Block Blast">
-                <div class="overlay-text">Block Blast</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/sandtris">
-                <img src="/sleepy-cat-landing/htmlgames/SANDTRIS-main/download.png" alt="Sandtris">
-                <div class="overlay-text">Sandtris</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/eaglercraft">
-                <img src="/eagler-craft/download.png" alt="Eaglercraft Minecraft">
-                <div class="overlay-text">Eaglercraft (Minecraft)</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/portal">
-                <img src="/portal/portal/download.png" alt="Portal - Collection">
-                <div class="overlay-text">Portal - Collection</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/fnaf">
-                <img src="/BrunysIXLWork/storage/load/1/logo.jpg" alt="FNAF - Collection">
-                <div class="overlay-text">FNAF - Collection</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/drift-hunters">
-                <img src="/drift-hunters/drift-hunters.png" alt="Drift Hunters">
-                <div class="overlay-text">Drift Hunters</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/doodlejump">
-                <img src="/doodlejump/download.png" alt="Doodle Jump">
-                <div class="overlay-text">Doodle Jump</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/cookie-clicker">
-                <img src="/cookieclicker/download.png" alt="Cookie Clicker">
-                <div class="overlay-text">Cookie Clicker</div>
-            </a>
-        </div>
-        <div class="game-button">
-            <a href="/games/10minutestilldawn">
-                <img src="/10mtd/download.png" alt="10 Minutes Till Dawn">
-                <div class="overlay-text">10 Minutes Till Dawn</div>
-            </a>
-        </div>
-    </div>
+    fetch(gamesJsonURL)
+      .then(res => res.json())
+      .then(games => {
+        games.forEach(game => {
+          const card = document.createElement('div');
+          card.className = 'game-card';
+          card.onclick = () => {
+            window.open(game.url, '_blank');
+          };
 
-    <script>
-        function filterGames() {
-            const searchInput = document.getElementById('gameSearch').value.toLowerCase();
-            const games = document.querySelectorAll('.game-button');
+          card.innerHTML = `
+            <img src="${game.thumbnail}" alt="${game.name} Thumbnail" />
+            <div class="title">${game.name}</div>
+          `;
 
-            games.forEach(game => {
-                const gameTitle = game.querySelector('.overlay-text').textContent.toLowerCase();
-                if (gameTitle.includes(searchInput)) {
-                    game.style.display = 'block';
-                } else {
-                    game.style.display = 'none';
-                }
-            });
-        }
-    </script>
-
-    <script type="text/javascript" src="/settings/settings.js"></script>
+          container.appendChild(card);
+        });
+      })
+      .catch(err => {
+        console.error('Failed to load games:', err);
+        container.innerHTML = '<p style="color: red; padding: 1rem;">Failed to load games. Please try again later.</p>';
+      });
+  </script>
 </body>
 </html>
