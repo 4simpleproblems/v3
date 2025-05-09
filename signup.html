@@ -193,6 +193,10 @@
       background-color: #f8d7da;
       color: #721c24;
     }
+    .message.warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
     footer {
       text-align: center;
       padding: 20px;
@@ -314,18 +318,27 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
+      // Initialize Firebase
+      let auth;
+      let db;
+      
       // Wait for Firebase to initialize
-      await new Promise(resolve => {
-        const interval = setInterval(() => {
-          if (firebase.apps.length) {
-            clearInterval(interval);
-            resolve();
-          }
-        }, 100);
-      });
-
-      const auth = firebase.auth();
-      const db = firebase.firestore();
+      const waitForFirebase = async () => {
+        return new Promise(resolve => {
+          const checkFirebase = setInterval(() => {
+            if (firebase.apps.length) {
+              clearInterval(checkFirebase);
+              auth = firebase.auth();
+              db = firebase.firestore();
+              resolve();
+            }
+          }, 100);
+        });
+      };
+      
+      await waitForFirebase();
+      
+      // DOM elements
       const signupForm = document.getElementById('signupForm');
       const authMessage = document.getElementById('authMessage');
       const usernameInput = document.getElementById('signupUsername');
@@ -345,6 +358,22 @@
           return { valid: false, message: 'Username cannot exceed 16 characters' };
         }
         return { valid: true, message: 'Username is valid' };
+      }
+
+      // Check if username exists in Firestore
+      async function checkUsernameExists(username) {
+        try {
+          // Check for username in a dedicated collection for easy querying
+          const usernameSnapshot = await db.collection('usernames').doc(username.toLowerCase()).get();
+          return usernameSnapshot.exists;
+          
+          // Alternative: Query users collection where username equals the provided username
+          // const userQuery = await db.collection('users').where('username', '==', username.toLowerCase()).get();
+          // return !userQuery.empty;
+        } catch (error) {
+          console.error('Error checking username:', error);
+          return false; // If error, proceed (will be caught elsewhere)
+        }
       }
 
       // Username input validation event
@@ -373,6 +402,55 @@
         }
       });
 
+      // Helper functions
+      function showMessage(message, type) {
+        authMessage.innerHTML = `<div class="message ${type}">${message}</div>`;
+        authMessage.style.display = 'block';
+        // Scroll to message
+        authMessage.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      function handleAuthError(error) {
+        console.error('Auth Error:', error);
+        let message = error.message;
+        
+        // Handle common Firebase auth errors
+        if (error.code === 'auth/email-already-in-use') {
+          message = 'This email is already registered. Please login instead.';
+        } else if (error.code === 'auth/invalid-email') {
+          message = 'Please enter a valid email address.';
+        } else if (error.code === 'auth/weak-password') {
+          message = 'Password must be at least 6 characters.';
+        } else if (error.code === 'auth/popup-blocked') {
+          message = 'Popup blocked. Please allow popups for this site.';
+        } else if (error.code === 'auth/cancelled-popup-request') {
+          message = 'Sign up was cancelled. Please try again.';
+        } else {
+          message = 'An error occurred during sign up: ' + error.message;
+        }
+        
+        showMessage(message, 'error');
+      }
+
+      // Generate username from Google profile info
+      function generateUsernameFromGoogle(user) {
+        // Use displayName or email prefix, sanitized and lowercased
+        let base = user.displayName || user.email.split('@')[0];
+        base = base.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        
+        // Truncate if longer than 16 chars
+        if (base.length > 16) {
+          base = base.substring(0, 16);
+        }
+        
+        // Ensure minimum length
+        if (base.length < 4) {
+          base += '0000'.substring(0, 4 - base.length);
+        }
+        
+        return base;
+      }
+
       // Email/password signup
       signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -399,16 +477,31 @@
           showMessage(usernameValidation.message, 'error');
           return;
         }
+        
+        // Check if username exists
+        const usernameExists = await checkUsernameExists(username);
+        if (usernameExists) {
+          showMessage('Username already taken. Please choose another one.', 'error');
+          return;
+        }
 
         try {
+          // Create user with email and password
           const userCredential = await auth.createUserWithEmailAndPassword(email, password);
           const user = userCredential.user;
 
-          // Save username to Firestore
+          // Save username to Firestore in users collection
           await db.collection('users').doc(user.uid).set({
-            username: username,
+            username: username.toLowerCase(),
             email: email,
-            emailVerified: false
+            emailVerified: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          
+          // Also save in usernames collection for easy unique checking
+          await db.collection('usernames').doc(username.toLowerCase()).set({
+            uid: user.uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           
           // Send email verification
@@ -441,6 +534,8 @@
       
       closeModalBtn.addEventListener('click', () => {
         verificationModal.style.display = 'none';
+        // Redirect to login page after closing modal
+        window.location.href = 'login.html';
       });
 
       // Google signup
@@ -460,37 +555,47 @@
           const isNewUser = result.additionalUserInfo.isNewUser;
 
           if (isNewUser) {
-            // Automatically generate a username from Google profile
+            // Generate username from Google profile
             let username = generateUsernameFromGoogle(user);
-
-            // Ensure uniqueness by checking Firestore
-            const usernameRef = db.collection('usernames').doc(username);
-            const usernameDoc = await usernameRef.get();
-
-            if(usernameDoc.exists){
-              const usersSnapshot = await db.collection('users').get();
-              username = `NONAME-${usersSnapshot.size + 1}`;
+            let originalUsername = username;
+            let counter = 1;
+            
+            // Check if username exists and make it unique if needed
+            let usernameExists = await checkUsernameExists(username);
+            while (usernameExists) {
+              // Add number suffix and try again
+              username = `${originalUsername}${counter}`;
+              counter++;
+              
+              // Ensure it's not too long
+              if (username.length > 16) {
+                username = originalUsername.substring(0, 15 - counter.toString().length) + counter;
+              }
+              
+              usernameExists = await checkUsernameExists(username);
             }
 
-            // Save username to Firestore
+            // Save username to users collection
             await db.collection('users').doc(user.uid).set({
-              username: username,
+              username: username.toLowerCase(),
               email: user.email,
-              emailVerified: user.emailVerified
+              emailVerified: user.emailVerified,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
+            
+            // Also save in usernames collection
+            await db.collection('usernames').doc(username.toLowerCase()).set({
+              uid: user.uid,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            showMessage('Account created successfully! Redirecting...', 'success');
+          } else {
+            showMessage('Welcome back! Redirecting...', 'success');
           }
           
           // Google Auth typically verifies email automatically
-          if (user.emailVerified) {
-            showMessage('Google signup successful! Redirecting...', 'success');
-            setTimeout(() => window.location.href = 'dashboard.html', 1500);
-          } else {
-            // Rare case: Google account with unverified email
-            await user.sendEmailVerification();
-            verificationEmail.textContent = user.email;
-            verificationModal.style.display = 'flex';
-            showMessage('Please verify your email before continuing.', 'warning');
-          }
+          setTimeout(() => window.location.href = 'dashboard.html', 1500);
         } catch (error) {
           handleAuthError(error);
         }
@@ -499,48 +604,21 @@
       // Set up auth state listener to check email verification
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
-          // User is signed in
-          console.log("User signed in with verification status:", user.emailVerified);
-          
+          // Check if user email is verified
           if (user.emailVerified) {
-            // User email is verified, redirect to dashboard
-            showMessage('Email verified! Redirecting to dashboard...', 'success');
-            setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            // Update user document to reflect verified status
+            db.collection('users').doc(user.uid).update({
+              emailVerified: true
+            }).then(() => {
+              // User email is verified, redirect to dashboard
+              showMessage('Email verified! Redirecting to dashboard...', 'success');
+              setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            }).catch(error => {
+              console.error('Error updating verified status:', error);
+            });
           }
         }
       });
-
-      function generateUsernameFromGoogle(user) {
-        // Use displayName or email prefix, sanitized and lowercased
-        let base = user.displayName || user.email.split('@')[0];
-        base = base.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-        return base;
-      }
-
-      // Helper functions
-      function showMessage(message, type) {
-        authMessage.innerHTML = `<div class="message ${type}">${message}</div>`;
-        authMessage.style.display = 'block';
-      }
-
-      function handleAuthError(error) {
-        console.error('Auth Error:', error);
-        let message = error.message;
-        if (error.code === 'auth/email-already-in-use') {
-          message = 'This email is already registered. Please login instead.';
-        } else if (error.code === 'auth/invalid-email') {
-          message = 'Please enter a valid email address.';
-        } else if (error.code === 'auth/weak-password') {
-          message = 'Password must be at least 6 characters.';
-        } else if (error.code === 'auth/popup-blocked') {
-          message = 'Popup blocked. Please allow popups for this site.';
-        } else if (error.code === 'auth/cancelled-popup-request') {
-          message = 'Sign up was cancelled. Please try again.';
-        } else {
-          message = 'An error occurred during sign up: ' + error.message;
-        }
-        showMessage(message, 'error');
-      }
     });
   </script>
 </body>
