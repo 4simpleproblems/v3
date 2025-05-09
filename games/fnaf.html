@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K8CCSDNPV3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-K8CCSDNPV3');
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/voucan/voucan.github.io/refs/heads/main/googleclassroom.png" type="image/png">
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('/bg.gif') repeat center center fixed;
+            background-color: black;
+            background-size: 100%;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            color: white;
+            z-index: 1000;
+            overflow-x: auto;
+        }
+
+        .nav-buttons a {
+            color: white;
+            margin-left: 15px;
+            text-decoration: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .logo-text img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 60px);
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-text">
+     <script type="text/javascript" src="/nav-bars/title.js"></script>
+        </div>
+        <div class="nav-buttons">
+     <script type="text/javascript" src="/nav-bars/nav-games.js"></script>
+        </div>
+    </div>
+    <div class="content">
+        <iframe src="/p/games?url=/fnaf/index"></iframe>
+    </div>
+    <script type="text/javascript" src="/settings/settings.js"></script>
+
+</body>
+</html>
