@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>4SP | Working Schedule</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <style>
+    :root {
+      --dark-bg: #1a1a1a;
+      --darker-bg: #0d0d0d;
+      --light-text: #f0f0f0;
+      --light-gray: #e0e0e0;
+      --accent-color: #3498db;
+      --success-color: #2ecc71;
+      --warning-color: #e74c3c;
+    }
+
+    body {
+      background-color: var(--light-gray);
+      color: var(--dark-bg);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    main.container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      flex: 1;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem 0;
+      color: #333333;
+    }
+
+    /* Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background-color: var(--darker-bg);
+      color: var(--light-text);
+      border-bottom: 1px solid var(--darker-bg);
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+    }
+    .nav-buttons {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1rem;
+      line-height: normal;
+      cursor: pointer;
+      text-align: center;
+      border: 2px solid transparent;
+      font-weight: 500;
+      transition: all 0.2s ease-in-out;
+    }
+    .btn.secondary {
+      background-color: transparent;
+      color: var(--light-text);
+      border-color: var(--light-text);
+    }
+    .btn.primary {
+      background-color: var(--accent-color);
+      color: var(--light-text);
+      border-color: transparent;
+    }
+    .btn.success {
+      background-color: var(--success-color);
+      color: var(--light-text);
+      border-color: transparent;
+    }
+    .btn.warning {
+      background-color: var(--warning-color);
+      color: var(--light-text);
+      border-color: transparent;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Page header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .page-header h1 {
+      font-size: 2rem;
+      margin: 0;
+    }
+
+    /* Schedule Container */
+    .schedule-container {
+      background-color: white;
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+
+    /* Week Navigation */
+    .week-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .week-nav h2 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+    .nav-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    .nav-btn {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+    .nav-btn:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+    }
+
+    /* Schedule Table */
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    .schedule-table th, 
+    .schedule-table td {
+      padding: 1rem;
+      text-align: left;
+      border: 1px solid var(--light-gray);
+    }
+    .schedule-table th {
+      background-color: var(--accent-color);
+      color: white;
+      font-weight: 500;
+    }
+    .schedule-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .schedule-table tr:hover {
+      background-color: #f0f0f0;
+    }
+
+    /* Edit Form Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      inset: 0;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.6);
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+    .modal.fade-out {
+      opacity: 0;
+    }
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+    }
+    .modal-content {
+      position: relative;
+      background-color: white;
+      margin: 5% auto;
+      padding: 2rem;
+      border-radius: 24px;
+      width: 80%;
+      max-width: 800px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      z-index: 101;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #777;
+    }
+    .close-modal:hover {
+      color: var(--warning-color);
+    }
+
+    /* Form Styles */
+    .schedule-form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 1rem;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+    textarea.form-control {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    /* Schedule Actions */
+    .schedule-actions {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+    .action-btn:hover {
+      background-color: #f0f0f0;
+    }
+    .edit-btn {
+      color: var(--accent-color);
+    }
+    .delete-btn {
+      color: var(--warning-color);
+    }
+
+    /* Alert Messages */
+    .alert {
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .alert-success {
+      background-color: rgba(46, 204, 113, 0.1);
+      border: 1px solid var(--success-color);
+      color: var(--success-color);
+    }
+    .alert-error {
+      background-color: rgba(231, 76, 60, 0.1);
+      border: 1px solid var(--warning-color);
+      color: var(--warning-color);
+    }
+    .alert-dismiss {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: inherit;
+    }
+
+    /* Admin Controls */
+    .admin-controls {
+      margin-top: 2rem;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .schedule-table {
+        display: block;
+        overflow-x: auto;
+      }
+      .modal-content {
+        width: 90%;
+        padding: 1.5rem;
+      }
+      .navbar {
+        padding: 1rem 1.5rem;
+      }
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      .page-header .btn {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>Working Schedule</h1>
+      <button id="addScheduleBtn" class="btn primary hidden">Add Schedule Item</button>
+    </div>
+
+    <div id="alertContainer"></div>
+
+    <div class="schedule-container">
+      <div class="week-nav">
+        <h2 id="currentWeek">Current Week Schedule</h2>
+      </div>
+      
+      <table class="schedule-table">
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>Time</th>
+            <th>Project</th>
+            <th>Description</th>
+            <th id="actionsHeader" class="hidden">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="scheduleTableBody">
+          <!-- Schedule items will be loaded here -->
+          <tr id="loadingRow">
+            <td colspan="5" style="text-align: center;">Loading schedule...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Add/Edit Schedule Modal -->
+  <div id="scheduleModal" class="modal">
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add Schedule Item</h2>
+        <button class="close-modal" id="closeModalBtn">&times;</button>
+      </div>
+      <form id="scheduleForm" class="schedule-form">
+        <input type="hidden" id="scheduleItemId">
+        
+        <div class="form-group">
+          <label for="dayInput">Day of Week</label>
+          <select id="dayInput" class="form-control" required>
+            <option value="">Select a day</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="timeInput">Time</label>
+          <input type="text" id="timeInput" class="form-control" placeholder="e.g. 9:00 AM - 12:00 PM" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="projectInput">Project</label>
+          <input type="text" id="projectInput" class="form-control" placeholder="Project name" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="descriptionInput">Description</label>
+          <textarea id="descriptionInput" class="form-control" placeholder="Describe what you'll be working on" required></textarea>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" id="cancelBtn" class="btn secondary">Cancel</button>
+          <button type="submit" id="saveBtn" class="btn success">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal">
+    <div class="modal-overlay" id="deleteModalOverlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Confirm Delete</h2>
+        <button class="close-modal" id="closeDeleteModalBtn">&times;</button>
+      </div>
+      <p>Are you sure you want to delete this schedule item?</p>
+      <input type="hidden" id="deleteItemId">
+      <div class="form-actions">
+        <button type="button" id="cancelDeleteBtn" class="btn secondary">Cancel</button>
+        <button type="button" id="confirmDeleteBtn" class="btn warning">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <footer><p>© 2025 4SP</p></footer>
+
+  <script>
+    // Firebase initialization and authentication
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof firebase !== 'undefined') {
+        // Initialize Firebase
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Authentication state monitoring
+        auth.onAuthStateChanged(user => {
+          if (user) {
+            initializeSchedulePage(user, db);
+          } else {
+            // Redirect to login page if not authenticated
+            window.location.href = 'index.html';
+          }
+        });
+
+        // Logout functionality
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.signOut().then(() => {
+              window.location.href = 'index.html';
+            }).catch(error => {
+              console.error("Logout error:", error);
+              showAlert("Error logging out. Please try again.", "error");
+            });
+          });
+        }
+      } else {
+        // Error if Firebase SDK not loaded
+        console.error("Firebase SDK not loaded.");
+        document.querySelector('main.container').innerHTML = '<div class="alert alert-error">Error loading application components. Please try again later.</div>';
+      }
+    });
+
+    // Initialize the schedule page based on user role
+    function initializeSchedulePage(user, db) {
+      const isAdmin = user.email === '4simpleproblems@gmail.com';
+      const addScheduleBtn = document.getElementById('addScheduleBtn');
+      const actionsHeader = document.getElementById('actionsHeader');
+      
+      // Show admin controls if admin
+      if (isAdmin) {
+        addScheduleBtn.classList.remove('hidden');
+        actionsHeader.classList.remove('hidden');
+      }
+      
+      // Load schedule data
+      loadScheduleData(db, isAdmin);
+      
+      // Set up modal and form functionality for admins
+      if (isAdmin) {
+        setupAdminFunctionality(db);
+      }
+    }
+
+    // Load schedule data from Firestore
+    function loadScheduleData(db, isAdmin) {
+      const scheduleTableBody = document.getElementById('scheduleTableBody');
+      const loadingRow = document.getElementById('loadingRow');
+      
+      // Get schedule collection from Firestore
+      db.collection('schedule')
+        .orderBy('dayOrder') // Custom order for days of the week
+        .orderBy('timeStart') // Order by start time within each day
+        .get()
+        .then((querySnapshot) => {
+          // Clear loading message
+          if (loadingRow) {
+            loadingRow.remove();
+          }
+          
+          if (querySnapshot.empty) {
+            // Display message if no schedule items exist
+            scheduleTableBody.innerHTML = `
+              <tr>
+                <td colspan="${isAdmin ? 5 : 4}" style="text-align: center;">
+                  No schedule items available.
+                </td>
+              </tr>
+            `;
+            return;
+          }
+          
+          // Populate table with schedule items
+          scheduleTableBody.innerHTML = '';
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            
+            // Create table row
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${data.day}</td>
+              <td>${data.time}</td>
+              <td>${data.project}</td>
+              <td>${data.description}</td>
+              ${isAdmin ? `
+              <td>
+                <button class="action-btn edit-btn" data-id="${doc.id}">
+                  Edit
+                </button>
+                <button class="action-btn delete-btn" data-id="${doc.id}">
+                  Delete
+                </button>
+              </td>
+              ` : ''}
+            `;
+            
+            scheduleTableBody.appendChild(row);
+          });
+          
+          // Add event listeners to action buttons if admin
+          if (isAdmin) {
+            addActionButtonListeners();
+          }
+        })
+        .catch((error) => {
+          console.error("Error loading schedule:", error);
+          scheduleTableBody.innerHTML = `
+            <tr>
+              <td colspan="${isAdmin ? 5 : 4}" style="text-align: center;">
+                Error loading schedule. Please try again later.
+              </td>
+            </tr>
+          `;
+          showAlert("Error loading schedule data", "error");
+        });
+    }
+
+    // Setup admin functionality (modals, forms, etc.)
+    function setupAdminFunctionality(db) {
+      const addScheduleBtn = document.getElementById('addScheduleBtn');
+      const scheduleModal = document.getElementById('scheduleModal');
+      const deleteModal = document.getElementById('deleteModal');
+      const scheduleForm = document.getElementById('scheduleForm');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const closeDeleteModalBtn = document.getElementById('closeDeleteModalBtn');
+      const cancelBtn = document.getElementById('cancelBtn');
+      const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+      const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+      const modalOverlay = document.getElementById('modalOverlay');
+      const deleteModalOverlay = document.getElementById('deleteModalOverlay');
+      
+      // Day order mapping for sorting
+      const dayOrder = {
+        'Monday': 1,
+        'Tuesday': 2,
+        'Wednesday': 3,
+        'Thursday': 4,
+        'Friday': 5,
+        'Saturday': 6,
+        'Sunday': 7
+      };
+      
+      // Open modal to add new schedule item
+      addScheduleBtn.addEventListener('click', () => {
+        openAddModal();
+      });
+      
+      // Close modal handlers
+      closeModalBtn.addEventListener('click', closeScheduleModal);
+      modalOverlay.addEventListener('click', closeScheduleModal);
+      cancelBtn.addEventListener('click', closeScheduleModal);
+      
+      closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
+      deleteModalOverlay.addEventListener('click', closeDeleteModal);
+      cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+      
+      // Handle form submission
+      scheduleForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const itemId = document.getElementById('scheduleItemId').value;
+        const day = document.getElementById('dayInput').value;
+        const time = document.getElementById('timeInput').value;
+        const project = document.getElementById('projectInput').value;
+        const description = document.getElementById('descriptionInput').value;
+        
+        // Parse time for sorting (simple format like "9:00 AM - 12:00 PM")
+        let timeStart = 0;
+        try {
+          const timeMatch = time.match(/(\d+):(\d+)\s*(AM|PM)/i);
+          if (timeMatch) {
+            let hours = parseInt(timeMatch[1]);
+            const minutes = parseInt(timeMatch[2]);
+            const period = timeMatch[3].toUpperCase();
+            
+            if (period === 'PM' && hours < 12) hours += 12;
+            if (period === 'AM' && hours === 12) hours = 0;
+            
+            timeStart = hours * 60 + minutes;
+          }
+        } catch (error) {
+          console.error("Time parsing error:", error);
+        }
+        
+        // Schedule item data
+        const scheduleData = {
+          day,
+          dayOrder: dayOrder[day] || 99,
+          time,
+          timeStart,
+          project,
+          description,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        // Add or update schedule item
+        if (itemId) {
+          // Update existing item
+          db.collection('schedule').doc(itemId).update(scheduleData)
+            .then(() => {
+              closeScheduleModal();
+              showAlert("Schedule item updated successfully!", "success");
+              loadScheduleData(db, true);
+            })
+            .catch((error) => {
+              console.error("Error updating schedule item:", error);
+              showAlert("Error updating schedule item", "error");
+            });
+        } else {
+          // Add new item
+          scheduleData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+          
+          db.collection('schedule').add(scheduleData)
+            .then(() => {
+              closeScheduleModal();
+              showAlert("Schedule item added successfully!", "success");
+              loadScheduleData(db, true);
+            })
+            .catch((error) => {
+              console.error("Error adding schedule item:", error);
+              showAlert("Error adding schedule item", "error");
+            });
+        }
+      });
+      
+      // Handle delete confirmation
+      confirmDeleteBtn.addEventListener('click', () => {
+        const itemId = document.getElementById('deleteItemId').value;
+        
+        if (itemId) {
+          db.collection('schedule').doc(itemId).delete()
+            .then(() => {
+              closeDeleteModal();
+              showAlert("Schedule item deleted successfully!", "success");
+              loadScheduleData(db, true);
+            })
+            .catch((error) => {
+              console.error("Error deleting schedule item:", error);
+              showAlert("Error deleting schedule item", "error");
+            });
+        }
+      });
+      
+      // Close on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (scheduleModal.style.display === 'block') {
+            closeScheduleModal();
+          }
+          if (deleteModal.style.display === 'block') {
+            closeDeleteModal();
+          }
+        }
+      });
+    }
+
+    // Add event listeners to edit/delete buttons
+    function addActionButtonListeners() {
+      // Edit button listeners
+      const editButtons = document.querySelectorAll('.edit-btn');
+      editButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const itemId = button.getAttribute('data-id');
+          openEditModal(itemId);
+        });
+      });
+      
+      // Delete button listeners
+      const deleteButtons = document.querySelectorAll('.delete-btn');
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const itemId = button.getAttribute('data-id');
+          openDeleteModal(itemId);
+        });
+      });
+    }
+
+    // Open modal to add a new schedule item
+    function openAddModal() {
+      // Reset form
+      document.getElementById('scheduleForm').reset();
+      document.getElementById('scheduleItemId').value = '';
+      document.getElementById('modalTitle').textContent = 'Add Schedule Item';
+      
+      // Show modal
+      const modal = document.getElementById('scheduleModal');
+      modal.style.display = 'block';
+    }
+
+    // Open modal to edit an existing schedule item
+    function openEditModal(itemId) {
+      // Reset form
+      document.getElementById('scheduleForm').reset();
+      document.getElementById('modalTitle').textContent = 'Edit Schedule Item';
+      
+      // Get item data
+      firebase.firestore().collection('schedule').doc(itemId).get()
+        .then((doc) => {
+          if (doc.exists) {
+            const data = doc.data();
+            
+            // Populate form fields
+            document.getElementById('scheduleItemId').value = itemId;
+            document.getElementById('dayInput').value = data.day;
+            document.getElementById('timeInput').value = data.time;
+            document.getElementById('projectInput').value = data.project;
+            document.getElementById('descriptionInput').value = data.description;
+            
+            // Show modal
+            const modal = document.getElementById('scheduleModal');
+            modal.style.display = 'block';
+          } else {
+            showAlert("Schedule item not found", "error");
+          }
+        })
+        .catch((error) => {
+          console.error("Error getting schedule item:", error);
+          showAlert("Error loading schedule item data", "error");
+        });
+    }
+
+    // Open delete confirmation modal
+    function openDeleteModal(itemId) {
+      document.getElementById('deleteItemId').value = itemId;
+      document.getElementById('deleteModal').style.display = 'block';
+    }
+
+    // Close schedule modal
+    function closeScheduleModal() {
+      const modal = document.getElementById('scheduleModal');
+      modal.classList.add('fade-out');
+      setTimeout(() => {
+        modal.style.display = 'none';
+        modal.classList.remove('fade-out');
+      }, 300);
+    }
+
+    // Close delete confirmation modal
+    function closeDeleteModal() {
+      const modal = document.getElementById('deleteModal');
+      modal.classList.add('fade-out');
+      setTimeout(() => {
+        modal.style.display = 'none';
+        modal.classList.remove('fade-out');
+      }, 300);
+    }
+
+    // Show alert message
+    function showAlert(message, type) {
+      const alertContainer = document.getElementById('alertContainer');
+      const alertId = 'alert-' + Date.now();
+      
+      const alertElement = document.createElement('div');
+      alertElement.id = alertId;
+      alertElement.className = `alert alert-${type}`;
+      alertElement.innerHTML = `
+        ${message}
+        <button class="alert-dismiss" data-alert-id="${alertId}">&times;</button>
+      `;
+      
+      alertContainer.appendChild(alertElement);
+      
+      // Add dismiss button functionality
+      const dismissBtn = alertElement.querySelector('.alert-dismiss');
+      dismissBtn.addEventListener('click', () => {
+        document.getElementById(alertId).remove();
+      });
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        const alert = document.getElementById(alertId);
+        if (alert) {
+          alert.style.opacity = '0';
+          setTimeout(() => {
+            if (alert) alert.remove();
+          }, 300);
+        }
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
