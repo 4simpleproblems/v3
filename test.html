@@ -2,65 +2,40 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>4SP | Account</title>
-  <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4SP | Collections</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <style>
+    * {
+      font-family: 'Roboto Mono', monospace !important;
+      text-decoration: none !important;
+      box-sizing: border-box;
+    }
+
     :root {
-      --primary-action: var(--dark-bg);
-      --secondary-action-text: var(--dark-bg);
-      --secondary-action-bg: var(--light-gray);
-      --danger-action: var(--primary-red);
-      --light-text: #f0f0f0;
-      --dark-bg: #1a1a1a;
       --light-gray: #e0e0e0;
-      --medium-gray: #333333;
+      --dark-bg: #1a1a1a;
       --darker-bg: #0d0d0d;
-      --error-red: #ff1212;
-      --info-text: var(--medium-gray);
-      --card-bg: white;
-      --card-border: var(--light-gray);
+      --light-text: #f0f0f0;
+      --primary-blue: #626cd6;
       --pill-radius: 50px;
-      --modal-bg: rgba(0, 0, 0, 0.7);
-      --modal-content-bg: #222;
-      --modal-content-border: #666;
-      --modal-text-color: #ddd;
-      --modal-input-bg: #444;
-      --modal-input-text-color: #eee;
-      --primary-red: #ff1212;
-      --dark-red: #8b0000;
+      --card-radius: 24px;
     }
 
     body {
       background-color: var(--light-gray);
-      font-family: 'Roboto Mono', monospace;
+      color: var(--dark-bg);
       margin: 0;
       padding: 0;
-      display: flex;
-      flex-direction: column;
       min-height: 100vh;
-      color: var(--dark-bg);
     }
 
-    .container {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 0 2rem;
-      flex: 1;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: var(--dark-bg);
-    }
-
+    /* Navbar */
     .navbar {
       display: flex;
       justify-content: space-between;
@@ -68,357 +43,136 @@
       padding: 1.5rem 3rem;
       background-color: var(--darker-bg);
       color: var(--light-text);
-      border-bottom: 1px solid var(--accent);
     }
 
     .logo {
       font-size: 1.8rem;
       font-weight: 700;
-      letter-spacing: -1.5px;
     }
 
     .nav-buttons {
       display: flex;
-      align-items: center;
-      gap: 1rem;
+      gap: 1.5rem;
     }
 
     .btn {
-      display: inline-block;
       padding: 1rem 2rem;
-      border-radius: 50px;
+      border-radius: var(--pill-radius);
       font-size: 1rem;
       cursor: pointer;
-      text-align: center;
-      border: 2px solid transparent;
-      font-weight: 500;
+      transition: all 0.3s ease;
     }
 
     .btn.primary {
       background-color: var(--dark-bg);
       color: var(--light-text);
+      border: none;
     }
 
     .btn.secondary {
       background-color: transparent;
       color: var(--light-text);
-      border-color: var(--light-text);
+      border: 2px solid var(--light-text);
     }
 
-    .btn:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    footer {
-      text-align: center;
-      padding: 1rem;
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-      border-top: 2px solid var(--primary-action);
-    }
-
-    .account-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 2rem;
-      margin-top: 2rem;
-    }
-
-    .account-info {
-      padding: 1.5rem;
-      background-color: var(--card-bg);
-      border-radius: var(--pill-radius);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--card-border);
-    }
-
-    .account-info h2 {
-      font-size: 1.4rem;
-      margin-bottom: 1rem;
-      color: var(--dark-bg);
-    }
-
-    .account-info p {
-      margin-bottom: 0.75rem;
-      color: var(--info-text);
-    }
-
-    .account-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      padding: 1.5rem;
-    }
-
-    .account-buttons button {
-      padding: 1rem 1.5rem;
-      border-radius: var(--pill-radius);
-      border: 2px solid var(--dark-bg);
+    /* New style for delete button */
+    .btn.delete {
       background-color: transparent;
+      border: 2px solid var(--dark-bg);
       color: var(--dark-bg);
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      text-align: center;
-      width: 100%;
-      display: inline-block;
-      box-sizing: border-box;
     }
 
-    .account-buttons button:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .account-buttons button.secondary {
-      border-color: var(--dark-bg);
-    }
-
-    .account-buttons button.danger {
-      background-color: var(--danger-action);
+    .btn.delete:hover {
+      background-color: var(--dark-bg);
       color: var(--light-text);
-      border: 2px solid var(--dark-red);
     }
 
-    .account-buttons button.disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      pointer-events: none;
+    /* Main Layout */
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      display: flex;
+      gap: 2rem;
     }
 
-    .provider-badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border-radius: 50px;
-      font-size: 0.85rem;
-      margin-left: 0.75rem;
-      vertical-align: middle;
-      font-weight: 500;
+    .sidebar {
+      width: 250px;
     }
 
-    .provider-badge.google {
-      background-color: #4285F4;
-      color: white;
+    .filter-btn {
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: var(--pill-radius);
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
 
-    .provider-badge.email {
+    .filter-btn.active {
       background-color: var(--dark-bg);
       color: white;
     }
 
-    /* Modal & Forms */
-    /* ... keep unchanged modal styles ... */
-
-    .password-form button.delete {
-      background-color: var(--danger-action);
-      color: var(--light-text);
-      border: 2px solid var(--dark-red);
-      transition: background-color 0.2s ease;
-    }
-
-    .password-form button.delete:hover {
-      background-color: #cc0000;
-    }
-    
-    /* Google re-authentication button style */
-    #googleReauthButton {
-      background-color: #3498db;
-      color: var(--light-text);
-      border: 3px solid #2980b9;
-      border-radius: var(--pill-radius);
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.3s ease, border-color 0.3s ease;
-    }
-    
-    #googleReauthButton:hover {
-      background-color: #2980b9;
-    }
-
-    /* Styles for the modal/popup */
-    .modal {
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: var(--modal-bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0s linear 0.3s;
-    }
-
-    .modal.show {
-      opacity: 1;
-      visibility: visible;
-      transition: opacity 0.3s ease, visibility 0s linear 0s;
-    }
-
-
-    /* Modal Content/Box */
-    .modal-content {
-      background-color: var(--modal-content-bg);
-      padding: 2rem;
-      border: 1px solid var(--modal-content-border);
-      width: 90%;
-      max-width: 500px;
-      border-radius: var(--pill-radius);
-      position: relative;
-      color: var(--modal-text-color);
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-      transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
-      display: flex;
-      flex-direction: column;
+    /* Request Cards */
+    .requests-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 1.5rem;
+      flex: 1;
     }
 
-    /* The Close Button */
-    .close {
-      position: absolute;
-      top: 1rem;
-      right: 1.5rem;
-      color: var(--modal-text-color);
-      font-size: 28px;
-      font-weight: bold;
-      transition: color 0.2s ease;
-      cursor: pointer;
+    .request-card {
+      background: white;
+      border-radius: var(--card-radius);
+      padding: 1.5rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
     }
 
-    .close:hover {
-      color: #fff;
-      text-decoration: none;
-    }
-
-    /* Style for the password confirmation form & change password form */
-    .password-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .password-form label {
-      font-weight: bold;
-      color: var(--modal-text-color);
-      display: block;
-    }
-
-    .password-form input[type="password"] {
-      padding: 1rem;
-      font-size: 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    .badge {
+      padding: 0.25rem 0.75rem;
       border-radius: var(--pill-radius);
-      color: var(--modal-input-text-color);
-      background-color: var(--modal-input-bg);
-      width: 100%;
-      box-sizing: border-box;
-      transition: border-color 0.2s ease;
-    }
-
-    .password-form input[type="password"]:focus {
-      outline: none;
-      border-color: var(--primary-red);
-      box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3);
-    }
-
-    .password-form button {
-      display: inline-block;
-      padding: 1rem 2rem;
-      border-radius: var(--pill-radius);
-      font-size: 1rem;
-      cursor: pointer;
-      text-align: center;
-      border: none;
+      font-size: 0.75rem;
       font-weight: 500;
-      color: var(--light-text);
-      transition: background-color 0.2s ease;
     }
 
-    .password-form button.confirm {
-      background-color: var(--primary-red);
+    .badge-normal {
+      background-color: #e6fcf5;
+      color: #087f5b;
     }
 
-    .password-form button.confirm:hover {
-      background-color: #cc0c0c;
+    .badge-explicit {
+      background-color: #fff3bf;
+      color: #8e6c00;
     }
 
-    .password-form button.delete {
-      background-color: var(--danger-action);
-    }
-
-    .password-form button.delete:hover {
-      background-color: #cc0000;
-    }
-
-    .modal h2 {
-      margin: 0;
-      color: var(--modal-text-color);
-      font-size: 1.75rem;
-      font-weight: 600;
-      text-align: center;
-    }
-
-    .modal p {
-      color: rgba(240, 240, 240, 0.8);
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-
-    /* Specific style adjustments */
-    #confirmPasswordForm .password-form button {
+    /* Admin action buttons */
+    .admin-actions {
       margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
     }
 
-    #changePasswordForm .password-form button {
+    .admin-actions .btn {
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+    }
+
+    /* New style for submitter info */
+    .submitter-info {
       margin-top: 0.5rem;
+      padding: 0.5rem;
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      font-size: 0.85rem;
     }
 
-    #deleteAccountModal .modal-content {
+    #loadingMessage {
       text-align: center;
-    }
-
-    #deleteAccountModal .modal-content p {
-      margin-bottom: 1.5rem;
-    }
-
-    #deleteAccountModal .password-form button {
-      margin-top: 1.5rem;
-      padding: 1rem 2.5rem;
-    }
-
-    /* Styles for the logout button */
-    #logoutBtn {
-      background-color: var(--primary-action);
-      color: var(--light-text);
-      border: none;
-      border-radius: var(--pill-radius);
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    #logoutBtn:hover {
-      background-color: var(--darker-bg);
-    }
-
-    /* Message for Google users who can't change password */
-    .google-auth-message {
-      color: var(--modal-text-color);
-      text-align: center;
-      font-size: 1rem;
-      line-height: 1.5;
-    }
-
-    .google-auth-message a {
-      color: #4285F4;
-      text-decoration: underline;
+      padding: 2rem;
     }
   </style>
 </head>
@@ -429,321 +183,196 @@
     <div class="nav-buttons">
       <a href="index.html" class="btn secondary">Home</a>
       <a href="dashboard.html" class="btn secondary">Dashboard</a>
-      <a href="account.html" class="btn primary">Account</a>
-      <button class="btn secondary" id="logoutBtn">Log Out</button>
+      <a href="collections.html" class="btn primary">Collections</a>
+      <button id="logoutBtn" class="btn secondary">Log Out</button>
     </div>
   </nav>
 
   <main class="container">
-    <h1>Account Information</h1>
-    <div class="account-grid">
-      <div class="account-info">
-        <h2>User Details</h2>
-        <p id="userEmail">Email: Loading...</p>
-        <p id="authProvider">Sign-in Method: Loading...</p>
-        <p id="creationTime">Created: Loading...</p>
-        <div class="additional-info">
-          <h3>Additional Information</h3>
-          <p id="lastSignIn">Last Sign-in: Loading...</p>
-          <p id="userUID">User ID: Loading...</p>
-        </div>
-      </div>
+    <aside class="sidebar">
+      <h2>Filters</h2>
+      <button class="filter-btn active" data-filter="all">All Requests</button>
+      <button class="filter-btn" data-filter="normal">Normal Only</button>
+      <button class="filter-btn" data-filter="explicit">Explicit Only</button>
+      <!-- This filter is only for admins -->
+      <button class="filter-btn" data-filter="deleted" id="deletedFilterBtn" style="display:none;">Deleted</button>
 
-      <div class="account-buttons">
-        <button id="changePasswordBtn" class="secondary">Change Password</button>
-        <button id="editProfileBtn" class="edit-profile">Edit Profile</button>
-        <button id="manageSubscriptionsBtn" class="manage-subscriptions">Manage Subscriptions</button>
-        <button id="deleteAccountBtn" class="danger">Delete Account</button>
+      <h2>Sort By</h2>
+      <button class="filter-btn" data-sort="newest">Newest First</button>
+      <button class="filter-btn" data-sort="oldest">Oldest First</button>
+    </aside>
+
+    <section class="main-content">
+      <h1>Sound Requests Collection</h1>
+      <div id="requestsContainer" class="requests-grid">
+        <p id="loadingMessage">Loading requests...</p>
       </div>
-    </div>
+    </section>
   </main>
-
-  <footer>
-    <p>© 2025 4SP</p>
-  </footer>
-
-  <!-- Change Password Modal -->
-  <div id="changePasswordModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2>Change Password</h2>
-      
-      <!-- Regular password change flow for email users -->
-      <div id="emailAuthContent">
-        <p>Confirm your current password, then enter a new password.</p>
-        <form class="password-form password-confirmation-form" id="confirmPasswordForm">
-          <label for="currentPassword">Current Password:</label>
-          <input type="password" id="currentPassword" required>
-          <button type="submit" class="confirm">Confirm Password</button>
-        </form>
-
-        <p style="display:none;" id="change-password-message">Now enter your new password!</p>
-        <form class="password-form" id="newPasswordForm" style="display: none;">
-          <label for="newPassword">New Password:</label>
-          <input type="password" id="newPassword" required minlength="6">
-          <label for="confirmNewPassword">Confirm New Password:</label>
-          <input type="password" id="confirmNewPassword" required minlength="6">
-          <button type="submit" class="confirm">Change Password</button>
-        </form>
-      </div>
-      
-      <!-- Message for Google users -->
-      <div id="googleAuthContent" style="display: none;">
-        <div class="google-auth-message">
-          <p>You're signed in with Google, so your password is managed through your Google account.</p>
-          <p>To change your password, please visit <a href="https://myaccount.google.com/security" target="_blank">Google Account Settings</a>.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Delete Account Modal -->
-  <div id="deleteAccountModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2>Delete Account</h2>
-      <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-      
-      <!-- Email auth users see password confirmation -->
-      <form class="password-form" id="deleteAccountForm">
-        <label for="deletePassword" id="deletePasswordLabel">Enter Password to Confirm:</label>
-        <input type="password" id="deletePassword" required>
-        <button type="submit" class="delete">Delete Account</button>
-      </form>
-      
-      <!-- Google users see re-auth button -->
-      <div id="googleDeleteContent" style="display: none;">
-        <p>Since you're signed in with Google, you'll need to re-authenticate to delete your account.</p>
-        <button id="googleReauthButton">Re-authenticate with Google</button>
-      </div>
-    </div>
-  </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Firebase Initialization
+      const db = firebase.firestore();
       const auth = firebase.auth();
+      const requestsContainer = document.getElementById('requestsContainer');
+      let allRequests = [];
+      let currentFilter = 'all'; // Options: "all", "normal", "explicit", "deleted"
+      let currentSort = 'newest'; // Options: "newest", "oldest"
+      let isAdmin = false; // Flag for admin status
 
-      // Get DOM Elements
-      const userEmailElement = document.getElementById('userEmail');
-      const authProviderElement = document.getElementById('authProvider');
-      const creationTimeElement = document.getElementById('creationTime');
-      const lastSignInElement = document.getElementById('lastSignIn');
-      const userUIDElement = document.getElementById('userUID');
-      const changePasswordBtn = document.getElementById('changePasswordBtn');
-      const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-      const logoutBtn = document.getElementById('logoutBtn');
-      const editProfileBtn = document.getElementById('editProfileBtn');
-      const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
+      // Set up real-time listener to fetch requests
+      const setupRealTimeListener = () => {
+        let query = db.collection("requests").orderBy("timestamp", "desc");
 
-      // Get Modal Elements
-      const changePasswordModal = document.getElementById('changePasswordModal');
-      const deleteAccountModal = document.getElementById('deleteAccountModal');
-      const passwordConfirmationForm = document.getElementById('confirmPasswordForm');
-      const newPasswordForm = document.getElementById('newPasswordForm');
-      const deleteAccountForm = document.getElementById('deleteAccountForm');
-      const closeModalButtons = document.querySelectorAll('.close');
-      const currentPasswordInput = document.getElementById('currentPassword');
-      const newPasswordInput = document.getElementById('newPassword');
-      const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
-      const deletePasswordInput = document.getElementById('deletePassword');
-      const changePasswordMessage = document.getElementById('change-password-message');
-      
-      // Google auth specific elements
-      const emailAuthContent = document.getElementById('emailAuthContent');
-      const googleAuthContent = document.getElementById('googleAuthContent');
-      const googleDeleteContent = document.getElementById('googleDeleteContent');
-      const googleReauthButton = document.getElementById('googleReauthButton');
-      const deletePasswordLabel = document.getElementById('deletePasswordLabel');
-
-      // Track if user is Google authenticated
-      let isGoogleUser = false;
-
-      // Functions
-      const openModal = (modal) => {
-        modal.style.display = 'flex';
-        // Force reflow to trigger the transition
-        void modal.offsetWidth;
-        modal.classList.add('show');
-      };
-
-      const closeModal = (modal) => {
-        modal.classList.remove('show');
-        setTimeout(() => {
-          modal.style.display = 'none';
-        }, 300);
-      };
-
-      // Check if user is signed in with Google
-      const checkAuthProvider = (user) => {
-        if (user) {
-          // Check for Google provider in providerData
-          const googleProvider = user.providerData.find(
-            provider => provider.providerId === 'google.com'
-          );
-          
-          isGoogleUser = googleProvider !== undefined;
-          
-          // Update UI based on auth provider
-          if (isGoogleUser) {
-            // Show Google badge
-            authProviderElement.innerHTML = `Sign-in Method: Google <span class="provider-badge google">Google</span>`;
-            
-            // Disable change password button
-            changePasswordBtn.classList.add('disabled');
-            changePasswordBtn.title = "Password is managed by your Google account";
-            
-            // Configure change password modal for Google users
-            emailAuthContent.style.display = 'none';
-            googleAuthContent.style.display = 'block';
-            
-            // Configure delete account modal for Google users
-            deleteAccountForm.style.display = 'none';
-            googleDeleteContent.style.display = 'block';
-          } else {
-            // Show Email badge
-            authProviderElement.innerHTML = `Sign-in Method: Email <span class="provider-badge email">Email</span>`;
-            
-            // Make sure change password button is enabled
-            changePasswordBtn.classList.remove('disabled');
-            changePasswordBtn.title = "";
-            
-            // Configure change password modal for email users
-            emailAuthContent.style.display = 'block';
-            googleAuthContent.style.display = 'none';
-            
-            // Configure delete account modal for email users
-            deleteAccountForm.style.display = 'block';
-            googleDeleteContent.style.display = 'none';
-          }
-        }
-      };
-
-      // Event Listeners
-      changePasswordBtn.addEventListener('click', () => {
-        if (!isGoogleUser) {
-          openModal(changePasswordModal);
-        } else {
-          // Could redirect to Google account settings
-          window.open('https://myaccount.google.com/security', '_blank');
-        }
-      });
-
-      deleteAccountBtn.addEventListener('click', () => {
-        openModal(deleteAccountModal);
-      });
-
-      closeModalButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const modal = button.closest('.modal');
-          closeModal(modal);
+        return query.onSnapshot((snapshot) => {
+          allRequests = snapshot.docs.map(doc => {
+            const data = doc.data();
+            if (!isAdmin && data.status == "deleted") {
+              return null;
+            }
+            // Convert Firestore timestamp if available
+            if (data.timestamp && data.timestamp.toDate) {
+              data.timestamp = data.timestamp.toDate();
+            }
+            return {
+              id: doc.id,
+              ...data
+            };
+          }).filter(request => request);
+          renderRequests();
+        }, (error) => {
+          console.error("Listener error:", error);
+          document.getElementById('loadingMessage').textContent = "Error loading requests";
         });
-      });
+      };
 
-      window.addEventListener('click', (event) => {
-        if (event.target.classList.contains('modal')) {
-          closeModal(event.target);
-        }
-      });
+      // Render the requests based on the active filter and sort order
+      const renderRequests = () => {
+        let filteredRequests = allRequests.filter(req => {
+          if (isAdmin) {
+            if (currentFilter === "all") {
+              // Modified here: "All Requests" now excludes deleted ones for admins too
+              return req.status !== "deleted";
+            } else if (currentFilter === "deleted") {
+              return req.status === "deleted";
+            } else {
+              return req.contentType === currentFilter && req.status !== "deleted";
+            }
+          }
+          // For non-admin users, always hide requests with status "deleted"
+          if (req.status === "deleted") return false;
+          if (currentFilter === "all") return true;
+          return req.contentType === currentFilter;
+        });
 
-      passwordConfirmationForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const password = currentPasswordInput.value;
+        // Apply sort order
+        filteredRequests.sort((a, b) => {
+          if (currentSort === "newest") {
+            return b.timestamp - a.timestamp;
+          } else {
+            return a.timestamp - b.timestamp;
+          }
+        });
 
-        try {
-          const user = auth.currentUser;
-          const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
-          await user.reauthenticateWithCredential(credential);
-          // Show new password form
-          passwordConfirmationForm.style.display = "none";
-          changePasswordMessage.style.display = "block";
-          newPasswordForm.style.display = "block";
-
-        } catch (error) {
-          alert('Incorrect password. Please try again.');
-        }
-      });
-
-      newPasswordForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const newPassword = newPasswordInput.value;
-        const confirmNewPassword = confirmNewPasswordInput.value;
-
-        if (newPassword !== confirmNewPassword) {
-          alert("New passwords do not match. Please try again.");
+        // Generate HTML for each request card
+        if (filteredRequests.length === 0) {
+          requestsContainer.innerHTML = '<p>No requests found</p>';
           return;
         }
 
-        try {
-          const user = auth.currentUser;
-          await user.updatePassword(newPassword);
-          alert('Password updated successfully!');
-          closeModal(changePasswordModal); // Close modal after successful update
-        } catch (error) {
-          alert('Error updating password: ' + error.message);
-        }
-      });
+        requestsContainer.innerHTML = filteredRequests.map(request => {
+          let cardHtml = `
+            <div class="request-card" id="card-${request.id}">
+              <h3>${request.soundName}</h3>
+              <p>${request.description}</p>
+              <div class="request-meta">
+                <span>${request.timestamp ? request.timestamp.toLocaleDateString() : ''}</span>
+                <span class="badge ${request.contentType === "normal" ? "badge-normal" : "badge-explicit"}">
+                  ${request.contentType}
+                </span>
+                <span> | Status: ${request.status}</span>
+              </div>
+          `;
 
-      logoutBtn.addEventListener('click', async () => {
-        try {
-          await auth.signOut();
-          window.location.href = 'index.html';
-        } catch (error) {
-          console.error('Error signing out: ', error);
-          alert('Failed to log out. Please try again.');
-        }
-      });
+          // Add submitter email info only for admin users
+          if (isAdmin && request.userEmail) {
+            cardHtml += `
+              <div class="submitter-info">
+                <strong>Submitted by:</strong> ${request.userEmail}
+              </div>
+            `;
+          }
 
-      deleteAccountForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const password = deletePasswordInput.value;
+          // Render admin action buttons only if the user is admin
+          if (isAdmin) {
+            cardHtml += `<div class="admin-actions">`;
+            if (request.status === "pending") {
+              cardHtml += `<button class="btn primary" onclick="handleAdminAction('${request.id}', 'approved')">Approve</button>
+                           <button class="btn primary" onclick="handleAdminAction('${request.id}', 'denied')">Deny</button>`;
+            }
+            if (request.status !== "deleted") {
+              cardHtml += `<button class="btn delete" onclick="handleAdminAction('${request.id}', 'deleted')">Delete</button>`;
+            }
+            cardHtml += `</div>`;
+          }
 
-        try {
-          const user = auth.currentUser;
-          const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
-          await user.reauthenticateWithCredential(credential);
-          await user.delete();
-          alert('Account deleted successfully.');
-          window.location.href = 'index.html';
-        } catch (error) {
-          alert('Error deleting account: ' + error.message);
-        }
-      });
-      
-      // Google reauthentication for account deletion
-      googleReauthButton.addEventListener('click', async () => {
-        try {
-          const provider = new firebase.auth.GoogleAuthProvider();
-          await auth.currentUser.reauthenticateWithPopup(provider);
-          
-          // Now delete the account after successful reauthentication
-          await auth.currentUser.delete();
-          alert('Account deleted successfully.');
-          window.location.href = 'index.html';
-        } catch (error) {
-          console.error('Error:', error);
-          alert('Failed to delete account: ' + error.message);
-        }
-      });
+          cardHtml += `</div>`;
+          return cardHtml;
+        }).join('');
+      };
 
-      // Fetch user data and populate the account page
-      auth.onAuthStateChanged(user => {
+      // Function for admin actions to update request status
+      window.handleAdminAction = (docId, newStatus) => {
+        db.collection("requests").doc(docId).update({
+          status: newStatus,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+          console.log(`Request ${docId} updated to ${newStatus}`);
+        }).catch(error => {
+          console.error("Error updating request:", error);
+        });
+      };
+
+      // Listen for auth state changes and check for admin status
+      auth.onAuthStateChanged((user) => {
         if (user) {
-          userEmailElement.textContent = `Email: ${user.email}`;
-          creationTimeElement.textContent = `Created: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
-          lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
-          userUIDElement.textContent = `User ID: ${user.uid}`;
-          
-          // Check authentication provider and update UI accordingly
-          checkAuthProvider(user);
+          isAdmin = (user.email === "4simpleproblems@gmail.com");
+          // Show the "Deleted" filter button only for admin
+          if (isAdmin) {
+            document.getElementById('deletedFilterBtn').style.display = 'block';
+          }
+          setupRealTimeListener();
         } else {
-          // Redirect to login page if user is not logged in
-          window.location.href = 'login.html';
+          window.location.href = "index.html";
         }
+      });
+
+      // Event listeners for filter buttons
+      document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          currentFilter = e.target.dataset.filter;
+          document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          renderRequests();
+        });
+      });
+
+      // Event listeners for sort buttons
+      document.querySelectorAll('.filter-btn[data-sort]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          currentSort = e.target.dataset.sort;
+          renderRequests();
+        });
+      });
+
+      // Logout button logic
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        auth.signOut().then(() => {
+          window.location.href = "index.html";
+        });
       });
     });
   </script>
-
 </body>
 
 </html>
