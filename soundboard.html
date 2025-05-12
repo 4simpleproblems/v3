@@ -8,10 +8,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <!-- Firebase Configuration -->
   <script src="firebase-config.js"></script>
 
   <style>
@@ -177,6 +175,38 @@
       background-color: var(--darker-bg);
       color: var(--light-text);
     }
+
+    /* Style for the playback speed select */
+    .options-content label.playback-speed-label {
+        margin-top: 0.5rem; /* Spacing from previous element */
+        margin-bottom: 0.5rem; /* Spacing to next element */
+    }
+
+    .options-content #playbackSpeed {
+        width: 100%; /* Full width of its container */
+        padding: 0.5rem;
+        margin-top: 0.25rem; /* Space below the label text */
+        border-radius: 20px;
+        border: 2px solid var(--light-text);
+        background-color: var(--darker-bg);
+        color: var(--light-text);
+        font-size: 0.9rem;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        /* Using white for stroke, assuming --light-text is white or very light */
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.7rem center;
+        background-size: 1em;
+        cursor: pointer;
+    }
+
+    .options-content #playbackSpeed:focus {
+        outline: none;
+        border-color: var(--light-gray); /* Highlight on focus, ensure --light-gray is defined in styles.css */
+    }
+
 
     .options-section {
       margin-bottom: 1rem;
@@ -430,7 +460,10 @@
         initAuth();
       } else {
         console.error("Firebase Auth SDK not available.");
-        window.location.href = 'login.html';
+        // Potentially redirect or show an error message if Firebase is critical
+        // For now, we assume if it's not available, the page might not work as expected
+        // and the login redirect might still be desired if auth is always required.
+        // window.location.href = 'login.html'; // Commenting out to prevent premature redirect if SDK loads slowly
       }
     });
   </script>
@@ -447,6 +480,22 @@
             <h3>Playback Options</h3>
             <label>
               <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
+            </label>
+            <label for="playbackSpeed" class="playback-speed-label">Playback Speed:
+                <select id="playbackSpeed">
+                    <option value="0.25">0.25x</option>
+                    <option value="0.5">0.5x</option>
+                    <option value="0.75">0.75x</option>
+                    <option value="1" selected>1x (Normal)</option>
+                    <option value="1.25">1.25x</option>
+                    <option value="1.5">1.5x</option>
+                    <option value="1.75">1.75x</option>
+                    <option value="2">2x</option>
+                    <option value="2.25">2.25x</option>
+                    <option value="2.5">2.5x</option>
+                    <option value="2.75">2.75x</option>
+                    <option value="3">3x</option>
+                </select>
             </label>
             <label>
               <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
@@ -513,7 +562,10 @@
       const statusMessage = document.getElementById('statusMessage');
       const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
       const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
-      const logoutBtn = document.getElementById('logoutBtn');
+      // const logoutBtn = document.getElementById('logoutBtn'); // Already handled by initAuth
+
+      // ****** ADDED PLAYBACK SPEED ELEMENT ******
+      const playbackSpeedSelect = document.getElementById('playbackSpeed');
 
       // State variables
       let playingAudios = [];
@@ -523,6 +575,9 @@
       let statusMessageTimeout = null;
       let menuIsOpen = false;
       let isRippling = false;
+      // ****** ADDED PLAYBACK SPEED STATE VARIABLE ******
+      let currentPlaybackSpeed = 1.0;
+
 
       function showStatus(message, type = 'info') {
         if (statusMessageTimeout) {
@@ -532,41 +587,26 @@
         statusMessage.textContent = message;
         statusMessage.className = 'status-message ' + type;
 
-        if (statusMessage.style.display === 'block') {
+        // Simplified fade logic for status message
+        statusMessage.style.display = 'block';
+        statusMessage.classList.remove('fade-out'); // Ensure it's not stuck in fade-out
+        statusMessage.classList.add('fade-in');
+
+        statusMessageTimeout = setTimeout(() => {
+          statusMessage.classList.remove('fade-in');
           statusMessage.classList.add('fade-out');
           setTimeout(() => {
-            statusMessage.classList.remove('fade-out');
             statusMessage.style.display = 'none';
-            setTimeout(() => {
-              statusMessage.style.display = 'block';
-              statusMessage.classList.add('fade-in');
-              statusMessageTimeout = setTimeout(() => {
-                statusMessage.classList.remove('fade-in');
-                statusMessage.classList.add('fade-out');
-                setTimeout(() => {
-                  statusMessage.style.display = 'none';
-                  statusMessage.classList.remove('fade-out');
-                }, 300);
-              }, 3000);
-            }, 50);
-          }, 300);
-        } else {
-          statusMessage.style.display = 'block';
-          statusMessage.classList.add('fade-in');
-          statusMessageTimeout = setTimeout(() => {
-            statusMessage.classList.remove('fade-in');
-            statusMessage.classList.add('fade-out');
-            setTimeout(() => {
-              statusMessage.style.display = 'none';
-              statusMessage.classList.remove('fade-out');
-            }, 300);
-          }, 3000);
-        }
+            statusMessage.classList.remove('fade-out');
+          }, 300); // Match fadeOut animation duration
+        }, 3000); // Message visible for 3 seconds
       }
 
       function openOptionsMenu() {
         if (menuIsOpen) return;
         menuIsOpen = true;
+        overlay.classList.remove('fade-out'); // Ensure no conflicting animation
+        optionsMenu.classList.remove('fade-out');
         overlay.style.display = 'block';
         overlay.classList.add('fade-in');
         optionsMenu.style.display = 'block';
@@ -577,15 +617,15 @@
         if (!menuIsOpen) return;
         menuIsOpen = false;
         overlay.classList.remove('fade-in');
-        overlay.classList.add('fade-out');
         optionsMenu.classList.remove('fade-in');
+        overlay.classList.add('fade-out');
         optionsMenu.classList.add('fade-out');
         setTimeout(() => {
           overlay.style.display = 'none';
           overlay.classList.remove('fade-out');
           optionsMenu.style.display = 'none';
           optionsMenu.classList.remove('fade-out');
-        }, 300);
+        }, 300); // Match animation duration
       }
 
       function createRipple(event) {
@@ -598,12 +638,12 @@
         ripple.classList.add('ripple');
         ripple.style.left = x + 'px';
         ripple.style.top = y + 'px';
-        rippleContainer.innerHTML = '';
+        rippleContainer.innerHTML = ''; // Clear previous ripples
         rippleContainer.appendChild(ripple);
         setTimeout(() => {
           ripple.remove();
           isRippling = false;
-        }, 600);
+        }, 600); // Ripple animation duration
       }
 
       function muteAllSounds() {
@@ -635,12 +675,14 @@
         if (wasPlaying) {
           if (instantMute) {
             muteAllSounds();
-            stopAllAudios(100);
+            stopAllAudios(100); // Small delay for mute to take effect before stopping
             showStatus('All sounds muted and cleared', 'success');
           } else {
             stopAllAudios();
             showStatus('All sounds stopped', 'success');
           }
+        } else if (!instantMute) {
+             showStatus('No sounds to clear', 'info');
         }
         if (instantMute) closeOptionsMenu();
       }
@@ -653,14 +695,19 @@
       }
 
       function startAutoClicker() {
-        stopAutoClicker();
+        stopAutoClicker(); // Clear any existing intervals/frames
         const delay = parseInt(autoClickDelayInput.value, 10) || 0;
         if (!currentlyHoveredButton || !autoClickerCheckbox.checked) return;
+
         if (delay === 0) {
           requestAnimationFrameId = requestAnimationFrame(fastClicker);
         } else {
           autoClickInterval = setInterval(() => {
-            currentlyHoveredButton.click();
+            if (currentlyHoveredButton) { // Check again in case mouse left during interval
+                 currentlyHoveredButton.click();
+            } else {
+                stopAutoClicker(); // Stop if button is no longer hovered
+            }
           }, delay);
         }
       }
@@ -678,10 +725,22 @@
 
       function applyAutoClickerDelay() {
         const delay = parseInt(autoClickDelayInput.value, 10);
-        if (isNaN(delay) || delay < 0) autoClickDelayInput.value = 0;
+        if (isNaN(delay) || delay < 0) {
+            autoClickDelayInput.value = 0; // Reset to 0 if invalid
+        }
         localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
-        if (autoClickerCheckbox.checked && currentlyHoveredButton) startAutoClicker();
-        closeOptionsMenu();
+        if (autoClickerCheckbox.checked && currentlyHoveredButton) {
+            startAutoClicker(); // Restart with new delay if active
+        }
+        // closeOptionsMenu(); // Consider if closing menu is desired here
+        showStatus(`Auto click delay set to ${autoClickDelayInput.value}ms`, 'info');
+      }
+
+      // ****** FUNCTION TO APPLY PLAYBACK SPEED TO AUDIO ELEMENTS ******
+      function applyPlaybackSpeedToAudio(audioElement) {
+        if (audioElement) {
+          audioElement.playbackRate = currentPlaybackSpeed;
+        }
       }
 
       function createSoundButton(folder, fileName, container) {
@@ -691,19 +750,30 @@
         button.classList.add('sound-button');
         button.textContent = soundName;
         if (soundName.length < 10) button.classList.add('short-text');
+
         button.addEventListener('click', () => {
-          if (!soundOverlayCheckbox.checked) stopAllAudios();
+          if (!soundOverlayCheckbox.checked) {
+            stopAllAudios();
+          }
           try {
             const audio = new Audio(soundPath);
+            applyPlaybackSpeedToAudio(audio); // ****** APPLY CURRENT SPEED ******
             audio.addEventListener('ended', () => {
               playingAudios = playingAudios.filter(a => a !== audio);
             });
             playingAudios.push(audio);
-            audio.play().catch(console.error);
+            audio.play()
+              .catch(err => {
+                console.error(`Error playing sound "${soundName}":`, err);
+                showStatus(`Cannot play: ${soundName}`, 'error');
+                playingAudios = playingAudios.filter(a => a !== audio); // Remove if play fails
+              });
           } catch (e) {
-            console.error("Error creating audio:", e);
+            console.error(`Error creating audio object for "${soundName}":`, e);
+            showStatus(`Error loading: ${soundName}`, 'error');
           }
         });
+
         button.addEventListener('mouseenter', () => {
           currentlyHoveredButton = button;
           if (autoClickerCheckbox.checked) startAutoClicker();
@@ -722,12 +792,17 @@
         if (!this.checked) stopAllAudios();
         localStorage.setItem('soundOverlay', this.checked);
       });
+
       autoClickerCheckbox.addEventListener('change', function() {
         autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
-        if (this.checked && currentlyHoveredButton) startAutoClicker();
-        if (!this.checked) stopAutoClicker();
+        if (this.checked && currentlyHoveredButton) {
+            startAutoClicker();
+        } else if (!this.checked) {
+            stopAutoClicker();
+        }
         localStorage.setItem('autoClicker', this.checked);
       });
+
       autoClickDelayInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -735,20 +810,41 @@
         }
       });
       applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
+
       clearAllSoundsBtn.addEventListener('click', function(e) {
         createRipple(e);
         this.classList.add('active');
         setTimeout(() => this.classList.remove('active'), 400);
         clearAllSounds(false);
       });
+
       document.addEventListener('keydown', function(e) {
-        if (e.shiftKey && e.key.toLowerCase() === 'c') clearAllSounds(true);
+        if (e.shiftKey && (e.key.toLowerCase() === 'c' || e.code.toLowerCase() === 'keyc')) {
+            e.preventDefault(); // Prevent browser find (Ctrl+C) or other defaults if C is used
+            clearAllSounds(true);
+        }
       });
+
       optionsButton.addEventListener('click', function(e) {
-        e.stopPropagation();
+        e.stopPropagation(); // Prevent click from bubbling to document/overlay
         menuIsOpen ? closeOptionsMenu() : openOptionsMenu();
       });
       overlay.addEventListener('click', closeOptionsMenu);
+      document.addEventListener('click', (event) => { // Close menu if clicked outside
+          if (menuIsOpen && !optionsMenu.contains(event.target) && event.target !== optionsButton) {
+              closeOptionsMenu();
+          }
+      });
+
+
+      // ****** EVENT LISTENER FOR PLAYBACK SPEED SELECT ******
+      playbackSpeedSelect.addEventListener('change', function() {
+        currentPlaybackSpeed = parseFloat(this.value);
+        localStorage.setItem('playbackSpeed', currentPlaybackSpeed.toString());
+        playingAudios.forEach(applyPlaybackSpeedToAudio); // Update speed for already playing sounds
+        showStatus(`Playback speed set to ${currentPlaybackSpeed}x`, 'info');
+      });
+
 
       // Load preferences & sounds
       (function loadPreferences() {
@@ -759,15 +855,41 @@
         }
         const savedDelay = localStorage.getItem('autoClickDelay');
         if (savedDelay !== null) autoClickDelayInput.value = savedDelay;
+
+        // ****** LOAD SAVED PLAYBACK SPEED ******
+        const savedPlaybackSpeed = localStorage.getItem('playbackSpeed');
+        if (savedPlaybackSpeed !== null) {
+          currentPlaybackSpeed = parseFloat(savedPlaybackSpeed);
+          playbackSpeedSelect.value = currentPlaybackSpeed.toString();
+        } else {
+          playbackSpeedSelect.value = "1"; // Default to 1x if nothing saved
+          currentPlaybackSpeed = 1.0;
+        }
+        // Apply to any sounds that might be playing on load (unlikely, but good practice)
+        playingAudios.forEach(applyPlaybackSpeedToAudio);
+
       })();
 
       fetch('SoundboardSN.json')
-        .then(r => r.json())
+        .then(r => {
+            if (!r.ok) {
+                throw new Error(`HTTP error! status: ${r.status}`);
+            }
+            return r.json();
+        })
         .then(data => {
           (data.NormalSounds || []).forEach(f => createSoundButton('NormalSounds', f, normalSoundsContainer));
           (data.ExplicitSounds || []).forEach(f => createSoundButton('ExplicitSounds', f, explicitSoundsContainer));
+          if ((data.NormalSounds || []).length === 0 && (data.ExplicitSounds || []).length === 0) {
+            showStatus('No sounds loaded. Check SoundboardSN.json.', 'info');
+          }
         })
-        .catch(console.error);
+        .catch(err => {
+            console.error("Failed to load or parse SoundboardSN.json:", err);
+            showStatus('Error loading sound list. See console for details.', 'error');
+            normalSoundsContainer.innerHTML = '<p style="color: var(--light-text);">Could not load sounds.</p>';
+            explicitSoundsContainer.innerHTML = '<p style="color: var(--light-text);">Could not load sounds.</p>';
+        });
     });
   </script>
 </body>
