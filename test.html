@@ -1,897 +1,628 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4SP | Soundboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>4SP | Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="firebase-config.js"></script>
 
   <style>
-    /* Hide logout until auth state is confirmed */
-    #logoutBtn {
-      display: none;
+    /* Base styles from index.html for consistency */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-
-    /* Updated Styles */
-    .sound-section {
-      margin-bottom: 2rem;
+    body {
+      font-family: 'Roboto Mono', monospace;
+      background-color: #f5f5f5; /* Matching index.html body background */
+      color: #333; /* Matching index.html text color */
+      line-height: 1.6;
+      display: flex; /* Keep flexbox for full height dashboard */
+      flex-direction: column;
+      min-height: 100vh;
     }
-
-    .sound-section h2 {
-      margin-bottom: 0.5rem;
-      font-size: 1.5rem;
-      padding-bottom: 0.25rem;
-      border-bottom: 2px solid var(--dark-bg);
+    .container {
       width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px; /* Matching index.html container padding */
+      flex: 1; /* Allow main content to grow */
     }
 
-    .soundButtonsContainer {
+    /* Navbar - Adopted from index.html */
+    .navbar {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-start;
-      padding: 1rem;
-      gap: 1.5rem;
-      width: 100%;
-    }
-
-    .sound-button {
-      min-width: 100px;
-      height: 100px;
-      border-radius: 50px;
-      background-color: var(--light-text);
-      color: var(--dark-bg);
-      border: 3px solid var(--dark-bg);
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: bold;
-      padding: 0 1.5rem;
-      transition: background-color 0.3s ease, transform 0.1s ease;
-      display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      text-align: center;
-      line-height: 1.2;
-      max-width: 500px;
-      word-wrap: break-word;
-      hyphens: auto;
+      padding: 20px; /* Matching index.html navbar padding */
+      background-color: #111; /* Matching index.html navbar background */
+      color: #fff;
+      /* border-bottom removed for cleaner look like index.html */
+    }
+    .logo {
+      font-size: 24px; /* Matching index.html logo font size */
+      font-weight: 700;
+      /* letter-spacing removed as it was specific to dashboard.html */
+    }
+    .nav-buttons {
+      display: flex;
+      gap: 10px; /* Matching index.html nav buttons gap */
+      align-items: center; /* Ensure alignment */
     }
 
-    .sound-button.short-text {
-      width: 100px;
-      padding: 0.5rem;
-      border-radius: 50%;
-    }
-
-    .sound-button:hover {
-      background-color: var(--light-gray);
-    }
-
-    .sound-button:active {
-      transform: scale(0.95);
-    }
-
-    .options-dropdown {
-      position: relative;
-      display: inline-block;
-    }
-
-    .options-button {
-      background-color: transparent;
-      color: var(--light-text);
-      padding: 0.75rem 1.5rem;
-      font-size: 1rem;
-      border: 2px solid var(--light-text);
-      border-radius: 50px;
+    /* Buttons - Adopted from index.html */
+    .btn {
+      padding: 8px 16px; /* Matching index.html button padding */
+      border-radius: 30px; /* Matching index.html button border-radius */
+      text-decoration: none;
+      font-weight: 500;
       cursor: pointer;
+      transition: all 0.3s ease; /* Matching index.html button transition */
+      border: none; /* Default no border, specific types will override */
+      font-family: 'Roboto Mono', monospace; /* Ensure font consistency */
+      display: inline-block; /* For consistency as some were links */
+      text-align: center; /* Ensure text is centered */
+    }
+    .btn.primary {
+      background-color: #4285F4; /* Matching index.html primary button */
+      color: #fff;
+      border: 1px solid; /* Index.html primary has border but no color specified */
+    }
+    .btn.secondary {
+      background-color: transparent;
+      color: white;
+      border: 1px solid white; /* Matching index.html secondary button */
+    }
+    /* .btn.tips was unique to dashboard, adapting to primary style */
+    .btn.tips {
+      background-color: #4285F4;
+      color: #fff;
+      border: 1px solid;
+    }
+
+    .btn.primary:hover {
+      background-color: #3367d6; /* Matching index.html primary hover */
+    }
+    .btn.secondary:hover {
+      background-color: rgba(255,255,255,0.1); /* Matching index.html secondary hover */
+    }
+    /* Ensure logout button matches the secondary style */
+    #logoutBtn {
+      background-color: transparent;
+      color: white;
+      border: 1px solid white;
+    }
+    #logoutBtn:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Dashboard Content Card - Inspired by index.html's .home-container */
+    .dashboard-content-card {
+      width: 100%;
+      max-width: 900px; /* Can be adjusted if more width is desired for dashboard content */
+      margin: 40px auto; /* Center the card */
+      background-color: #fff;
+      border-radius: 30px; /* Matching index.html home-container border-radius */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Matching index.html home-container shadow */
+      overflow: hidden;
+      padding: 40px 30px; /* Matching index.html home-container padding */
+      /* Removed text-align: center to allow grid items to align naturally */
+    }
+
+    /* Section headers */
+    .section-header {
+      margin: 3rem 0 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 3px solid #3498db; /* Keeping original section color */
+      color: #333; /* Matching index.html general text color */
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    .section-header:first-of-type {
+      margin-top: 1rem;
+    }
+
+    /* Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    /* Special case for 2-tile sections */
+    .dashboard-grid:has(:nth-child(2):last-child) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    /* Media queries for responsive grid (kept as is, already well-designed) */
+    @media (min-width: 992px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .dashboard-grid:has(:nth-child(2):last-child) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .dashboard-grid:has(:first-child:last-child) {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (min-width: 768px) and (max-width: 991px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .dashboard-grid:has(:first-child:last-child) {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 767px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Tiles - Adjusted for index.html look */
+    .dashboard-tile {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: white;
+      border-radius: 30px; /* Matching index.html home-container border-radius */
+      padding: 2.5rem;
+      text-decoration: none;
+      color: #333; /* Matching index.html general text color */
+      overflow: hidden;
+      height: 280px; /* Keeping original tile height */
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid #e0e0e0; /* Softer border, similar to index.html's subtle lines */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Matching index.html home-container shadow */
+      width: 100%;
+    }
+    .dashboard-tile .tile-content {
+      position: relative;
+      z-index: 2;
+    }
+    .dashboard-tile h3 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    .dashboard-tile p {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    .dashboard-tile .tile-frame {
+      position: absolute;
+      inset: 0;
+      border: 3px solid rgba(0, 0, 0, 0.08); /* Softer inner border */
+      border-radius: 28px; /* Slightly smaller than tile for visual effect */
+      z-index: 1;
+      transition: border-color 0.3s ease;
+    }
+    .dashboard-tile:hover {
+      transform: translateY(-5px) scale(1.03);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+    .dashboard-tile:hover .tile-frame {
+      border-color: #333; /* Darker border on hover for consistency */
+    }
+
+    /* Games tile now matches default white */
+    .games-tile {
+      background-color: white;
+      border-color: #e0e0e0;
+    }
+
+    /* Footer - Adopted from index.html */
+    footer {
+      text-align: center;
+      padding: 20px; /* Matching index.html footer padding */
+      color: #666; /* Matching index.html footer color */
+      font-size: 14px; /* Matching index.html footer font size */
+    }
+
+    /* Modal (Keeping original styles as they were separate) */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1000; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        animation: fadeIn 0.3s forwards; /* Fade-in animation */
+    }
+
+    .modal.fade-out {
+        animation: fadeOut 0.3s forwards; /* Fade-out animation */
     }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
     @keyframes fadeOut {
-      from {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      to {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
+        from { opacity: 1; }
+        to { opacity: 0; }
     }
 
-    .options-content {
-      display: none;
-      position: absolute;
-      background-color: var(--darker-bg);
-      min-width: 250px;
-      border: 2px solid var(--light-text);
-      padding: 1rem;
-      z-index: 2;
-      right: 0;
-      border-radius: 30px;
-      color: var(--light-text);
-    }
-
-    .options-content.fade-in {
-      display: block;
-      animation: fadeIn 0.3s ease forwards;
-    }
-
-    .options-content.fade-out {
-      display: block;
-      animation: fadeOut 0.3s ease forwards;
-    }
-
-    .options-content label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: var(--light-text);
-    }
-
-    .options-content input[type="checkbox"] {
-      margin-right: 0.5rem;
-      vertical-align: middle;
-      background-color: var(--darker-bg);
-      border: 2px solid var(--light-text);
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
-      position: relative;
-      border-radius: 5px;
-    }
-
-    .options-content input[type="checkbox"]:checked {
-      background-image: url('checkmark.png');
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-    }
-
-    .options-content #autoClickDelayLabel {
-      margin-top: 0.5rem;
-      display: block;
-    }
-
-    .options-content #autoClickDelay {
-      width: 60px;
-      padding: 0.25rem;
-      border-radius: 30px;
-      border: 2px solid var(--light-text);
-      background-color: var(--darker-bg);
-      color: var(--light-text);
-    }
-
-    /* Style for the playback speed select */
-    .options-content label.playback-speed-label {
-        margin-top: 0.5rem; /* Spacing from previous element */
-        margin-bottom: 0.5rem; /* Spacing to next element */
-    }
-
-    .options-content #playbackSpeed {
-        width: 100%; /* Full width of its container */
-        padding: 0.5rem;
-        margin-top: 0.25rem; /* Space below the label text */
-        border-radius: 20px;
-        border: 2px solid var(--light-text);
-        background-color: var(--darker-bg);
-        color: var(--light-text);
-        font-size: 0.9rem;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        /* Using white for stroke, assuming --light-text is white or very light */
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 0.7rem center;
-        background-size: 1em;
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         cursor: pointer;
     }
 
-    .options-content #playbackSpeed:focus {
-        outline: none;
-        border-color: var(--light-gray); /* Highlight on focus, ensure --light-gray is defined in styles.css */
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more responsive */
+        max-width: 500px; /* Max width */
+        border-radius: 8px;
+        position: relative; /* For positioning close button */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        animation: slideInTop 0.3s forwards ease-out;
     }
 
-
-    .options-section {
-      margin-bottom: 1rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    @keyframes slideInTop {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
     }
 
-    .options-section:last-child {
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
+    .close-button {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
     }
 
-    .options-section h3 {
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
-      color: var(--light-text);
-      opacity: 0.8;
+    .close-button:hover,
+    .close-button:focus {
+        color: #000;
+        text-decoration: none;
+    }
+    .modal-content h2 {
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+      color: #333;
+    }
+    .modal-content p {
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      color: #555;
+    }
+    .modal-content ul {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      list-style-type: disc;
+    }
+    .modal-content li {
+      margin-bottom: 5px;
+      color: #555;
+    }
+    .modal-content .btn {
+      margin-top: 20px;
     }
 
-    .keyboard-shortcuts {
-      margin-top: 1rem;
-      padding: 0.5rem;
-      border-radius: 10px;
-      background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .keyboard-shortcuts p {
-      margin: 0.25rem 0;
-      font-size: 0.85rem;
-      color: var(--light-text);
-      opacity: 0.8;
-    }
-
-    #applyDelayBtn {
-      padding: 0.25rem 0.5rem;
-      border: 1px solid var(--light-text);
-      border-radius: 30px;
-      background-color: rgba(255, 255, 255, 0.1);
-      color: var(--light-text);
-      cursor: pointer;
-      margin-left: 4px;
-      font-size: 0.8rem;
-    }
-
-    #applyDelayBtn:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
-
-    #clearAllSoundsBtn {
-      width: 100%;
-      margin-top: 0.5rem;
-      background-color: rgba(255, 0, 0, 0.2);
-      color: var(--light-text);
-      border: 1px solid var(--light-text);
-      position: relative;
-      overflow: hidden;
-    }
-
-    @keyframes buttonPop {
-      0% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.15);
-      }
-      75% {
-        transform: scale(0.95);
-      }
-      100% {
-        transform: scale(1);
-      }
-    }
-
-    @keyframes ripple {
-      0% {
-        transform: scale(0);
-        opacity: 0.5;
-      }
-      100% {
-        transform: scale(4);
-        opacity: 0;
-      }
-    }
-
-    #clearAllSoundsBtn.active {
-      animation: buttonPop 0.4s ease-in-out;
-      background-color: rgba(255, 0, 0, 0.4);
-    }
-
-    .ripple-container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      overflow: hidden;
-      border-radius: inherit;
-      pointer-events: none;
-    }
-
-    .ripple {
-      position: absolute;
-      border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.4);
-      width: 100px;
-      height: 100px;
-      margin-top: -50px;
-      margin-left: -50px;
-      animation: ripple 0.6s ease-out;
-      pointer-events: none;
-    }
-
-    @keyframes fadeInOverlay {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes fadeOutOverlay {
-      from {
-        opacity: 1;
-      }
-      to {
-        opacity: 0;
-      }
-    }
-
-    .overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 1;
-    }
-
-    .overlay.fade-in {
-      display: block;
-      animation: fadeInOverlay 0.3s ease forwards;
-    }
-
-    .overlay.fade-out {
-      display: block;
-      animation: fadeOutOverlay 0.3s ease forwards;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeOutDown {
-      from {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      to {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-    }
-
-    .status-message {
-      display: none;
-      padding: 0.5rem 1rem;
-      margin: 1rem auto;
-      border-radius: 50px;
-      font-size: 0.9rem;
-      background-color: rgba(0, 0, 0, 0.1);
-      text-align: center;
-      max-width: 80%;
-    }
-
-    .status-message.fade-in {
-      display: block;
-      animation: fadeInUp 0.3s ease forwards;
-    }
-
-    .status-message.fade-out {
-      display: block;
-      animation: fadeOutDown 0.3s ease forwards;
-    }
-
-    .status-message.success {
-      background-color: rgba(0, 255, 0, 0.1);
-      color: green;
-      border: 1px solid green;
-    }
-
-    .status-message.error {
-      background-color: rgba(255, 0, 0, 0.1);
-      color: red;
-      border: 1px solid red;
-    }
-
-    .status-message.info {
-      background-color: rgba(0, 0, 255, 0.1);
-      color: blue;
-      border: 1px solid blue;
-    }
   </style>
-
-  <script>
-    // --- Firebase initialization & Auth guard ---
-    try {
-      if (typeof firebaseConfig !== 'undefined') {
-        firebase.initializeApp(firebaseConfig);
-      } else {
-        console.error("Firebase configuration not found.");
-      }
-    } catch (e) {
-      console.error("Firebase initialization error:", e);
-    }
-
-    function handleAuthState(user) {
-      const logoutBtn = document.getElementById('logoutBtn');
-      if (user) {
-        logoutBtn.style.display = 'inline-flex';
-      } else {
-        window.location.href = 'login.html';
-      }
-    }
-
-    function initAuth() {
-      const auth = firebase.auth();
-      auth.onAuthStateChanged(handleAuthState);
-
-      const logoutBtn = document.getElementById('logoutBtn');
-      logoutBtn.addEventListener('click', e => {
-        e.preventDefault();
-        auth.signOut()
-          .then(() => window.location.href = 'login.html')
-          .catch(err => console.error("Logout error:", err));
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      if (window.firebase && firebase.auth) {
-        initAuth();
-      } else {
-        console.error("Firebase Auth SDK not available.");
-        // Potentially redirect or show an error message if Firebase is critical
-        // For now, we assume if it's not available, the page might not work as expected
-        // and the login redirect might still be desired if auth is always required.
-        // window.location.href = 'login.html'; // Commenting out to prevent premature redirect if SDK loads slowly
-      }
-    });
-  </script>
 </head>
-
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
-      <div class="options-dropdown">
-        <button class="btn secondary options-button">Options</button>
-        <div class="options-content" id="optionsMenu">
-          <div class="options-section">
-            <h3>Playback Options</h3>
-            <label>
-              <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
-            </label>
-            <label for="playbackSpeed" class="playback-speed-label">Playback Speed:
-                <select id="playbackSpeed">
-                    <option value="0.25">0.25x</option>
-                    <option value="0.5">0.5x</option>
-                    <option value="0.75">0.75x</option>
-                    <option value="1" selected>1x (Normal)</option>
-                    <option value="1.25">1.25x</option>
-                    <option value="1.5">1.5x</option>
-                    <option value="1.75">1.75x</option>
-                    <option value="2">2x</option>
-                    <option value="2.25">2.25x</option>
-                    <option value="2.5">2.5x</option>
-                    <option value="2.75">2.75x</option>
-                    <option value="3">3x</option>
-                </select>
-            </label>
-            <label>
-              <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
-            </label>
-            <label id="autoClickDelayLabel" style="display: none;">
-              Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" />
-              <button id="applyDelayBtn">Apply</button>
-            </label>
-          </div>
-          <div class="options-section">
-            <h3>Management</h3>
-            <button id="clearAllSoundsBtn" class="btn secondary">
-              Clear All Sounds
-              <div class="ripple-container"></div>
-            </button>
-          </div>
-          <div class="keyboard-shortcuts">
-            <p><strong>Keyboard Shortcuts:</strong></p>
-            <p>Shift + C: Mute & clear all sounds</p>
-          </div>
-        </div>
-      </div>
-      <a href="dashboard.html" class="btn secondary">Dashboard</a>
-      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+      <a href="legal-list.html" class="btn secondary">Legal</a>
+      <a href="dashboard.html" class="btn secondary" id="dashboardNavBtn">Dashboard</a>
+      <button class="btn primary" id="logoutBtn">Log Out</button>
     </div>
   </nav>
 
   <main class="container">
-    <h1>Soundboard</h1>
-    <p>Click the buttons to play a sound!</p>
+    <div class="dashboard-content-card">
+      <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
 
-    <div class="status-message" id="statusMessage"></div>
+      <h2 class="section-header">Media & Entertainment</h2>
+      <div class="dashboard-grid">
+        <a href="soundboard.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Soundboard</h3>
+            <p>Access all available sound clips and categories. Play, hear, and admire these amazing sounds.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
 
-    <div class="sound-section">
-      <h2>Normal Sounds</h2>
-      <div id="normalSoundsContainer" class="soundButtonsContainer normal"></div>
-    </div>
+        <a href="playlist.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Playlists (Beta)</h3>
+            <p>Access and store sounds you like.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
 
-    <div class="sound-section">
-      <h2>Explicit Sounds</h2>
-      <div id="explicitSoundsContainer" class="soundButtonsContainer explicit"></div>
+        <a href="localsounds.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Local Sounds</h3>
+            <p>Upload and play your own local MP3 files.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+
+        <a href="https://4simpleproblems.github.io/game/" target="_blank" rel="noopener" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Games</h3>
+            <p>Play a variety of browser games from our curated collection.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+      </div>
+
+      <h2 class="section-header">Web Access</h2>
+      <div class="dashboard-grid">
+        <a href="vern.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Vern</h3>
+            <p>The official proxy for 4SP.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+        <a href="links.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Links</h3>
+            <p>Uploaded links by 4SP, including Eaglercraft, and other crap.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+      </div>
+
+      <h2 class="section-header">User Interaction</h2>
+      <div class="dashboard-grid">
+        <a href="requests.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Request a Sound</h3>
+            <p>Submit requests for new sounds to be added to the collection. Sounds may be approved or denied.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+        <a href="collections.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Sound Request Collection</h3>
+            <p>View sound requests organized by category.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+        <a href="feedback.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Feedback</h3>
+            <p>Suggest user feedback, new features, or proxy reports to 4SP for improvement in the website.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+      </div>
+
+      <h2 class="section-header">User Settings</h2>
+      <div class="dashboard-grid">
+        <a href="account.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Account</h3>
+            <p>Manage and view your account settings and preferences. Updating your entire profile with usernames will be in the future.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+        <a href="legal-list.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Legal & Policies</h3>
+            <p>Legal center for our website, including privacy policy and our terms of service.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+      </div>
+
+      <h2 class="section-header">Others</h2>
+      <div class="dashboard-grid">
+        <a href="schedule.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Working Schedule</h3>
+            <p>A working schedule from which websites will be updated.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+        <a href="https://optana-web.github.io/" target="_blank" rel="noopener" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Optana Website</h3>
+            <p>A website I created based around wishlists. I would be able to make wishlists, and edit them so people know what I want. This is currently in alpha.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+      </div>
+
+      <h2 class="section-header hidden" id="adminSectionHeader">Admin Controls</h2>
+      <div class="dashboard-grid hidden" id="adminSection">
+        <a href="feedback-collections.html" class="dashboard-tile admin-tile" id="analyticsTile">
+          <div class="tile-content">
+            <h3>Feedback Collection</h3>
+            <p>Access user feedback and suggestions.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+      </div>
     </div>
   </main>
 
-  <footer>
-    <p>© 2025 4SP</p>
-  </footer>
+  <div id="tipsModal" class="modal">
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-content">
+      <span class="close-button" id="closeModalBtn">&times;</span>
+      <h2>Welcome to the Dashboard!</h2>
+      <p>Here are some tips to get started:</p>
+      <ul>
+        <li>Navigate through different sections using the tiles.</li>
+        <li>The "Soundboard" is where you'll find all the sounds.</li>
+        <li>"Vern" is our secure proxy for web access.</li>
+        <li>You can request new sounds or provide feedback on the site.</li>
+        <li>Manage your account settings under "User Settings".</li>
+      </ul>
+      <button class="btn primary" id="gotItBtn">Got it!</button>
+    </div>
+  </div>
 
-  <div class="overlay" id="overlay"></div>
+  <footer><p>© 2025 4SP</p></footer>
+    <script>
+        // Authentication state management
+        function handleAuthState(user) {
+            const authNotice = document.getElementById('authNotice');
+            // Select the new dashboard-content-card instead of individual grid sections
+            const dashboardContentCard = document.querySelector('.dashboard-content-card');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const adminSectionHeader = document.getElementById('adminSectionHeader');
+            const adminSection = document.getElementById('adminSection');
+            const adminEmail = '4simpleproblems@gmail.com'; // Replace with your admin email
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // DOM Elements
-      const normalSoundsContainer = document.getElementById('normalSoundsContainer');
-      const explicitSoundsContainer = document.getElementById('explicitSoundsContainer');
-      const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
-      const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
-      const autoClickDelayInput = document.getElementById('autoClickDelay');
-      const autoClickDelayLabel = document.getElementById('autoClickDelayLabel');
-      const applyDelayBtn = document.getElementById('applyDelayBtn');
-      const overlay = document.getElementById('overlay');
-      const optionsButton = document.querySelector('.options-button');
-      const optionsMenu = document.getElementById('optionsMenu');
-      const statusMessage = document.getElementById('statusMessage');
-      const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
-      const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
-      // const logoutBtn = document.getElementById('logoutBtn'); // Already handled by initAuth
+            if (user) {
+                authNotice.classList.add('hidden');
+                // Show the dashboard content card if user is logged in
+                if (dashboardContentCard) {
+                    dashboardContentCard.classList.remove('hidden');
+                }
+                if (logoutBtn) logoutBtn.classList.remove('hidden');
 
-      // ****** ADDED PLAYBACK SPEED ELEMENT ******
-      const playbackSpeedSelect = document.getElementById('playbackSpeed');
-
-      // State variables
-      let playingAudios = [];
-      let autoClickInterval;
-      let requestAnimationFrameId = null;
-      let currentlyHoveredButton = null;
-      let statusMessageTimeout = null;
-      let menuIsOpen = false;
-      let isRippling = false;
-      // ****** ADDED PLAYBACK SPEED STATE VARIABLE ******
-      let currentPlaybackSpeed = 1.0;
-
-
-      function showStatus(message, type = 'info') {
-        if (statusMessageTimeout) {
-          clearTimeout(statusMessageTimeout);
-          statusMessage.classList.remove('fade-in', 'fade-out');
-        }
-        statusMessage.textContent = message;
-        statusMessage.className = 'status-message ' + type;
-
-        // Simplified fade logic for status message
-        statusMessage.style.display = 'block';
-        statusMessage.classList.remove('fade-out'); // Ensure it's not stuck in fade-out
-        statusMessage.classList.add('fade-in');
-
-        statusMessageTimeout = setTimeout(() => {
-          statusMessage.classList.remove('fade-in');
-          statusMessage.classList.add('fade-out');
-          setTimeout(() => {
-            statusMessage.style.display = 'none';
-            statusMessage.classList.remove('fade-out');
-          }, 300); // Match fadeOut animation duration
-        }, 3000); // Message visible for 3 seconds
-      }
-
-      function openOptionsMenu() {
-        if (menuIsOpen) return;
-        menuIsOpen = true;
-        overlay.classList.remove('fade-out'); // Ensure no conflicting animation
-        optionsMenu.classList.remove('fade-out');
-        overlay.style.display = 'block';
-        overlay.classList.add('fade-in');
-        optionsMenu.style.display = 'block';
-        optionsMenu.classList.add('fade-in');
-      }
-
-      function closeOptionsMenu() {
-        if (!menuIsOpen) return;
-        menuIsOpen = false;
-        overlay.classList.remove('fade-in');
-        optionsMenu.classList.remove('fade-in');
-        overlay.classList.add('fade-out');
-        optionsMenu.classList.add('fade-out');
-        setTimeout(() => {
-          overlay.style.display = 'none';
-          overlay.classList.remove('fade-out');
-          optionsMenu.style.display = 'none';
-          optionsMenu.classList.remove('fade-out');
-        }, 300); // Match animation duration
-      }
-
-      function createRipple(event) {
-        if (isRippling) return;
-        isRippling = true;
-        const rect = clearAllSoundsBtn.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        const ripple = document.createElement('span');
-        ripple.classList.add('ripple');
-        ripple.style.left = x + 'px';
-        ripple.style.top = y + 'px';
-        rippleContainer.innerHTML = ''; // Clear previous ripples
-        rippleContainer.appendChild(ripple);
-        setTimeout(() => {
-          ripple.remove();
-          isRippling = false;
-        }, 600); // Ripple animation duration
-      }
-
-      function muteAllSounds() {
-        playingAudios.forEach(audio => audio.volume = 0);
-      }
-
-      function stopAllAudios(delay = 0) {
-        if (playingAudios.length === 0) return;
-        if (delay > 0) {
-          muteAllSounds();
-          setTimeout(() => {
-            playingAudios.forEach(audio => {
-              audio.pause();
-              audio.currentTime = 0;
-            });
-            playingAudios = [];
-          }, delay);
-        } else {
-          playingAudios.forEach(audio => {
-            audio.pause();
-            audio.currentTime = 0;
-          });
-          playingAudios = [];
-        }
-      }
-
-      function clearAllSounds(instantMute = false) {
-        const wasPlaying = playingAudios.length > 0;
-        if (wasPlaying) {
-          if (instantMute) {
-            muteAllSounds();
-            stopAllAudios(100); // Small delay for mute to take effect before stopping
-            showStatus('All sounds muted and cleared', 'success');
-          } else {
-            stopAllAudios();
-            showStatus('All sounds stopped', 'success');
-          }
-        } else if (!instantMute) {
-             showStatus('No sounds to clear', 'info');
-        }
-        if (instantMute) closeOptionsMenu();
-      }
-
-      function fastClicker() {
-        if (currentlyHoveredButton && autoClickerCheckbox.checked) {
-          currentlyHoveredButton.click();
-          requestAnimationFrameId = requestAnimationFrame(fastClicker);
-        }
-      }
-
-      function startAutoClicker() {
-        stopAutoClicker(); // Clear any existing intervals/frames
-        const delay = parseInt(autoClickDelayInput.value, 10) || 0;
-        if (!currentlyHoveredButton || !autoClickerCheckbox.checked) return;
-
-        if (delay === 0) {
-          requestAnimationFrameId = requestAnimationFrame(fastClicker);
-        } else {
-          autoClickInterval = setInterval(() => {
-            if (currentlyHoveredButton) { // Check again in case mouse left during interval
-                 currentlyHoveredButton.click();
+                // Check if user is admin
+                if (user.email === adminEmail) {
+                    adminSectionHeader.classList.remove('hidden');
+                    adminSection.classList.remove('hidden');
+                } else {
+                    adminSectionHeader.classList.add('hidden');
+                    adminSection.classList.add('hidden');
+                }
             } else {
-                stopAutoClicker(); // Stop if button is no longer hovered
+                // If not logged in, redirect to index.html and hide the dashboard card
+                window.location.href = 'index.html';
+                if (dashboardContentCard) {
+                    dashboardContentCard.classList.add('hidden');
+                }
             }
-          }, delay);
         }
-      }
 
-      function stopAutoClicker() {
-        if (autoClickInterval) {
-          clearInterval(autoClickInterval);
-          autoClickInterval = null;
-        }
-        if (requestAnimationFrameId) {
-          cancelAnimationFrame(requestAnimationFrameId);
-          requestAnimationFrameId = null;
-        }
-      }
+        // Initialize Firebase authentication and set up logout functionality
+        function initAuth() {
+            try {
+                const auth = firebase.auth();
 
-      function applyAutoClickerDelay() {
-        const delay = parseInt(autoClickDelayInput.value, 10);
-        if (isNaN(delay) || delay < 0) {
-            autoClickDelayInput.value = 0; // Reset to 0 if invalid
-        }
-        localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
-        if (autoClickerCheckbox.checked && currentlyHoveredButton) {
-            startAutoClicker(); // Restart with new delay if active
-        }
-        // closeOptionsMenu(); // Consider if closing menu is desired here
-        showStatus(`Auto click delay set to ${autoClickDelayInput.value}ms`, 'info');
-      }
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', (e) => {
+                        e.preventDefault(); // Prevent any default link behavior
+                        auth.signOut().then(() => {
+                            window.location.href = 'index.html';
+                        }).catch(error => {
+                            console.error("Logout error:", error);
+                        });
+                    });
+                } else {
+                    console.error("Logout button not found!");
+                }
 
-      // ****** FUNCTION TO APPLY PLAYBACK SPEED TO AUDIO ELEMENTS ******
-      function applyPlaybackSpeedToAudio(audioElement) {
-        if (audioElement) {
-          audioElement.playbackRate = currentPlaybackSpeed;
+                auth.onAuthStateChanged(user => {
+                    handleAuthState(user);
+                });
+
+            } catch (error) {
+                console.error("Auth initialization error:", error);
+                window.location.href = 'index.html'; // Redirect if Firebase fails to load
+            }
         }
-      }
 
-      function createSoundButton(folder, fileName, container) {
-        const soundName = fileName.replace('.mp3', '').replace(/_/g, ' ');
-        const soundPath = `${folder}/${fileName}`;
-        const button = document.createElement('button');
-        button.classList.add('sound-button');
-        button.textContent = soundName;
-        if (soundName.length < 10) button.classList.add('short-text');
+        // Tips modal functionality
+        function initTipsModal() {
+            const tipsBtn = document.getElementById('tipsBtn'); // This button doesn't exist in the new HTML, so modal won't open from a button.
+            const tipsModal = document.getElementById('tipsModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const modalOverlay = document.getElementById('modalOverlay');
+            const gotItBtn = document.getElementById('gotItBtn'); // New button to close modal
 
-        button.addEventListener('click', () => {
-          if (!soundOverlayCheckbox.checked) {
-            stopAllAudios();
-          }
-          try {
-            const audio = new Audio(soundPath);
-            applyPlaybackSpeedToAudio(audio); // ****** APPLY CURRENT SPEED ******
-            audio.addEventListener('ended', () => {
-              playingAudios = playingAudios.filter(a => a !== audio);
+            // No specific button to open tips modal, it would need to be triggered otherwise (e.g., on first visit)
+            // If you want a button to open it, add a <button id="tipsBtn" class="btn primary">Show Tips</button> somewhere
+
+            // Function to close modal with fade effect
+            function closeModalWithFade() {
+                tipsModal.classList.add('fade-out');
+                setTimeout(() => {
+                    tipsModal.style.display = 'none';
+                    tipsModal.classList.remove('fade-out');
+                }, 300); // Match this to animation duration
+            }
+
+            // Close modal when clicking the close button
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', () => {
+                    closeModalWithFade();
+                });
+            }
+
+            // Close modal when clicking the "Got it!" button
+            if (gotItBtn) {
+                gotItBtn.addEventListener('click', () => {
+                    closeModalWithFade();
+                });
+            }
+
+            // Close modal when clicking outside the modal content
+            if (modalOverlay) {
+                modalOverlay.addEventListener('click', () => {
+                    closeModalWithFade();
+                });
+            }
+
+            // Close modal when pressing Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && tipsModal.style.display === 'block') {
+                    closeModalWithFade();
+                }
             });
-            playingAudios.push(audio);
-            audio.play()
-              .catch(err => {
-                console.error(`Error playing sound "${soundName}":`, err);
-                showStatus(`Cannot play: ${soundName}`, 'error');
-                playingAudios = playingAudios.filter(a => a !== audio); // Remove if play fails
-              });
-          } catch (e) {
-            console.error(`Error creating audio object for "${soundName}":`, e);
-            showStatus(`Error loading: ${soundName}`, 'error');
-          }
-        });
 
-        button.addEventListener('mouseenter', () => {
-          currentlyHoveredButton = button;
-          if (autoClickerCheckbox.checked) startAutoClicker();
-        });
-        button.addEventListener('mouseleave', () => {
-          if (currentlyHoveredButton === button) {
-            currentlyHoveredButton = null;
-            stopAutoClicker();
-          }
-        });
-        container.appendChild(button);
-      }
-
-      // Event Listeners
-      soundOverlayCheckbox.addEventListener('change', function() {
-        if (!this.checked) stopAllAudios();
-        localStorage.setItem('soundOverlay', this.checked);
-      });
-
-      autoClickerCheckbox.addEventListener('change', function() {
-        autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
-        if (this.checked && currentlyHoveredButton) {
-            startAutoClicker();
-        } else if (!this.checked) {
-            stopAutoClicker();
+             // Optionally, display the modal on page load for new users or specific conditions
+             // For now, we'll make it visible upon page load as a "welcome" based on the prompt
+             // You would typically use localStorage to check if a user has seen it before
+             setTimeout(() => {
+                 tipsModal.classList.remove('fade-out');
+                 tipsModal.style.display = 'block';
+             }, 500); // Show after a short delay
         }
-        localStorage.setItem('autoClicker', this.checked);
-      });
 
-      autoClickDelayInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          applyAutoClickerDelay();
-        }
-      });
-      applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
-
-      clearAllSoundsBtn.addEventListener('click', function(e) {
-        createRipple(e);
-        this.classList.add('active');
-        setTimeout(() => this.classList.remove('active'), 400);
-        clearAllSounds(false);
-      });
-
-      document.addEventListener('keydown', function(e) {
-        if (e.shiftKey && (e.key.toLowerCase() === 'c' || e.code.toLowerCase() === 'keyc')) {
-            e.preventDefault(); // Prevent browser find (Ctrl+C) or other defaults if C is used
-            clearAllSounds(true);
-        }
-      });
-
-      optionsButton.addEventListener('click', function(e) {
-        e.stopPropagation(); // Prevent click from bubbling to document/overlay
-        menuIsOpen ? closeOptionsMenu() : openOptionsMenu();
-      });
-      overlay.addEventListener('click', closeOptionsMenu);
-      document.addEventListener('click', (event) => { // Close menu if clicked outside
-          if (menuIsOpen && !optionsMenu.contains(event.target) && event.target !== optionsButton) {
-              closeOptionsMenu();
-          }
-      });
-
-
-      // ****** EVENT LISTENER FOR PLAYBACK SPEED SELECT ******
-      playbackSpeedSelect.addEventListener('change', function() {
-        currentPlaybackSpeed = parseFloat(this.value);
-        localStorage.setItem('playbackSpeed', currentPlaybackSpeed.toString());
-        playingAudios.forEach(applyPlaybackSpeedToAudio); // Update speed for already playing sounds
-        showStatus(`Playback speed set to ${currentPlaybackSpeed}x`, 'info');
-      });
-
-
-      // Load preferences & sounds
-      (function loadPreferences() {
-        if (localStorage.getItem('soundOverlay') === 'true') soundOverlayCheckbox.checked = true;
-        if (localStorage.getItem('autoClicker') === 'true') {
-          autoClickerCheckbox.checked = true;
-          autoClickDelayLabel.style.display = 'block';
-        }
-        const savedDelay = localStorage.getItem('autoClickDelay');
-        if (savedDelay !== null) autoClickDelayInput.value = savedDelay;
-
-        // ****** LOAD SAVED PLAYBACK SPEED ******
-        const savedPlaybackSpeed = localStorage.getItem('playbackSpeed');
-        if (savedPlaybackSpeed !== null) {
-          currentPlaybackSpeed = parseFloat(savedPlaybackSpeed);
-          playbackSpeedSelect.value = currentPlaybackSpeed.toString();
-        } else {
-          playbackSpeedSelect.value = "1"; // Default to 1x if nothing saved
-          currentPlaybackSpeed = 1.0;
-        }
-        // Apply to any sounds that might be playing on load (unlikely, but good practice)
-        playingAudios.forEach(applyPlaybackSpeedToAudio);
-
-      })();
-
-      fetch('SoundboardSN.json')
-        .then(r => {
-            if (!r.ok) {
-                throw new Error(`HTTP error! status: ${r.status}`);
+        // Initialize both auth and tips modal functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof firebase !== 'undefined') {
+                initAuth();
+            } else {
+                console.error("Firebase SDK not loaded.");
+                const notice = document.getElementById('authNotice');
+                if (notice) {
+                    notice.textContent = 'Error loading application components. Please try again later.';
+                    notice.classList.remove('hidden');
+                }
+                // Hide the dashboard content card if Firebase fails to load
+                const dashboardContentCard = document.querySelector('.dashboard-content-card');
+                if (dashboardContentCard) {
+                    dashboardContentCard.classList.add('hidden');
+                }
             }
-            return r.json();
-        })
-        .then(data => {
-          (data.NormalSounds || []).forEach(f => createSoundButton('NormalSounds', f, normalSoundsContainer));
-          (data.ExplicitSounds || []).forEach(f => createSoundButton('ExplicitSounds', f, explicitSoundsContainer));
-          if ((data.NormalSounds || []).length === 0 && (data.ExplicitSounds || []).length === 0) {
-            showStatus('No sounds loaded. Check SoundboardSN.json.', 'info');
-          }
-        })
-        .catch(err => {
-            console.error("Failed to load or parse SoundboardSN.json:", err);
-            showStatus('Error loading sound list. See console for details.', 'error');
-            normalSoundsContainer.innerHTML = '<p style="color: var(--light-text);">Could not load sounds.</p>';
-            explicitSoundsContainer.innerHTML = '<p style="color: var(--light-text);">Could not load sounds.</p>';
-        });
-    });
-  </script>
-</body>
 
+            initTipsModal();
+        });
+    </script>
+</body>
 </html>
