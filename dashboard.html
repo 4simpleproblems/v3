@@ -105,7 +105,7 @@
       margin-top: 1rem;
     }
 
-    /* Grid - Modified to ensure even tile distribution */
+    /* Grid - Modified to handle 2-tile sections properly */
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -113,19 +113,25 @@
       margin: 2rem 0;
     }
     
+    /* Special case for 2-tile sections */
+    .dashboard-grid:has(:nth-child(2):last-child) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
     /* Media queries for responsive grid */
     @media (min-width: 992px) {
       .dashboard-grid {
         grid-template-columns: repeat(3, 1fr);
       }
-      /* For 2 tiles in the last row */
-      .dashboard-grid > *:nth-last-child(2):first-child,
-      .dashboard-grid > *:nth-last-child(2):first-child ~ * {
-        grid-column-end: span 2;
+      
+      /* For 2 tiles, ensure they're in a row of 2 */
+      .dashboard-grid:has(:nth-child(2):last-child) {
+        grid-template-columns: repeat(2, 1fr);
       }
-      /* For 1 tile in the last row */
-      .dashboard-grid > *:last-child:nth-child(3n-2) {
-        grid-column: 1 / -1;
+      
+      /* For 1 tile, make it full width */
+      .dashboard-grid:has(:first-child:last-child) {
+        grid-template-columns: 1fr;
       }
     }
     
@@ -133,9 +139,10 @@
       .dashboard-grid {
         grid-template-columns: repeat(2, 1fr);
       }
-      /* For 1 tile in the last row */
-      .dashboard-grid > *:last-child:nth-child(odd) {
-        grid-column: 1 / -1;
+      
+      /* For 1 tile, make it full width */
+      .dashboard-grid:has(:first-child:last-child) {
+        grid-template-columns: 1fr;
       }
     }
     
