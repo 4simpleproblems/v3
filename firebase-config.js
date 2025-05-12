@@ -14,7 +14,8 @@ const firebaseConfig = {
 // List of banned Gmail addresses
 const bannedEmails = [
   "tootja30@minerva.sparcc.org",
-  "jace.toot@icloud.com"
+  "jace.toot@icloud.com",
+  "ludwza30@minerva.sparcc.org"
 ];
 
 // Initialize Firebase (check for existing app)
