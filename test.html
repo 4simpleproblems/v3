@@ -28,8 +28,8 @@
     }
     .container {
       width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
+      max-width: 1200px; /* Maximum width for the main content area */
+      margin: 0 auto; /* Center the main container */
       padding: 20px; /* Matching index.html container padding */
       flex: 1; /* Allow main content to grow */
     }
@@ -42,12 +42,10 @@
       padding: 20px; /* Matching index.html navbar padding */
       background-color: #111; /* Matching index.html navbar background */
       color: #fff;
-      /* border-bottom removed for cleaner look like index.html */
     }
     .logo {
       font-size: 24px; /* Matching index.html logo font size */
       font-weight: 700;
-      /* letter-spacing removed as it was specific to dashboard.html */
     }
     .nav-buttons {
       display: flex;
@@ -71,7 +69,7 @@
     .btn.primary {
       background-color: #4285F4; /* Matching index.html primary button */
       color: #fff;
-      border: 1px solid; /* Index.html primary has border but no color specified */
+      border: 1px solid;
     }
     .btn.secondary {
       background-color: transparent;
@@ -108,14 +106,13 @@
     /* Dashboard Content Card - Inspired by index.html's .home-container */
     .dashboard-content-card {
       width: 100%;
-      max-width: 900px; /* Can be adjusted if more width is desired for dashboard content */
-      margin: 40px auto; /* Center the card */
+      max-width: 1100px; /* Increased max-width to allow for wider tiles and 3 in a row more comfortably */
+      margin: 40px auto; /* Keep centered for consistency with index.html */
       background-color: #fff;
       border-radius: 30px; /* Matching index.html home-container border-radius */
       box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Matching index.html home-container shadow */
-      overflow: hidden;
+      overflow: hidden; /* Prevents internal scrolling within the card */
       padding: 40px 30px; /* Matching index.html home-container padding */
-      /* Removed text-align: center to allow grid items to align naturally */
     }
 
     /* Section headers */
@@ -131,10 +128,10 @@
       margin-top: 1rem;
     }
 
-    /* Grid */
+    /* Grid - Minor adjustment for responsiveness with new max-width */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* minmax ensures tiles are at least 300px and take up space */
       gap: 2rem;
       margin: 2rem 0;
     }
@@ -145,7 +142,7 @@
     /* Media queries for responsive grid (kept as is, already well-designed) */
     @media (min-width: 992px) {
       .dashboard-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, 1fr); /* Allows up to 3 in a row */
       }
       .dashboard-grid:has(:nth-child(2):last-child) {
         grid-template-columns: repeat(2, 1fr);
@@ -168,7 +165,7 @@
       }
     }
 
-    /* Tiles - Adjusted for index.html look */
+    /* Tiles - Adjusted for shorter height and implied wider based on grid */
     .dashboard-tile {
       position: relative;
       display: flex;
@@ -180,7 +177,7 @@
       text-decoration: none;
       color: #333; /* Matching index.html general text color */
       overflow: hidden;
-      height: 280px; /* Keeping original tile height */
+      height: 220px; /* Made shorter as requested (from 280px) */
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       border: 1px solid #e0e0e0; /* Softer border, similar to index.html's subtle lines */
       box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Matching index.html home-container shadow */
@@ -485,7 +482,6 @@
         // Authentication state management
         function handleAuthState(user) {
             const authNotice = document.getElementById('authNotice');
-            // Select the new dashboard-content-card instead of individual grid sections
             const dashboardContentCard = document.querySelector('.dashboard-content-card');
             const logoutBtn = document.getElementById('logoutBtn');
             const adminSectionHeader = document.getElementById('adminSectionHeader');
@@ -494,13 +490,11 @@
 
             if (user) {
                 authNotice.classList.add('hidden');
-                // Show the dashboard content card if user is logged in
                 if (dashboardContentCard) {
                     dashboardContentCard.classList.remove('hidden');
                 }
                 if (logoutBtn) logoutBtn.classList.remove('hidden');
 
-                // Check if user is admin
                 if (user.email === adminEmail) {
                     adminSectionHeader.classList.remove('hidden');
                     adminSection.classList.remove('hidden');
@@ -509,7 +503,6 @@
                     adminSection.classList.add('hidden');
                 }
             } else {
-                // If not logged in, redirect to index.html and hide the dashboard card
                 window.location.href = 'index.html';
                 if (dashboardContentCard) {
                     dashboardContentCard.classList.add('hidden');
@@ -525,7 +518,7 @@
                 const logoutBtn = document.getElementById('logoutBtn');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', (e) => {
-                        e.preventDefault(); // Prevent any default link behavior
+                        e.preventDefault();
                         auth.signOut().then(() => {
                             window.location.href = 'index.html';
                         }).catch(error => {
@@ -542,68 +535,56 @@
 
             } catch (error) {
                 console.error("Auth initialization error:", error);
-                window.location.href = 'index.html'; // Redirect if Firebase fails to load
+                window.location.href = 'index.html';
             }
         }
 
         // Tips modal functionality
         function initTipsModal() {
-            const tipsBtn = document.getElementById('tipsBtn'); // This button doesn't exist in the new HTML, so modal won't open from a button.
             const tipsModal = document.getElementById('tipsModal');
             const closeModalBtn = document.getElementById('closeModalBtn');
             const modalOverlay = document.getElementById('modalOverlay');
-            const gotItBtn = document.getElementById('gotItBtn'); // New button to close modal
+            const gotItBtn = document.getElementById('gotItBtn');
 
-            // No specific button to open tips modal, it would need to be triggered otherwise (e.g., on first visit)
-            // If you want a button to open it, add a <button id="tipsBtn" class="btn primary">Show Tips</button> somewhere
-
-            // Function to close modal with fade effect
             function closeModalWithFade() {
                 tipsModal.classList.add('fade-out');
                 setTimeout(() => {
                     tipsModal.style.display = 'none';
                     tipsModal.classList.remove('fade-out');
-                }, 300); // Match this to animation duration
+                }, 300);
             }
 
-            // Close modal when clicking the close button
             if (closeModalBtn) {
                 closeModalBtn.addEventListener('click', () => {
                     closeModalWithFade();
                 });
             }
 
-            // Close modal when clicking the "Got it!" button
             if (gotItBtn) {
                 gotItBtn.addEventListener('click', () => {
                     closeModalWithFade();
                 });
             }
 
-            // Close modal when clicking outside the modal content
             if (modalOverlay) {
                 modalOverlay.addEventListener('click', () => {
                     closeModalWithFade();
                 });
             }
 
-            // Close modal when pressing Escape key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && tipsModal.style.display === 'block') {
                     closeModalWithFade();
                 }
             });
 
-             // Optionally, display the modal on page load for new users or specific conditions
-             // For now, we'll make it visible upon page load as a "welcome" based on the prompt
-             // You would typically use localStorage to check if a user has seen it before
+             // Display the modal on page load
              setTimeout(() => {
                  tipsModal.classList.remove('fade-out');
                  tipsModal.style.display = 'block';
-             }, 500); // Show after a short delay
+             }, 500);
         }
 
-        // Initialize both auth and tips modal functionality
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof firebase !== 'undefined') {
                 initAuth();
@@ -614,7 +595,6 @@
                     notice.textContent = 'Error loading application components. Please try again later.';
                     notice.classList.remove('hidden');
                 }
-                // Hide the dashboard content card if Firebase fails to load
                 const dashboardContentCard = document.querySelector('.dashboard-content-card');
                 if (dashboardContentCard) {
                     dashboardContentCard.classList.add('hidden');
