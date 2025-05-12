@@ -10,7 +10,24 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
+  
+  <!-- Firebase Configuration -->
+  <script>
+    // You can replace this with your firebase-config.js file if you prefer
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+    
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
 
   <style>
     :root {
@@ -18,9 +35,10 @@
       --darker-bg: #0d0d0d;
       --light-text: #f0f0f0;
       --light-gray: #e0e0e0;
-      --accent-color: #3498db;
-      --success-color: #2ecc71;
-      --warning-color: #e74c3c;
+      /* Customizable colors - feel free to change these to match your brand */
+      --accent-color: #3498db;  /* Primary blue color */
+      --success-color: #2ecc71; /* Green for success messages */
+      --warning-color: #e74c3c; /* Red for warnings/errors */
     }
 
     body {
@@ -160,31 +178,10 @@
       transform: translateY(-2px);
     }
 
-    /* Schedule Table */
+    /* Schedule Table - Enhanced for better readability */
     .schedule-table {
       width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      overflow: hidden;
-      border-radius: 12px;
-    }
-    .schedule-table th, 
-    .schedule-table td {
-      padding: 1rem;
-      text-align: left;
-      border: 1px solid var(--light-gray);
-    }
-    .schedule-table th {
-      background-color: var(--accent-color);
-      color: white;
-      font-weight: 500;
-    }
-    .schedule-table tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    .schedule-table tr:hover {
-      background-color: #f0f0f0;
-    }
+      border-collapse:
 
     /* Edit Form Modal */
     .modal {
