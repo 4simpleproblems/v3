@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>4SP | Dashboard</title>
-  <link rel="stylesheet" href="styles.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
 
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -12,92 +11,116 @@
   <script src="firebase-config.js"></script>
 
   <style>
-    :root {
-      --dark-bg: #1a1a1a;
-      --darker-bg: #0d0d0d;
-      --light-text: #f0f0f0;
-      --light-gray: #e0e0e0;
-      --tile-height: 280px;
-      --section-color: #3498db;
+    /* Base styles from index.html for consistency */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-
     body {
-      background-color: var(--light-gray);
-      color: var(--dark-bg);
-      display: flex;
+      font-family: 'Roboto Mono', monospace;
+      background-color: #f5f5f5; /* Matching index.html body background */
+      color: #333; /* Matching index.html text color */
+      line-height: 1.6;
+      display: flex; /* Keep flexbox for full height dashboard */
       flex-direction: column;
       min-height: 100vh;
-      margin: 0;
-      font-family: 'Roboto Mono', monospace;
+    }
+    .container {
+      width: 100%;
+      max-width: 1200px; /* Maximum width for the main content area */
+      margin: 0 auto; /* Center the main container */
+      padding: 20px; /* Matching index.html container padding */
+      flex: 1; /* Allow main content to grow */
     }
 
-    main.container {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 0 2rem;
-      flex: 1;
-    }
-
-    footer {
-      text-align: center;
-      padding: 1rem 0;
-      color: #333333;
-    }
-
-    /* Navbar */
+    /* Navbar - Adopted from index.html */
     .navbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.5rem 3rem;
-      background-color: var(--darker-bg);
-      color: var(--light-text);
-      border-bottom: 1px solid var(--darker-bg);
+      padding: 20px; /* Matching index.html navbar padding */
+      background-color: #111; /* Matching index.html navbar background */
+      color: #fff;
     }
     .logo {
-      font-size: 1.8rem;
+      font-size: 24px; /* Matching index.html logo font size */
       font-weight: 700;
-      letter-spacing: -1.5px;
     }
     .nav-buttons {
       display: flex;
-      gap: 1.5rem;
-      align-items: center;
+      gap: 10px; /* Matching index.html nav buttons gap */
+      align-items: center; /* Ensure alignment */
     }
 
+    /* Buttons - Adopted from index.html */
     .btn {
-      display: inline-block;
-      padding: 1rem 2rem;
-      border-radius: 50px;
-      font-size: 1rem;
-      line-height: normal;
-      cursor: pointer;
-      text-align: center;
-      border: 2px solid transparent;
+      padding: 8px 16px; /* Matching index.html button padding */
+      border-radius: 30px; /* Matching index.html button border-radius */
+      text-decoration: none;
       font-weight: 500;
-      transition: none !important;
+      cursor: pointer;
+      transition: all 0.3s ease; /* Matching index.html button transition */
+      border: none; /* Default no border, specific types will override */
+      font-family: 'Roboto Mono', monospace; /* Ensure font consistency */
+      display: inline-block; /* For consistency as some were links */
+      text-align: center; /* Ensure text is centered */
+    }
+    .btn.primary {
+      background-color: #4285F4; /* Matching index.html primary button */
+      color: #fff;
+      border: 1px solid;
     }
     .btn.secondary {
       background-color: transparent;
-      color: var(--light-text);
-      border-color: var(--light-text);
+      color: white;
+      border: 1px solid white; /* Matching index.html secondary button */
     }
+    /* .btn.tips was unique to dashboard, adapting to primary style */
     .btn.tips {
-      background-color: #3498db;
-      color: var(--light-text);
-      border-color: #2980b9;
+      background-color: #4285F4;
+      color: #fff;
+      border: 1px solid;
+    }
+
+    .btn.primary:hover {
+      background-color: #3367d6; /* Matching index.html primary hover */
+    }
+    .btn.secondary:hover {
+      background-color: rgba(255,255,255,0.1); /* Matching index.html secondary hover */
+    }
+    /* Ensure logout button matches the secondary style */
+    #logoutBtn {
+      background-color: transparent;
+      color: white;
+      border: 1px solid white;
+    }
+    #logoutBtn:hover {
+      background-color: rgba(255,255,255,0.1);
     }
 
     .hidden {
       display: none !important;
     }
 
-    /* Section headers */
+    /* Dashboard Content Card - Left-aligned and wider */
+    .dashboard-content-card {
+      width: 100%;
+      max-width: 1100px; /* Increased max-width to allow for wider tiles and 3 in a row more comfortably */
+      margin: 40px 0; /* No longer centered, left-aligned within .container's padding */
+      background-color: #fff;
+      border-radius: 50px; /* Matching index.html home-container border-radius */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Matching index.html home-container shadow */
+      overflow: hidden; /* Prevents internal scrolling within the card */
+      padding: 40px 30px; /* Matching index.html home-container padding */
+    }
+
+    /* Section headers - Base style */
     .section-header {
       margin: 3rem 0 1.5rem;
       padding-bottom: 0.5rem;
-      border-bottom: 3px solid var(--section-color);
-      color: var(--dark-bg);
+      border-bottom: 3px solid; /* Keep border, color will be overridden */
+      color: #333;
       font-weight: 700;
       font-size: 1.5rem;
     }
@@ -105,71 +128,68 @@
       margin-top: 1rem;
     }
 
-    /* Grid - Modified to handle 2-tile sections properly */
+    /* Section header specific colors */
+    .media-entertainment-header { border-color: #4285f4; /* Blue */ }
+    .web-access-header { border-color: #fd7e14; /* Orange */ }
+    .user-interaction-header { border-color: #dc3545; /* Red */ }
+    .user-settings-header { border-color: #6f42c1; /* Purple */ }
+    .others-header { border-color: #20c997; /* Teal */ }
+    .admin-controls-header { border-color: #6c757d; /* Dark Gray */ }
+
+
+    /* Grid - Minor adjustment for responsiveness with new max-width */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); /* minmax ensures tiles are at least 300px and take up space */
       gap: 2rem;
       margin: 2rem 0;
     }
-    
     /* Special case for 2-tile sections */
     .dashboard-grid:has(:nth-child(2):last-child) {
       grid-template-columns: repeat(2, 1fr);
     }
-    
-    /* Media queries for responsive grid */
+    /* Media queries for responsive grid (kept as is, already well-designed) */
     @media (min-width: 992px) {
       .dashboard-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, 1fr); /* Allows up to 3 in a row */
       }
-      
-      /* For 2 tiles, ensure they're in a row of 2 */
       .dashboard-grid:has(:nth-child(2):last-child) {
         grid-template-columns: repeat(2, 1fr);
       }
-      
-      /* For 1 tile, make it full width */
       .dashboard-grid:has(:first-child:last-child) {
         grid-template-columns: 1fr;
       }
     }
-    
     @media (min-width: 768px) and (max-width: 991px) {
       .dashboard-grid {
         grid-template-columns: repeat(2, 1fr);
       }
-      
-      /* For 1 tile, make it full width */
       .dashboard-grid:has(:first-child:last-child) {
         grid-template-columns: 1fr;
       }
     }
-    
     @media (max-width: 767px) {
       .dashboard-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    /* Tiles */
+    /* Tiles - Adjusted for shorter height and implied wider based on grid */
     .dashboard-tile {
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: center;
       background: white;
-      border-radius: 24px;
+      border-radius: 30px; /* Matching index.html home-container border-radius */
       padding: 2.5rem;
       text-decoration: none;
-      color: var(--dark-bg);
+      color: #333; /* Matching index.html general text color */
       overflow: hidden;
-      height: var(--tile-height);
+      height: 220px; /* Made shorter as requested (from 280px) */
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      border: 1px solid var(--light-gray);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-
-      /* ensure full-width in its grid cell */
+      border: 1px solid #e0e0e0; /* Softer border, similar to index.html's subtle lines */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Matching index.html home-container shadow */
       width: 100%;
     }
     .dashboard-tile .tile-content {
@@ -188,8 +208,8 @@
     .dashboard-tile .tile-frame {
       position: absolute;
       inset: 0;
-      border: 3px solid rgba(0, 0, 0, 0.08);
-      border-radius: 22px;
+      border: 3px solid rgba(0, 0, 0, 0.08); /* Softer inner border */
+      border-radius: 28px; /* Slightly smaller than tile for visual effect */
       z-index: 1;
       transition: border-color 0.3s ease;
     }
@@ -198,169 +218,276 @@
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
     }
     .dashboard-tile:hover .tile-frame {
-      border-color: var(--dark-bg);
+      border-color: #333; /* Darker border on hover for consistency */
     }
 
     /* Games tile now matches default white */
     .games-tile {
       background-color: white;
-      border-color: var(--light-gray);
+      border-color: #e0e0e0;
     }
 
-    /* Modal */
-    .modal { /* ...existing modal styles... */ }
-    /* (leave your modal styles untouched) */
+    /* Footer - Adopted from index.html */
+    footer {
+      text-align: center;
+      padding: 20px; /* Matching index.html footer padding */
+      color: #666; /* Matching index.html footer color */
+      font-size: 14px; /* Matching index.html footer font size */
+    }
+
+    /* Modal - Now acts as a notification-style popup */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1000; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: hidden; /* Prevent scroll on overlay */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        animation: fadeIn 0.3s forwards; /* Fade-in animation for the overlay */
+    }
+
+    .modal.fade-out {
+        animation: fadeOut 0.3s forwards; /* Fade-out animation for the overlay */
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+    /* Modal overlay - kept to allow closing by clicking outside, but transparent */
+    .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        background-color: transparent; /* Make overlay transparent so it doesn't block view */
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 90%; /* Responsive width */
+        max-width: 350px; /* Max width for a notification */
+        border-radius: 15px; /* More rounded shape */
+        position: fixed; /* Fixed position in viewport */
+        bottom: 20px; /* Aligned to bottom */
+        left: 20px; /* Aligned to left */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        animation: slideInBottomLeft 0.3s forwards ease-out; /* New animation for content */
+        margin: 0; /* Remove auto margin */
+    }
+
+    /* New animation for bottom-left slide-in */
+    @keyframes slideInBottomLeft {
+        from { transform: translateX(-100%) translateY(100%); opacity: 0; }
+        to { transform: translateX(0) translateY(0); opacity: 1; }
+    }
+
+    .close-button {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close-button:hover,
+    .close-button:focus {
+        color: #000;
+        text-decoration: none;
+    }
+    .modal-content h2 {
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+      color: #333;
+    }
+    .modal-content p {
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      color: #555;
+    }
+    .modal-content ul {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      list-style-type: disc;
+    }
+    .modal-content li {
+      margin-bottom: 5px;
+      color: #555;
+    }
+    .modal-content .btn {
+      margin-top: 20px;
+    }
+
   </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
-      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+      <a href="legal-list.html" class="btn secondary">Legal</a>
+      <a href="dashboard.html" class="btn secondary" id="dashboardNavBtn">Dashboard</a>
+      <button class="btn primary" id="logoutBtn">Log Out</button>
     </div>
   </nav>
 
   <main class="container">
-    <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
+    <div class="dashboard-content-card">
+      <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
 
-    <!-- Media & Entertainment -->
-    <h2 class="section-header">Media & Entertainment</h2>
-    <div class="dashboard-grid">
-      <a href="soundboard.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Soundboard</h3>
-          <p>Access all available sound clips and categories. Play, hear, and admire these amazing sounds.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
+      <h2 class="section-header media-entertainment-header">Media & Entertainment</h2>
+      <div class="dashboard-grid">
+        <a href="soundboard.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Soundboard</h3>
+            <p>Access all available sound clips and categories. Play, hear, and admire these amazing sounds.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
 
-      <a href="playlist.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Playlists (Beta)</h3>
-          <p>Access and store sounds you like.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
+        <a href="playlist.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Playlists (Beta)</h3>
+            <p>Access and store sounds you like.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
 
-      <a href="localsounds.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Local Sounds</h3>
-          <p>Upload and play your own local MP3 files.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
+        <a href="localsounds.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Local Sounds</h3>
+            <p>Upload and play your own local MP3 files.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
 
-      <a href="https://4simpleproblems.github.io/game/" target="_blank" rel="noopener" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Games</h3>
-          <p>Play a variety of browser games from our curated collection.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-    </div>
+        <a href="https://4simpleproblems.github.io/game/" target="_blank" rel="noopener" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Games</h3>
+            <p>Play a variety of browser games from our curated collection.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+      </div>
 
-    <!-- Web Access -->
-    <h2 class="section-header">Web Access</h2>
-    <div class="dashboard-grid">
-      <a href="vern.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Vern</h3>
-          <p>The official proxy for 4SP.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-      <a href="links.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Links</h3>
-          <p>Uploaded links by 4SP, including Eaglercraft, and other crap.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-    </div>
+      <h2 class="section-header web-access-header">Web Access</h2>
+      <div class="dashboard-grid">
+        <a href="vern.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Vern</h3>
+            <p>The official proxy for 4SP.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+        <a href="links.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Links</h3>
+            <p>Uploaded links by 4SP, including Eaglercraft, and other crap.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+      </div>
 
-    <!-- User Interaction -->
-    <h2 class="section-header">User Interaction</h2>
-    <div class="dashboard-grid">
-      <a href="requests.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Request a Sound</h3>
-          <p>Submit requests for new sounds to be added to the collection. Sounds may be approved or denied.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-      <a href="collections.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Sound Request Collection</h3>
-          <p>View sound requests organized by category.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-      <a href="feedback.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Feedback</h3>
-          <p>Suggest user feedback, new features, or proxy reports to 4SP for improvement in the website.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-    </div>
+      <h2 class="section-header user-interaction-header">User Interaction</h2>
+      <div class="dashboard-grid">
+        <a href="requests.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Request a Sound</h3>
+            <p>Submit requests for new sounds to be added to the collection. Sounds may be approved or denied.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+        <a href="collections.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Sound Request Collection</h3>
+            <p>View sound requests organized by category.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+        <a href="feedback.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Feedback</h3>
+            <p>Suggest user feedback, new features, or proxy reports to 4SP for improvement in the website.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+      </div>
 
-    <!-- User Settings -->
-    <h2 class="section-header">User Settings</h2>
-    <div class="dashboard-grid">
-      <a href="account.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Account</h3>
-          <p>Manage and view your account settings and preferences. Updating your entire profile with usernames will be in the future.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-      <a href="legal-list.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Legal & Policies</h3>
-          <p>Legal center for our website, including privacy policy and our terms of service.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-    </div>
+      <h2 class="section-header user-settings-header">User Settings</h2>
+      <div class="dashboard-grid">
+        <a href="account.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Account</h3>
+            <p>Manage and view your account settings and preferences. Updating your entire profile with usernames will be in the future.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+        <a href="legal-list.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Legal & Policies</h3>
+            <p>Legal center for our website, including privacy policy and our terms of service.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+      </div>
 
-    <!-- Other -->
-    <h2 class="section-header">Others</h2>
-    <div class="dashboard-grid">
-      <a href="schedule.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Working Schedule</h3>
-          <p>A working schedule from which websites will be updated.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-      <a href="https://optana-web.github.io/" target="_blank" rel="noopener" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Optana Website</h3>
-          <p>A website I created based around wishlists. I would be able to make wishlists, and edit them so people know what I want. This is currently in alpha.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-    </div>
+      <h2 class="section-header others-header">Others</h2>
+      <div class="dashboard-grid">
+        <a href="schedule.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Working Schedule</h3>
+            <p>A working schedule from which websites will be updated.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+        <a href="https://optana-web.github.io/" target="_blank" rel="noopener" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Optana Website</h3>
+            <p>A website I created based around wishlists. I would be able to make wishlists, and edit them so people know what I want. This is currently in alpha.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+      </div>
 
-
-    <!-- Admin Controls (hidden by default) -->
-    <h2 class="section-header hidden" id="adminSectionHeader">Admin Controls</h2>
-    <div class="dashboard-grid hidden" id="adminSection">
-      <a href="feedback-collections.html" class="dashboard-tile admin-tile" id="analyticsTile">
-        <div class="tile-content">
-          <h3>Feedback Collection</h3>
-          <p>Access user feedback and suggestions.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
+      <h2 class="section-header admin-controls-header hidden" id="adminSectionHeader">Admin Controls</h2>
+      <div class="dashboard-grid hidden" id="adminSection">
+        <a href="feedback-collections.html" class="dashboard-tile admin-tile" id="analyticsTile">
+          <div class="tile-content">
+            <h3>Feedback Collection</h3>
+            <p>Access user feedback and suggestions.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+      </div>
     </div>
   </main>
 
-  <!-- Tips Modal (unchanged) -->
   <div id="tipsModal" class="modal">
     <div class="modal-overlay" id="modalOverlay"></div>
     <div class="modal-content">
-      <!-- modal content here -->
+      <span class="close-button" id="closeModalBtn">&times;</span>
+      <h2>Welcome to the Dashboard!</h2>
+      <p>Here are some tips to get started:</p>
+      <ul>
+        <li>Navigate through different sections using the tiles.</li>
+        <li>The "Soundboard" is where you'll find all the sounds.</li>
+        <li>"Vern" is our secure proxy for web access.</li>
+        <li>You can request new sounds or provide feedback on the site.</li>
+        <li>Manage your account settings under "User Settings".</li>
+      </ul>
+      <button class="btn primary" id="gotItBtn">Got it!</button>
     </div>
   </div>
 
@@ -369,7 +496,7 @@
         // Authentication state management
         function handleAuthState(user) {
             const authNotice = document.getElementById('authNotice');
-            const dashboardSections = document.querySelectorAll('.dashboard-grid');
+            const dashboardContentCard = document.querySelector('.dashboard-content-card');
             const logoutBtn = document.getElementById('logoutBtn');
             const adminSectionHeader = document.getElementById('adminSectionHeader');
             const adminSection = document.getElementById('adminSection');
@@ -377,10 +504,11 @@
 
             if (user) {
                 authNotice.classList.add('hidden');
-                dashboardSections.forEach(section => section.classList.remove('hidden'));
+                if (dashboardContentCard) {
+                    dashboardContentCard.classList.remove('hidden');
+                }
                 if (logoutBtn) logoutBtn.classList.remove('hidden');
 
-                // Check if user is admin
                 if (user.email === adminEmail) {
                     adminSectionHeader.classList.remove('hidden');
                     adminSection.classList.remove('hidden');
@@ -390,6 +518,9 @@
                 }
             } else {
                 window.location.href = 'index.html';
+                if (dashboardContentCard) {
+                    dashboardContentCard.classList.add('hidden');
+                }
             }
         }
 
@@ -401,7 +532,7 @@
                 const logoutBtn = document.getElementById('logoutBtn');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', (e) => {
-                        e.preventDefault(); // Prevent any default link behavior
+                        e.preventDefault();
                         auth.signOut().then(() => {
                             window.location.href = 'index.html';
                         }).catch(error => {
@@ -422,55 +553,52 @@
             }
         }
 
-        // Tips modal functionality
+        // Tips modal functionality (now a notification)
         function initTipsModal() {
-            const tipsBtn = document.getElementById('tipsBtn');
             const tipsModal = document.getElementById('tipsModal');
             const closeModalBtn = document.getElementById('closeModalBtn');
             const modalOverlay = document.getElementById('modalOverlay');
+            const gotItBtn = document.getElementById('gotItBtn');
 
-            // Check if tips button exists before adding event listener
-            if (tipsBtn) {
-                // Open modal
-                tipsBtn.addEventListener('click', () => {
-                    tipsModal.classList.remove('fade-out'); // Remove fade-out class if present
-                    tipsModal.style.display = 'block';
-                });
-            }
-
-            // Function to close modal with fade effect
             function closeModalWithFade() {
                 tipsModal.classList.add('fade-out');
-                // Wait for animation to complete before hiding completely
                 setTimeout(() => {
                     tipsModal.style.display = 'none';
                     tipsModal.classList.remove('fade-out');
-                }, 300); // Match this to animation duration
+                }, 300); // Match fade-out duration
             }
 
-            // Close modal when clicking the close button
             if (closeModalBtn) {
                 closeModalBtn.addEventListener('click', () => {
                     closeModalWithFade();
                 });
             }
 
-            // Close modal when clicking outside the modal content
+            if (gotItBtn) {
+                gotItBtn.addEventListener('click', () => {
+                    closeModalWithFade();
+                });
+            }
+
             if (modalOverlay) {
                 modalOverlay.addEventListener('click', () => {
                     closeModalWithFade();
                 });
             }
 
-            // Close modal when pressing Escape key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && tipsModal.style.display === 'block') {
                     closeModalWithFade();
                 }
             });
+
+             // Display the modal on page load
+             setTimeout(() => {
+                 tipsModal.style.display = 'block'; // Show the modal
+                 tipsModal.classList.remove('fade-out'); // Ensure fade-out is not applied initially
+             }, 500); // Delay to allow page to load
         }
 
-        // Initialize both auth and tips modal functionality
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof firebase !== 'undefined') {
                 initAuth();
@@ -481,11 +609,12 @@
                     notice.textContent = 'Error loading application components. Please try again later.';
                     notice.classList.remove('hidden');
                 }
-                const grids = document.querySelectorAll('.dashboard-grid');
-                grids.forEach(grid => grid.classList.add('hidden'));
+                const dashboardContentCard = document.querySelector('.dashboard-content-card');
+                if (dashboardContentCard) {
+                    dashboardContentCard.classList.add('hidden');
+                }
             }
-            
-            // Initialize tips modal regardless of Firebase status
+
             initTipsModal();
         });
     </script>
