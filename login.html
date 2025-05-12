@@ -183,7 +183,7 @@
     }
     .message {
       padding: 10px;
-      border-radius: 15px;
+      border-radius: 16px;
       margin-bottom: 20px;
     }
     .message.success {
@@ -194,11 +194,43 @@
       background-color: #f8d7da;
       color: #721c24;
     }
+    .message.warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
     footer {
       text-align: center;
       padding: 20px;
       color: #666;
       font-size: 14px;
+    }
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 16px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    .modal-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
     }
   </style>
 </head>
@@ -233,6 +265,7 @@
             <button type="submit" class="btn primary full-width">Login</button>
           </form>
           <p class="auth-footer">Don't have an account? <a href="signup.html">Sign Up</a></p>
+          <p class="auth-footer">Forgot your password? <a href="#" id="forgotPasswordLink">Reset Password</a></p>
         </div>
 
         <!-- Social Login Section -->
@@ -254,62 +287,311 @@
     </div>
   </main>
 
+  <!-- Email Verification Modal -->
+  <div id="verificationModal" class="modal">
+    <div class="modal-content">
+      <h2>Email Not Verified</h2>
+      <p>Your account requires email verification. Please check your inbox at <span id="userEmail"></span> for a verification link.</p>
+      <div class="modal-buttons">
+        <button id="resendVerificationBtn" class="btn secondary">Resend Email</button>
+        <button id="closeModalBtn" class="btn primary">OK</button>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <p>© 2025 4SP</p>
   </footer>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const loginForm     = document.getElementById('loginForm');
-      const authMessage   = document.getElementById('authMessage');
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Initialize Firebase
+      let auth;
+      let db;
+      
+      // Wait for Firebase to initialize
+      const waitForFirebase = async () => {
+        return new Promise(resolve => {
+          const checkFirebase = setInterval(() => {
+            if (firebase.apps.length) {
+              clearInterval(checkFirebase);
+              auth = firebase.auth();
+              db = firebase.firestore();
+              resolve();
+            }
+          }, 100);
+        });
+      };
+      
+      await waitForFirebase();
+      
+      // Set a flag for users created before the email verification requirement
+      const VERIFICATION_REQUIREMENT_DATE = new Date('2025-05-09').getTime();
+      
+      const loginForm = document.getElementById('loginForm');
+      const authMessage = document.getElementById('authMessage');
+      const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+      
+      // Modal elements
+      const verificationModal = document.getElementById('verificationModal');
+      const userEmailSpan = document.getElementById('userEmail');
+      const resendVerificationBtn = document.getElementById('resendVerificationBtn');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      
+      // User object to store between functions
+      let currentUser = null;
 
+      function showMessage(message, type) {
+        authMessage.innerHTML = `<div class="message ${type}">${message}</div>`;
+        authMessage.style.display = 'block';
+        // Scroll to message
+        authMessage.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      function handleAuthError(error) {
+        console.error('Auth Error:', error);
+        let message = error.message;
+        
+        // Handle common Firebase auth errors
+        if (error.code === 'auth/user-not-found') {
+          message = 'User not found. Please check your email or sign up.';
+        } else if (error.code === 'auth/wrong-password') {
+          message = 'Incorrect password. Please try again.';
+        } else if (error.code === 'auth/invalid-email') {
+          message = 'Please enter a valid email address.';
+        } else if (error.code === 'auth/popup-blocked') {
+          message = 'Popup blocked. Please allow popups for this site.';
+        } else if (error.code === 'auth/cancelled-popup-request') {
+          message = 'Sign in was cancelled. Please try again.';
+        } else if (error.code === 'auth/too-many-requests') {
+          message = 'Too many failed login attempts. Please try again later or reset your password.';
+        } else {
+          message = 'An error occurred during login: ' + error.message;
+        }
+        
+        showMessage(message, 'error');
+      }
+      
+      // Check if user's email is verified and if verification is required
+      async function checkEmailVerification(user) {
+        try {
+          // Get user data from Firestore
+          const userDoc = await db.collection('users').doc(user.uid).get();
+          
+          if (!userDoc.exists) {
+            console.log('No user data found in Firestore.');
+            // If there's no document, this might be a very old account or data issue
+            showMessage('Account data not found. Please contact support.', 'warning');
+            await auth.signOut();
+            return false;
+          }
+          
+          const userData = userDoc.data();
+          
+          // Check if it's an older account that doesn't need verification
+          // Either check the explicit flag or check by creation date
+          if (userData.requiresVerification === false) {
+            console.log('This account does not require verification');
+            return true;
+          }
+          
+          // If requiresVerification field doesn't exist, check if it's an old account by creation date
+          if (userData.requiresVerification === undefined) {
+            const createdAt = userData.createdAt ? userData.createdAt.toDate().getTime() : Date.now();
+            if (createdAt < VERIFICATION_REQUIREMENT_DATE) {
+              console.log('This is an older account created before verification was required');
+              // Update the user document to mark it as not requiring verification
+              await db.collection('users').doc(user.uid).update({
+                requiresVerification: false
+              });
+              return true;
+            } else {
+              // For newer accounts that should have the field but don't, add it
+              await db.collection('users').doc(user.uid).update({
+                requiresVerification: true
+              });
+            }
+          }
+          
+          // Check the email verification status
+          if (user.emailVerified || userData.emailVerified === true) {
+            console.log('Email is verified');
+            // Update the verification status in Firestore if needed
+            if (!userData.emailVerified) {
+              await db.collection('users').doc(user.uid).update({
+                emailVerified: true
+              });
+            }
+            return true;
+          } else {
+            console.log('Email is not verified');
+            // Show verification modal
+            userEmailSpan.textContent = user.email;
+            verificationModal.style.display = 'flex';
+            return false;
+          }
+        } catch (error) {
+          console.error('Error checking verification status:', error);
+          showMessage('Error checking account status. Please try again later.', 'error');
+          return false;
+        }
+      }
+
+      // Email/password login
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email    = document.getElementById('loginEmail').value;
+        
+        const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
 
         try {
-          await firebase.auth().signInWithEmailAndPassword(email, password);
-          showMessage('Login successful! Redirecting...', 'success');
-          setTimeout(() => window.location.href = 'dashboard.html', 1500);
+          // Sign in with email and password
+          const userCredential = await auth.signInWithEmailAndPassword(email, password);
+          const user = userCredential.user;
+          currentUser = user;
+          
+          // Store this reference for the verification flow
+          
+          // Check if email verification is required and completed
+          const isVerified = await checkEmailVerification(user);
+          
+          if (isVerified) {
+            showMessage('Login successful! Redirecting...', 'success');
+            setTimeout(() => window.location.href = 'dashboard.html', 1500);
+          } else {
+            // Sign out the user if email is not verified
+            await auth.signOut();
+            // Modal will be shown by checkEmailVerification function
+          }
         } catch (error) {
           handleAuthError(error);
         }
       });
 
+      // Google login
       document.getElementById('googleLoginBtn').addEventListener('click', async () => {
         try {
           const provider = new firebase.auth.GoogleAuthProvider();
           provider.addScope('email');
-          await firebase.auth().signInWithPopup(provider);
+          provider.addScope('profile');
+          provider.setCustomParameters({
+            prompt: 'select_account'
+          });
+          
+          const result = await auth.signInWithPopup(provider);
+          const user = result.user;
+          
+          // Check if this is a new user
+          const isNewUser = result.additionalUserInfo.isNewUser;
+          
+          if (isNewUser) {
+            // Create a username for the new Google user
+            // Similar to the signup flow but simplified
+            const username = generateUsernameFromGoogle(user);
+            let originalUsername = username;
+            let counter = 1;
+            
+            // Check if username exists and make it unique
+            let usernameExists = await checkUsernameExists(username);
+            while (usernameExists) {
+              username = `${originalUsername}${counter}`;
+              counter++;
+              
+              if (username.length > 16) {
+                username = originalUsername.substring(0, 15 - counter.toString().length) + counter;
+              }
+              
+              usernameExists = await checkUsernameExists(username);
+            }
+            
+            // Save user data
+            await db.collection('users').doc(user.uid).set({
+              username: username.toLowerCase(),
+              email: user.email,
+              emailVerified: true, // Google OAuth handles verification
+              requiresVerification: false,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            // Also save in usernames collection
+            await db.collection('usernames').doc(username.toLowerCase()).set({
+              uid: user.uid,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }
+          
           showMessage('Google login successful! Redirecting...', 'success');
           setTimeout(() => window.location.href = 'dashboard.html', 1500);
         } catch (error) {
           handleAuthError(error);
         }
       });
-
-      function showMessage(message, type) {
-        authMessage.innerHTML = `<div class="message ${type}">${message}</div>`;
-        authMessage.style.display = 'block';
-      }
-
-      function handleAuthError(error) {
-        console.error('Login error:', error);
-        let message = error.message;
-        if (error.code === 'auth/user-not-found') {
-          message = 'User not found. Please check your email or sign up.';
-        } else if (error.code === 'auth/wrong-password') {
-          message = 'Incorrect password. Please try again.';
-        } else if (error.code === 'auth/popup-blocked') {
-          message = 'Popup blocked. Please allow popups for this site.';
-        } else if (error.code === 'auth/cancelled-popup-request') {
-          message = 'Sign in was cancelled. Please try again.';
-        } else {
-          message = 'An error occurred during login: ' + error.message;
+      
+      // Generate username from Google profile
+      function generateUsernameFromGoogle(user) {
+        let base = user.displayName || user.email.split('@')[0];
+        base = base.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        
+        if (base.length > 16) {
+          base = base.substring(0, 16);
         }
-        showMessage(message, 'error');
+        
+        if (base.length < 4) {
+          base += '0000'.substring(0, 4 - base.length);
+        }
+        
+        return base;
       }
+      
+      // Check if username exists
+      async function checkUsernameExists(username) {
+        try {
+          const usernameSnapshot = await db.collection('usernames').doc(username.toLowerCase()).get();
+          return usernameSnapshot.exists;
+        } catch (error) {
+          console.error('Error checking username:', error);
+          return false;
+        }
+      }
+      
+      // Handle verification modal buttons
+      resendVerificationBtn.addEventListener('click', async () => {
+        try {
+          // We need to re-authenticate to send verification email
+          if (currentUser) {
+            await currentUser.sendEmailVerification();
+            showMessage('Verification email resent!', 'success');
+          } else {
+            // If we don't have the current user, prompt them to log in again
+            showMessage('Session expired. Please log in again to resend verification email.', 'warning');
+          }
+        } catch (error) {
+          handleAuthError(error);
+        }
+      });
+      
+      closeModalBtn.addEventListener('click', () => {
+        verificationModal.style.display = 'none';
+      });
+      
+      // Forgot password functionality
+      forgotPasswordLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('loginEmail').value;
+        
+        if (!email) {
+          showMessage('Please enter your email address first', 'warning');
+          return;
+        }
+        
+        try {
+          await auth.sendPasswordResetEmail(email);
+          showMessage('Password reset email sent. Please check your inbox.', 'success');
+        } catch (error) {
+          handleAuthError(error);
+        }
+      });
     });
   </script>
 </body>
