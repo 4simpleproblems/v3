@@ -25,6 +25,9 @@
       background-color: var(--dark-bg);
       color: var(--light-text);
       line-height: 1.6;
+      /* Add padding to prevent content from being hidden by fixed navbar/footer */
+      padding-top: 5rem; /* Adjust based on navbar height */
+      padding-bottom: 4rem; /* Adjust based on footer height */
     }
 
     a {
@@ -63,7 +66,7 @@
       padding: 0.5rem 1rem;
       border-radius: 30px;
       cursor: pointer;
-      transition: background-color 0.2s;
+      transition: background-color 0.2s, color 0.2s;
     }
 
     .btn.secondary:hover {
@@ -73,7 +76,8 @@
 
     main.container {
       max-width: 800px;
-      margin: 6rem auto 2rem auto;
+      /* Adjusted margin to account for fixed navbar */
+      margin: 1rem auto 2rem auto;
       background-color: var(--darker-bg);
       padding: 2rem;
       border-radius: 30px;
@@ -110,6 +114,8 @@
       position: fixed;
       width: 100%;
       bottom: 0;
+      left: 0; /* Added for consistency */
+      z-index: 999; /* Added to ensure it's above other content if overlaps */
     }
 
     footer p {
@@ -117,6 +123,9 @@
       opacity: 0.7;
     }
   </style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="firebase-config.js"></script>
 </head>
 
 <body>
@@ -128,37 +137,95 @@
     </div>
   </nav>
 
-  <main class="container">
-    <h1>Links</h1>
+  <main class="container" id="mainContent" style="display: none;"> <h1>Links</h1>
     <ul class="links-list" id="linksList">
-      <!-- Links will be injected here -->
-    </ul>
+      </ul>
   </main>
 
   <footer>
-    <p>© 2025 4SP</p>
+    <p>© <script>document.write(new Date().getFullYear())</script> 4SP</p>
   </footer>
 
   <script>
-    // Define your links here as { name: 'Display Name', url: 'https://...' }
-    const links = [
-      { name: 'Eaglercraft Download (Download in Google Drive)', url: 'https://drive.google.com/file/d/1hbX_VPMVK6Ke9JSQMUeacqLunmgcnmci/view' },
-      { name: 'ExtPrinter Download (Disables Extensions) - Open in Files', url: 'https://drive.google.com/file/d/1loqwjXoKeu4KNJkibvHY93lrVMqkjWaD/view' },
-      { name: 'Minecraft Movie Download', url: 'https://drive.google.com/file/d/1IQ7rk-XoeZvlHjVJvMDmVjIuXSCCaKLU/view' }
+    const logoutBtn = document.getElementById('logoutBtn');
+    const mainContent = document.getElementById('mainContent');
 
-    ];
+    // Function to populate links
+    function populateLinks() {
+      // Define your links here as { name: 'Display Name', url: 'https://...' }
+      const links = [
+        { name: 'Eaglercraft Download (Download in Google Drive)', url: 'https://drive.google.com/file/d/1hbX_VPMVK6Ke9JSQMUeacqLunmgcnmci/view' },
+        { name: 'ExtPrinter Download (Disables Extensions) - Open in Files', url: 'https://drive.google.com/file/d/1loqwjXoKeu4KNJkibvHY93lrVMqkjWaD/view' },
+        { name: 'Minecraft Movie Download', url: 'https://drive.google.com/file/d/1IQ7rk-XoeZvlHjVJvMDmVjIuXSCCaKLU/view' }
+      ];
 
-    const listEl = document.getElementById('linksList');
-    links.forEach(link => {
-      const li = document.createElement('li');
-      const a = document.createElement('a');
-      a.textContent = link.name;
-      a.href = link.url;
-      a.target = '_blank'; // open in new tab
-      li.appendChild(a);
-      listEl.appendChild(li);
+      const listEl = document.getElementById('linksList');
+      if (!listEl) {
+          console.error("Error: linksList element not found.");
+          return;
+      }
+      listEl.innerHTML = ''; // Clear any existing links
+
+      links.forEach(link => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.textContent = link.name;
+        a.href = link.url;
+        a.target = '_blank'; // open in new tab
+        li.appendChild(a);
+        listEl.appendChild(li);
+      });
+      mainContent.style.display = 'block'; // Show content once links are ready
+    }
+
+    // Authentication check
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in.
+        console.log("User signed in:", user.email);
+
+        // Check if bannedEmails is defined and the user's email is in the list
+        if (typeof bannedEmails !== 'undefined' && bannedEmails.includes(user.email)) {
+          console.log("User email is banned. Redirecting to index.html");
+          alert("Your account is not permitted to access this page. Redirecting...");
+          window.location.href = 'index.html'; // Or a generic access denied page
+        } else {
+          // User is signed in and not banned, proceed to populate links
+          console.log("User is not banned. Populating links.");
+          populateLinks();
+        }
+      } else {
+        // No user is signed in.
+        console.log("No user signed in. Redirecting to login.html");
+        window.location.href = 'login.html';
+      }
     });
+
+    // Logout functionality
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default anchor behavior
+        firebase.auth().signOut().then(() => {
+          // Sign-out successful.
+          console.log("User signed out. Redirecting to login.html");
+          window.location.href = 'login.html';
+        }).catch((error) => {
+          // An error happened.
+          console.error("Sign out error:", error);
+          alert("Error signing out. Please try again.");
+        });
+      });
+    } else {
+        console.error("Logout button not found.");
+    }
+
+    // Dynamically update copyright year
+    // const currentYear = new Date().getFullYear();
+    // const footerText = document.querySelector("footer p");
+    // if (footerText) {
+    //   footerText.textContent = `© ${currentYear} 4SP`;
+    // }
+    // Done with inline script for simplicity for the year
   </script>
 </body>
-
 </html>
