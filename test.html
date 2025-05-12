@@ -103,11 +103,11 @@
       display: none !important;
     }
 
-    /* Dashboard Content Card - Inspired by index.html's .home-container */
+    /* Dashboard Content Card - Left-aligned and wider */
     .dashboard-content-card {
       width: 100%;
       max-width: 1100px; /* Increased max-width to allow for wider tiles and 3 in a row more comfortably */
-      margin: 40px auto; /* Keep centered for consistency with index.html */
+      margin: 40px 0; /* No longer centered, left-aligned within .container's padding */
       background-color: #fff;
       border-radius: 30px; /* Matching index.html home-container border-radius */
       box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Matching index.html home-container shadow */
@@ -115,18 +115,27 @@
       padding: 40px 30px; /* Matching index.html home-container padding */
     }
 
-    /* Section headers */
+    /* Section headers - Base style */
     .section-header {
       margin: 3rem 0 1.5rem;
       padding-bottom: 0.5rem;
-      border-bottom: 3px solid #3498db; /* Keeping original section color */
-      color: #333; /* Matching index.html general text color */
+      border-bottom: 3px solid; /* Keep border, color will be overridden */
+      color: #333;
       font-weight: 700;
       font-size: 1.5rem;
     }
     .section-header:first-of-type {
       margin-top: 1rem;
     }
+
+    /* Section header specific colors */
+    .media-entertainment-header { border-color: #28a745; /* Green */ }
+    .web-access-header { border-color: #dc3545; /* Red */ }
+    .user-interaction-header { border-color: #fd7e14; /* Orange */ }
+    .user-settings-header { border-color: #6f42c1; /* Purple */ }
+    .others-header { border-color: #20c997; /* Teal */ }
+    .admin-controls-header { border-color: #6c757d; /* Dark Gray */ }
+
 
     /* Grid - Minor adjustment for responsiveness with new max-width */
     .dashboard-grid {
@@ -226,7 +235,7 @@
       font-size: 14px; /* Matching index.html footer font size */
     }
 
-    /* Modal (Keeping original styles as they were separate) */
+    /* Modal - Now acts as a notification-style popup */
     .modal {
         display: none; /* Hidden by default */
         position: fixed; /* Stay in place */
@@ -235,13 +244,13 @@
         top: 0;
         width: 100%; /* Full width */
         height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
+        overflow: hidden; /* Prevent scroll on overlay */
         background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-        animation: fadeIn 0.3s forwards; /* Fade-in animation */
+        animation: fadeIn 0.3s forwards; /* Fade-in animation for the overlay */
     }
 
     .modal.fade-out {
-        animation: fadeOut 0.3s forwards; /* Fade-out animation */
+        animation: fadeOut 0.3s forwards; /* Fade-out animation for the overlay */
     }
 
     @keyframes fadeIn {
@@ -254,6 +263,7 @@
         to { opacity: 0; }
     }
 
+    /* Modal overlay - kept to allow closing by clicking outside, but transparent */
     .modal-overlay {
         position: absolute;
         top: 0;
@@ -261,24 +271,28 @@
         width: 100%;
         height: 100%;
         cursor: pointer;
+        background-color: transparent; /* Make overlay transparent so it doesn't block view */
     }
 
     .modal-content {
         background-color: #fefefe;
-        margin: 15% auto; /* 15% from the top and centered */
         padding: 20px;
         border: 1px solid #888;
-        width: 80%; /* Could be more responsive */
-        max-width: 500px; /* Max width */
-        border-radius: 8px;
-        position: relative; /* For positioning close button */
+        width: 90%; /* Responsive width */
+        max-width: 350px; /* Max width for a notification */
+        border-radius: 15px; /* More rounded shape */
+        position: fixed; /* Fixed position in viewport */
+        bottom: 20px; /* Aligned to bottom */
+        left: 20px; /* Aligned to left */
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        animation: slideInTop 0.3s forwards ease-out;
+        animation: slideInBottomLeft 0.3s forwards ease-out; /* New animation for content */
+        margin: 0; /* Remove auto margin */
     }
 
-    @keyframes slideInTop {
-        from { transform: translateY(-50px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
+    /* New animation for bottom-left slide-in */
+    @keyframes slideInBottomLeft {
+        from { transform: translateX(-100%) translateY(100%); opacity: 0; }
+        to { transform: translateX(0) translateY(0); opacity: 1; }
     }
 
     .close-button {
@@ -333,7 +347,7 @@
     <div class="dashboard-content-card">
       <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
 
-      <h2 class="section-header">Media & Entertainment</h2>
+      <h2 class="section-header media-entertainment-header">Media & Entertainment</h2>
       <div class="dashboard-grid">
         <a href="soundboard.html" class="dashboard-tile">
           <div class="tile-content">
@@ -368,7 +382,7 @@
         </a>
       </div>
 
-      <h2 class="section-header">Web Access</h2>
+      <h2 class="section-header web-access-header">Web Access</h2>
       <div class="dashboard-grid">
         <a href="vern.html" class="dashboard-tile">
           <div class="tile-content">
@@ -386,7 +400,7 @@
         </a>
       </div>
 
-      <h2 class="section-header">User Interaction</h2>
+      <h2 class="section-header user-interaction-header">User Interaction</h2>
       <div class="dashboard-grid">
         <a href="requests.html" class="dashboard-tile">
           <div class="tile-content">
@@ -411,7 +425,7 @@
         </a>
       </div>
 
-      <h2 class="section-header">User Settings</h2>
+      <h2 class="section-header user-settings-header">User Settings</h2>
       <div class="dashboard-grid">
         <a href="account.html" class="dashboard-tile">
           <div class="tile-content">
@@ -429,7 +443,7 @@
         </a>
       </div>
 
-      <h2 class="section-header">Others</h2>
+      <h2 class="section-header others-header">Others</h2>
       <div class="dashboard-grid">
         <a href="schedule.html" class="dashboard-tile">
           <div class="tile-content">
@@ -447,7 +461,7 @@
         </a>
       </div>
 
-      <h2 class="section-header hidden" id="adminSectionHeader">Admin Controls</h2>
+      <h2 class="section-header admin-controls-header hidden" id="adminSectionHeader">Admin Controls</h2>
       <div class="dashboard-grid hidden" id="adminSection">
         <a href="feedback-collections.html" class="dashboard-tile admin-tile" id="analyticsTile">
           <div class="tile-content">
@@ -539,7 +553,7 @@
             }
         }
 
-        // Tips modal functionality
+        // Tips modal functionality (now a notification)
         function initTipsModal() {
             const tipsModal = document.getElementById('tipsModal');
             const closeModalBtn = document.getElementById('closeModalBtn');
@@ -551,7 +565,7 @@
                 setTimeout(() => {
                     tipsModal.style.display = 'none';
                     tipsModal.classList.remove('fade-out');
-                }, 300);
+                }, 300); // Match fade-out duration
             }
 
             if (closeModalBtn) {
@@ -580,9 +594,9 @@
 
              // Display the modal on page load
              setTimeout(() => {
-                 tipsModal.classList.remove('fade-out');
-                 tipsModal.style.display = 'block';
-             }, 500);
+                 tipsModal.style.display = 'block'; // Show the modal
+                 tipsModal.classList.remove('fade-out'); // Ensure fade-out is not applied initially
+             }, 500); // Delay to allow page to load
         }
 
         document.addEventListener('DOMContentLoaded', () => {
