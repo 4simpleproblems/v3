@@ -1,47 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>4SP | Dashboard</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>4SP | Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-
+  
   <style>
-    :root {
-      --dark-bg: #1a1a1a;
-      --darker-bg: #0d0d0d;
-      --light-text: #f0f0f0;
-      --light-gray: #e0e0e0;
-      --tile-height: 280px;
-      --section-color: #3498db;
-    }
-
-    body {
-      background-color: var(--light-gray);
-      color: var(--dark-bg);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+    /* Base styles */
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
       font-family: 'Roboto Mono', monospace;
+      background-color: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
     }
-
-    main.container {
+    .container {
+      width: 100%;
       max-width: 1200px;
-      margin: 2rem auto;
-      padding: 0 2rem;
-      flex: 1;
-    }
-
-    footer {
-      text-align: center;
-      padding: 1rem 0;
-      color: #333333;
+      margin: 0 auto;
+      padding: 20px;
     }
 
     /* Navbar */
@@ -49,425 +36,563 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.5rem 3rem;
-      background-color: var(--darker-bg);
-      color: var(--light-text);
-      border-bottom: 1px solid var(--darker-bg);
+      padding: 20px;
+      background-color: #111;
+      color: #fff;
     }
     .logo {
-      font-size: 1.8rem;
+      font-size: 24px;
       font-weight: 700;
-      letter-spacing: -1.5px;
     }
     .nav-buttons {
       display: flex;
-      gap: 1.5rem;
-      align-items: center;
+      gap: 10px;
     }
-
     .btn {
-      display: inline-block;
-      padding: 1rem 2rem;
-      border-radius: 50px;
-      font-size: 1rem;
-      line-height: normal;
-      cursor: pointer;
-      text-align: center;
-      border: 2px solid transparent;
+      padding: 8px 16px;
+      border-radius: 30px;
+      text-decoration: none;
       font-weight: 500;
-      transition: none !important;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      font-family: 'Roboto Mono', monospace;
+    }
+    .btn.primary {
+      background-color: #4285F4;
+      color: white;
     }
     .btn.secondary {
       background-color: transparent;
-      color: var(--light-text);
-      border-color: var(--light-text);
+      color: white;
+      border: 1px solid white;
     }
-    .btn.tips {
-      background-color: #3498db;
-      color: var(--light-text);
-      border-color: #2980b9;
+    .btn.primary:hover {
+      background-color: #3367d6;
+    }
+    .btn.secondary:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+    .btn.full-width {
+      width: 100%;
+      margin-top: 15px;
     }
 
-    .hidden {
-      display: none !important;
-    }
-
-    /* Section headers */
-    .section-header {
-      margin: 3rem 0 1.5rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 3px solid var(--section-color);
-      color: var(--dark-bg);
+    /* Login page */
+    .login-title {
+      font-size: 24px;
       font-weight: 700;
-      font-size: 1.5rem;
+      margin-bottom: 40px;
+      color: #333;
     }
-    .section-header:first-of-type {
-      margin-top: 1rem;
+    .auth-container {
+      width: 100%;
+      max-width: 900px;
+      margin: 40px auto;
+      background-color: #fff;
+      border-radius: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
     }
-
-    /* Grid - Modified to handle 2-tile sections properly */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin: 2rem 0;
-    }
-    
-    /* Special case for 2-tile sections */
-    .dashboard-grid:has(:nth-child(2):last-child) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    /* Media queries for responsive grid */
-    @media (min-width: 992px) {
-      .dashboard-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      
-      /* For 2 tiles, ensure they're in a row of 2 */
-      .dashboard-grid:has(:nth-child(2):last-child) {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      
-      /* For 1 tile, make it full width */
-      .dashboard-grid:has(:first-child:last-child) {
-        grid-template-columns: 1fr;
-      }
-    }
-    
-    @media (min-width: 768px) and (max-width: 991px) {
-      .dashboard-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      
-      /* For 1 tile, make it full width */
-      .dashboard-grid:has(:first-child:last-child) {
-        grid-template-columns: 1fr;
-      }
-    }
-    
-    @media (max-width: 767px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
+    /* new: padding around authMessage */
+    #authMessage {
+      display: none;
+      padding: 30px;
     }
 
-    /* Tiles */
-    .dashboard-tile {
-      position: relative;
+    .split-layout {
+      display: flex;
+      min-height: 500px;
+    }
+    .auth-section {
+      padding: 30px;
+    }
+    .email-section {
+      flex: 1;
+      border-right: 1px solid #eee;
+    }
+    .social-section {
+      flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      background: white;
-      border-radius: 24px;
-      padding: 2.5rem;
-      text-decoration: none;
-      color: var(--dark-bg);
-      overflow: hidden;
-      height: var(--tile-height);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      border: 1px solid var(--light-gray);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-
-      /* ensure full-width in its grid cell */
+      align-items: center;
+      text-align: center;
+      background-color: #f9f9f9;
+    }
+    .auth-form {
+      margin-top: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group input {
       width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 30px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 14px;
     }
-    .dashboard-tile .tile-content {
-      position: relative;
-      z-index: 2;
+    .auth-heading {
+      font-size: 20px;
+      margin-bottom: 15px;
     }
-    .dashboard-tile h3 {
-      font-size: 1.6rem;
-      margin-bottom: 1rem;
-      font-weight: 600;
+    .auth-subheading {
+      color: #666;
+      margin-bottom: 25px;
     }
-    .dashboard-tile p {
-      font-size: 1rem;
-      line-height: 1.6;
-    }
-    .dashboard-tile .tile-frame {
-      position: absolute;
-      inset: 0;
-      border: 3px solid rgba(0, 0, 0, 0.08);
-      border-radius: 22px;
-      z-index: 1;
-      transition: border-color 0.3s ease;
-    }
-    .dashboard-tile:hover {
-      transform: translateY(-5px) scale(1.03);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
-    .dashboard-tile:hover .tile-frame {
-      border-color: var(--dark-bg);
-    }
-
-    /* Games tile now matches default white */
-    .games-tile {
+    .google-auth {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
       background-color: white;
-      border-color: var(--light-gray);
+      border: 1px solid #ddd;
+      border-radius: 30px;
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      width: 80%;
+      max-width: 250px;
+      margin-bottom: 15px;
     }
-
-    /* Modal */
-    .modal { /* ...existing modal styles... */ }
-    /* (leave your modal styles untouched) */
+    .google-auth:hover {
+      background-color: #f5f5f5;
+    }
+    .google-icon {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+    }
+    .social-description {
+      font-size: 14px;
+      color: #666;
+      max-width: 80%;
+      margin-top: 15px;
+    }
+    .auth-footer {
+      margin-top: 30px;
+      font-size: 14px;
+      text-align: center;
+    }
+    .auth-footer a {
+      color: #4285F4;
+      text-decoration: none;
+    }
+    .message {
+      padding: 10px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+    .message.success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .message.error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .message.warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+      font-size: 14px;
+    }
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    .modal-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
   </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
-      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+      <a href="index.html" class="btn secondary">Home</a>
+      <a href="login.html" class="btn primary">Login</a>
+      <a href="signup.html" class="btn secondary">Sign Up</a>
     </div>
   </nav>
 
   <main class="container">
-    <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
+    <h1 class="login-title">Login to 4SP</h1>
 
-    <!-- Media & Entertainment -->
-    <h2 class="section-header">Media & Entertainment</h2>
-    <div class="dashboard-grid">
-      <a href="soundboard.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Soundboard</h3>
-          <p>Access all available sound clips and categories. Play, hear, and admire these amazing sounds.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
+    <div class="auth-container">
+      <div id="authMessage"></div>
 
-      <a href="playlist.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Playlists (Beta)</h3>
-          <p>Access and store sounds you like.</p>
+      <div class="split-layout">
+        <!-- Email Login Section -->
+        <div class="auth-section email-section">
+          <h2 class="auth-heading">Sign in with Email</h2>
+          <p class="auth-subheading">Use your email address to access your account</p>
+          <form id="loginForm" class="auth-form">
+            <div class="form-group">
+              <input type="email" id="loginEmail" placeholder="Email" required autocomplete="username">
+            </div>
+            <div class="form-group">
+              <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn primary full-width">Login</button>
+          </form>
+          <p class="auth-footer">Don't have an account? <a href="signup.html">Sign Up</a></p>
+          <p class="auth-footer">Forgot your password? <a href="#" id="forgotPasswordLink">Reset Password</a></p>
         </div>
-        <div class="tile-frame"></div>
-      </a>
 
-      <a href="localsounds.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Local Sounds</h3>
-          <p>Upload and play your own local MP3 files.</p>
+        <!-- Social Login Section -->
+        <div class="auth-section social-section">
+          <h2 class="auth-heading">Sign in with Google</h2>
+          <p class="auth-subheading">Quick and secure login with your Google account</p>
+          <button class="google-auth" id="googleLoginBtn">
+            <svg class="google-icon" viewBox="0 0 24 24">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Google
+          </button>
+          <p class="social-description">Using Google Sign-In allows you to access your 4SP account without remembering another password.</p>
         </div>
-        <div class="tile-frame"></div>
-      </a>
-
-      <a href="https://4simpleproblems.github.io/game/" target="_blank" rel="noopener" class="dashboard-tile games-tile">
-        <div class="tile-content">
-          <h3>Games</h3>
-          <p>Play a variety of browser games from our curated collection.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-    </div>
-
-    <!-- Web Access -->
-    <h2 class="section-header">Web Access</h2>
-    <div class="dashboard-grid">
-      <a href="vern.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Vern</h3>
-          <p>The official proxy for 4SP.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-      <a href="links.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Links</h3>
-          <p>Uploaded links by 4SP, including Eaglercraft, and other crap.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-    </div>
-
-    <!-- User Interaction -->
-    <h2 class="section-header">User Interaction</h2>
-    <div class="dashboard-grid">
-      <a href="requests.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Request a Sound</h3>
-          <p>Submit requests for new sounds to be added to the collection. Sounds may be approved or denied.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-      <a href="collections.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Sound Request Collection</h3>
-          <p>View sound requests organized by category.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-      <a href="feedback.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Feedback</h3>
-          <p>Suggest user feedback, new features, or proxy reports to 4SP for improvement in the website.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-    </div>
-
-    <!-- User Settings -->
-    <h2 class="section-header">User Settings</h2>
-    <div class="dashboard-grid">
-      <a href="account.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Account</h3>
-          <p>Manage and view your account settings and preferences. Updating your entire profile with usernames will be in the future.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-      <a href="legal-list.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Legal & Policies</h3>
-          <p>Legal center for our website, including privacy policy and our terms of service.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
-    </div>
-
-    <!-- Admin Controls (hidden by default) -->
-    <h2 class="section-header hidden" id="adminSectionHeader">Admin Controls</h2>
-    <div class="dashboard-grid hidden" id="adminSection">
-      <a href="feedback-collections.html" class="dashboard-tile admin-tile" id="analyticsTile">
-        <div class="tile-content">
-          <h3>Feedback Collection</h3>
-          <p>Access user feedback and suggestions.</p>
-        </div>
-        <div class="tile-frame"></div>
-      </a>
+      </div>
     </div>
   </main>
 
-  <!-- Tips Modal (unchanged) -->
-  <div id="tipsModal" class="modal">
-    <div class="modal-overlay" id="modalOverlay"></div>
+  <!-- Email Verification Modal -->
+  <div id="verificationModal" class="modal">
     <div class="modal-content">
-      <!-- modal content here -->
+      <h2>Email Not Verified</h2>
+      <p>Your account requires email verification. Please check your inbox at <span id="userEmail"></span> for a verification link.</p>
+      <div class="modal-buttons">
+        <button id="resendVerificationBtn" class="btn secondary">Resend Email</button>
+        <button id="closeModalBtn" class="btn primary">OK</button>
+      </div>
     </div>
   </div>
 
-  <footer><p>© 2025 4SP</p></footer>
-    <script>
-        // Authentication state management
-        function handleAuthState(user) {
-            const authNotice = document.getElementById('authNotice');
-            const dashboardSections = document.querySelectorAll('.dashboard-grid');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const adminSectionHeader = document.getElementById('adminSectionHeader');
-            const adminSection = document.getElementById('adminSection');
-            const adminEmail = '4simpleproblems@gmail.com'; // Replace with your admin email
+  <footer>
+    <p>© 2025 4SP</p>
+  </footer>
 
-            if (user) {
-                authNotice.classList.add('hidden');
-                dashboardSections.forEach(section => section.classList.remove('hidden'));
-                if (logoutBtn) logoutBtn.classList.remove('hidden');
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Initialize Firebase
+      let auth;
+      let db;
+      
+      // Wait for Firebase to initialize
+      const waitForFirebase = async () => {
+        return new Promise(resolve => {
+          const checkFirebase = setInterval(() => {
+            if (firebase.apps.length) {
+              clearInterval(checkFirebase);
+              auth = firebase.auth();
+              db = firebase.firestore();
+              resolve();
+            }
+          }, 100);
+        });
+      };
+      
+      await waitForFirebase();
+      
+      // Set a flag for users created before the email verification requirement
+      const VERIFICATION_REQUIREMENT_DATE = new Date('2025-05-09').getTime();
+      
+      const loginForm = document.getElementById('loginForm');
+      const authMessage = document.getElementById('authMessage');
+      const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+      
+      // Modal elements
+      const verificationModal = document.getElementById('verificationModal');
+      const userEmailSpan = document.getElementById('userEmail');
+      const resendVerificationBtn = document.getElementById('resendVerificationBtn');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      
+      // User object to store between functions
+      let currentUser = null;
 
-                // Check if user is admin
-                if (user.email === adminEmail) {
-                    adminSectionHeader.classList.remove('hidden');
-                    adminSection.classList.remove('hidden');
-                } else {
-                    adminSectionHeader.classList.add('hidden');
-                    adminSection.classList.add('hidden');
-                }
+      function showMessage(message, type) {
+        authMessage.innerHTML = `<div class="message ${type}">${message}</div>`;
+        authMessage.style.display = 'block';
+        // Scroll to message
+        authMessage.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      function handleAuthError(error) {
+        console.error('Auth Error:', error);
+        let message = error.message;
+        
+        // Handle common Firebase auth errors
+        if (error.code === 'auth/user-not-found') {
+          message = 'User not found. Please check your email or sign up.';
+        } else if (error.code === 'auth/wrong-password') {
+          message = 'Incorrect password. Please try again.';
+        } else if (error.code === 'auth/invalid-email') {
+          message = 'Please enter a valid email address.';
+        } else if (error.code === 'auth/popup-blocked') {
+          message = 'Popup blocked. Please allow popups for this site.';
+        } else if (error.code === 'auth/cancelled-popup-request') {
+          message = 'Sign in was cancelled. Please try again.';
+        } else if (error.code === 'auth/too-many-requests') {
+          message = 'Too many failed login attempts. Please try again later or reset your password.';
+        } else {
+          message = 'An error occurred during login: ' + error.message;
+        }
+        
+        showMessage(message, 'error');
+      }
+      
+      // Check if user's email is verified and if verification is required
+      async function checkEmailVerification(user) {
+        try {
+          // Get user data from Firestore
+          const userDoc = await db.collection('users').doc(user.uid).get();
+          
+          if (!userDoc.exists) {
+            console.log('No user data found in Firestore.');
+            // If there's no document, this might be a very old account or data issue
+            showMessage('Account data not found. Please contact support.', 'warning');
+            await auth.signOut();
+            return false;
+          }
+          
+          const userData = userDoc.data();
+          
+          // Check if it's an older account that doesn't need verification
+          // Either check the explicit flag or check by creation date
+          if (userData.requiresVerification === false) {
+            console.log('This account does not require verification');
+            return true;
+          }
+          
+          // If requiresVerification field doesn't exist, check if it's an old account by creation date
+          if (userData.requiresVerification === undefined) {
+            const createdAt = userData.createdAt ? userData.createdAt.toDate().getTime() : Date.now();
+            if (createdAt < VERIFICATION_REQUIREMENT_DATE) {
+              console.log('This is an older account created before verification was required');
+              // Update the user document to mark it as not requiring verification
+              await db.collection('users').doc(user.uid).update({
+                requiresVerification: false
+              });
+              return true;
             } else {
-                window.location.href = 'index.html';
+              // For newer accounts that should have the field but don't, add it
+              await db.collection('users').doc(user.uid).update({
+                requiresVerification: true
+              });
             }
+          }
+          
+          // Check the email verification status
+          if (user.emailVerified || userData.emailVerified === true) {
+            console.log('Email is verified');
+            // Update the verification status in Firestore if needed
+            if (!userData.emailVerified) {
+              await db.collection('users').doc(user.uid).update({
+                emailVerified: true
+              });
+            }
+            return true;
+          } else {
+            console.log('Email is not verified');
+            // Show verification modal
+            userEmailSpan.textContent = user.email;
+            verificationModal.style.display = 'flex';
+            return false;
+          }
+        } catch (error) {
+          console.error('Error checking verification status:', error);
+          showMessage('Error checking account status. Please try again later.', 'error');
+          return false;
         }
+      }
 
-        // Initialize Firebase authentication and set up logout functionality
-        function initAuth() {
-            try {
-                const auth = firebase.auth();
+      // Email/password login
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
 
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', (e) => {
-                        e.preventDefault(); // Prevent any default link behavior
-                        auth.signOut().then(() => {
-                            window.location.href = 'index.html';
-                        }).catch(error => {
-                            console.error("Logout error:", error);
-                        });
-                    });
-                } else {
-                    console.error("Logout button not found!");
-                }
-
-                auth.onAuthStateChanged(user => {
-                    handleAuthState(user);
-                });
-
-            } catch (error) {
-                console.error("Auth initialization error:", error);
-                window.location.href = 'index.html';
-            }
+        try {
+          // Sign in with email and password
+          const userCredential = await auth.signInWithEmailAndPassword(email, password);
+          const user = userCredential.user;
+          currentUser = user;
+          
+          // Store this reference for the verification flow
+          
+          // Check if email verification is required and completed
+          const isVerified = await checkEmailVerification(user);
+          
+          if (isVerified) {
+            showMessage('Login successful! Redirecting...', 'success');
+            setTimeout(() => window.location.href = 'dashboard.html', 1500);
+          } else {
+            // Sign out the user if email is not verified
+            await auth.signOut();
+            // Modal will be shown by checkEmailVerification function
+          }
+        } catch (error) {
+          handleAuthError(error);
         }
+      });
 
-        // Tips modal functionality
-        function initTipsModal() {
-            const tipsBtn = document.getElementById('tipsBtn');
-            const tipsModal = document.getElementById('tipsModal');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const modalOverlay = document.getElementById('modalOverlay');
-
-            // Check if tips button exists before adding event listener
-            if (tipsBtn) {
-                // Open modal
-                tipsBtn.addEventListener('click', () => {
-                    tipsModal.classList.remove('fade-out'); // Remove fade-out class if present
-                    tipsModal.style.display = 'block';
-                });
-            }
-
-            // Function to close modal with fade effect
-            function closeModalWithFade() {
-                tipsModal.classList.add('fade-out');
-                // Wait for animation to complete before hiding completely
-                setTimeout(() => {
-                    tipsModal.style.display = 'none';
-                    tipsModal.classList.remove('fade-out');
-                }, 300); // Match this to animation duration
-            }
-
-            // Close modal when clicking the close button
-            if (closeModalBtn) {
-                closeModalBtn.addEventListener('click', () => {
-                    closeModalWithFade();
-                });
-            }
-
-            // Close modal when clicking outside the modal content
-            if (modalOverlay) {
-                modalOverlay.addEventListener('click', () => {
-                    closeModalWithFade();
-                });
-            }
-
-            // Close modal when pressing Escape key
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && tipsModal.style.display === 'block') {
-                    closeModalWithFade();
-                }
-            });
-        }
-
-        // Initialize both auth and tips modal functionality
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof firebase !== 'undefined') {
-                initAuth();
-            } else {
-                console.error("Firebase SDK not loaded.");
-                const notice = document.getElementById('authNotice');
-                if (notice) {
-                    notice.textContent = 'Error loading application components. Please try again later.';
-                    notice.classList.remove('hidden');
-                }
-                const grids = document.querySelectorAll('.dashboard-grid');
-                grids.forEach(grid => grid.classList.add('hidden'));
+      // Google login
+      document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+        try {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          provider.addScope('email');
+          provider.addScope('profile');
+          provider.setCustomParameters({
+            prompt: 'select_account'
+          });
+          
+          const result = await auth.signInWithPopup(provider);
+          const user = result.user;
+          
+          // Check if this is a new user
+          const isNewUser = result.additionalUserInfo.isNewUser;
+          
+          if (isNewUser) {
+            // Create a username for the new Google user
+            // Similar to the signup flow but simplified
+            const username = generateUsernameFromGoogle(user);
+            let originalUsername = username;
+            let counter = 1;
+            
+            // Check if username exists and make it unique
+            let usernameExists = await checkUsernameExists(username);
+            while (usernameExists) {
+              username = `${originalUsername}${counter}`;
+              counter++;
+              
+              if (username.length > 16) {
+                username = originalUsername.substring(0, 15 - counter.toString().length) + counter;
+              }
+              
+              usernameExists = await checkUsernameExists(username);
             }
             
-            // Initialize tips modal regardless of Firebase status
-            initTipsModal();
-        });
-    </script>
+            // Save user data
+            await db.collection('users').doc(user.uid).set({
+              username: username.toLowerCase(),
+              email: user.email,
+              emailVerified: true, // Google OAuth handles verification
+              requiresVerification: false,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            // Also save in usernames collection
+            await db.collection('usernames').doc(username.toLowerCase()).set({
+              uid: user.uid,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }
+          
+          showMessage('Google login successful! Redirecting...', 'success');
+          setTimeout(() => window.location.href = 'dashboard.html', 1500);
+        } catch (error) {
+          handleAuthError(error);
+        }
+      });
+      
+      // Generate username from Google profile
+      function generateUsernameFromGoogle(user) {
+        let base = user.displayName || user.email.split('@')[0];
+        base = base.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        
+        if (base.length > 16) {
+          base = base.substring(0, 16);
+        }
+        
+        if (base.length < 4) {
+          base += '0000'.substring(0, 4 - base.length);
+        }
+        
+        return base;
+      }
+      
+      // Check if username exists
+      async function checkUsernameExists(username) {
+        try {
+          const usernameSnapshot = await db.collection('usernames').doc(username.toLowerCase()).get();
+          return usernameSnapshot.exists;
+        } catch (error) {
+          console.error('Error checking username:', error);
+          return false;
+        }
+      }
+      
+      // Handle verification modal buttons
+      resendVerificationBtn.addEventListener('click', async () => {
+        try {
+          // We need to re-authenticate to send verification email
+          if (currentUser) {
+            await currentUser.sendEmailVerification();
+            showMessage('Verification email resent!', 'success');
+          } else {
+            // If we don't have the current user, prompt them to log in again
+            showMessage('Session expired. Please log in again to resend verification email.', 'warning');
+          }
+        } catch (error) {
+          handleAuthError(error);
+        }
+      });
+      
+      closeModalBtn.addEventListener('click', () => {
+        verificationModal.style.display = 'none';
+      });
+      
+      // Forgot password functionality
+      forgotPasswordLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('loginEmail').value;
+        
+        if (!email) {
+          showMessage('Please enter your email address first', 'warning');
+          return;
+        }
+        
+        try {
+          await auth.sendPasswordResetEmail(email);
+          showMessage('Password reset email sent. Please check your inbox.', 'success');
+        } catch (error) {
+          handleAuthError(error);
+        }
+      });
+    });
+  </script>
 </body>
 </html>
