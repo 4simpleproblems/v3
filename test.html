@@ -1,622 +1,947 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>4SP | Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4SP | Account</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-
   <style>
-    /* Base styles from index.html for consistency */
-    * {
+    /* Original defined colors, becoming base for semantic variables */
+    :root {
+      --original-light-text: #f0f0f0;
+      --original-dark-bg: #1a1a1a;
+      --original-light-gray: #e0e0e0;
+      --original-medium-gray: #333333;
+      --original-darker-bg: #0d0d0d;
+      --original-error-red: #ff1212;
+      --original-primary-red: #ff1212;
+      --original-dark-red: #8b0000;
+
+
+      /* Semantic Colors for Dark Mode (Default) */
+      --text-color: var(--original-light-text);
+      --body-bg: var(--original-dark-bg);
+      --header-footer-bg: var(--original-darker-bg);
+      --card-bg: #2a2a2a; /* slightly lighter dark for cards */
+      --card-border: #444444;
+      --info-text-color: #ccc; /* slightly lighter than medium-gray for better readability */
+      --main-heading-color: var(--original-light-text);
+
+      /* Action & Button Colors */
+      --primary-action-color: var(--original-primary-red);
+      --danger-action-color: var(--original-primary-red);
+      --danger-border-color: var(--original-dark-red);
+
+      --btn-primary-bg: var(--primary-action-color);
+      --btn-primary-text: var(--original-light-text);
+      --btn-secondary-bg: transparent;
+      --btn-secondary-text: var(--text-color);
+      --btn-secondary-border: var(--text-color);
+
+      /* Modal Colors */
+      --modal-backdrop-bg: rgba(0, 0, 0, 0.7);
+      --modal-content-bg: #222;
+      --modal-content-border: #666;
+      --modal-text-color: #ddd;
+      --modal-input-bg: #444;
+      --modal-input-text-color: #eee;
+
+      /* Other fixed elements or accents */
+      --google-badge-bg: #4285F4;
+      --email-badge-bg: var(--original-dark-bg);
+      --pill-radius: 50px;
+    }
+
+    html.light-mode {
+      /* Semantic Colors for Light Mode */
+      --text-color: var(--original-dark-bg);
+      --body-bg: var(--original-light-gray);
+      --header-footer-bg: var(--original-darker-bg); /* Keeping navbar/footer dark for consistent branding/contrast */
+      --card-bg: white;
+      --card-border: var(--original-light-gray);
+      --info-text-color: var(--original-medium-gray);
+      --main-heading-color: var(--original-dark-bg);
+
+      /* Action & Button Colors (can be overridden if a different shade is preferred in light mode) */
+      --primary-action-color: var(--original-primary-red);
+      --danger-action-color: var(--original-primary-red);
+      --danger-border-color: var(--original-dark-red);
+
+      --btn-primary-bg: var(--primary-action-color);
+      --btn-primary-text: white; /* Ensure text is readable on red background */
+      --btn-secondary-bg: transparent;
+      --btn-secondary-text: var(--text-color);
+      --btn-secondary-border: var(--text-color);
+
+      /* Modal Colors (can be changed to light mode if desired, currently kept dark for overlay) */
+      --modal-backdrop-bg: rgba(0, 0, 0, 0.7);
+      --modal-content-bg: white;
+      --modal-content-border: #ccc;
+      --modal-text-color: var(--original-dark-bg);
+      --modal-input-bg: #f0f0f0;
+      --modal-input-text-color: var(--original-dark-bg);
+
+      /* Other fixed elements or accents */
+      --google-badge-bg: #4285F4;
+      --email-badge-bg: var(--original-dark-bg);
+    }
+
+    /* Apply variables to elements */
+    body {
+      background-color: var(--body-bg);
+      font-family: 'Roboto Mono', monospace;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Roboto Mono', monospace;
-      background-color: #f5f5f5; /* Matching index.html body background */
-      color: #333; /* Matching index.html text color */
-      line-height: 1.6;
-      display: flex; /* Keep flexbox for full height dashboard */
+      display: flex;
       flex-direction: column;
       min-height: 100vh;
-    }
-    .container {
-      width: 100%;
-      max-width: 1200px; /* Maximum width for the main content area */
-      margin: 0 auto; /* Center the main container */
-      padding: 20px; /* Matching index.html container padding */
-      flex: 1; /* Allow main content to grow */
+      color: var(--text-color); /* Default text color for body */
     }
 
-    /* Navbar - Adopted from index.html */
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      flex: 1;
+    }
+
     .navbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 20px; /* Matching index.html navbar padding */
-      background-color: #111; /* Matching index.html navbar background */
-      color: #fff;
+      padding: 1.5rem 3rem;
+      background-color: var(--header-footer-bg);
+      color: var(--text-color); /* Text for logo and default nav links */
+      border-bottom: 1px solid var(--primary-action-color); /* Consider if accent should change */
     }
+
     .logo {
-      font-size: 24px; /* Matching index.html logo font size */
+      font-size: 1.8rem;
       font-weight: 700;
+      letter-spacing: -1.5px;
+      color: var(--text-color);
     }
+
     .nav-buttons {
       display: flex;
-      gap: 10px; /* Matching index.html nav buttons gap */
-      align-items: center; /* Ensure alignment */
+      align-items: center;
+      gap: 1rem;
     }
 
-    /* Buttons - Adopted from index.html */
     .btn {
-      padding: 8px 16px; /* Matching index.html button padding */
-      border-radius: 30px; /* Matching index.html button border-radius */
-      text-decoration: none;
+      display: inline-block;
+      padding: 1rem 2rem;
+      border-radius: var(--pill-radius);
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      border: 2px solid transparent;
+      font-weight: 500;
+    }
+
+    .btn.primary {
+      background-color: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+    }
+
+    .btn.secondary {
+      background-color: var(--btn-secondary-bg);
+      color: var(--btn-secondary-text);
+      border-color: var(--btn-secondary-border);
+    }
+
+    .btn:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: var(--header-footer-bg);
+      color: var(--text-color);
+      border-top: 2px solid var(--primary-action-color);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--main-heading-color);
+    }
+
+    .account-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .account-info {
+      padding: 1.5rem;
+      background-color: var(--card-bg);
+      border-radius: var(--pill-radius);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--card-border);
+    }
+
+    .account-info h2 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: var(--main-heading-color);
+    }
+
+    .account-info p {
+      margin-bottom: 0.75rem;
+      color: var(--info-text-color);
+    }
+
+    .account-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1.5rem;
+    }
+
+    .account-buttons button {
+      padding: 1rem 1.5rem;
+      border-radius: var(--pill-radius);
+      border: 2px solid var(--btn-secondary-border);
+      background-color: transparent;
+      color: var(--text-color);
+      font-size: 1rem;
       font-weight: 500;
       cursor: pointer;
-      transition: all 0.3s ease; /* Matching index.html button transition */
-      border: none; /* Default no border, specific types will override */
-      font-family: 'Roboto Mono', monospace; /* Ensure font consistency */
-      display: inline-block; /* For consistency as some were links */
-      text-align: center; /* Ensure text is centered */
-    }
-    .btn.primary {
-      background-color: #4285F4; /* Matching index.html primary button */
-      color: #fff;
-      border: 1px solid;
-    }
-    .btn.secondary {
-      background-color: transparent;
-      color: white;
-      border: 1px solid white; /* Matching index.html secondary button */
-    }
-    /* .btn.tips was unique to dashboard, adapting to primary style */
-    .btn.tips {
-      background-color: #4285F4;
-      color: #fff;
-      border: 1px solid;
-    }
-
-    .btn.primary:hover {
-      background-color: #3367d6; /* Matching index.html primary hover */
-    }
-    .btn.secondary:hover {
-      background-color: rgba(255,255,255,0.1); /* Matching index.html secondary hover */
-    }
-    /* Ensure logout button matches the secondary style */
-    #logoutBtn {
-      background-color: transparent;
-      color: white;
-      border: 1px solid white;
-    }
-    #logoutBtn:hover {
-      background-color: rgba(255,255,255,0.1);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* Dashboard Content Card - Left-aligned and wider */
-    .dashboard-content-card {
+      transition: background-color 0.3s ease;
+      text-align: center;
       width: 100%;
-      max-width: 1100px; /* Increased max-width to allow for wider tiles and 3 in a row more comfortably */
-      margin: 40px 0; /* No longer centered, left-aligned within .container's padding */
-      background-color: #fff;
-      border-radius: 50px; /* Matching index.html home-container border-radius */
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Matching index.html home-container shadow */
-      overflow: hidden; /* Prevents internal scrolling within the card */
-      padding: 40px 30px; /* Matching index.html home-container padding */
+      display: inline-block;
+      box-sizing: border-box;
     }
 
-    /* Section headers - Base style */
-    .section-header {
-      margin: 3rem 0 1.5rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 3px solid; /* Keep border, color will be overridden */
-      color: #333;
-      font-weight: 700;
-      font-size: 1.5rem;
+    .account-buttons button:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
-    .section-header:first-of-type {
+
+    .account-buttons button.secondary {
+      border-color: var(--btn-secondary-border);
+    }
+
+    .account-buttons button.danger {
+      background-color: var(--danger-action-color);
+      color: white;
+      border: 2px solid var(--danger-border-color);
+    }
+
+    .account-buttons button.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .provider-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+      font-weight: 500;
+    }
+
+    .provider-badge.google {
+      background-color: var(--google-badge-bg);
+      color: white;
+    }
+
+    .provider-badge.email {
+      background-color: var(--email-badge-bg);
+      color: white;
+    }
+
+    /* Google re-authentication button style */
+    #googleReauthButton {
+      background-color: #3498db;
+      color: white;
+      border-radius: var(--pill-radius);
+      border: 3px solid #2980b9;
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #googleReauthButton:hover {
+      background-color: #2980b9;
+    }
+
+    /* Styles for the modal/popup */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: var(--modal-backdrop-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    }
+
+    .modal.show {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.3s ease, visibility 0s linear 0s;
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+      background-color: var(--modal-content-bg);
+      padding: 2rem;
+      border: 1px solid var(--modal-content-border);
+      width: 90%;
+      max-width: 500px;
+      border-radius: var(--pill-radius);
+      position: relative;
+      color: var(--modal-text-color);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* The Close Button */
+    .close {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      color: var(--modal-text-color);
+      font-size: 28px;
+      font-weight: bold;
+      transition: color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    /* Style for the password confirmation form & change password form */
+    .password-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .password-form label {
+      font-weight: bold;
+      color: var(--modal-text-color);
+      display: block;
+    }
+
+    .password-form input[type="password"] {
+      padding: 1rem;
+      font-size: 1rem;
+      border: 1px solid var(--modal-content-border);
+      border-radius: var(--pill-radius);
+      color: var(--modal-input-text-color);
+      background-color: var(--modal-input-bg);
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease;
+    }
+
+    .password-form input[type="password"]:focus {
+      outline: none;
+      border-color: var(--primary-action-color);
+      box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3);
+    }
+
+    .password-form button {
+      display: inline-block;
+      padding: 1rem 2rem;
+      border-radius: var(--pill-radius);
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      border: none;
+      font-weight: 500;
+      color: white;
+      transition: background-color 0.2s ease;
+    }
+
+    .password-form button.confirm {
+      background-color: var(--primary-action-color);
+    }
+
+    .password-form button.confirm:hover {
+      background-color: #cc0c0c;
+    }
+
+    .password-form button.delete {
+      background-color: var(--danger-action-color);
+      border: 2px solid var(--danger-border-color);
+    }
+
+    .password-form button.delete:hover {
+      background-color: #cc0000;
+    }
+
+    .modal h2 {
+      margin: 0;
+      color: var(--modal-text-color);
+      font-size: 1.75rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .modal p {
+      color: var(--modal-text-color);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    /* Specific style adjustments */
+    #confirmPasswordForm .password-form button {
       margin-top: 1rem;
     }
 
-    /* Section header specific colors */
-    .media-entertainment-header { border-color: #4285f4; /* Blue */ }
-    .web-access-header { border-color: #fd7e14; /* Orange */ }
-    .user-interaction-header { border-color: #dc3545; /* Red */ }
-    .user-settings-header { border-color: #6f42c1; /* Purple */ }
-    .others-header { border-color: #20c997; /* Teal */ }
-    .admin-controls-header { border-color: #6c757d; /* Dark Gray */ }
-
-
-    /* Grid - Minor adjustment for responsiveness with new max-width */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); /* minmax ensures tiles are at least 300px and take up space */
-      gap: 2rem;
-      margin: 2rem 0;
-    }
-    /* Special case for 2-tile sections */
-    .dashboard-grid:has(:nth-child(2):last-child) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    /* Media queries for responsive grid (kept as is, already well-designed) */
-    @media (min-width: 992px) {
-      .dashboard-grid {
-        grid-template-columns: repeat(3, 1fr); /* Allows up to 3 in a row */
-      }
-      .dashboard-grid:has(:nth-child(2):last-child) {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .dashboard-grid:has(:first-child:last-child) {
-        grid-template-columns: 1fr;
-      }
-    }
-    @media (min-width: 768px) and (max-width: 991px) {
-      .dashboard-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .dashboard-grid:has(:first-child:last-child) {
-        grid-template-columns: 1fr;
-      }
-    }
-    @media (max-width: 767px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
+    #changePasswordForm .password-form button {
+      margin-top: 0.5rem;
     }
 
-    /* Tiles - Adjusted for shorter height and implied wider based on grid */
-    .dashboard-tile {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      background: white;
-      border-radius: 30px; /* Matching index.html home-container border-radius */
-      padding: 2.5rem;
-      text-decoration: none;
-      color: #333; /* Matching index.html general text color */
-      overflow: hidden;
-      height: 220px; /* Made shorter as requested (from 280px) */
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      border: 1px solid #e0e0e0; /* Softer border, similar to index.html's subtle lines */
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Matching index.html home-container shadow */
-      width: 100%;
-    }
-    .dashboard-tile .tile-content {
-      position: relative;
-      z-index: 2;
-    }
-    .dashboard-tile h3 {
-      font-size: 1.6rem;
-      margin-bottom: 1rem;
-      font-weight: 600;
-    }
-    .dashboard-tile p {
-      font-size: 1rem;
-      line-height: 1.6;
-    }
-    .dashboard-tile .tile-frame {
-      position: absolute;
-      inset: 0;
-      border: 3px solid rgba(0, 0, 0, 0.08); /* Softer inner border */
-      border-radius: 28px; /* Slightly smaller than tile for visual effect */
-      z-index: 1;
-      transition: border-color 0.3s ease;
-    }
-    .dashboard-tile:hover {
-      transform: translateY(-5px) scale(1.03);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
-    .dashboard-tile:hover .tile-frame {
-      border-color: #333; /* Darker border on hover for consistency */
-    }
-
-    /* Games tile now matches default white */
-    .games-tile {
-      background-color: white;
-      border-color: #e0e0e0;
-    }
-
-    /* Footer - Adopted from index.html */
-    footer {
+    #deleteAccountModal .modal-content {
       text-align: center;
-      padding: 20px; /* Matching index.html footer padding */
-      color: #666; /* Matching index.html footer color */
-      font-size: 14px; /* Matching index.html footer font size */
     }
 
-    /* Modal - Now acts as a notification-style popup */
-    .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 1000; /* Sit on top */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: hidden; /* Prevent scroll on overlay */
-        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-        animation: fadeIn 0.3s forwards; /* Fade-in animation for the overlay */
+    #deleteAccountModal .modal-content p {
+      margin-bottom: 1.5rem;
     }
 
-    .modal.fade-out {
-        animation: fadeOut 0.3s forwards; /* Fade-out animation for the overlay */
+    #deleteAccountModal .password-form button {
+      margin-top: 1.5rem;
+      padding: 1rem 2.5rem;
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+    /* Styles for the logout button */
+    #logoutBtn {
+      background-color: var(--primary-action-color);
+      color: white;
+      border: none;
+      border-radius: var(--pill-radius);
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
     }
 
-    @keyframes fadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
+    #logoutBtn:hover {
+      background-color: var(--original-darker-bg);
     }
 
-    /* Modal overlay - kept to allow closing by clicking outside, but transparent */
-    .modal-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
-        background-color: transparent; /* Make overlay transparent so it doesn't block view */
+    /* Message for Google users who can't change password */
+    .google-auth-message {
+      color: var(--modal-text-color);
+      text-align: center;
+      font-size: 1rem;
+      line-height: 1.5;
     }
 
-    .modal-content {
-        background-color: #fefefe;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 90%; /* Responsive width */
-        max-width: 350px; /* Max width for a notification */
-        border-radius: 15px; /* More rounded shape */
-        position: fixed; /* Fixed position in viewport */
-        bottom: 20px; /* Aligned to bottom */
-        left: 20px; /* Aligned to left */
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        animation: slideInBottomLeft 0.3s forwards ease-out; /* New animation for content */
-        margin: 0; /* Remove auto margin */
+    .google-auth-message a {
+      color: #4285F4;
+      text-decoration: underline;
     }
 
-    /* New animation for bottom-left slide-in */
-    @keyframes slideInBottomLeft {
-        from { transform: translateX(-100%) translateY(100%); opacity: 0; }
-        to { transform: translateX(0) translateY(0); opacity: 1; }
+    /* New styles for the theme settings section */
+    .theme-settings {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background-color: var(--card-bg);
+      border-radius: var(--pill-radius);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--card-border);
     }
 
-    .close-button {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
+    .theme-settings h2 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: var(--main-heading-color);
     }
 
-    .close-button:hover,
-    .close-button:focus {
-        color: #000;
-        text-decoration: none;
-    }
-    .modal-content h2 {
-      margin-bottom: 15px;
-      font-size: 1.5rem;
-      color: #333;
-    }
-    .modal-content p {
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-      color: #555;
-    }
-    .modal-content ul {
-      margin-left: 20px;
-      margin-bottom: 15px;
-      list-style-type: disc;
-    }
-    .modal-content li {
-      margin-bottom: 5px;
-      color: #555;
-    }
-    .modal-content .btn {
-      margin-top: 20px;
+    .theme-options {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
     }
 
+    .theme-options input[type="radio"] {
+      appearance: none; /* Hide default radio button */
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--info-text-color);
+      border-radius: 50%;
+      outline: none;
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .theme-options input[type="radio"]:checked {
+      background-color: var(--primary-action-color); /* Accent color when checked */
+      border-color: var(--primary-action-color);
+    }
+
+    .theme-options input[type="radio"]:checked::before {
+      content: '';
+      display: block;
+      width: 10px;
+      height: 10px;
+      background-color: white; /* The inner dot is always white */
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .theme-options label {
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--info-text-color);
+    }
+
+    /* Responsive adjustments for account grid */
+    @media (max-width: 768px) {
+      .account-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
+
 <body>
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
-      <a href="legal-list.html" class="btn secondary">Legal</a>
-      <a href="dashboard.html" class="btn secondary" id="dashboardNavBtn">Dashboard</a>
-      <button class="btn primary" id="logoutBtn">Log Out</button>
+      <a href="index.html" class="btn secondary">Home</a>
+      <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      <a href="account.html" class="btn primary">Account</a>
+      <button class="btn secondary" id="logoutBtn">Log Out</button>
     </div>
   </nav>
 
   <main class="container">
-    <div class="dashboard-content-card">
-      <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
-
-      <h2 class="section-header media-entertainment-header">Media & Entertainment</h2>
-      <div class="dashboard-grid">
-        <a href="soundboard.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Soundboard</h3>
-            <p>Access all available sound clips and categories. Play, hear, and admire these amazing sounds.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-
-        <a href="playlist.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Playlists (Beta)</h3>
-            <p>Access and store sounds you like.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-
-        <a href="localsounds.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Local Sounds</h3>
-            <p>Upload and play your own local MP3 files.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-
-        <a href="https://4simpleproblems.github.io/game/" target="_blank" rel="noopener" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Games</h3>
-            <p>Play a variety of browser games from our curated collection.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
+    <h1>Account Information</h1>
+    <div class="account-grid">
+      <div class="account-info">
+        <h2>User Details</h2>
+        <p id="userEmail">Email: Loading...</p>
+        <p id="authProvider">Sign-in Method: Loading...</p>
+        <p id="creationTime">Created: Loading...</p>
+        <div class="additional-info">
+          <h3>Additional Information</h3>
+          <p id="lastSignIn">Last Sign-in: Loading...</p>
+          <p id="userUID">User ID: Loading...</p>
+        </div>
       </div>
 
-      <h2 class="section-header web-access-header">Web Access</h2>
-      <div class="dashboard-grid">
-        <a href="vern.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Vern</h3>
-            <p>The official proxy for 4SP.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="links.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Links</h3>
-            <p>Uploaded links by 4SP, including Eaglercraft, and other crap.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
+      <div class="account-buttons">
+        <button id="changePasswordBtn" class="secondary">Change Password</button>
+        <button id="editProfileBtn" class="edit-profile">Edit Profile</button>
+        <button id="manageSubscriptionsBtn" class="manage-subscriptions">Manage Subscriptions</button>
+        <button id="deleteAccountBtn" class="danger">Delete Account</button>
       </div>
+    </div>
 
-      <h2 class="section-header user-interaction-header">User Interaction</h2>
-      <div class="dashboard-grid">
-        <a href="requests.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Request a Sound</h3>
-            <p>Submit requests for new sounds to be added to the collection. Sounds may be approved or denied.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="collections.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Sound Request Collection</h3>
-            <p>View sound requests organized by category.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="feedback.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Feedback</h3>
-            <p>Suggest user feedback, new features, or proxy reports to 4SP for improvement in the website.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
+    <div class="account-info theme-settings">
+      <h2>Theme Settings</h2>
+      <div class="theme-options">
+        <input type="radio" id="lightMode" name="theme" value="light">
+        <label for="lightMode">Light Mode</label>
 
-      <h2 class="section-header user-settings-header">User Settings</h2>
-      <div class="dashboard-grid">
-        <a href="account.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Account</h3>
-            <p>Manage and view your account settings and preferences. Updating your entire profile with usernames will be in the future.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="legal-list.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Legal & Policies</h3>
-            <p>Legal center for our website, including privacy policy and our terms of service.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
-
-      <h2 class="section-header others-header">Others</h2>
-      <div class="dashboard-grid">
-        <a href="schedule.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Working Schedule</h3>
-            <p>A working schedule from which websites will be updated.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="https://optana-web.github.io/" target="_blank" rel="noopener" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Optana Website</h3>
-            <p>A website I created based around wishlists. I would be able to make wishlists, and edit them so people know what I want. This is currently in alpha.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
-
-      <h2 class="section-header admin-controls-header hidden" id="adminSectionHeader">Admin Controls</h2>
-      <div class="dashboard-grid hidden" id="adminSection">
-        <a href="feedback-collections.html" class="dashboard-tile admin-tile" id="analyticsTile">
-          <div class="tile-content">
-            <h3>Feedback Collection</h3>
-            <p>Access user feedback and suggestions.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
+        <input type="radio" id="darkMode" name="theme" value="dark">
+        <label for="darkMode">Dark Mode</label>
       </div>
     </div>
   </main>
 
-  <div id="tipsModal" class="modal">
-    <div class="modal-overlay" id="modalOverlay"></div>
+  <footer>
+    <p>© 2025 4SP</p>
+  </footer>
+
+  <div id="changePasswordModal" class="modal">
     <div class="modal-content">
-      <span class="close-button" id="closeModalBtn">&times;</span>
-      <h2>Welcome to the Dashboard!</h2>
-      <p>Here are some tips to get started:</p>
-      <ul>
-        <li>Navigate through different sections using the tiles.</li>
-        <li>The "Soundboard" is where you'll find all the sounds.</li>
-        <li>"Vern" is our secure proxy for web access.</li>
-        <li>You can request new sounds or provide feedback on the site.</li>
-        <li>Manage your account settings under "User Settings".</li>
-      </ul>
-      <button class="btn primary" id="gotItBtn">Got it!</button>
+      <span class="close">&times;</span>
+      <h2>Change Password</h2>
+
+      <div id="emailAuthContent">
+        <p>Confirm your current password, then enter a new password.</p>
+        <form class="password-form password-confirmation-form" id="confirmPasswordForm">
+          <label for="currentPassword">Current Password:</label>
+          <input type="password" id="currentPassword" required>
+          <button type="submit" class="confirm">Confirm Password</button>
+        </form>
+
+        <p style="display:none;" id="change-password-message">Now enter your new password!</p>
+        <form class="password-form" id="newPasswordForm" style="display: none;">
+          <label for="newPassword">New Password:</label>
+          <input type="password" id="newPassword" required minlength="6">
+          <label for="confirmNewPassword">Confirm New Password:</label>
+          <input type="password" id="confirmNewPassword" required minlength="6">
+          <button type="submit" class="confirm">Change Password</button>
+        </form>
+      </div>
+
+      <div id="googleAuthContent" style="display: none;">
+        <div class="google-auth-message">
+          <p>You're signed in with Google, so your password is managed through your Google account.</p>
+          <p>To change your password, please visit <a href="https://myaccount.google.com/security" target="_blank">Google Account Settings</a>.</p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <footer><p>© 2025 4SP</p></footer>
-    <script>
-        // Authentication state management
-        function handleAuthState(user) {
-            const authNotice = document.getElementById('authNotice');
-            const dashboardContentCard = document.querySelector('.dashboard-content-card');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const adminSectionHeader = document.getElementById('adminSectionHeader');
-            const adminSection = document.getElementById('adminSection');
-            const adminEmail = '4simpleproblems@gmail.com'; // Replace with your admin email
+  <div id="deleteAccountModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Delete Account</h2>
+      <p>Are you sure you want to delete your account? This action cannot be undone.</p>
 
-            if (user) {
-                authNotice.classList.add('hidden');
-                if (dashboardContentCard) {
-                    dashboardContentCard.classList.remove('hidden');
-                }
-                if (logoutBtn) logoutBtn.classList.remove('hidden');
+      <form class="password-form" id="deleteAccountForm">
+        <label for="deletePassword" id="deletePasswordLabel">Enter Password to Confirm:</label>
+        <input type="password" id="deletePassword" required>
+        <button type="submit" class="delete">Delete Account</button>
+      </form>
 
-                if (user.email === adminEmail) {
-                    adminSectionHeader.classList.remove('hidden');
-                    adminSection.classList.remove('hidden');
-                } else {
-                    adminSectionHeader.classList.add('hidden');
-                    adminSection.classList.add('hidden');
-                }
-            } else {
-                window.location.href = 'index.html';
-                if (dashboardContentCard) {
-                    dashboardContentCard.classList.add('hidden');
-                }
-            }
+      <div id="googleDeleteContent" style="display: none;">
+        <p>Since you're signed in with Google, you'll need to re-authenticate to delete your account.</p>
+        <button id="googleReauthButton">Re-authenticate with Google</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Firebase Initialization
+      const auth = firebase.auth();
+      const db = firebase.firestore(); // Initialize Firestore
+
+      // Get DOM Elements
+      const userEmailElement = document.getElementById('userEmail');
+      const authProviderElement = document.getElementById('authProvider');
+      const creationTimeElement = document.getElementById('creationTime');
+      const lastSignInElement = document.getElementById('lastSignIn');
+      const userUIDElement = document.getElementById('userUID');
+      const changePasswordBtn = document.getElementById('changePasswordBtn');
+      const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const editProfileBtn = document.getElementById('editProfileBtn');
+      const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
+
+      // Get Modal Elements
+      const changePasswordModal = document.getElementById('changePasswordModal');
+      const deleteAccountModal = document.getElementById('deleteAccountModal');
+      const passwordConfirmationForm = document.getElementById('confirmPasswordForm');
+      const newPasswordForm = document.getElementById('newPasswordForm');
+      const deleteAccountForm = document.getElementById('deleteAccountForm');
+      const closeModalButtons = document.querySelectorAll('.close');
+      const currentPasswordInput = document.getElementById('currentPassword');
+      const newPasswordInput = document.getElementById('newPassword');
+      const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+      const deletePasswordInput = document.getElementById('deletePassword');
+      const changePasswordMessage = document.getElementById('change-password-message');
+
+      // Google auth specific elements
+      const emailAuthContent = document.getElementById('emailAuthContent');
+      const googleAuthContent = document.getElementById('googleAuthContent');
+      const googleDeleteContent = document.getElementById('googleDeleteContent');
+      const googleReauthButton = document.getElementById('googleReauthButton');
+      const deletePasswordLabel = document.getElementById('deletePasswordLabel');
+
+      // Theme settings elements
+      const lightModeRadio = document.getElementById('lightMode');
+      const darkModeRadio = document.getElementById('darkMode');
+      const htmlElement = document.documentElement; // Get the <html> element
+
+      // Track if user is Google authenticated
+      let isGoogleUser = false;
+
+      // Functions
+      const openModal = (modal) => {
+        modal.style.display = 'flex';
+        // Force reflow to trigger the transition
+        void modal.offsetWidth;
+        modal.classList.add('show');
+      };
+
+      const closeModal = (modal) => {
+        modal.classList.remove('show');
+        setTimeout(() => {
+          modal.style.display = 'none';
+        }, 300);
+      };
+
+      // Function to apply theme based on user preference
+      const applyTheme = (theme) => {
+        if (theme === 'dark') {
+          htmlElement.classList.remove('light-mode');
+          darkModeRadio.checked = true;
+          lightModeRadio.checked = false;
+        } else {
+          htmlElement.classList.add('light-mode');
+          lightModeRadio.checked = true;
+          darkModeRadio.checked = false;
         }
+      };
 
-        // Initialize Firebase authentication and set up logout functionality
-        function initAuth() {
-            try {
-                const auth = firebase.auth();
-
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        auth.signOut().then(() => {
-                            window.location.href = 'index.html';
-                        }).catch(error => {
-                            console.error("Logout error:", error);
-                        });
-                    });
-                } else {
-                    console.error("Logout button not found!");
-                }
-
-                auth.onAuthStateChanged(user => {
-                    handleAuthState(user);
-                });
-
-            } catch (error) {
-                console.error("Auth initialization error:", error);
-                window.location.href = 'index.html';
-            }
+      // Function to save theme preference to Firestore
+      const saveThemePreference = async (userId, theme) => {
+        if (!userId) {
+          console.warn("Cannot save theme preference: User ID is missing.");
+          return;
         }
-
-        // Tips modal functionality (now a notification)
-        function initTipsModal() {
-            const tipsModal = document.getElementById('tipsModal');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const modalOverlay = document.getElementById('modalOverlay');
-            const gotItBtn = document.getElementById('gotItBtn');
-
-            function closeModalWithFade() {
-                tipsModal.classList.add('fade-out');
-                setTimeout(() => {
-                    tipsModal.style.display = 'none';
-                    tipsModal.classList.remove('fade-out');
-                }, 300); // Match fade-out duration
-            }
-
-            if (closeModalBtn) {
-                closeModalBtn.addEventListener('click', () => {
-                    closeModalWithFade();
-                });
-            }
-
-            if (gotItBtn) {
-                gotItBtn.addEventListener('click', () => {
-                    closeModalWithFade();
-                });
-            }
-
-            if (modalOverlay) {
-                modalOverlay.addEventListener('click', () => {
-                    closeModalWithFade();
-                });
-            }
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && tipsModal.style.display === 'block') {
-                    closeModalWithFade();
-                }
-            });
-
-             // Display the modal on page load
-             setTimeout(() => {
-                 tipsModal.style.display = 'block'; // Show the modal
-                 tipsModal.classList.remove('fade-out'); // Ensure fade-out is not applied initially
-             }, 500); // Delay to allow page to load
+        try {
+          const userRef = db.collection('users').doc(userId);
+          await userRef.set({
+            themePreference: theme
+          }, {
+            merge: true
+          }); // Use merge: true to avoid overwriting other user data
+          console.log("Theme preference saved successfully.");
+        } catch (error) {
+          console.error("Error saving theme preference: ", error);
         }
+      };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof firebase !== 'undefined') {
-                initAuth();
-            } else {
-                console.error("Firebase SDK not loaded.");
-                const notice = document.getElementById('authNotice');
-                if (notice) {
-                    notice.textContent = 'Error loading application components. Please try again later.';
-                    notice.classList.remove('hidden');
-                }
-                const dashboardContentCard = document.querySelector('.dashboard-content-card');
-                if (dashboardContentCard) {
-                    dashboardContentCard.classList.add('hidden');
-                }
-            }
+      // Function to load theme preference from Firestore
+      const loadThemePreference = async (userId) => {
+        if (!userId) {
+          console.warn("Cannot load theme preference: User ID is missing.");
+          return null;
+        }
+        try {
+          const userRef = db.collection('users').doc(userId);
+          const doc = await userRef.get();
+          if (doc.exists && doc.data().themePreference) {
+            return doc.data().themePreference;
+          }
+        } catch (error) {
+          console.error("Error loading theme preference: ", error);
+        }
+        return null; // No preference found or error
+      };
 
-            initTipsModal();
+
+      // Check if user is signed in with Google
+      const checkAuthProvider = (user) => {
+        if (user) {
+          // Check for Google provider in providerData
+          const googleProvider = user.providerData.find(
+            provider => provider.providerId === 'google.com'
+          );
+
+          isGoogleUser = googleProvider !== undefined;
+
+          // Update UI based on auth provider
+          if (isGoogleUser) {
+            // Show Google badge
+            authProviderElement.innerHTML = `Sign-in Method: Google <span class="provider-badge google">Google</span>`;
+
+            // Disable change password button
+            changePasswordBtn.classList.add('disabled');
+            changePasswordBtn.title = "Password is managed by your Google account";
+
+            // Configure change password modal for Google users
+            emailAuthContent.style.display = 'none';
+            googleAuthContent.style.display = 'block';
+
+            // Configure delete account modal for Google users
+            deleteAccountForm.style.display = 'none';
+            googleDeleteContent.style.display = 'block';
+          } else {
+            // Show Email badge
+            authProviderElement.innerHTML = `Sign-in Method: Email <span class="provider-badge email">Email</span>`;
+
+            // Make sure change password button is enabled
+            changePasswordBtn.classList.remove('disabled');
+            changePasswordBtn.title = "";
+
+            // Configure change password modal for email users
+            emailAuthContent.style.display = 'block';
+            googleAuthContent.style.display = 'none';
+
+            // Configure delete account modal for email users
+            deleteAccountForm.style.display = 'block';
+            googleDeleteContent.style.display = 'none';
+          }
+        }
+      };
+
+      // Event Listeners
+      changePasswordBtn.addEventListener('click', () => {
+        if (!isGoogleUser) {
+          openModal(changePasswordModal);
+        } else {
+          // Could redirect to Google account settings
+          window.open('https://myaccount.google.com/security', '_blank');
+        }
+      });
+
+      deleteAccountBtn.addEventListener('click', () => {
+        openModal(deleteAccountModal);
+      });
+
+      closeModalButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const modal = button.closest('.modal');
+          closeModal(modal);
         });
-    </script>
+      });
+
+      window.addEventListener('click', (event) => {
+        if (event.target.classList.contains('modal')) {
+          closeModal(event.target);
+        }
+      });
+
+      passwordConfirmationForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const password = currentPasswordInput.value;
+
+        try {
+          const user = auth.currentUser;
+          const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+          await user.reauthenticateWithCredential(credential);
+          // Show new password form
+          passwordConfirmationForm.style.display = "none";
+          changePasswordMessage.style.display = "block";
+          newPasswordForm.style.display = "block";
+
+        } catch (error) {
+          alert('Incorrect password. Please try again.');
+        }
+      });
+
+      newPasswordForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newPassword = newPasswordInput.value;
+        const confirmNewPassword = confirmNewPasswordInput.value;
+
+        if (newPassword !== confirmNewPassword) {
+          alert("New passwords do not match. Please try again.");
+          return;
+        }
+
+        try {
+          const user = auth.currentUser;
+          await user.updatePassword(newPassword);
+          alert('Password updated successfully!');
+          closeModal(changePasswordModal); // Close modal after successful update
+        } catch (error) {
+          alert('Error updating password: ' + error.message);
+        }
+      });
+
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          await auth.signOut();
+          window.location.href = 'index.html';
+        } catch (error) {
+          console.error('Error signing out: ', error);
+          alert('Failed to log out. Please try again.');
+        }
+      });
+
+      deleteAccountForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const password = deletePasswordInput.value;
+
+        try {
+          const user = auth.currentUser;
+          const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+          await user.reauthenticateWithCredential(credential);
+          await user.delete();
+          alert('Account deleted successfully.');
+          window.location.href = 'index.html';
+        } catch (error) {
+          alert('Error deleting account: ' + error.message);
+        }
+      });
+
+      // Google reauthentication for account deletion
+      googleReauthButton.addEventListener('click', async () => {
+        try {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          await auth.currentUser.reauthenticateWithPopup(provider);
+
+          // Now delete the account after successful reauthentication
+          await auth.currentUser.delete();
+          alert('Account deleted successfully.');
+          window.location.href = 'index.html';
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Failed to delete account: ' + error.message);
+        }
+      });
+
+      // Fetch user data and populate the account page
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          userEmailElement.textContent = `Email: ${user.email}`;
+          creationTimeElement.textContent = `Created: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
+          lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
+          userUIDElement.textContent = `User ID: ${user.uid}`;
+
+          // Check authentication provider and update UI accordingly
+          checkAuthProvider(user);
+
+          // Load and apply theme preference
+          const userId = user.uid;
+          loadThemePreference(userId).then(savedTheme => {
+            if (savedTheme) {
+              applyTheme(savedTheme);
+            } else {
+              // Default theme: check system preference
+              const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+              applyTheme(prefersDark ? 'dark' : 'light'); // Apply system preference
+            }
+          });
+
+          // Event listeners for theme radio buttons
+          lightModeRadio.addEventListener('change', () => {
+            if (lightModeRadio.checked) {
+              applyTheme('light');
+              saveThemePreference(userId, 'light');
+            }
+          });
+
+          darkModeRadio.addEventListener('change', () => {
+            if (darkModeRadio.checked) {
+              applyTheme('dark');
+              saveThemePreference(userId, 'dark');
+            }
+          });
+
+        } else {
+          // Redirect to login page if user is not logged in
+          window.location.href = 'login.html';
+        }
+      });
+    });
+  </script>
+
 </body>
+
 </html>
