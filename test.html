@@ -12,87 +12,71 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <style>
-    /* Original defined colors, becoming base for semantic variables */
     :root {
-      --original-light-text: #f0f0f0;
-      --original-dark-bg: #1a1a1a;
-      --original-light-gray: #e0e0e0;
-      --original-medium-gray: #333333;
-      --original-darker-bg: #0d0d0d;
-      --original-error-red: #ff1212;
-      --original-primary-red: #ff1212;
-      --original-dark-red: #8b0000;
-
-
-      /* Semantic Colors for Dark Mode (Default) */
-      --text-color: var(--original-light-text);
-      --body-bg: var(--original-dark-bg);
-      --header-footer-bg: var(--original-darker-bg);
-      --card-bg: #2a2a2a; /* slightly lighter dark for cards */
-      --card-border: #444444;
-      --info-text-color: #ccc; /* slightly lighter than medium-gray for better readability */
-      --main-heading-color: var(--original-light-text);
-
-      /* Action & Button Colors */
-      --primary-action-color: var(--original-primary-red);
-      --danger-action-color: var(--original-primary-red);
-      --danger-border-color: var(--original-dark-red);
-
-      --btn-primary-bg: var(--primary-action-color);
-      --btn-primary-text: var(--original-light-text);
-      --btn-secondary-bg: transparent;
-      --btn-secondary-text: var(--text-color);
-      --btn-secondary-border: var(--text-color);
-
-      /* Modal Colors */
-      --modal-backdrop-bg: rgba(0, 0, 0, 0.7);
+      /* Light Mode Variables */
+      --primary-action: #1a1a1a;
+      --secondary-action-text: #1a1a1a;
+      --secondary-action-bg: #e0e0e0;
+      --danger-action: #ff1212;
+      --light-text: #f0f0f0;
+      --dark-text: #1a1a1a;
+      --dark-bg: #1a1a1a;
+      --light-bg: #f0f0f0;
+      --light-gray: #e0e0e0;
+      --medium-gray: #333333;
+      --darker-bg: #0d0d0d;
+      --error-red: #ff1212;
+      --info-text: #333333;
+      --card-bg: white;
+      --card-border: #e0e0e0;
+      --pill-radius: 50px;
+      --modal-bg: rgba(0, 0, 0, 0.7);
       --modal-content-bg: #222;
       --modal-content-border: #666;
       --modal-text-color: #ddd;
       --modal-input-bg: #444;
       --modal-input-text-color: #eee;
-
-      /* Other fixed elements or accents */
-      --google-badge-bg: #4285F4;
-      --email-badge-bg: var(--original-dark-bg);
-      --pill-radius: 50px;
+      --primary-red: #ff1212;
+      --dark-red: #8b0000;
+      --body-bg: #e0e0e0;
+      --body-text: #1a1a1a;
+      --footer-bg: #1a1a1a;
+      --footer-text: #f0f0f0;
+      --nav-bg: #0d0d0d;
+      --nav-text: #f0f0f0;
     }
 
-    html.light-mode {
-      /* Semantic Colors for Light Mode */
-      --text-color: var(--original-dark-bg);
-      --body-bg: var(--original-light-gray);
-      --header-footer-bg: var(--original-darker-bg); /* Keeping navbar/footer dark for consistent branding/contrast */
-      --card-bg: white;
-      --card-border: var(--original-light-gray);
-      --info-text-color: var(--original-medium-gray);
-      --main-heading-color: var(--original-dark-bg);
-
-      /* Action & Button Colors (can be overridden if a different shade is preferred in light mode) */
-      --primary-action-color: var(--original-primary-red);
-      --danger-action-color: var(--original-primary-red);
-      --danger-border-color: var(--original-dark-red);
-
-      --btn-primary-bg: var(--primary-action-color);
-      --btn-primary-text: white; /* Ensure text is readable on red background */
-      --btn-secondary-bg: transparent;
-      --btn-secondary-text: var(--text-color);
-      --btn-secondary-border: var(--text-color);
-
-      /* Modal Colors (can be changed to light mode if desired, currently kept dark for overlay) */
-      --modal-backdrop-bg: rgba(0, 0, 0, 0.7);
-      --modal-content-bg: white;
-      --modal-content-border: #ccc;
-      --modal-text-color: var(--original-dark-bg);
-      --modal-input-bg: #f0f0f0;
-      --modal-input-text-color: var(--original-dark-bg);
-
-      /* Other fixed elements or accents */
-      --google-badge-bg: #4285F4;
-      --email-badge-bg: var(--original-dark-bg);
+    /* Dark Mode Variables */
+    [data-theme="dark"] {
+      --primary-action: #f0f0f0;
+      --secondary-action-text: #f0f0f0;
+      --secondary-action-bg: #333333;
+      --danger-action: #ff1212;
+      --light-text: #f0f0f0;
+      --dark-text: #1a1a1a;
+      --dark-bg: #1a1a1a;
+      --light-bg: #f0f0f0;
+      --light-gray: #333333;
+      --medium-gray: #e0e0e0;
+      --darker-bg: #000000;
+      --error-red: #ff1212;
+      --info-text: #e0e0e0;
+      --card-bg: #222222;
+      --card-border: #444444;
+      --modal-bg: rgba(0, 0, 0, 0.8);
+      --modal-content-bg: #333333;
+      --modal-content-border: #555555;
+      --modal-text-color: #f0f0f0;
+      --modal-input-bg: #222222;
+      --modal-input-text-color: #f0f0f0;
+      --body-bg: #121212;
+      --body-text: #f0f0f0;
+      --footer-bg: #0d0d0d;
+      --footer-text: #f0f0f0;
+      --nav-bg: #000000;
+      --nav-text: #f0f0f0;
     }
 
-    /* Apply variables to elements */
     body {
       background-color: var(--body-bg);
       font-family: 'Roboto Mono', monospace;
@@ -101,7 +85,8 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      color: var(--text-color); /* Default text color for body */
+      color: var(--body-text);
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     .container {
@@ -111,21 +96,27 @@
       flex: 1;
     }
 
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--body-text);
+    }
+
     .navbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 1.5rem 3rem;
-      background-color: var(--header-footer-bg);
-      color: var(--text-color); /* Text for logo and default nav links */
-      border-bottom: 1px solid var(--primary-action-color); /* Consider if accent should change */
+      background-color: var(--nav-bg);
+      color: var(--nav-text);
+      border-bottom: 1px solid var(--card-border);
+      transition: background-color 0.3s ease;
     }
 
     .logo {
       font-size: 1.8rem;
       font-weight: 700;
       letter-spacing: -1.5px;
-      color: var(--text-color);
     }
 
     .nav-buttons {
@@ -137,23 +128,24 @@
     .btn {
       display: inline-block;
       padding: 1rem 2rem;
-      border-radius: var(--pill-radius);
+      border-radius: 50px;
       font-size: 1rem;
       cursor: pointer;
       text-align: center;
       border: 2px solid transparent;
       font-weight: 500;
+      transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
     }
 
     .btn.primary {
-      background-color: var(--btn-primary-bg);
-      color: var(--btn-primary-text);
+      background-color: var(--primary-action);
+      color: var(--light-bg);
     }
 
     .btn.secondary {
-      background-color: var(--btn-secondary-bg);
-      color: var(--btn-secondary-text);
-      border-color: var(--btn-secondary-border);
+      background-color: transparent;
+      color: var(--nav-text);
+      border-color: var(--nav-text);
     }
 
     .btn:hover {
@@ -163,15 +155,10 @@
     footer {
       text-align: center;
       padding: 1rem;
-      background-color: var(--header-footer-bg);
-      color: var(--text-color);
-      border-top: 2px solid var(--primary-action-color);
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: var(--main-heading-color);
+      background-color: var(--footer-bg);
+      color: var(--footer-text);
+      border-top: 2px solid var(--primary-action);
+      transition: background-color 0.3s ease;
     }
 
     .account-grid {
@@ -185,19 +172,20 @@
       padding: 1.5rem;
       background-color: var(--card-bg);
       border-radius: var(--pill-radius);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       border: 1px solid var(--card-border);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     }
 
-    .account-info h2 {
+    .account-info h2, .account-info h3 {
       font-size: 1.4rem;
       margin-bottom: 1rem;
-      color: var(--main-heading-color);
+      color: var(--body-text);
     }
 
     .account-info p {
       margin-bottom: 0.75rem;
-      color: var(--info-text-color);
+      color: var(--info-text);
     }
 
     .account-buttons {
@@ -210,13 +198,13 @@
     .account-buttons button {
       padding: 1rem 1.5rem;
       border-radius: var(--pill-radius);
-      border: 2px solid var(--btn-secondary-border);
+      border: 2px solid var(--primary-action);
       background-color: transparent;
-      color: var(--text-color);
+      color: var(--body-text);
       font-size: 1rem;
       font-weight: 500;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: all 0.3s ease;
       text-align: center;
       width: 100%;
       display: inline-block;
@@ -228,13 +216,13 @@
     }
 
     .account-buttons button.secondary {
-      border-color: var(--btn-secondary-border);
+      border-color: var(--primary-action);
     }
 
     .account-buttons button.danger {
-      background-color: var(--danger-action-color);
-      color: white;
-      border: 2px solid var(--danger-border-color);
+      background-color: var(--danger-action);
+      color: var(--light-text);
+      border: 2px solid var(--dark-red);
     }
 
     .account-buttons button.disabled {
@@ -254,33 +242,16 @@
     }
 
     .provider-badge.google {
-      background-color: var(--google-badge-bg);
+      background-color: #4285F4;
       color: white;
     }
 
     .provider-badge.email {
-      background-color: var(--email-badge-bg);
-      color: white;
+      background-color: var(--primary-action);
+      color: var(--light-bg);
     }
 
-    /* Google re-authentication button style */
-    #googleReauthButton {
-      background-color: #3498db;
-      color: white;
-      border-radius: var(--pill-radius);
-      border: 3px solid #2980b9;
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    #googleReauthButton:hover {
-      background-color: #2980b9;
-    }
-
-    /* Styles for the modal/popup */
+    /* Modal & Forms */
     .modal {
       position: fixed;
       z-index: 1000;
@@ -289,7 +260,7 @@
       width: 100%;
       height: 100%;
       overflow: auto;
-      background-color: var(--modal-backdrop-bg);
+      background-color: var(--modal-bg);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -315,7 +286,7 @@
       position: relative;
       color: var(--modal-text-color);
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-      transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
+      transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease, background-color 0.3s ease;
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
@@ -354,18 +325,18 @@
     .password-form input[type="password"] {
       padding: 1rem;
       font-size: 1rem;
-      border: 1px solid var(--modal-content-border);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: var(--pill-radius);
       color: var(--modal-input-text-color);
       background-color: var(--modal-input-bg);
       width: 100%;
       box-sizing: border-box;
-      transition: border-color 0.2s ease;
+      transition: border-color 0.2s ease, background-color 0.3s ease;
     }
 
     .password-form input[type="password"]:focus {
       outline: none;
-      border-color: var(--primary-action-color);
+      border-color: var(--primary-red);
       box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3);
     }
 
@@ -378,12 +349,12 @@
       text-align: center;
       border: none;
       font-weight: 500;
-      color: white;
+      color: var(--light-text);
       transition: background-color 0.2s ease;
     }
 
     .password-form button.confirm {
-      background-color: var(--primary-action-color);
+      background-color: var(--primary-red);
     }
 
     .password-form button.confirm:hover {
@@ -391,8 +362,7 @@
     }
 
     .password-form button.delete {
-      background-color: var(--danger-action-color);
-      border: 2px solid var(--danger-border-color);
+      background-color: var(--danger-action);
     }
 
     .password-form button.delete:hover {
@@ -409,6 +379,7 @@
 
     .modal p {
       color: var(--modal-text-color);
+      opacity: 0.8;
       margin-bottom: 1.5rem;
       text-align: center;
     }
@@ -437,8 +408,8 @@
 
     /* Styles for the logout button */
     #logoutBtn {
-      background-color: var(--primary-action-color);
-      color: white;
+      background-color: var(--primary-action);
+      color: var(--light-bg);
       border: none;
       border-radius: var(--pill-radius);
       padding: 1rem 2rem;
@@ -448,7 +419,7 @@
     }
 
     #logoutBtn:hover {
-      background-color: var(--original-darker-bg);
+      background-color: var(--darker-bg);
     }
 
     /* Message for Google users who can't change password */
@@ -464,69 +435,62 @@
       text-decoration: underline;
     }
 
-    /* New styles for the theme settings section */
-    .theme-settings {
-      margin-top: 2rem;
-      padding: 1.5rem;
-      background-color: var(--card-bg);
-      border-radius: var(--pill-radius);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--card-border);
-    }
-
-    .theme-settings h2 {
-      font-size: 1.4rem;
-      margin-bottom: 1rem;
-      color: var(--main-heading-color);
-    }
-
-    .theme-options {
+    /* Theme Toggle Switch Styles */
+    .theme-toggle-container {
       display: flex;
-      gap: 1rem;
       align-items: center;
+      margin-right: 1rem;
     }
 
-    .theme-options input[type="radio"] {
-      appearance: none; /* Hide default radio button */
-      width: 20px;
-      height: 20px;
-      border: 2px solid var(--info-text-color);
-      border-radius: 50%;
-      outline: none;
-      cursor: pointer;
+    .theme-toggle-label {
       position: relative;
-      transition: background-color 0.2s ease, border-color 0.2s ease;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+      margin: 0 0.5rem;
     }
 
-    .theme-options input[type="radio"]:checked {
-      background-color: var(--primary-action-color); /* Accent color when checked */
-      border-color: var(--primary-action-color);
+    .theme-toggle-label input {
+      opacity: 0;
+      width: 0;
+      height: 0;
     }
 
-    .theme-options input[type="radio"]:checked::before {
-      content: '';
-      display: block;
-      width: 10px;
-      height: 10px;
-      background-color: white; /* The inner dot is always white */
-      border-radius: 50%;
+    .slider {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    .theme-options label {
       cursor: pointer;
-      font-size: 1rem;
-      color: var(--info-text-color);
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
     }
 
-    /* Responsive adjustments for account grid */
-    @media (max-width: 768px) {
-      .account-grid {
-        grid-template-columns: 1fr;
-      }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(30px);
+    }
+
+    .theme-icon {
+      font-size: 1.2rem;
+      color: var(--nav-text);
     }
   </style>
 </head>
@@ -535,6 +499,14 @@
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
+      <div class="theme-toggle-container">
+        <span class="theme-icon">☀️</span>
+        <label class="theme-toggle-label">
+          <input type="checkbox" id="themeToggle">
+          <span class="slider"></span>
+        </label>
+        <span class="theme-icon">🌙</span>
+      </div>
       <a href="index.html" class="btn secondary">Home</a>
       <a href="dashboard.html" class="btn secondary">Dashboard</a>
       <a href="account.html" class="btn primary">Account</a>
@@ -564,28 +536,19 @@
         <button id="deleteAccountBtn" class="danger">Delete Account</button>
       </div>
     </div>
-
-    <div class="account-info theme-settings">
-      <h2>Theme Settings</h2>
-      <div class="theme-options">
-        <input type="radio" id="lightMode" name="theme" value="light">
-        <label for="lightMode">Light Mode</label>
-
-        <input type="radio" id="darkMode" name="theme" value="dark">
-        <label for="darkMode">Dark Mode</label>
-      </div>
-    </div>
   </main>
 
   <footer>
     <p>© 2025 4SP</p>
   </footer>
 
+  <!-- Change Password Modal -->
   <div id="changePasswordModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
       <h2>Change Password</h2>
-
+      
+      <!-- Regular password change flow for email users -->
       <div id="emailAuthContent">
         <p>Confirm your current password, then enter a new password.</p>
         <form class="password-form password-confirmation-form" id="confirmPasswordForm">
@@ -603,7 +566,8 @@
           <button type="submit" class="confirm">Change Password</button>
         </form>
       </div>
-
+      
+      <!-- Message for Google users -->
       <div id="googleAuthContent" style="display: none;">
         <div class="google-auth-message">
           <p>You're signed in with Google, so your password is managed through your Google account.</p>
@@ -613,18 +577,21 @@
     </div>
   </div>
 
+  <!-- Delete Account Modal -->
   <div id="deleteAccountModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
       <h2>Delete Account</h2>
       <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-
+      
+      <!-- Email auth users see password confirmation -->
       <form class="password-form" id="deleteAccountForm">
         <label for="deletePassword" id="deletePasswordLabel">Enter Password to Confirm:</label>
         <input type="password" id="deletePassword" required>
         <button type="submit" class="delete">Delete Account</button>
       </form>
-
+      
+      <!-- Google users see re-auth button -->
       <div id="googleDeleteContent" style="display: none;">
         <p>Since you're signed in with Google, you'll need to re-authenticate to delete your account.</p>
         <button id="googleReauthButton">Re-authenticate with Google</button>
@@ -634,9 +601,39 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Theme management
+      const themeToggle = document.getElementById('themeToggle');
+      
+      // Function to set theme based on user preference
+      const setTheme = (isDark) => {
+        if (isDark) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          themeToggle.checked = true;
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+          themeToggle.checked = false;
+        }
+        // Save user preference
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      };
+
+      // Check for saved user preference, if any
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        setTheme(savedTheme === 'dark');
+      } else {
+        // If no saved preference, check system preference
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setTheme(prefersDarkScheme);
+      }
+
+      // Listen for theme toggle changes
+      themeToggle.addEventListener('change', () => {
+        setTheme(themeToggle.checked);
+      });
+
       // Firebase Initialization
       const auth = firebase.auth();
-      const db = firebase.firestore(); // Initialize Firestore
 
       // Get DOM Elements
       const userEmailElement = document.getElementById('userEmail');
@@ -662,18 +659,13 @@
       const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
       const deletePasswordInput = document.getElementById('deletePassword');
       const changePasswordMessage = document.getElementById('change-password-message');
-
+      
       // Google auth specific elements
       const emailAuthContent = document.getElementById('emailAuthContent');
       const googleAuthContent = document.getElementById('googleAuthContent');
       const googleDeleteContent = document.getElementById('googleDeleteContent');
       const googleReauthButton = document.getElementById('googleReauthButton');
       const deletePasswordLabel = document.getElementById('deletePasswordLabel');
-
-      // Theme settings elements
-      const lightModeRadio = document.getElementById('lightMode');
-      const darkModeRadio = document.getElementById('darkMode');
-      const htmlElement = document.documentElement; // Get the <html> element
 
       // Track if user is Google authenticated
       let isGoogleUser = false;
@@ -693,57 +685,6 @@
         }, 300);
       };
 
-      // Function to apply theme based on user preference
-      const applyTheme = (theme) => {
-        if (theme === 'dark') {
-          htmlElement.classList.remove('light-mode');
-          darkModeRadio.checked = true;
-          lightModeRadio.checked = false;
-        } else {
-          htmlElement.classList.add('light-mode');
-          lightModeRadio.checked = true;
-          darkModeRadio.checked = false;
-        }
-      };
-
-      // Function to save theme preference to Firestore
-      const saveThemePreference = async (userId, theme) => {
-        if (!userId) {
-          console.warn("Cannot save theme preference: User ID is missing.");
-          return;
-        }
-        try {
-          const userRef = db.collection('users').doc(userId);
-          await userRef.set({
-            themePreference: theme
-          }, {
-            merge: true
-          }); // Use merge: true to avoid overwriting other user data
-          console.log("Theme preference saved successfully.");
-        } catch (error) {
-          console.error("Error saving theme preference: ", error);
-        }
-      };
-
-      // Function to load theme preference from Firestore
-      const loadThemePreference = async (userId) => {
-        if (!userId) {
-          console.warn("Cannot load theme preference: User ID is missing.");
-          return null;
-        }
-        try {
-          const userRef = db.collection('users').doc(userId);
-          const doc = await userRef.get();
-          if (doc.exists && doc.data().themePreference) {
-            return doc.data().themePreference;
-          }
-        } catch (error) {
-          console.error("Error loading theme preference: ", error);
-        }
-        return null; // No preference found or error
-      };
-
-
       // Check if user is signed in with Google
       const checkAuthProvider = (user) => {
         if (user) {
@@ -751,37 +692,37 @@
           const googleProvider = user.providerData.find(
             provider => provider.providerId === 'google.com'
           );
-
+          
           isGoogleUser = googleProvider !== undefined;
-
+          
           // Update UI based on auth provider
           if (isGoogleUser) {
             // Show Google badge
             authProviderElement.innerHTML = `Sign-in Method: Google <span class="provider-badge google">Google</span>`;
-
+            
             // Disable change password button
             changePasswordBtn.classList.add('disabled');
             changePasswordBtn.title = "Password is managed by your Google account";
-
+            
             // Configure change password modal for Google users
             emailAuthContent.style.display = 'none';
             googleAuthContent.style.display = 'block';
-
+            
             // Configure delete account modal for Google users
             deleteAccountForm.style.display = 'none';
             googleDeleteContent.style.display = 'block';
           } else {
             // Show Email badge
             authProviderElement.innerHTML = `Sign-in Method: Email <span class="provider-badge email">Email</span>`;
-
+            
             // Make sure change password button is enabled
             changePasswordBtn.classList.remove('disabled');
             changePasswordBtn.title = "";
-
+            
             // Configure change password modal for email users
             emailAuthContent.style.display = 'block';
             googleAuthContent.style.display = 'none';
-
+            
             // Configure delete account modal for email users
             deleteAccountForm.style.display = 'block';
             googleDeleteContent.style.display = 'none';
@@ -879,13 +820,13 @@
           alert('Error deleting account: ' + error.message);
         }
       });
-
+      
       // Google reauthentication for account deletion
       googleReauthButton.addEventListener('click', async () => {
         try {
           const provider = new firebase.auth.GoogleAuthProvider();
           await auth.currentUser.reauthenticateWithPopup(provider);
-
+          
           // Now delete the account after successful reauthentication
           await auth.currentUser.delete();
           alert('Account deleted successfully.');
@@ -903,37 +844,9 @@
           creationTimeElement.textContent = `Created: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
           lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
           userUIDElement.textContent = `User ID: ${user.uid}`;
-
+          
           // Check authentication provider and update UI accordingly
           checkAuthProvider(user);
-
-          // Load and apply theme preference
-          const userId = user.uid;
-          loadThemePreference(userId).then(savedTheme => {
-            if (savedTheme) {
-              applyTheme(savedTheme);
-            } else {
-              // Default theme: check system preference
-              const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-              applyTheme(prefersDark ? 'dark' : 'light'); // Apply system preference
-            }
-          });
-
-          // Event listeners for theme radio buttons
-          lightModeRadio.addEventListener('change', () => {
-            if (lightModeRadio.checked) {
-              applyTheme('light');
-              saveThemePreference(userId, 'light');
-            }
-          });
-
-          darkModeRadio.addEventListener('change', () => {
-            if (darkModeRadio.checked) {
-              applyTheme('dark');
-              saveThemePreference(userId, 'dark');
-            }
-          });
-
         } else {
           // Redirect to login page if user is not logged in
           window.location.href = 'login.html';
