@@ -53,39 +53,77 @@
       font-size: 1rem;
     }
   </style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="firebase-config.js"></script>
 </head>
 <body>
   <header>🎮 Game Library</header>
   <main class="games-grid" id="gamesContainer"></main>
 
   <script>
-    const container = document.getElementById('gamesContainer');
+    // Authentication check
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in.
+        console.log("User signed in:", user.email);
+        // Check if the user's email is in the bannedEmails list
+        if (window.bannedEmails && bannedEmails.includes(user.email)) {
+          console.log("User email is banned. Redirecting to index.html");
+          alert("Your account is not permitted to access this page. Redirecting...");
+          window.location.href = 'index.html';
+        } else {
+          // User is signed in and not banned, proceed to load games
+          console.log("User is not banned. Loading games.");
+          loadGames();
+        }
+      } else {
+        // No user is signed in.
+        console.log("No user signed in. Redirecting to login.html");
+        window.location.href = 'login.html';
+      }
+    });
 
-    // Update with your actual raw GitHub repo link
-    const gamesJsonURL = 'https://raw.githubusercontent.com/4simpleproblems/<your-repo-name>/main/games.json';
+    function loadGames() {
+      const container = document.getElementById('gamesContainer');
+      // Update with your actual raw GitHub repo link
+      const gamesJsonURL = 'https://raw.githubusercontent.com/4simpleproblems/games/main/'; // <<<--- UPDATE THIS
 
-    fetch(gamesJsonURL)
-      .then(res => res.json())
-      .then(games => {
-        games.forEach(game => {
-          const card = document.createElement('div');
-          card.className = 'game-card';
-          card.onclick = () => {
-            window.open(game.url, '_blank');
-          };
+      fetch(gamesJsonURL)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(games => {
+          if (!container) {
+            console.error('Error: gamesContainer element not found.');
+            return;
+          }
+          container.innerHTML = ''; // Clear previous content if any
+          games.forEach(game => {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.onclick = () => {
+              window.open(game.url, '_blank');
+            };
 
-          card.innerHTML = `
-            <img src="${game.thumbnail}" alt="${game.name} Thumbnail" />
-            <div class="title">${game.name}</div>
-          `;
+            card.innerHTML = `
+              <img src="${game.thumbnail}" alt="${game.name} Thumbnail" />
+              <div class="title">${game.name}</div>
+            `;
 
-          container.appendChild(card);
+            container.appendChild(card);
+          });
+        })
+        .catch(err => {
+          console.error('Failed to load games:', err);
+          if (container) {
+            container.innerHTML = '<p style="color: red; padding: 1rem;">Failed to load games. Please try again later.</p>';
+          }
         });
-      })
-      .catch(err => {
-        console.error('Failed to load games:', err);
-        container.innerHTML = '<p style="color: red; padding: 1rem;">Failed to load games. Please try again later.</p>';
-      });
+    }
   </script>
 </body>
 </html>
