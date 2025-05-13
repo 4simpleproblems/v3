@@ -864,6 +864,32 @@
           alert('Logout failed');
         }
       });
+      
+      // ——— Open “Edit Profile” Modal ———
+const editProfileBtn = document.getElementById('editProfileBtn');
+const editProfileModal = document.getElementById('editProfileModal');
+const base64Field        = document.getElementById('profilePhotoBase64');
+const fileInput          = document.getElementById('profilePhotoFile');
+const displayNameInput   = document.getElementById('profileDisplayName');
+
+editProfileBtn.addEventListener('click', () => {
+  if (!currentUser) {
+    alert('User data is still loading…');
+    return;
+  }
+
+  // Prefill the display name
+  displayNameInput.value = currentUser.displayName && currentUser.displayName !== 'Not Set'
+    ? currentUser.displayName
+    : '';
+
+  // Clear out any previous file / base64
+  fileInput.value       = '';
+  base64Field.value     = '';
+
+  openModal(editProfileModal);
+});
+
 
       // Auth state listener
       auth.onAuthStateChanged(async user => {
