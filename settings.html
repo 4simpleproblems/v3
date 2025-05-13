@@ -59,22 +59,8 @@
       min-height: 100vh;
       color: var(--dark-bg);
     }
-
-    h1, h2, h3, h4, h5, h6, p, a, span, div, li, label, button, input, textarea, select {
+    h1,h2,h3,h4,h5,h6,p,a,span,div,li,label,button,input,textarea,select {
       font-family: 'Roboto Mono', monospace;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 0 2rem;
-      flex: 1;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: var(--dark-bg);
     }
 
     .navbar {
@@ -84,21 +70,17 @@
       padding: 1.5rem 3rem;
       background-color: var(--darker-bg);
       color: var(--light-text);
-      border-bottom: 1px solid var(--accent);
     }
-
     .logo {
       font-size: 1.8rem;
       font-weight: 700;
       letter-spacing: -1.5px;
     }
-
     .nav-buttons {
       display: flex;
       align-items: center;
       gap: 1rem;
     }
-
     .btn {
       display: inline-block;
       padding: 1rem 2rem;
@@ -109,29 +91,29 @@
       border: 2px solid transparent;
       font-weight: 500;
       text-decoration: none;
+      color: var(--light-text);
+      background-color: transparent;
     }
-
     .btn.primary {
       background-color: var(--dark-bg);
-      color: var(--light-text);
     }
-
     .btn.secondary {
-      background-color: transparent;
-      color: var(--light-text);
       border-color: var(--light-text);
     }
-
     .btn:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    footer {
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      flex: 1;
+    }
+    h1 {
       text-align: center;
-      padding: 1rem;
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-      border-top: 2px solid var(--primary-action);
+      margin-bottom: 2rem;
+      color: var(--dark-bg);
     }
 
     .account-grid {
@@ -140,29 +122,25 @@
       gap: 2rem;
       margin-top: 2rem;
     }
-
     .account-info {
       padding: 1.5rem 2rem;
       background-color: var(--card-bg);
       border-radius: 15px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
       border: 1px solid var(--card-border);
     }
-
     .account-info h2 {
       font-size: 1.4rem;
       margin-bottom: 1.5rem;
       color: var(--dark-bg);
       text-align: left;
     }
-
     .profile-main-info {
       display: flex;
       align-items: center;
       gap: 20px;
       margin-bottom: 1.5rem;
     }
-
     .profile-main-info img#userPhoto {
       width: 80px;
       height: 80px;
@@ -171,52 +149,38 @@
       border: 2px solid var(--card-border);
       flex-shrink: 0;
     }
-
     .profile-text-details {
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
     }
-
     .profile-text-details p {
-      margin-bottom: 0;
+      margin: 0;
       color: var(--info-text);
       word-break: break-all;
     }
-
     #userDisplayName {
       font-weight: 500;
       font-size: 1.1rem;
       color: var(--dark-bg);
     }
-
     .info-separator {
       border: none;
       height: 1px;
       background-color: var(--light-gray);
       margin: 0 0 1.5rem 0;
     }
-
-    .account-info p {
-      margin-bottom: 0.75rem;
-      color: var(--info-text);
-      word-break: break-all;
-    }
-
     .additional-info h3 {
       font-size: 1.2rem;
-      margin-top: 0;
-      margin-bottom: 1rem;
+      margin: 0 0 1rem 0;
       color: var(--dark-bg);
     }
-
     .account-buttons {
       display: flex;
       flex-direction: column;
       gap: 1rem;
       padding: 1.5rem;
     }
-
     .account-buttons button {
       padding: 1rem 1.5rem;
       border-radius: var(--pill-radius);
@@ -227,38 +191,22 @@
       font-weight: 500;
       cursor: pointer;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      text-align: center;
       width: 100%;
-      display: inline-block;
-      box-sizing: border-box;
     }
-
     .account-buttons button:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       background-color: var(--light-gray);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-
-    .account-buttons button.edit-profile {
-      border-color: var(--dark-bg);
-    }
-
-    .account-buttons button.manage-subscriptions {
-      border-color: var(--dark-bg);
-    }
-
     .account-buttons button.danger {
       background-color: var(--danger-action);
       color: var(--light-text);
-      border: 2px solid var(--dark-red);
+      border-color: var(--dark-red);
     }
-
     .account-buttons button.danger:hover {
       background-color: var(--dark-red);
     }
-
     .account-buttons button.disabled {
       opacity: 0.5;
-      cursor: not-allowed;
       pointer-events: none;
     }
 
@@ -267,16 +215,14 @@
       padding: 0.25rem 0.75rem;
       border-radius: 50px;
       font-size: 0.85rem;
+      font-weight: 500;
       margin-left: 0.75rem;
       vertical-align: middle;
-      font-weight: 500;
     }
-
     .provider-badge.google {
       background-color: #4285F4;
       color: white;
     }
-
     .provider-badge.email {
       background-color: var(--dark-bg);
       color: white;
@@ -285,198 +231,108 @@
     .modal {
       position: fixed;
       z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
       background-color: var(--modal-bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      visibility: hidden;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden;
       transition: opacity 0.3s ease, visibility 0s linear 0.3s;
     }
-
     .modal.show {
-      opacity: 1;
-      visibility: visible;
+      opacity: 1; visibility: visible;
       transition: opacity 0.3s ease, visibility 0s linear 0s;
     }
-
     .modal-content {
       background-color: var(--modal-content-bg);
       padding: 2rem;
       border: 1px solid var(--modal-content-border);
-      width: 90%;
-      max-width: 500px;
+      width: 90%; max-width: 500px;
       border-radius: var(--modal-radius);
       position: relative;
       color: var(--modal-text-color);
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-      transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      display: flex; flex-direction: column; gap: 1.5rem;
     }
-
-    .close {
-      position: absolute;
-      top: 1rem;
-      right: 1.5rem;
+    .modal-content label {
+      display: block; margin-bottom: 0.25rem;
       color: var(--modal-text-color);
-      font-size: 28px;
       font-weight: bold;
-      cursor: pointer;
     }
-
-    .close:hover {
-      color: #fff;
-      text-decoration: none;
-    }
-
-    .form, .password-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .form label, .password-form label {
-      font-weight: bold;
-      color: var(--modal-text-color);
-      display: block;
-      margin-bottom: 0.25rem;
-    }
-
-    .form input[type="text"],
-    .form input[type="url"],
-    .form input[type="email"],
-    .form input[type="file"],
-    .password-form input[type="password"] {
-      padding: 1rem;
-      font-size: 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    .modal-content input[type="text"],
+    .modal-content input[type="url"],
+    .modal-content input[type="email"],
+    .modal-content input[type="password"],
+    .modal-content input[type="file"] {
+      width: 100%; box-sizing: border-box;
+      padding: 1rem; font-size: 1rem;
+      border: 1px solid rgba(255,255,255,0.2);
       border-radius: var(--pill-radius);
-      color: var(--modal-input-text-color);
       background-color: var(--modal-input-bg);
-      width: 100%;
-      box-sizing: border-box;
-      transition: border-color 0.2s ease;
+      color: var(--modal-input-text-color);
       font-family: 'Roboto Mono', monospace;
+      transition: border-color 0.2s ease;
     }
-
-    .form input:focus, .password-form input:focus {
+    .modal-content input:focus {
       outline: none;
       border-color: var(--primary-red);
-      box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3);
+      box-shadow: 0 0 0 2px rgba(255,18,18,0.3);
     }
-
-    .form button, .password-form button {
-      display: inline-block;
+    .modal-content button {
       padding: 1rem 2rem;
       border-radius: var(--pill-radius);
-      font-size: 1rem;
-      cursor: pointer;
-      text-align: center;
       border: none;
+      font-size: 1rem;
       font-weight: 500;
       color: var(--light-text);
-      transition: background-color 0.2s ease;
+      cursor: pointer;
       margin-top: 0.5rem;
       font-family: 'Roboto Mono', monospace;
+      transition: background-color 0.2s ease;
     }
-
-    .form button.primary-action,
-    .password-form button.confirm {
+    .modal-content button.primary-action {
       background-color: var(--primary-red);
     }
-
-    .form button.primary-action:hover,
-    .password-form button.confirm:hover {
+    .modal-content button.primary-action:hover {
       background-color: #cc0c0c;
     }
-
-    .password-form button.delete {
+    .modal-content button.confirm {
+      background-color: var(--primary-red);
+    }
+    .modal-content button.confirm:hover {
+      background-color: #cc0c0c;
+    }
+    .modal-content button.delete {
       background-color: var(--danger-action);
     }
-
-    .password-form button.delete:hover {
+    .modal-content button.delete:hover {
       background-color: #cc0000;
     }
-
     .modal h2 {
       margin: 0;
-      color: var(--modal-text-color);
       font-size: 1.75rem;
-      font-weight: 600;
       text-align: center;
-    }
-
-    .modal p {
-      color: rgba(240, 240, 240, 0.8);
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-
-    #logoutBtn {
-      background-color: var(--primary-action);
-      color: var(--light-text);
-      border: none;
-      border-radius: var(--pill-radius);
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    #logoutBtn:hover {
-      background-color: var(--darker-bg);
-    }
-
-    #googleReauthButton {
-      background-color: #3498db;
-      color: var(--light-text);
-      border-radius: var(--pill-radius);
-      border: 2px solid #2980b9;
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      display: block;
-      margin: 1rem auto 0;
-    }
-
-    #googleReauthButton:hover {
-      background-color: #2980b9;
-    }
-
-    .google-auth-message {
       color: var(--modal-text-color);
+      font-weight: 600;
+    }
+    .close {
+      position: absolute;
+      top: 1rem; right: 1.5rem;
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--modal-text-color);
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+    .close:hover {
+      color: #fff;
+    }
+
+    footer {
       text-align: center;
-      font-size: 1rem;
-      line-height: 1.5;
-    }
-
-    .google-auth-message a {
-      color: #4285F4;
-      text-decoration: underline;
-    }
-
-    .spinner {
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top: 4px solid #fff;
-      width: 20px;
-      height: 20px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      padding: 1rem;
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      border-top: 2px solid var(--primary-action);
     }
   </style>
 </head>
@@ -496,7 +352,8 @@
       <div class="account-info">
         <h2>User Details</h2>
         <div class="profile-main-info">
-          <img id="userPhoto" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http://www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23ddd%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2210px%22%20fill%3D%22%23777%22%3ELoading%3C/text%3E%3C/svg%3E"
+          <img id="userPhoto"
+               src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23ddd%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2210px%22%20fill%3D%22%23777%22%3ELoading%3C/text%3E%3C/svg%3E"
                alt="User Photo">
           <div class="profile-text-details">
             <p id="userDisplayName">Display Name: Loading...</p>
@@ -512,7 +369,6 @@
           <p id="userUID">User ID: Loading...</p>
         </div>
       </div>
-
       <div class="account-buttons">
         <button id="editProfileBtn" class="edit-profile">Edit Profile</button>
         <button id="changePasswordBtn" class="secondary">Change Password</button>
@@ -526,7 +382,7 @@
     <p>© 2025 4SP</p>
   </footer>
 
-  <!-- EDIT PROFILE MODAL -->
+  <!-- Edit Profile Modal -->
   <div id="editProfileModal" class="modal">
     <div class="modal-content">
       <span class="close" data-modal-id="editProfileModal">&times;</span>
@@ -546,7 +402,7 @@
     </div>
   </div>
 
-  <!-- CROP MODAL -->
+  <!-- Crop Photo Modal -->
   <div id="cropModal" class="modal">
     <div class="modal-content">
       <span class="close" data-modal-id="cropModal">&times;</span>
@@ -558,7 +414,7 @@
     </div>
   </div>
 
-  <!-- CHANGE PASSWORD MODAL -->
+  <!-- Change Password Modal -->
   <div id="changePasswordModal" class="modal">
     <div class="modal-content">
       <span class="close" data-modal-id="changePasswordModal">&times;</span>
@@ -571,7 +427,7 @@
           <button type="submit" class="confirm">Confirm Password</button>
         </form>
         <p style="display:none;" id="change-password-message">Now enter your new password!</p>
-        <form class="password-form" id="newPasswordForm" style="display: none;">
+        <form class="password-form" id="newPasswordForm" style="display:none;">
           <label for="newPassword">New Password:</label>
           <input type="password" id="newPassword" required minlength="6">
           <label for="confirmNewPassword">Confirm New Password:</label>
@@ -579,7 +435,7 @@
           <button type="submit" class="confirm">Change Password</button>
         </form>
       </div>
-      <div id="googleAuthContent" style="display: none;">
+      <div id="googleAuthContent" style="display:none;">
         <div class="google-auth-message">
           <p>You're signed in with Google, so your password is managed through your Google account.</p>
           <p>To change your password, please visit <a href="https://myaccount.google.com/security" target="_blank">Google Account Settings</a>.</p>
@@ -588,25 +444,25 @@
     </div>
   </div>
 
-  <!-- DELETE ACCOUNT MODAL -->
+  <!-- Delete Account Modal -->
   <div id="deleteAccountModal" class="modal">
     <div class="modal-content">
       <span class="close" data-modal-id="deleteAccountModal">&times;</span>
       <h2>Delete Account</h2>
       <p>Are you sure you want to delete your account? This action cannot be undone.</p>
       <form class="password-form" id="deleteAccountForm">
-        <label for="deletePassword" id="deletePasswordLabel">Enter Password to Confirm:</label>
+        <label for="deletePassword">Enter Password to Confirm:</label>
         <input type="password" id="deletePassword" required>
         <button type="submit" class="delete">Delete Account</button>
       </form>
-      <div id="googleDeleteContent" style="display: none;">
+      <div id="googleDeleteContent" style="display:none;">
         <p>Since you're signed in with Google, you'll need to re-authenticate to delete your account.</p>
         <button id="googleReauthButton">Re-authenticate with Google</button>
       </div>
     </div>
   </div>
 
-  <!-- Cropper.js -->
+  <!-- Cropper.js JS -->
   <script
     src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"
     integrity="sha512-2r3DkxIwIK4PGfBQ41vfaBM+ld5GSVoizhH+rYzEauzUb2S7zhRogDHPQp0kH0bOQi5Jh7ufcQp0cAHT8bW+jw=="
@@ -615,18 +471,19 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Firebase Initialization
+      // Firebase Init
       const auth = firebase.auth();
       const db = firebase.firestore();
 
       // DOM Elements
-      const userDisplayNameElement = document.getElementById('userDisplayName');
-      const userPhotoElement = document.getElementById('userPhoto');
-      const userEmailElement = document.getElementById('userEmail');
-      const authProviderElement = document.getElementById('authProvider');
-      const creationTimeElement = document.getElementById('creationTime');
-      const lastSignInElement = document.getElementById('lastSignIn');
-      const userUIDElement = document.getElementById('userUID');
+      const userDisplayNameEl = document.getElementById('userDisplayName');
+      const userPhotoEl = document.getElementById('userPhoto');
+      const userEmailEl = document.getElementById('userEmail');
+      const authProviderEl = document.getElementById('authProvider');
+      const creationTimeEl = document.getElementById('creationTime');
+      const lastSignInEl = document.getElementById('lastSignIn');
+      const userUIDEl = document.getElementById('userUID');
+
       const editProfileBtn = document.getElementById('editProfileBtn');
       const changePasswordBtn = document.getElementById('changePasswordBtn');
       const deleteAccountBtn = document.getElementById('deleteAccountBtn');
@@ -636,114 +493,220 @@
       const changePasswordModal = document.getElementById('changePasswordModal');
       const deleteAccountModal = document.getElementById('deleteAccountModal');
       const cropModal = document.getElementById('cropModal');
-      const closeModalButtons = document.querySelectorAll('.close');
+
+      const profileDisplayNameInput = document.getElementById('profileDisplayName');
+      const profilePhotoFileInput = document.getElementById('profilePhotoFile');
+      const profilePhotoBase64Field = document.getElementById('profilePhotoBase64');
+      const editProfileForm = document.getElementById('editProfileForm');
+
+      const confirmPasswordForm = document.getElementById('confirmPasswordForm');
+      const newPasswordForm = document.getElementById('newPasswordForm');
+      const currentPasswordInput = document.getElementById('currentPassword');
+      const newPasswordInput = document.getElementById('newPassword');
+      const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+      const changePasswordMessage = document.getElementById('change-password-message');
+
+      const deleteAccountForm = document.getElementById('deleteAccountForm');
+      const deletePasswordInput = document.getElementById('deletePassword');
+      const googleReauthButton = document.getElementById('googleReauthButton');
 
       let currentUser = null;
       let isGoogleUser = false;
-      const defaultPhotoURL = userPhotoElement.src;
+      let cropper = null;
 
-      // Cropper.js setup
-      let cropper;
-      const fileInput = document.getElementById('profilePhotoFile');
-      const cropperImage = document.getElementById('cropperImage');
-      const cropConfirmBtn = document.getElementById('cropConfirmBtn');
-      const base64Field = document.getElementById('profilePhotoBase64');
+      const defaultPhotoURL =
+        'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23eee%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2210px%22%20fill%3D%22%23aaa%22%3ENo%20Photo%3C/text%3E%3C/svg%3E';
 
       // Modal helpers
-      function openModal(modal) {
+      const openModal = modal => {
         modal.style.display = 'flex';
         void modal.offsetWidth;
         modal.classList.add('show');
-      }
-      function closeModal(modalOrId) {
-        const modal = typeof modalOrId === 'string'
-          ? document.getElementById(modalOrId)
-          : modalOrId;
+      };
+      const closeModal = modalOrId => {
+        const modal =
+          typeof modalOrId === 'string'
+            ? document.getElementById(modalOrId)
+            : modalOrId;
         if (!modal) return;
         modal.classList.remove('show');
         setTimeout(() => {
           modal.style.display = 'none';
           modal.querySelectorAll('form').forEach(f => f.reset());
-          // reset change password state
-          const confirmForm = document.getElementById('confirmPasswordForm');
-          const newPassForm = document.getElementById('newPasswordForm');
-          const msg = document.getElementById('change-password-message');
-          if (modal.id === 'changePasswordModal' && confirmForm && newPassForm && msg) {
-            confirmForm.style.display = 'block';
-            msg.style.display = 'none';
-            newPassForm.style.display = 'none';
+          if (modal.id === 'changePasswordModal') {
+            confirmPasswordForm.style.display = 'block';
+            changePasswordMessage.style.display = 'none';
+            newPasswordForm.style.display = 'none';
           }
         }, 300);
-      }
-
-      closeModalButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.dataset.modalId;
-          closeModal(id || btn.closest('.modal'));
-        });
-      });
-
+      };
+      document.querySelectorAll('.close').forEach(btn =>
+        btn.addEventListener('click', () =>
+          closeModal(btn.dataset.modalId)
+        )
+      );
       window.addEventListener('click', e => {
-        if (e.target.classList.contains('modal') && e.target.classList.contains('show')) {
+        if (
+          e.target.classList.contains('modal') &&
+          e.target.classList.contains('show')
+        ) {
           closeModal(e.target);
         }
       });
 
-      // Handle file selection & cropping
-      fileInput.addEventListener('change', e => {
+      // Load profile UI
+      async function loadUserProfile(user) {
+        if (!user) return;
+        userDisplayNameEl.textContent = '';
+        userEmailEl.textContent = '';
+        authProviderEl.textContent = '';
+        creationTimeEl.textContent = '';
+        lastSignInEl.textContent = '';
+        userUIDEl.textContent = '';
+
+        userEmailEl.textContent = `Email: ${user.email}`;
+        creationTimeEl.textContent = `Created: ${new Date(
+          user.metadata.creationTime
+        ).toLocaleDateString()}`;
+        lastSignInEl.textContent = `Last Sign-in: ${new Date(
+          user.metadata.lastSignInTime
+        ).toLocaleString()}`;
+        userUIDEl.textContent = `User ID: ${user.uid}`;
+
+        let displayName = user.displayName || 'Not Set';
+        let photoURL = user.photoURL || defaultPhotoURL;
+
+        const doc = await db.collection('users').doc(user.uid).get();
+        if (doc.exists) {
+          const data = doc.data();
+          displayName = data.displayName || displayName;
+          photoURL = data.photoURL || photoURL;
+        } else if (user.displayName || user.photoURL) {
+          await db.collection('users').doc(user.uid).set(
+            {
+              displayName,
+              photoURL: user.photoURL || '',
+              email: user.email
+            },
+            { merge: true }
+          );
+        }
+
+        userDisplayNameEl.textContent = `Name: ${displayName}`;
+        userPhotoEl.src = photoURL;
+        userPhotoEl.onerror = () => (userPhotoEl.src = defaultPhotoURL);
+
+        profileDisplayNameInput.value =
+          displayName === 'Not Set' ? '' : displayName;
+      }
+
+      function checkAuthProvider(user) {
+        const pd = user.providerData.find(p => p.providerId === 'google.com');
+        isGoogleUser = !!pd;
+        if (isGoogleUser) {
+          authProviderEl.innerHTML =
+            'Sign-in Method: <span class="provider-badge google">Google</span>';
+          changePasswordBtn.classList.add('disabled');
+          changePasswordBtn.title =
+            'Password managed by your Google account';
+          document.getElementById('emailAuthContent').style.display = 'none';
+          document.getElementById('googleAuthContent').style.display = 'block';
+          deleteAccountForm.style.display = 'none';
+          document.getElementById('googleDeleteContent').style.display =
+            'block';
+        } else {
+          authProviderEl.innerHTML =
+            'Sign-in Method: <span class="provider-badge email">Email</span>';
+          changePasswordBtn.classList.remove('disabled');
+          changePasswordBtn.title = '';
+          document.getElementById('emailAuthContent').style.display =
+            'block';
+          document.getElementById('googleAuthContent').style.display =
+            'none';
+          deleteAccountForm.style.display = 'block';
+          document.getElementById('googleDeleteContent').style.display =
+            'none';
+        }
+      }
+
+      // Edit Profile button
+      editProfileBtn.addEventListener('click', () => {
+        if (!currentUser) {
+          alert('Please wait, loading user...');
+          return;
+        }
+        openModal(editProfileModal);
+      });
+
+      // File input → Cropper
+      profilePhotoFileInput.addEventListener('change', e => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = () => {
-          cropperImage.src = reader.result;
+          const img = document.getElementById('cropperImage');
+          img.src = reader.result;
           openModal(cropModal);
           if (cropper) cropper.destroy();
-          cropper = new Cropper(cropperImage, {
+          cropper = new Cropper(img, {
             aspectRatio: 1,
             viewMode: 1,
             autoCropArea: 1,
-            responsive: true,
+            responsive: true
           });
         };
         reader.readAsDataURL(file);
       });
 
-      cropConfirmBtn.addEventListener('click', () => {
-        const canvas = cropper.getCroppedCanvas({
-          width: 200,
-          height: 200,
-          imageSmoothingQuality: 'high'
+      // Confirm crop
+      document
+        .getElementById('cropConfirmBtn')
+        .addEventListener('click', () => {
+          const canvas = cropper.getCroppedCanvas({
+            width: 200,
+            height: 200,
+            imageSmoothingQuality: 'high'
+          });
+          const base64 = canvas.toDataURL('image/png');
+          profilePhotoBase64Field.value = base64;
+          userPhotoEl.src = base64;
+          cropper.destroy();
+          closeModal(cropModal);
         });
-        const b64 = canvas.toDataURL('image/png');
-        base64Field.value = b64;
-        userPhotoElement.src = b64;
-        cropper.destroy();
-        closeModal(cropModal);
-      });
 
-      // Edit profile form
-      document.getElementById('editProfileForm').addEventListener('submit', async e => {
+      // Submit Edit Profile
+      editProfileForm.addEventListener('submit', async e => {
         e.preventDefault();
-        if (!currentUser) return alert('User not loaded');
-        const name = document.getElementById('profileDisplayName').value.trim() || 'Not Set';
-        const photoB64 = base64Field.value || '';
-        const btn = e.target.querySelector('button[type="submit"]');
+        const newName =
+          profileDisplayNameInput.value.trim() || 'Not Set';
+        const photoBase64 = profilePhotoBase64Field.value || '';
+
+        const btn = editProfileForm.querySelector('button');
         const origText = btn.textContent;
         btn.innerHTML = '<div class="spinner"></div> Saving...';
         btn.disabled = true;
+
         try {
-          await currentUser.updateProfile({ displayName: name, photoURL: photoB64 });
-          await db.collection('users').doc(currentUser.uid).set({
-            displayName: name,
-            photoURL: photoB64,
-            email: currentUser.email
-          }, { merge: true });
-          userDisplayNameElement.textContent = `Name: ${name}`;
-          userPhotoElement.src = photoB64 || defaultPhotoURL;
-          alert('Profile updated!');
+          await currentUser.updateProfile({
+            displayName: newName,
+            photoURL: photoBase64
+          });
+          await db
+            .collection('users')
+            .doc(currentUser.uid)
+            .set(
+              {
+                displayName: newName,
+                photoURL: photoBase64,
+                email: currentUser.email
+              },
+              { merge: true }
+            );
+          userDisplayNameEl.textContent = `Name: ${newName}`;
+          alert('Profile updated successfully!');
           closeModal(editProfileModal);
         } catch (err) {
-          alert('Error: ' + err.message);
+          alert('Failed to update profile: ' + err.message);
         } finally {
           btn.textContent = origText;
           btn.disabled = false;
@@ -751,188 +714,131 @@
       });
 
       // Change Password
-      document.getElementById('confirmPasswordForm')?.addEventListener('submit', async e => {
+      changePasswordBtn.addEventListener('click', () => {
+        if (isGoogleUser) {
+          alert('Password managed via Google.');
+        } else if (currentUser) {
+          openModal(changePasswordModal);
+        }
+      });
+      confirmPasswordForm.addEventListener('submit', async e => {
         e.preventDefault();
-        if (!currentUser || isGoogleUser) return;
-        const pwd = document.getElementById('currentPassword').value;
-        const btn = e.target.querySelector('button');
-        const orig = btn.textContent;
+        const pw = currentPasswordInput.value;
+        const btn = confirmPasswordForm.querySelector('button');
+        const txt = btn.textContent;
         btn.innerHTML = '<div class="spinner"></div>';
         btn.disabled = true;
         try {
-          const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, pwd);
+          const cred = firebase.auth.EmailAuthProvider.credential(
+            currentUser.email,
+            pw
+          );
           await currentUser.reauthenticateWithCredential(cred);
-          e.target.style.display = 'none';
-          document.getElementById('change-password-message').style.display = 'block';
-          document.getElementById('newPasswordForm').style.display = 'block';
+          confirmPasswordForm.style.display = 'none';
+          changePasswordMessage.style.display = 'block';
+          newPasswordForm.style.display = 'block';
         } catch (err) {
-          alert('Incorrect password: ' + err.message);
+          alert('Wrong password. ' + err.message);
         } finally {
-          btn.textContent = orig;
+          btn.textContent = txt;
           btn.disabled = false;
         }
       });
-
-      document.getElementById('newPasswordForm')?.addEventListener('submit', async e => {
+      newPasswordForm.addEventListener('submit', async e => {
         e.preventDefault();
-        if (!currentUser || isGoogleUser) return;
-        const newP = document.getElementById('newPassword').value;
-        const conf = document.getElementById('confirmNewPassword').value;
-        if (newP !== conf) return alert('New passwords do not match');
-        if (newP.length < 6) return alert('Password must be at least 6 chars');
-        const btn = e.target.querySelector('button');
-        const orig = btn.textContent;
+        const np = newPasswordInput.value;
+        const cp = confirmNewPasswordInput.value;
+        if (np !== cp) {
+          alert('Passwords do not match.');
+          return;
+        }
+        if (np.length < 6) {
+          alert('Must be ≥6 characters.');
+          return;
+        }
+        const btn = newPasswordForm.querySelector('button');
+        const txt = btn.textContent;
         btn.innerHTML = '<div class="spinner"></div>';
         btn.disabled = true;
         try {
-          await currentUser.updatePassword(newP);
-          alert('Password updated!');
+          await currentUser.updatePassword(np);
+          alert('Password changed!');
           closeModal(changePasswordModal);
         } catch (err) {
           alert('Error: ' + err.message);
         } finally {
-          btn.textContent = orig;
+          btn.textContent = txt;
           btn.disabled = false;
         }
       });
 
-      changePasswordBtn.addEventListener('click', () => {
-        if (!currentUser) return alert('User not loaded');
-        if (isGoogleUser) {
-          alert('Password managed by Google.');
-        } else {
-          openModal(changePasswordModal);
-        }
+      // Delete Account
+      deleteAccountBtn.addEventListener('click', () => {
+        if (currentUser) openModal(deleteAccountModal);
       });
-
-      // Delete account
-      document.getElementById('deleteAccountForm')?.addEventListener('submit', async e => {
+      deleteAccountForm.addEventListener('submit', async e => {
         e.preventDefault();
-        if (!currentUser || isGoogleUser) return;
-        if (!confirm('FINAL WARNING: Delete account? This cannot be undone.')) return;
-        const pwd = document.getElementById('deletePassword').value;
-        const btn = e.target.querySelector('button');
-        const orig = btn.textContent;
+        if (isGoogleUser) return;
+        if (!confirm('FINAL WARNING: Delete account?')) return;
+        const pw = deletePasswordInput.value;
+        const btn = deleteAccountForm.querySelector('button');
+        const txt = btn.textContent;
         btn.innerHTML = '<div class="spinner"></div>';
         btn.disabled = true;
         try {
-          const cred = firebase.auth.EmailAuthProvider.credential(currentUser.email, pwd);
+          const cred = firebase.auth.EmailAuthProvider.credential(
+            currentUser.email,
+            pw
+          );
           await currentUser.reauthenticateWithCredential(cred);
           await currentUser.delete();
           alert('Account deleted.');
           window.location.href = 'index.html';
         } catch (err) {
-          alert('Error: ' + err.message);
+          alert('Error deleting: ' + err.message);
         } finally {
-          btn.textContent = orig;
+          btn.textContent = txt;
           btn.disabled = false;
         }
       });
-
-      document.getElementById('googleReauthButton')?.addEventListener('click', async () => {
-        if (!currentUser || !isGoogleUser) return;
-        if (!confirm('FINAL WARNING: Delete account?')) return;
-        const btn = document.getElementById('googleReauthButton');
-        const orig = btn.textContent;
-        btn.innerHTML = '<div class="spinner"></div>';
-        btn.disabled = true;
-        try {
-          const provider = new firebase.auth.GoogleAuthProvider();
-          await currentUser.reauthenticateWithPopup(provider);
-          await currentUser.delete();
-          alert('Account deleted.');
-          window.location.href = 'index.html';
-        } catch (err) {
-          alert('Error: ' + err.message);
-        } finally {
-          btn.textContent = orig;
-          btn.disabled = false;
-        }
-      });
-
-      document.getElementById('deleteAccountBtn').addEventListener('click', () => {
-        if (!currentUser) return alert('User not loaded');
-        openModal(deleteAccountModal);
-      });
+      googleReauthButton &&
+        googleReauthButton.addEventListener('click', async () => {
+          if (!isGoogleUser) return;
+          if (!confirm('FINAL WARNING: Delete account?')) return;
+          const btn = googleReauthButton;
+          const txt = btn.textContent;
+          btn.innerHTML = '<div class="spinner"></div>';
+          btn.disabled = true;
+          try {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            await currentUser.reauthenticateWithPopup(provider);
+            await currentUser.delete();
+            alert('Account deleted.');
+            window.location.href = 'index.html';
+          } catch (err) {
+            alert('Error: ' + err.message);
+          } finally {
+            btn.textContent = txt;
+            btn.disabled = false;
+          }
+        });
 
       // Logout
       logoutBtn.addEventListener('click', async () => {
         try {
           await auth.signOut();
           window.location.href = 'index.html';
-        } catch (err) {
-          alert('Logout failed');
+        } catch {
+          alert('Failed to log out.');
         }
       });
-      
-      // ——— Open “Edit Profile” Modal ———
-const editProfileBtn = document.getElementById('editProfileBtn');
-const editProfileModal = document.getElementById('editProfileModal');
-const base64Field        = document.getElementById('profilePhotoBase64');
-const fileInput          = document.getElementById('profilePhotoFile');
-const displayNameInput   = document.getElementById('profileDisplayName');
-
-editProfileBtn.addEventListener('click', () => {
-  if (!currentUser) {
-    alert('User data is still loading…');
-    return;
-  }
-
-  // Prefill the display name
-  displayNameInput.value = currentUser.displayName && currentUser.displayName !== 'Not Set'
-    ? currentUser.displayName
-    : '';
-
-  // Clear out any previous file / base64
-  fileInput.value       = '';
-  base64Field.value     = '';
-
-  openModal(editProfileModal);
-});
-
 
       // Auth state listener
       auth.onAuthStateChanged(async user => {
         if (user) {
           currentUser = user;
-          // populate basic fields
-          userEmailElement.textContent = `Email: ${user.email}`;
-          creationTimeElement.textContent = `Created: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
-          lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
-          userUIDElement.textContent = `User ID: ${user.uid}`;
-          // Firestore
-          const doc = await db.collection('users').doc(user.uid).get();
-          let displayName = user.displayName || 'Not Set';
-          let photoURL = user.photoURL || defaultPhotoURL;
-          if (doc.exists) {
-            const data = doc.data();
-            displayName = data.displayName || displayName;
-            photoURL = data.photoURL || photoURL;
-          }
-          userDisplayNameElement.textContent = `Name: ${displayName}`;
-          userPhotoElement.src = photoURL;
-          // prefill form
-          document.getElementById('profileDisplayName').value = displayName === 'Not Set' ? '' : displayName;
-          // provider check
-          const googleProv = user.providerData.find(p => p.providerId === 'google.com');
-          isGoogleUser = !!googleProv;
-          if (isGoogleUser) {
-            authProviderElement.innerHTML = 'Sign-in Method: <span class="provider-badge google">Google</span>';
-            changePasswordBtn.classList.add('disabled');
-            changePasswordBtn.title = 'Managed by Google';
-            document.getElementById('emailAuthContent').style.display = 'none';
-            document.getElementById('googleAuthContent').style.display = 'block';
-            document.getElementById('deleteAccountForm').style.display = 'none';
-            document.getElementById('googleDeleteContent').style.display = 'block';
-          } else {
-            authProviderElement.innerHTML = 'Sign-in Method: <span class="provider-badge email">Email</span>';
-            changePasswordBtn.classList.remove('disabled');
-            changePasswordBtn.title = '';
-            document.getElementById('emailAuthContent').style.display = 'block';
-            document.getElementById('googleAuthContent').style.display = 'none';
-            document.getElementById('deleteAccountForm').style.display = 'block';
-            document.getElementById('googleDeleteContent').style.display = 'none';
-          }
+          await loadUserProfile(user);
+          checkAuthProvider(user);
         } else {
           window.location.href = 'login.html';
         }
