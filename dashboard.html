@@ -470,6 +470,13 @@
           </div>
           <div class="tile-frame"></div>
         </a>
+        <a href="banned.html" class="dashboard-tile admin-tile" id="analyticsTile">
+          <div class="tile-content">
+            <h3>Banned Emails</h3>
+            <p>Access banned emails and accounts.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
       </div>
     </div>
   </main>
@@ -485,7 +492,7 @@
         <li>The "Soundboard" is where you'll find all the sounds.</li>
         <li>"Vern" is our secure proxy for web access.</li>
         <li>You can request new sounds or provide feedback on the site.</li>
-        <li>Manage your account settings under "User Settings".</li>
+        <li>Manage your account settings under "Account".</li>
       </ul>
       <button class="btn primary" id="gotItBtn">Got it!</button>
     </div>
@@ -500,7 +507,7 @@
             const logoutBtn = document.getElementById('logoutBtn');
             const adminSectionHeader = document.getElementById('adminSectionHeader');
             const adminSection = document.getElementById('adminSection');
-            const adminEmail = '4simpleproblems@gmail.com'; // Replace with your admin email
+            const adminEmail = ['4simpleproblems@gmail.com', 'wyattbelknap67@gmail.com', 'belkwy30@minerva.sparcc.org'];
 
             if (user) {
                 authNotice.classList.add('hidden');
