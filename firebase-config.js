@@ -1,3 +1,5 @@
+// Updated Firebase configuration and initialization with banned email support
+
 // Your Firebase project configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCE8iictKO9DxGiB5YolWq5ZOfVBdqgwaI",
@@ -9,82 +11,148 @@ const firebaseConfig = {
   measurementId: "G-Q1N35C57EV"
 };
 
-// Initialize Firebase (only once)
+// List of banned Gmail addresses
+const bannedEmails = [
+  "tootja30@minerva.sparcc.org",
+  "jace.toot@icloud.com",
+  "ludwza30@minerva.sparcc.org"
+];
+
+// Initialize Firebase (check for existing app)
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
-} 
-
-// Expose Firebase services
-window.auth = firebase.auth();
-window.db   = firebase.firestore();
-
-// In-memory set of banned emails
-let bannedSet = new Set();
-
-// Load banned list from Firestore
-async function loadBannedEmails() {
-  try {
-    const snap = await db.collection('bannedemails').get();
-    bannedSet = new Set(snap.docs.map(d => d.id.toLowerCase()));
-  } catch (e) {
-    console.error("Failed to load banned list:", e);
-    bannedSet = new Set();
-  }
+  console.log("Firebase initialized successfully");
+} else {
+  console.log("Firebase already initialized");
 }
 
-// Immediately fetch once
-loadBannedEmails();
-
-// Optionally keep it in sync
-// db.collection('bannedemails').onSnapshot(snap => {
-//   bannedSet = new Set(snap.docs.map(d => d.id.toLowerCase()));
-// });
-
-// Core handler: if banned, sign out & redirect instantly
-async function enforceNotBanned(user) {
-  if (!user) return;           // not signed in at all
-  const email = user.email?.toLowerCase() || "";
-  // ensure we have the latest list
-  await loadBannedEmails();
-  if (bannedSet.has(email)) {
-    // force sign-out and redirect immediately
-    await auth.signOut();
-    // flush any JS state, then redirect
-    window.location.replace('index.html');
-    // throw to stop any further logic
-    throw new Error("Banned user - redirected");
-  }
+// Initialize and expose Firebase services globally
+// Authentication
+if (firebase.auth) {
+  window.auth = firebase.auth();
+  
+  // Add auth state change listener to check for banned emails
+  window.auth.onAuthStateChanged((user) => {
+    if (user) {
+      // Check if user's email is in the banned list
+      if (bannedEmails.includes(user.email)) {
+        console.log("Banned email detected, signing out:", user.email);
+        window.auth.signOut().then(() => {
+          // Optionally show an alert or notification
+          console.warn("You are not authorized to access this application.");
+          
+          // Dispatch a custom event that pages can listen for
+          document.dispatchEvent(new CustomEvent('bannedUserAttempt', {
+            detail: { email: user.email }
+          }));
+        });
+      } else {
+        console.log("User authenticated:", user.email);
+      }
+    } else {
+      console.log("User is signed out");
+    }
+  });
+} else {
+  console.error('Firebase Auth SDK not loaded.');
 }
 
-// Listen for auth changes
-auth.onAuthStateChanged(user => {
-  // wrap in a microtask so that UI render logic can await this if needed
-  enforceNotBanned(user).catch(() => {});
-});
+// Firestore
+if (firebase.firestore) {
+  window.db = firebase.firestore();
+  
+  // Optional: Set up a collection for banned emails
+  // This allows you to manage banned emails in Firestore instead of hardcoding
+  window.getBannedEmails = async () => {
+    try {
+      const bannedEmailsSnapshot = await window.db.collection('bannedEmails').get();
+      const dynamicBannedEmails = [];
+      
+      bannedEmailsSnapshot.forEach(doc => {
+        dynamicBannedEmails.push(doc.id); // Using email as document ID
+      });
+      
+      return [...bannedEmails, ...dynamicBannedEmails]; // Combine static and dynamic lists
+    } catch (error) {
+      console.error('Error fetching banned emails:', error);
+      return bannedEmails; // Fall back to static list
+    }
+  };
+  
+  // Check if an email is banned (combines static and dynamic lists)
+  window.isEmailBanned = async (email) => {
+    if (bannedEmails.includes(email)) return true;
+    
+    try {
+      const docRef = await window.db.collection('bannedEmails').doc(email).get();
+      return docRef.exists;
+    } catch (error) {
+      console.error('Error checking banned status:', error);
+      return false;
+    }
+  };
+} else {
+  console.error('Firebase Firestore SDK not loaded.');
+}
 
-// Google sign-in wrapper
-const googleProvider = new firebase.auth.GoogleAuthProvider();
-googleProvider.addScope('email');
-window.signInWithGoogle = async () => {
-  try {
-    const { user } = await auth.signInWithPopup(googleProvider);
-    // enforce immediately
-    await enforceNotBanned(user);
-    return { success: true, user };
-  } catch (err) {
-    // if banned we already redirected; else return failure
-    console.error("SignIn error:", err);
-    return { success: false, error: err };
-  }
+// Storage
+if (firebase.storage) {
+  window.storage = firebase.storage();
+} else {
+  console.warn('Firebase Storage SDK not loaded.');
+}
+
+// Analytics
+if (firebase.analytics) {
+  window.analytics = firebase.analytics();
+} else {
+  console.warn('Firebase Analytics SDK not loaded.');
+}
+
+// Set up Google Auth Provider with banned email check
+if (window.auth) {
+  const googleProvider = new firebase.auth.GoogleAuthProvider();
+  googleProvider.addScope('profile');
+  googleProvider.addScope('email');
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
+  window.googleProvider = googleProvider;
+
+  // Set persistence to LOCAL
+  window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .then(() => console.log("Auth persistence set to LOCAL"))
+    .catch(error => console.error("Auth persistence error:", error));
+    
+  // Create a wrapper function for sign-in that checks banned emails
+  window.signInWithGoogle = async () => {
+    try {
+      const result = await window.auth.signInWithPopup(window.googleProvider);
+      const user = result.user;
+      
+      // Check if email is banned
+      const isBanned = await window.isEmailBanned(user.email);
+      if (isBanned) {
+        console.warn("Banned email detected during sign-in:", user.email);
+        await window.auth.signOut();
+        return { success: false, reason: 'banned' };
+      }
+      
+      return { success: true, user };
+    } catch (error) {
+      console.error("Google auth error:", error);
+      return { success: false, error };
+    }
+  };
+}
+
+// Helper function to check authentication state
+window.isUserLoggedIn = () => {
+  return window.auth ? !!window.auth.currentUser : false;
 };
 
-// Enforce LOCAL persistence
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-  .catch(console.error);
-
-// Helpers
-window.isEmailBanned = email => bannedSet.has((email||"").toLowerCase());
-window.isUserLoggedIn = () => !!auth.currentUser;
-window.isCurrentUserBanned = () => auth.currentUser
-  ? bannedSet.has(auth.currentUser.email.toLowerCase())
-  : false;
+// Helper function to check if current user is banned
+window.isCurrentUserBanned = async () => {
+  const user = window.auth ? window.auth.currentUser : null;
+  if (!user) return false;
+  
+  return await window.isEmailBanned(user.email);
+};
