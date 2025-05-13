@@ -37,7 +37,8 @@ window.analytics = firebase.analytics ? firebase.analytics() : null;
 const staticBannedEmails = [
   "tootja30@minerva.sparcc.org",
   "jace.toot@icloud.com",
-  "hornbr30@minerva.sparcc.org"
+  "hornbr30@minerva.sparcc.org",
+  "russsi30@minerva.sparcc.org"
 ];
 
 // Function to fetch dynamic banned emails from Firestore
