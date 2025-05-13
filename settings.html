@@ -38,7 +38,7 @@
 
     body {
       background-color: var(--light-gray);
-      font-family: 'Roboto Mono', monospace; /* Main font */
+      font-family: 'Roboto Mono', monospace;
       margin: 0;
       padding: 0;
       display: flex;
@@ -46,12 +46,6 @@
       min-height: 100vh;
       color: var(--dark-bg);
     }
-
-    /* Ensure all major text elements use Roboto Mono */
-    h1, h2, h3, h4, h5, h6, p, a, span, div, li, label, button, input, textarea, select {
-        font-family: 'Roboto Mono', monospace;
-    }
-
 
     .container {
       max-width: 1200px;
@@ -73,7 +67,7 @@
       padding: 1.5rem 3rem;
       background-color: var(--darker-bg);
       color: var(--light-text);
-      border-bottom: 1px solid var(--accent); /* Assuming --accent is defined or replace */
+      border-bottom: 1px solid var(--accent);
     }
 
     .logo {
@@ -97,7 +91,7 @@
       text-align: center;
       border: 2px solid transparent;
       font-weight: 500;
-      text-decoration: none;
+      text-decoration: none; /* Added for anchor tags styled as buttons */
     }
 
     .btn.primary {
@@ -125,80 +119,38 @@
 
     .account-grid {
       display: grid;
-      grid-template-columns: 2fr 1fr; /* Adjust if needed */
+      grid-template-columns: 2fr 1fr;
       gap: 2rem;
       margin-top: 2rem;
     }
 
     .account-info {
-      padding: 1.5rem 2rem; /* Increased padding slightly */
+      padding: 1.5rem;
       background-color: var(--card-bg);
-      border-radius: 15px;
+      border-radius: 15px; /* Slightly less pill-like for a card */
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
       border: 1px solid var(--card-border);
     }
 
-    .account-info h2 { /* "User Details" heading */
+    .account-info h2 {
       font-size: 1.4rem;
-      margin-bottom: 1.5rem; /* More space before profile info */
-      color: var(--dark-bg);
-      text-align: left; /* Align to left if it was centered */
-    }
-
-    /* New structure for Profile Picture, Name, Email */
-    .profile-main-info {
-      display: flex;
-      align-items: center; /* Vertically align items in the middle */
-      gap: 20px; /* Space between photo and text block */
-      margin-bottom: 1.5rem; /* Space before the separator line */
-    }
-
-    .profile-main-info img#userPhoto {
-      width: 80px; /* Adjusted size */
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--card-border);
-      flex-shrink: 0; /* Prevent image from shrinking */
-    }
-
-    .profile-text-details {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem; /* Small gap between name and email */
-    }
-
-    .profile-text-details p {
-      margin-bottom: 0; /* Remove default p margin */
-      color: var(--info-text);
-      word-break: break-all;
-    }
-    #userDisplayName {
-        font-weight: 500; /* Make display name a bit bolder */
-        font-size: 1.1rem;
-        color: var(--dark-bg); /* Darker color for name */
-    }
-
-
-    /* Separator line */
-    .info-separator {
-      border: none;
-      height: 1px;
-      background-color: var(--light-gray); /* Or var(--card-border) */
-      margin: 0 0 1.5rem 0; /* Space around the line */
-    }
-
-    .account-info p { /* For other p tags like created, last sign in etc */
-      margin-bottom: 0.75rem;
-      color: var(--info-text);
-      word-break: break-all;
-    }
-
-    .additional-info h3 { /* "Additional Information" heading */
-      font-size: 1.2rem;
-      margin-top: 0; /* Remove top margin if .info-separator provides enough */
       margin-bottom: 1rem;
       color: var(--dark-bg);
+    }
+
+    .account-info p {
+      margin-bottom: 0.75rem;
+      color: var(--info-text);
+      word-break: break-all; /* For long UIDs or emails */
+    }
+    .account-info img#userPhoto {
+        display: block; /* Center image */
+        margin: 10px auto 1rem; /* Add some margin */
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        object-fit: cover; /* Ensure image covers the area well */
+        border: 2px solid var(--card-border);
     }
 
 
@@ -206,7 +158,7 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      padding: 1.5rem;
+      padding: 1.5rem; /* Consistent padding */
     }
 
     .account-buttons button {
@@ -218,7 +170,7 @@
       font-size: 1rem;
       font-weight: 500;
       cursor: pointer;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Added box-shadow transition */
       text-align: center;
       width: 100%;
       display: inline-block;
@@ -227,26 +179,32 @@
 
     .account-buttons button:hover {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      background-color: var(--light-gray);
+      background-color: var(--light-gray); /* Subtle hover effect */
     }
 
-    .account-buttons button.edit-profile {
+    .account-buttons button.secondary { /* Already have this implicitly */
       border-color: var(--dark-bg);
+    }
+    .account-buttons button.edit-profile { /* Style for edit profile button */
+        border-color: var(--dark-bg); /* Or a different color like a blue */
+        /* background-color: #3498db;
+        color: white;
+        border-color: #2980b9; */
+    }
+    .account-buttons button.manage-subscriptions { /* Style for manage subscriptions button */
+        border-color: var(--dark-bg); /* Or a different color */
     }
 
-    .account-buttons button.manage-subscriptions {
-      border-color: var(--dark-bg);
-    }
 
     .account-buttons button.danger {
       background-color: var(--danger-action);
       color: var(--light-text);
       border: 2px solid var(--dark-red);
     }
-
-    .account-buttons button.danger:hover {
-      background-color: var(--dark-red);
+     .account-buttons button.danger:hover {
+      background-color: var(--dark-red); /* Darken on hover */
     }
+
 
     .account-buttons button.disabled {
       opacity: 0.5;
@@ -303,7 +261,7 @@
       border: 1px solid var(--modal-content-border);
       width: 90%;
       max-width: 500px;
-      border-radius: 15px;
+      border-radius: 15px; /* Consistent with card */
       position: relative;
       color: var(--modal-text-color);
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
@@ -329,8 +287,8 @@
       text-decoration: none;
     }
 
-    .form,
-    .password-form {
+    .form, /* Generic form class */
+    .password-form { /* Existing class */
       display: flex;
       flex-direction: column;
       gap: 1rem;
@@ -338,15 +296,15 @@
 
     .form label,
     .password-form label {
-      font-weight: bold; /* Consider if this should be normal for Roboto Mono */
+      font-weight: bold;
       color: var(--modal-text-color);
       display: block;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.25rem; /* Spacing for label */
     }
 
     .form input[type="text"],
     .form input[type="url"],
-    .form input[type="email"],
+    .form input[type="email"], /* Added for consistency */
     .password-form input[type="password"] {
       padding: 1rem;
       font-size: 1rem;
@@ -357,9 +315,7 @@
       width: 100%;
       box-sizing: border-box;
       transition: border-color 0.2s ease;
-      font-family: 'Roboto Mono', monospace; /* Ensure font */
     }
-
     .form input[type="text"]:focus,
     .form input[type="url"]:focus,
     .form input[type="email"]:focus,
@@ -381,15 +337,13 @@
       font-weight: 500;
       color: var(--light-text);
       transition: background-color 0.2s ease;
-      margin-top: 0.5rem;
-      font-family: 'Roboto Mono', monospace; /* Ensure font */
+      margin-top: 0.5rem; /* Added some top margin */
     }
 
-    .form button.primary-action,
+    .form button.primary-action, /* For save profile */
     .password-form button.confirm {
       background-color: var(--primary-red);
     }
-
     .form button.primary-action:hover,
     .password-form button.confirm:hover {
       background-color: #cc0c0c;
@@ -407,7 +361,7 @@
       margin: 0;
       color: var(--modal-text-color);
       font-size: 1.75rem;
-      font-weight: 600; /* Consider if bold is too much for mono */
+      font-weight: 600;
       text-align: center;
     }
 
@@ -415,6 +369,27 @@
       color: rgba(240, 240, 240, 0.8);
       margin-bottom: 1.5rem;
       text-align: center;
+    }
+
+    #confirmPasswordForm .password-form button { /* This selector might be too specific or redundant now */
+      margin-top: 1rem;
+    }
+
+    #changePasswordForm .password-form button { /* This selector might be too specific or redundant now */
+      margin-top: 0.5rem;
+    }
+
+    #deleteAccountModal .modal-content {
+      text-align: center;
+    }
+
+    #deleteAccountModal .modal-content p {
+      margin-bottom: 1.5rem;
+    }
+
+    #deleteAccountModal .password-form button { /* This selector might be too specific or redundant now */
+      margin-top: 1.5rem;
+      padding: 1rem 2.5rem;
     }
 
     #logoutBtn {
@@ -431,19 +406,18 @@
     #logoutBtn:hover {
       background-color: var(--darker-bg);
     }
-
     #googleReauthButton {
-      background-color: #3498db;
+      background-color: #3498db; /* Blue for Google */
       color: var(--light-text);
       border-radius: var(--pill-radius);
-      border: 2px solid #2980b9;
+      border: 2px solid #2980b9; /* Darker blue border */
       padding: 1rem 2rem;
       font-size: 1rem;
       font-weight: 500;
       cursor: pointer;
       transition: background-color 0.3s ease;
-      display: block;
-      margin: 1rem auto 0;
+      display: block; /* Make it block to center if needed or use text-align on parent */
+      margin: 1rem auto 0; /* Center it */
     }
 
     #googleReauthButton:hover {
@@ -461,21 +435,20 @@
       color: #4285F4;
       text-decoration: underline;
     }
-
     .spinner {
       border: 4px solid rgba(255, 255, 255, 0.3);
       border-radius: 50%;
-      border-top: 4px solid #fff; /* Or a theme color */
+      border-top: 4px solid #fff;
       width: 20px;
       height: 20px;
       animation: spin 1s linear infinite;
-      margin: 0 auto;
+      margin: 0 auto; /* Center spinner if used directly in HTML */
     }
-
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
 
   </style>
 </head>
@@ -486,6 +459,7 @@
     <div class="nav-buttons">
       <a href="index.html" class="btn secondary">Home</a>
       <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      <a href="account.html" class="btn primary">Account</a>
       <button class="btn secondary" id="logoutBtn">Log Out</button>
     </div>
   </nav>
@@ -495,17 +469,9 @@
     <div class="account-grid">
       <div class="account-info">
         <h2>User Details</h2>
-
-        <div class="profile-main-info">
-          <img id="userPhoto" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23ddd%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2210px%22%20fill%3D%22%23777%22%3ELoading%3C/text%3E%3C/svg%3E" alt="User Photo">
-          <div class="profile-text-details">
-            <p id="userDisplayName">Display Name: Loading...</p>
-            <p id="userEmail">Email: Loading...</p>
-          </div>
-        </div>
-
-        <hr class="info-separator">
-
+        <img id="userPhoto" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%20100%20100%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20fill%3D%22%23ddd%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2212px%22%20fill%3D%22%23777%22%3ELoading%3C/text%3E%3C/svg%3E" alt="User Photo">
+        <p id="userDisplayName">Display Name: Loading...</p>
+        <p id="userEmail">Email: Loading...</p>
         <p id="authProvider">Sign-in Method: Loading...</p>
         <p id="creationTime">Created: Loading...</p>
         <div class="additional-info">
@@ -613,7 +579,7 @@
       const deleteAccountBtn = document.getElementById('deleteAccountBtn');
       const logoutBtn = document.getElementById('logoutBtn');
       const editProfileBtn = document.getElementById('editProfileBtn');
-      // const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
+      const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn'); // Placeholder, no functionality in this script
 
       // Modals
       const editProfileModal = document.getElementById('editProfileModal');
@@ -641,22 +607,22 @@
       const closeModalButtons = document.querySelectorAll('.close');
 
       // Google Auth Specific Elements
-      const emailAuthContent = document.getElementById('emailAuthContent');
-      const googleAuthContent = document.getElementById('googleAuthContent');
-      const googleDeleteContent = document.getElementById('googleDeleteContent');
+      const emailAuthContent = document.getElementById('emailAuthContent'); // In Change Password Modal
+      const googleAuthContent = document.getElementById('googleAuthContent'); // In Change Password Modal
+      const googleDeleteContent = document.getElementById('googleDeleteContent'); // In Delete Account Modal
       const googleReauthButton = document.getElementById('googleReauthButton');
-      // const deletePasswordLabel = document.getElementById('deletePasswordLabel');
+      const deletePasswordLabel = document.getElementById('deletePasswordLabel'); // In Delete Account Form
 
       let isGoogleUser = false;
-      let currentUser = null;
+      let currentUser = null; // To store the current user object
 
-      const defaultPhotoURL = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23eee%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2210px%22%20fill%3D%22%23aaa%22%3ENo%20Photo%3C/text%3E%3C/svg%3E';
+      const defaultPhotoURL = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%20100%20100%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20fill%3D%22%23eee%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2210px%22%20fill%3D%22%23aaa%22%3ENo%20Photo%3C/text%3E%3C/svg%3E';
 
 
       // --- Modal Helper Functions ---
       const openModal = (modal) => {
         modal.style.display = 'flex';
-        void modal.offsetWidth;
+        void modal.offsetWidth; // Force reflow
         modal.classList.add('show');
       };
 
@@ -666,13 +632,15 @@
           modal.classList.remove('show');
           setTimeout(() => {
             modal.style.display = 'none';
+            // Reset forms within the closed modal
             const forms = modal.querySelectorAll('form');
             forms.forEach(form => form.reset());
-            if (modal.id === 'changePasswordModal' && confirmPasswordForm && changePasswordMessage && newPasswordForm) {
+            if (modal.id === 'changePasswordModal') {
                  confirmPasswordForm.style.display = "block";
                  changePasswordMessage.style.display = "none";
                  newPasswordForm.style.display = "none";
             }
+
           }, 300);
         }
       };
@@ -681,56 +649,42 @@
       const loadUserProfile = async (user) => {
         if (!user) return;
 
-        // Clear previous text content to avoid "Loading..." text from showing up with actual text
-        userDisplayNameElement.textContent = '';
-        userEmailElement.textContent = '';
-        authProviderElement.textContent = '';
-        creationTimeElement.textContent = '';
-        lastSignInElement.textContent = '';
-        userUIDElement.textContent = '';
+        // Set basic auth info
+        userEmailElement.textContent = `Email: ${user.email || 'N/A'}`;
+        creationTimeElement.textContent = `Created: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
+        lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
+        userUIDElement.textContent = `User ID: ${user.uid}`;
 
-
-        // Set basic auth info that doesn't rely on Firestore first
-        userEmailElement.textContent = Email: ${user.email || 'N/A'};
-        creationTimeElement.textContent = Created: ${new Date(user.metadata.creationTime).toLocaleDateString()};
-        lastSignInElement.textContent = Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()};
-        userUIDElement.textContent = User ID: ${user.uid};
-
+        // Load profile from Firestore
         try {
           const userDocRef = db.collection('users').doc(user.uid);
           const docSnap = await userDocRef.get();
 
-          let displayNameToSet = user.displayName || 'Not Set';
-          let photoURLToSet = user.photoURL || defaultPhotoURL;
-
           if (docSnap.exists()) {
             const profileData = docSnap.data();
-            displayNameToSet = profileData.displayName || displayNameToSet;
-            photoURLToSet = profileData.photoURL || photoURLToSet;
+            userDisplayNameElement.textContent = `Display Name: ${profileData.displayName || user.displayName || 'Not Set'}`;
+            userPhotoElement.src = profileData.photoURL || user.photoURL || defaultPhotoURL;
+            profileDisplayNameInput.value = profileData.displayName || user.displayName || '';
+            profilePhotoURLInput.value = profileData.photoURL || user.photoURL || '';
           } else {
-             // Optionally, create a basic profile in Firestore if it doesn't exist on first load from Auth
-             if (user.displayName || user.photoURL) { // Only create if there's something to save from Auth
-                await userDocRef.set({
-                    displayName: user.displayName || 'Not Set',
-                    photoURL: user.photoURL || '', // Save empty string if null to avoid issues
-                    email: user.email
-                }, { merge: true });
-             }
+            // No profile in Firestore, use Firebase Auth profile or defaults
+            userDisplayNameElement.textContent = `Display Name: ${user.displayName || 'Not Set'}`;
+            userPhotoElement.src = user.photoURL || defaultPhotoURL;
+            profileDisplayNameInput.value = user.displayName || '';
+            profilePhotoURLInput.value = user.photoURL || '';
+             // Optionally, create a basic profile in Firestore if it doesn't exist
+            await userDocRef.set({
+                displayName: user.displayName || 'Not Set',
+                photoURL: user.photoURL || '',
+                email: user.email
+            }, { merge: true });
           }
-          userDisplayNameElement.textContent = Name: ${displayNameToSet};
-          userPhotoElement.src = photoURLToSet;
-
-          // For edit modal prefill
-          profileDisplayNameInput.value = displayNameToSet === 'Not Set' ? '' : displayNameToSet;
-          profilePhotoURLInput.value = photoURLToSet === defaultPhotoURL ? '' : photoURLToSet;
-
-
         } catch (error) {
           console.error("Error loading user profile:", error);
-          userDisplayNameElement.textContent = Name: ${user.displayName || 'Error'};
+          userDisplayNameElement.textContent = `Display Name: ${user.displayName || 'Error loading'}`;
           userPhotoElement.src = user.photoURL || defaultPhotoURL;
         }
-        userPhotoElement.onerror = () => { userPhotoElement.src = defaultPhotoURL; };
+        userPhotoElement.onerror = () => { userPhotoElement.src = defaultPhotoURL; }; // Handle broken image links
       };
 
 
@@ -741,19 +695,23 @@
           isGoogleUser = !!googleProvider;
 
           if (isGoogleUser) {
-            authProviderElement.innerHTML = Sign-in Method: <span class="provider-badge google">Google</span>;
+            authProviderElement.innerHTML = `Sign-in Method: <span class="provider-badge google">Google</span>`;
             changePasswordBtn.classList.add('disabled');
             changePasswordBtn.title = "Password is managed by your Google account";
+            // Change Password Modal: Show Google message, hide email form
             if(emailAuthContent) emailAuthContent.style.display = 'none';
             if(googleAuthContent) googleAuthContent.style.display = 'block';
+            // Delete Account Modal: Show Google re-auth, hide email form
             if(deleteAccountForm) deleteAccountForm.style.display = 'none';
             if(googleDeleteContent) googleDeleteContent.style.display = 'block';
           } else {
-            authProviderElement.innerHTML = Sign-in Method: <span class="provider-badge email">Email</span>;
+            authProviderElement.innerHTML = `Sign-in Method: <span class="provider-badge email">Email</span>`;
             changePasswordBtn.classList.remove('disabled');
             changePasswordBtn.title = "";
+            // Change Password Modal: Show email form, hide Google message
             if(emailAuthContent) emailAuthContent.style.display = 'block';
             if(googleAuthContent) googleAuthContent.style.display = 'none';
+            // Delete Account Modal: Show email form, hide Google re-auth
             if(deleteAccountForm) deleteAccountForm.style.display = 'block';
             if(googleDeleteContent) googleDeleteContent.style.display = 'none';
           }
@@ -764,40 +722,47 @@
 
 
       // --- Event Listeners ---
+
+      // Modal Close Buttons
       closeModalButtons.forEach(button => {
         button.addEventListener('click', () => {
-          const modalId = button.dataset.modalId;
-          if (modalId) closeModal(modalId);
-          else closeModal(button.closest('.modal'));
+          const modalId = button.dataset.modalId; // Get modal ID from data attribute
+          if (modalId) {
+            closeModal(modalId);
+          } else { // Fallback for modals without data-modal-id on close button
+             closeModal(button.closest('.modal'));
+          }
         });
       });
 
+      // Close modal on outside click
       window.addEventListener('click', (event) => {
         if (event.target.classList.contains('modal') && event.target.classList.contains('show')) {
           closeModal(event.target);
         }
       });
 
+      // Edit Profile Button
       editProfileBtn.addEventListener('click', () => {
         if (currentUser) {
-          // Pre-fill logic is now part of loadUserProfile and updated when modal opens
-          const currentName = userDisplayNameElement.textContent.replace('Name: ', '').trim();
-          const currentPhoto = userPhotoElement.src;
-
-          profileDisplayNameInput.value = (currentName === 'Not Set' || currentName === 'Error') ? '' : currentName;
-          profilePhotoURLInput.value = (currentPhoto === defaultPhotoURL || !currentPhoto.startsWith('http')) ? '' : currentPhoto;
-
+          // Pre-fill with current data (already done by loadUserProfile, but good for explicit open)
+          profileDisplayNameInput.value = userDisplayNameElement.textContent.replace('Display Name: ', '').trim();
+          if (profileDisplayNameInput.value === 'Not Set' || profileDisplayNameInput.value === 'Error loading') {
+              profileDisplayNameInput.value = '';
+          }
+          profilePhotoURLInput.value = userPhotoElement.src === defaultPhotoURL ? '' : userPhotoElement.src;
           openModal(editProfileModal);
         } else {
           alert("Please wait, user data is loading.");
         }
       });
 
+      // Edit Profile Form Submission
       if (editProfileForm) {
         editProfileForm.addEventListener('submit', async (e) => {
           e.preventDefault();
-          const newDisplayName = profileDisplayNameInput.value.trim() || 'Not Set'; // Default to 'Not Set' if empty
-          const newPhotoURL = profilePhotoURLInput.value.trim(); // Keep empty if not provided
+          const newDisplayName = profileDisplayNameInput.value.trim();
+          const newPhotoURL = profilePhotoURLInput.value.trim();
 
           if (!currentUser) {
             alert('User not available. Please try again.');
@@ -806,25 +771,30 @@
 
           const saveButton = editProfileForm.querySelector('button[type="submit"]');
           const originalButtonText = saveButton.textContent;
-          saveButton.innerHTML = '<div class="spinner"></div> Saving...';
+          saveButton.textContent = 'Saving...';
           saveButton.disabled = true;
 
+
           try {
+            // 1. Update Firebase Auth profile
             await currentUser.updateProfile({
-              displayName: newDisplayName === 'Not Set' ? (currentUser.displayName || '') : newDisplayName, // Avoid clearing Auth profile if user enters nothing
+              displayName: newDisplayName,
               photoURL: newPhotoURL,
             });
 
+            // 2. Update Firestore profile
             const userDocRef = db.collection('users').doc(currentUser.uid);
             await userDocRef.set({
               displayName: newDisplayName,
               photoURL: newPhotoURL,
-              email: currentUser.email
-            }, { merge: true });
+              email: currentUser.email // Keep email in sync or add other fields
+            }, { merge: true }); // Use merge to avoid overwriting other potential fields
 
-            userDisplayNameElement.textContent = Name: ${newDisplayName};
+            // 3. Update UI
+            userDisplayNameElement.textContent = `Display Name: ${newDisplayName || 'Not Set'}`;
             userPhotoElement.src = newPhotoURL || defaultPhotoURL;
             userPhotoElement.onerror = () => { userPhotoElement.src = defaultPhotoURL; };
+
 
             alert('Profile updated successfully!');
             closeModal(editProfileModal);
@@ -838,26 +808,31 @@
         });
       }
 
+
+      // Change Password Button
       changePasswordBtn.addEventListener('click', () => {
-        if (!isGoogleUser && currentUser) {
+        if (isGoogleUser) {
+          // This case should ideally be handled by the button being disabled,
+          // but as a fallback, can show a message or open Google settings.
+          alert("Password is managed through your Google account. Click the link in the modal if it were open, or manage it via Google directly.");
+          // openModal(changePasswordModal); // This will show the Google message
+        } else if (currentUser) {
           openModal(changePasswordModal);
-        } else if (isGoogleUser) {
-          // The button is disabled, but if clicked programmatically:
-          alert("Password is managed through your Google account.");
         } else {
             alert("User not loaded yet.");
         }
       });
 
+      // Confirm Current Password Form (for email users changing password)
       if(confirmPasswordForm){
         confirmPasswordForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           const password = currentPasswordInput.value;
-          if (!currentUser || isGoogleUser) return;
+          if (!currentUser || isGoogleUser) return; // Should not happen for Google users
 
           const confirmButton = confirmPasswordForm.querySelector('button[type="submit"]');
           const originalButtonText = confirmButton.textContent;
-          confirmButton.innerHTML = '<div class="spinner"></div>';
+          confirmButton.innerHTML = '<div class="spinner"></div>'; // Show spinner
           confirmButton.disabled = true;
 
           try {
@@ -866,7 +841,7 @@
             confirmPasswordForm.style.display = "none";
             changePasswordMessage.style.display = "block";
             newPasswordForm.style.display = "block";
-            currentPasswordInput.value = '';
+            currentPasswordInput.value = ''; // Clear password field
           } catch (error) {
             alert('Incorrect password. Please try again. ' + error.message);
           } finally {
@@ -876,6 +851,7 @@
         });
       }
 
+      // New Password Form (for email users changing password)
       if(newPasswordForm){
         newPasswordForm.addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -883,10 +859,12 @@
           const confirmNewPass = confirmNewPasswordInput.value;
 
           if (newPass !== confirmNewPass) {
-            alert("New passwords do not match."); return;
+            alert("New passwords do not match. Please try again.");
+            return;
           }
           if (newPass.length < 6) {
-            alert("Password must be at least 6 characters."); return;
+            alert("Password must be at least 6 characters long.");
+            return;
           }
           if (!currentUser || isGoogleUser) return;
 
@@ -901,12 +879,11 @@
             newPasswordInput.value = '';
             confirmNewPasswordInput.value = '';
             closeModal(changePasswordModal);
-            // Reset modal state
-            if (confirmPasswordForm && changePasswordMessage && newPasswordForm) {
-                confirmPasswordForm.style.display = "block";
-                changePasswordMessage.style.display = "none";
-                newPasswordForm.style.display = "none";
-            }
+            // Reset the change password modal flow
+            confirmPasswordForm.style.display = "block";
+            changePasswordMessage.style.display = "none";
+            newPasswordForm.style.display = "none";
+
           } catch (error) {
             alert('Error updating password: ' + error.message);
           } finally {
@@ -916,28 +893,35 @@
         });
       }
 
+      // Logout Button
       logoutBtn.addEventListener('click', async () => {
         try {
           await auth.signOut();
-          window.location.href = 'index.html';
+          window.location.href = 'index.html'; // Or your login page
         } catch (error) {
           console.error('Error signing out: ', error);
-          alert('Failed to log out.');
+          alert('Failed to log out. Please try again.');
         }
       });
 
+      // Delete Account Button
       deleteAccountBtn.addEventListener('click', () => {
-        if (currentUser) openModal(deleteAccountModal);
-        else alert("User not loaded yet.");
+        if (currentUser) {
+            openModal(deleteAccountModal);
+        } else {
+            alert("User not loaded yet.");
+        }
       });
 
+      // Delete Account Form (for email users)
       if(deleteAccountForm){
         deleteAccountForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           if (!currentUser || isGoogleUser) return;
 
           const password = deletePasswordInput.value;
-          if (!confirm("FINAL WARNING: Delete account? This cannot be undone.")) return;
+          const confirmed = confirm("FINAL WARNING: Are you absolutely sure you want to delete your account? This cannot be undone.");
+          if (!confirmed) return;
 
           const deleteButton = deleteAccountForm.querySelector('button[type="submit"]');
           const originalButtonText = deleteButton.textContent;
@@ -947,10 +931,11 @@
           try {
             const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
             await currentUser.reauthenticateWithCredential(credential);
-            // Optional: await db.collection('users').doc(currentUser.uid).delete();
+            // Also delete Firestore data if desired
+            // await db.collection('users').doc(currentUser.uid).delete();
             await currentUser.delete();
-            alert('Account deleted.');
-            window.location.href = 'index.html';
+            alert('Account deleted successfully.');
+            window.location.href = 'index.html'; // Or your signup/login page
           } catch (error) {
             alert('Error deleting account: ' + error.message);
             deletePasswordInput.value = '';
@@ -961,10 +946,13 @@
         });
       }
 
+      // Google Re-authentication for Account Deletion
       if(googleReauthButton){
         googleReauthButton.addEventListener('click', async () => {
           if (!currentUser || !isGoogleUser) return;
-          if (!confirm("FINAL WARNING: Delete account? This cannot be undone.")) return;
+
+           const confirmed = confirm("FINAL WARNING: Are you absolutely sure you want to delete your account? This cannot be undone.");
+          if (!confirmed) return;
 
           const originalButtonText = googleReauthButton.textContent;
           googleReauthButton.innerHTML = '<div class="spinner"></div>';
@@ -973,13 +961,14 @@
           try {
             const provider = new firebase.auth.GoogleAuthProvider();
             await currentUser.reauthenticateWithPopup(provider);
-            // Optional: await db.collection('users').doc(currentUser.uid).delete();
+            // Also delete Firestore data if desired
+            // await db.collection('users').doc(currentUser.uid).delete();
             await currentUser.delete();
-            alert('Account deleted.');
-            window.location.href = 'index.html';
+            alert('Account deleted successfully.');
+            window.location.href = 'index.html'; // Or your signup/login page
           } catch (error) {
             console.error('Google re-auth/delete error:', error);
-            alert('Failed to delete account: ' + error.message);
+            alert('Failed to delete account after re-authentication: ' + error.message + (error.code === 'auth/cancelled-popup-request' ? ' Pop-up closed by user.' : ''));
           } finally {
             googleReauthButton.textContent = originalButtonText;
             googleReauthButton.disabled = false;
@@ -987,15 +976,17 @@
         });
       }
 
+      // --- Firebase Auth State Change Listener ---
       auth.onAuthStateChanged(async user => {
         if (user) {
-          currentUser = user;
-          await loadUserProfile(user);
-          checkAuthProvider(user);
+          currentUser = user; // Store the user object
+          await loadUserProfile(user); // Load profile information
+          checkAuthProvider(user); // Check sign-in method and update UI
         } else {
           currentUser = null;
+          // Redirect to login page if user is not logged in
           console.log("No user signed in, redirecting to login.");
-          window.location.href = 'login.html';
+          window.location.href = 'login.html'; // Make sure you have a login.html
         }
       });
 
