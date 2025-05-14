@@ -384,7 +384,12 @@
       const logoutBtn = document.getElementById('logoutBtn');
       const adminSectionHeader = document.getElementById('adminSectionHeader');
       const adminSection = document.getElementById('adminSection');
-      const adminEmail = '4simpleproblems@gmail.com';
+      
+      // Array of admin emails
+      const adminEmails = [
+        '4simpleproblems@gmail.com',
+        'belkwy30@minerva.sparcc.org'
+      ];
 
       if (user) {
         authNotice.classList.add('hidden');
@@ -393,7 +398,8 @@
         }
         if (logoutBtn) logoutBtn.classList.remove('hidden');
 
-        if (user.email === adminEmail) {
+        // Check if the user's email is in the admin emails array
+        if (adminEmails.includes(user.email)) {
           adminSectionHeader.classList.remove('hidden');
           adminSection.classList.remove('hidden');
         } else {
