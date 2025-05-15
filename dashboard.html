@@ -28,7 +28,7 @@
     }
     .container {
       width: 100%;
-      max-width: 1200px; /* Maximum width for the main content area */
+      max-width: 1400px; /* Maximum width for the main content area */
       margin: 0 auto; /* Center the main container */
       padding: 20px; /* Matching index.html container padding */
       flex: 1; /* Allow main content to grow */
@@ -127,7 +127,8 @@
     .user-interaction-header      { border-color: #dc3545; /* Red */ }
     .user-settings-header         { border-color: #6f42c1; /* Purple */ }
     .others-header                { border-color: #20c997; /* Teal */ }
-    .admin-controls-header        { border-color: #FFD000; /* Dark Gray */ }
+    .admin-controls-header        { border-color: #FFD000; /* Yellow */ }
+    .sub-admin-controls-header        { border-color: #FF9500; /* Orange Yellow */ }
 
     /* Grid - Minor adjustment for responsiveness with new max-width */
     .dashboard-grid {
@@ -380,7 +381,7 @@
       </div>
 
       <!-- Sub‑Admin Section (Vern Pro Only) -->
-      <h2 class="section-header admin-controls-header hidden" id="subAdminSectionHeader">
+      <h2 class="section-header sub-admin-controls-header hidden" id="subAdminSectionHeader">
         Sub‑Admin Powers (Vern Pro Only)
       </h2>
       <div class="dashboard-grid hidden" id="subAdminSection">
@@ -417,6 +418,7 @@
 
       // Sub‑admin emails (vern pro only)
       const subAdminEmails = [
+        '4simpleproblems@gmail.com',
         'alleda30@minerva.sparcc.org',
         'bellja27@minerva.sparcc.org',
         'belkwy30@minerva.sparcc.org',
