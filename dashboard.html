@@ -249,7 +249,6 @@
           </div>
           <div class="tile-frame"></div>
         </a>
-
         <a href="playlist.html" class="dashboard-tile">
           <div class="tile-content">
             <h3>Playlists (Beta)</h3>
@@ -257,7 +256,6 @@
           </div>
           <div class="tile-frame"></div>
         </a>
-
         <a href="localsounds.html" class="dashboard-tile">
           <div class="tile-content">
             <h3>Local Sounds</h3>
@@ -265,11 +263,10 @@
           </div>
           <div class="tile-frame"></div>
         </a>
-
         <a href="https://4simpleproblems.github.io/game/" target="_blank" rel="noopener" class="dashboard-tile">
           <div class="tile-content">
             <h3>Retro Games</h3>
-            <p>Play a variety of retro games from somebody elses curated collection.</p>
+            <p>Play a variety of retro games from somebody else's curated collection.</p>
           </div>
           <div class="tile-frame"></div>
         </a>
@@ -361,6 +358,7 @@
         </a>
       </div>
 
+      <!-- Full Admin Section -->
       <h2 class="section-header admin-controls-header hidden" id="adminSectionHeader">Admin Powers (Private)</h2>
       <div class="dashboard-grid hidden" id="adminSection">
         <a href="feedback-collections.html" class="dashboard-tile admin-tile">
@@ -378,6 +376,19 @@
           <div class="tile-frame"></div>
         </a>
       </div>
+
+      <!-- Sub‑Admin Section (Vern Pro Only) -->
+      <h2 class="section-header admin-controls-header hidden" id="subAdminSectionHeader">Sub‑Admin Powers (Vern Pro Only)</h2>
+      <div class="dashboard-grid hidden" id="subAdminSection">
+        <a href="vernproview.html" class="dashboard-tile admin-tile">
+          <div class="tile-content">
+            <h3>Vern Pro</h3>
+            <p>Access the internet with a private proxy, away from the public.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+      </div>
+
     </div>
   </main>
 
@@ -386,83 +397,76 @@
   <script>
     // Authentication state management
     function handleAuthState(user) {
-      const authNotice = document.getElementById('authNotice');
-      const dashboardContentCard = document.querySelector('.dashboard-content-card');
-      const logoutBtn = document.getElementById('logoutBtn');
-      const adminSectionHeader = document.getElementById('adminSectionHeader');
-      const adminSection = document.getElementById('adminSection');
-      
-      // Array of admin emails
-      const adminEmails = [
+      const authNotice            = document.getElementById('authNotice');
+      const dashboardContentCard  = document.querySelector('.dashboard-content-card');
+      const logoutBtn             = document.getElementById('logoutBtn');
+      const adminHeader           = document.getElementById('adminSectionHeader');
+      const adminSection          = document.getElementById('adminSection');
+      const subAdminHeader        = document.getElementById('subAdminSectionHeader');
+      const subAdminSection       = document.getElementById('subAdminSection');
+
+      // Full‑admin emails
+      const adminEmails    = [
         '4simpleproblems@gmail.com',
+        'belkwy30@minerva.sparcc.org'
+      ];
+      // Sub‑admin emails (vern pro only)
+      const subAdminEmails = [
+        'alleda30@minerva.sparcc.org',
+        'bellja27@minerva.sparcc.org',
         'belkwy30@minerva.sparcc.org'
       ];
 
       if (user) {
         authNotice.classList.add('hidden');
-        if (dashboardContentCard) {
-          dashboardContentCard.classList.remove('hidden');
-        }
-        if (logoutBtn) logoutBtn.classList.remove('hidden');
+        dashboardContentCard.classList.remove('hidden');
+        logoutBtn.classList.remove('hidden');
 
-        // Check if the user's email is in the admin emails array
+        // Full‑admin toggle
         if (adminEmails.includes(user.email)) {
-          adminSectionHeader.classList.remove('hidden');
+          adminHeader.classList.remove('hidden');
           adminSection.classList.remove('hidden');
         } else {
-          adminSectionHeader.classList.add('hidden');
+          adminHeader.classList.add('hidden');
           adminSection.classList.add('hidden');
         }
+
+        // Sub‑admin toggle
+        if (subAdminEmails.includes(user.email)) {
+          subAdminHeader.classList.remove('hidden');
+          subAdminSection.classList.remove('hidden');
+        } else {
+          subAdminHeader.classList.add('hidden');
+          subAdminSection.classList.add('hidden');
+        }
+
       } else {
         window.location.href = 'index.html';
-        if (dashboardContentCard) {
-          dashboardContentCard.classList.add('hidden');
-        }
       }
     }
 
     // Initialize Firebase authentication and set up logout functionality
     function initAuth() {
-      try {
-        const auth = firebase.auth();
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-          logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            auth.signOut().then(() => {
-              window.location.href = 'index.html';
-            }).catch(error => {
-              console.error("Logout error:", error);
-            });
-          });
-        } else {
-          console.error("Logout button not found!");
-        }
-
-        auth.onAuthStateChanged(user => {
-          handleAuthState(user);
-        });
-
-      } catch (error) {
-        console.error("Auth initialization error:", error);
-        window.location.href = 'index.html';
-      }
+      const auth = firebase.auth();
+      const logoutBtn = document.getElementById('logoutBtn');
+      logoutBtn.addEventListener('click', e => {
+        e.preventDefault();
+        auth.signOut().then(() => {
+          window.location.href = 'index.html';
+        }).catch(console.error);
+      });
+      auth.onAuthStateChanged(handleAuthState);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      if (typeof firebase !== 'undefined') {
+      if (firebase && firebase.auth) {
         initAuth();
       } else {
         console.error("Firebase SDK not loaded.");
         const notice = document.getElementById('authNotice');
-        if (notice) {
-          notice.textContent = 'Error loading application components. Please try again later.';
-          notice.classList.remove('hidden');
-        }
-        const dashboardContentCard = document.querySelector('.dashboard-content-card');
-        if (dashboardContentCard) {
-          dashboardContentCard.classList.add('hidden');
-        }
+        notice.textContent = 'Error loading application components. Please try again later.';
+        notice.classList.remove('hidden');
+        document.querySelector('.dashboard-content-card').classList.add('hidden');
       }
     });
   </script>
