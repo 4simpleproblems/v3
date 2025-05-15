@@ -12,218 +12,37 @@
 
   <style>
     /* Base styles from index.html for consistency */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Roboto Mono', monospace;
-      background-color: #f5f5f5; /* Matching index.html body background */
-      color: #333; /* Matching index.html text color */
-      line-height: 1.6;
-      display: flex; /* Keep flexbox for full height dashboard */
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    .container {
-      width: 100%;
-      max-width: 1200px; /* Maximum width for the main content area */
-      margin: 0 auto; /* Center the main container */
-      padding: 20px; /* Matching index.html container padding */
-      flex: 1; /* Allow main content to grow */
-    }
-
-    /* Navbar - Adopted from index.html */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px; /* Matching index.html navbar padding */
-      background-color: #111; /* Matching index.html navbar background */
-      color: #fff;
-    }
-    .logo {
-      font-size: 24px; /* Matching index.html logo font size */
-      font-weight: 700;
-    }
-    .nav-buttons {
-      display: flex;
-      gap: 10px; /* Matching index.html nav buttons gap */
-      align-items: center; /* Ensure alignment */
-    }
-
-    /* Buttons - Adopted from index.html */
-    .btn {
-      padding: 8px 16px; /* Matching index.html button padding */
-      border-radius: 30px; /* Matching index.html button border-radius */
-      text-decoration: none;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease; /* Matching index.html button transition */
-      border: none; /* Default no border, specific types will override */
-      font-family: 'Roboto Mono', monospace; /* Ensure font consistency */
-      display: inline-block; /* For consistency as some were links */
-      text-align: center; /* Ensure text is centered */
-    }
-    .btn.primary {
-      background-color: #4285F4; /* Matching index.html primary button */
-      color: #fff;
-      border: 1px solid;
-    }
-    .btn.secondary {
-      background-color: transparent;
-      color: white;
-      border: 1px solid white; /* Matching index.html secondary button */
-    }
-    .btn.primary:hover {
-      background-color: #3367d6; /* Matching index.html primary hover */
-    }
-    .btn.secondary:hover {
-      background-color: rgba(255,255,255,0.1); /* Matching index.html secondary hover */
-    }
-    /* Ensure logout button matches the secondary style */
-    #logoutBtn {
-      background-color: transparent;
-      color: white;
-      border: 1px solid white;
-    }
-    #logoutBtn:hover {
-      background-color: rgba(255,255,255,0.1);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* Dashboard Content Card - Left-aligned and wider */
-    .dashboard-content-card {
-      width: 100%;
-      max-width: 1100px; /* Increased max-width to allow for wider tiles and 3 in a row more comfortably */
-      margin: 40px 0; /* No longer centered, left-aligned within .container's padding */
-      background-color: #fff;
-      border-radius: 50px; /* Matching index.html home-container border-radius */
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Matching index.html home-container shadow */
-      overflow: hidden; /* Prevents internal scrolling within the card */
-      padding: 40px 30px; /* Matching index.html home-container padding */
-    }
-
-    /* Section headers - Base style */
-    .section-header {
-      margin: 3rem 0 1.5rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 3px solid; /* Keep border, color will be overridden */
-      color: #333;
-      font-weight: 700;
-      font-size: 1.5rem;
-    }
-    .section-header:first-of-type {
-      margin-top: 1rem;
-    }
-
-    /* Section header specific colors */
-    .media-entertainment-header { border-color: #4285f4; /* Blue */ }
-    .web-access-header { border-color: #fd7e14; /* Orange */ }
-    .user-interaction-header { border-color: #dc3545; /* Red */ }
-    .user-settings-header { border-color: #6f42c1; /* Purple */ }
-    .others-header { border-color: #20c997; /* Teal */ }
-    .admin-controls-header { border-color: #6c757d; /* Dark Gray */ }
-
-    /* Grid - Minor adjustment for responsiveness with new max-width */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-      gap: 2rem;
-      margin: 2rem 0;
-    }
-    .dashboard-grid:has(:nth-child(2):last-child) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    @media (min-width: 992px) {
-      .dashboard-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      .dashboard-grid:has(:nth-child(2):last-child) {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .dashboard-grid:has(:first-child:last-child) {
-        grid-template-columns: 1fr;
-      }
-    }
-    @media (min-width: 768px) and (max-width: 991px) {
-      .dashboard-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .dashboard-grid:has(:first-child:last-child) {
-        grid-template-columns: 1fr;
-      }
-    }
-    @media (max-width: 767px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Tiles - Adjusted for shorter height and implied wider based on grid */
-    .dashboard-tile {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      background: white;
-      border-radius: 30px; /* Matching index.html home-container border-radius */
-      padding: 2.5rem;
-      text-decoration: none;
-      color: #333; /* Matching index.html general text color */
-      overflow: hidden;
-      height: 220px; /* Made shorter as requested (from 280px) */
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      border: 1px solid #e0e0e0; /* Softer border, similar to index.html's subtle lines */
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Matching index.html home-container shadow */
-      width: 100%;
-    }
-    .dashboard-tile .tile-content {
-      position: relative;
-      z-index: 2;
-    }
-    .dashboard-tile h3 {
-      font-size: 1.6rem;
-      margin-bottom: 1rem;
-      font-weight: 600;
-    }
-    .dashboard-tile p {
-      font-size: 1rem;
-      line-height: 1.6;
-    }
-    .dashboard-tile .tile-frame {
-      position: absolute;
-      inset: 0;
-      border: 3px solid rgba(0, 0, 0, 0.08); /* Softer inner border */
-      border-radius: 28px; /* Slightly smaller than tile for visual effect */
-      z-index: 1;
-      transition: border-color 0.3s ease;
-    }
-    .dashboard-tile:hover {
-      transform: translateY(-5px) scale(1.03);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
-    .dashboard-tile:hover .tile-frame {
-      border-color: #333; /* Darker border on hover for consistency */
-    }
-
-    /* Games tile now matches default white */
-    .games-tile {
-      background-color: white;
-      border-color: #e0e0e0;
-    }
-
-    /* Footer - Adopted from index.html */
-    footer {
-      text-align: center;
-      padding: 20px; /* Matching index.html footer padding */
-      color: #666; /* Matching index.html footer color */
-      font-size: 14px; /* Matching index.html footer font size */
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Roboto Mono', monospace; background-color: #f5f5f5; color: #333; line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 20px; flex: 1; }
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px; background-color: #111; color: #fff; }
+    .logo { font-size: 24px; font-weight: 700; }
+    .nav-buttons { display: flex; gap: 10px; align-items: center; }
+    .btn { padding: 8px 16px; border-radius: 30px; text-decoration: none; font-weight: 500; cursor: pointer; transition: all 0.3s ease; border: none; font-family: 'Roboto Mono', monospace; display: inline-block; text-align: center; }
+    .btn.primary { background-color: #4285F4; color: #fff; border: 1px solid; }
+    .btn.secondary { background-color: transparent; color: white; border: 1px solid white; }
+    .btn.primary:hover { background-color: #3367d6; }
+    .btn.secondary:hover { background-color: rgba(255,255,255,0.1); }
+    #logoutBtn { background-color: transparent; color: white; border: 1px solid white; }
+    #logoutBtn:hover { background-color: rgba(255,255,255,0.1); }
+    .hidden { display: none !important; }
+    .dashboard-content-card { width: 100%; max-width: 1100px; margin: 40px 0; background-color: #fff; border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; padding: 40px 30px; }
+    .section-header { margin: 3rem 0 1.5rem; padding-bottom: 0.5rem; border-bottom: 3px solid; color: #333; font-weight: 700; font-size: 1.5rem; }
+    .section-header:first-of-type { margin-top: 1rem; }
+    .media-entertainment-header { border-color: #4285f4; }
+    .web-access-header { border-color: #fd7e14; }
+    .user-interaction-header { border-color: #dc3545; }
+    .user-settings-header { border-color: #6f42c1; }
+    .others-header { border-color: #20c997; }
+    .subadmin-controls-header { border-color: #FFD000; }
+    .admin-controls-header { border-color: #000; }
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 2rem; margin: 2rem 0; }
+    @media (min-width: 992px) { .dashboard-grid { grid-template-columns: repeat(3, 1fr); } }
+    .dashboard-tile { position: relative; display: flex; flex-direction: column; justify-content: center; background: white; border-radius: 30px; padding: 2.5rem; text-decoration: none; color: #333; overflow: hidden; height: 180px; transition: transform 0.3s ease, box-shadow 0.3s ease; border: 1px solid #e0e0e0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; }
+    .dashboard-tile .tile-frame { position: absolute; inset: 0; border: 3px solid rgba(0, 0, 0, 0.08); border-radius: 28px; z-index: 1; transition: border-color 0.3s ease; }
+    .dashboard-tile:hover { transform: translateY(-5px) scale(1.03); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); }
+    .dashboard-tile:hover .tile-frame { border-color: #333; }
+    footer { text-align: center; padding: 20px; color: #666; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -231,8 +50,8 @@
     <div class="logo">4SP</div>
     <div class="nav-buttons">
       <a href="legal-list.html" class="btn secondary">Legal</a>
-      <a href="dashboard.html" class="btn secondary" id="dashboardNavBtn">Dashboard</a>
-      <button class="btn primary" id="logoutBtn">Log Out</button>
+      <a href="index.html" class="btn secondary">Home</a>
+      <button class="btn secondary" id="logoutBtn">Log Out</button>
     </div>
   </nav>
 
@@ -240,7 +59,7 @@
     <div class="dashboard-content-card">
       <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
 
-      <h2 class="section-header media-entertainment-header">Media & Entertainment</h2>
+     <h2 class="section-header media-entertainment-header">Media & Entertainment</h2>
       <div class="dashboard-grid">
         <a href="soundboard.html" class="dashboard-tile">
           <div class="tile-content">
@@ -268,8 +87,8 @@
 
         <a href="https://4simpleproblems.github.io/game/" target="_blank" rel="noopener" class="dashboard-tile">
           <div class="tile-content">
-            <h3>Games</h3>
-            <p>Play a variety of browser games from our curated collection.</p>
+            <h3>Retro Games</h3>
+            <p>Play a variety of retro games from somebody elses curated collection.</p>
           </div>
           <div class="tile-frame"></div>
         </a>
@@ -353,20 +172,33 @@
           <div class="tile-frame"></div>
         </a>
       </div>
+      <!-- Sub-Admin Controls -->
+      <h2 class="section-header subadmin-controls-header hidden" id="subAdminSectionHeader">Sub-Admin Powers (Private)</h2>
+      <div class="dashboard-grid hidden" id="subAdminSection">
+        <a href="vernproview.html" class="dashboard-tile">
+          <div class="tile-content">
+            <h3>Vern Pro</h3>
+            <p>Access the internet with a private proxy, away from the public.</p>
+          </div>
+          <div class="tile-frame"></div>
+        </a>
+        <!-- add more sub-admin tiles here -->
+      </div>
 
-      <h2 class="section-header admin-controls-header hidden" id="adminSectionHeader">Admin Controls</h2>
+      <!-- Admin Controls -->
+      <h2 class="section-header admin-controls-header hidden" id="adminSectionHeader">Admin Powers (Private)</h2>
       <div class="dashboard-grid hidden" id="adminSection">
-        <a href="feedback-collections.html" class="dashboard-tile admin-tile">
+        <a href="feedback-collections.html" class="dashboard-tile">
           <div class="tile-content">
             <h3>Feedback Collection</h3>
             <p>Access user feedback and suggestions.</p>
           </div>
           <div class="tile-frame"></div>
         </a>
-        <a href="banned.html" class="dashboard-tile admin-tile">
+        <a href="vernproview.html" class="dashboard-tile">
           <div class="tile-content">
-            <h3>Banned Emails</h3>
-            <p>Access banned emails and accounts.</p>
+            <h3>Vern Pro</h3>
+            <p>Access the internet with a private proxy, away from the public.</p>
           </div>
           <div class="tile-frame"></div>
         </a>
@@ -377,80 +209,72 @@
   <footer><p>© 2025 4SP</p></footer>
 
   <script>
-    // Authentication state management
     function handleAuthState(user) {
       const authNotice = document.getElementById('authNotice');
-      const dashboardContentCard = document.querySelector('.dashboard-content-card');
+      const card = document.querySelector('.dashboard-content-card');
       const logoutBtn = document.getElementById('logoutBtn');
-      const adminSectionHeader = document.getElementById('adminSectionHeader');
+      const subAdminHeader = document.getElementById('subAdminSectionHeader');
+      const subAdminSection = document.getElementById('subAdminSection');
+      const adminHeader = document.getElementById('adminSectionHeader');
       const adminSection = document.getElementById('adminSection');
-      const adminEmail = '4simpleproblems@gmail.com';
+
+      const adminEmails = [
+        '4simpleproblems@gmail.com',
+        'belkwy30@minerva.sparcc.org'
+      ];
+      const subAdminEmails = [
+        /* add your chosen sub-admin emails here */
+        '4simpleproblems@gmail.com',
+        'belkja27@minerva.sparcc.org'
+
+      ];
 
       if (user) {
         authNotice.classList.add('hidden');
-        if (dashboardContentCard) {
-          dashboardContentCard.classList.remove('hidden');
-        }
-        if (logoutBtn) logoutBtn.classList.remove('hidden');
+        card.classList.remove('hidden');
+        logoutBtn.classList.remove('hidden');
 
-        if (user.email === adminEmail) {
-          adminSectionHeader.classList.remove('hidden');
+        // Sub-Admin access
+        if (subAdminEmails.includes(user.email)) {
+          subAdminHeader.classList.remove('hidden');
+          subAdminSection.classList.remove('hidden');
+        } else {
+          subAdminHeader.classList.add('hidden');
+          subAdminSection.classList.add('hidden');
+        }
+
+        // Admin access
+        if (adminEmails.includes(user.email)) {
+          adminHeader.classList.remove('hidden');
           adminSection.classList.remove('hidden');
         } else {
-          adminSectionHeader.classList.add('hidden');
+          adminHeader.classList.add('hidden');
           adminSection.classList.add('hidden');
         }
+
       } else {
         window.location.href = 'index.html';
-        if (dashboardContentCard) {
-          dashboardContentCard.classList.add('hidden');
-        }
       }
     }
 
-    // Initialize Firebase authentication and set up logout functionality
     function initAuth() {
       try {
         const auth = firebase.auth();
         const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-          logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            auth.signOut().then(() => {
-              window.location.href = 'index.html';
-            }).catch(error => {
-              console.error("Logout error:", error);
-            });
-          });
-        } else {
-          console.error("Logout button not found!");
-        }
-
-        auth.onAuthStateChanged(user => {
-          handleAuthState(user);
+        logoutBtn.addEventListener('click', e => {
+          e.preventDefault();
+          auth.signOut().then(() => window.location.href = 'index.html');
         });
-
-      } catch (error) {
-        console.error("Auth initialization error:", error);
+        auth.onAuthStateChanged(handleAuthState);
+      } catch (e) {
+        console.error(e);
         window.location.href = 'index.html';
       }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      if (typeof firebase !== 'undefined') {
-        initAuth();
-      } else {
-        console.error("Firebase SDK not loaded.");
-        const notice = document.getElementById('authNotice');
-        if (notice) {
-          notice.textContent = 'Error loading application components. Please try again later.';
-          notice.classList.remove('hidden');
-        }
-        const dashboardContentCard = document.querySelector('.dashboard-content-card');
-        if (dashboardContentCard) {
-          dashboardContentCard.classList.add('hidden');
-        }
-      }
+      if (typeof firebase !== 'undefined') initAuth();
+      else console.error('Firebase SDK not loaded.');
     });
   </script>
 </body>
