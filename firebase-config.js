@@ -35,8 +35,6 @@ window.analytics = firebase.analytics ? firebase.analytics() : null;
 
 // Static fallback banned emails (in case Firestore fetch fails or for quick checks)
 const staticBannedEmails = [
-  "tootja30@minerva.sparcc.org",
-  "jace.toot@icloud.com",
   "hornbr30@minerva.sparcc.org",
   "russsi30@minerva.sparcc.org"
 ];
