@@ -123,11 +123,11 @@
 
     /* Section header specific colors */
     .media-entertainment-header { border-color: #4285f4; /* Blue */ }
-    .web-access-header { border-color: #fd7e14; /* Orange */ }
-    .user-interaction-header { border-color: #dc3545; /* Red */ }
-    .user-settings-header { border-color: #6f42c1; /* Purple */ }
-    .others-header { border-color: #20c997; /* Teal */ }
-    .admin-controls-header { border-color: #FFD000; /* Dark Gray */ }
+    .web-access-header            { border-color: #fd7e14; /* Orange */ }
+    .user-interaction-header      { border-color: #dc3545; /* Red */ }
+    .user-settings-header         { border-color: #6f42c1; /* Purple */ }
+    .others-header                { border-color: #20c997; /* Teal */ }
+    .admin-controls-header        { border-color: #FFD000; /* Dark Gray */ }
 
     /* Grid - Minor adjustment for responsiveness with new max-width */
     .dashboard-grid {
@@ -240,7 +240,7 @@
     <div class="dashboard-content-card">
       <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
 
-      <h2 class="section-header media-entertainment-header">Media & Entertainment</h2>
+      <h2 class="section-header media-entertainment-header">Media &amp; Entertainment</h2>
       <div class="dashboard-grid">
         <a href="soundboard.html" class="dashboard-tile">
           <div class="tile-content">
@@ -333,7 +333,7 @@
         </a>
         <a href="legal-list.html" class="dashboard-tile">
           <div class="tile-content">
-            <h3>Legal & Policies</h3>
+            <h3>Legal &amp; Policies</h3>
             <p>Legal center for our website, including privacy policy and our terms of service.</p>
           </div>
           <div class="tile-frame"></div>
@@ -359,7 +359,9 @@
       </div>
 
       <!-- Full Admin Section -->
-      <h2 class="section-header admin-controls-header hidden" id="adminSectionHeader">Admin Powers (Private)</h2>
+      <h2 class="section-header admin-controls-header hidden" id="adminSectionHeader">
+        Admin Powers (Private)
+      </h2>
       <div class="dashboard-grid hidden" id="adminSection">
         <a href="feedback-collections.html" class="dashboard-tile admin-tile">
           <div class="tile-content">
@@ -378,7 +380,9 @@
       </div>
 
       <!-- Sub‑Admin Section (Vern Pro Only) -->
-      <h2 class="section-header admin-controls-header hidden" id="subAdminSectionHeader">Sub‑Admin Powers (Vern Pro Only)</h2>
+      <h2 class="section-header admin-controls-header hidden" id="subAdminSectionHeader">
+        Sub‑Admin Powers (Vern Pro Only)
+      </h2>
       <div class="dashboard-grid hidden" id="subAdminSection">
         <a href="vernproview.html" class="dashboard-tile admin-tile">
           <div class="tile-content">
@@ -397,33 +401,34 @@
   <script>
     // Authentication state management
     function handleAuthState(user) {
-      const authNotice            = document.getElementById('authNotice');
-      const dashboardContentCard  = document.querySelector('.dashboard-content-card');
-      const logoutBtn             = document.getElementById('logoutBtn');
-      const adminHeader           = document.getElementById('adminSectionHeader');
-      const adminSection          = document.getElementById('adminSection');
-      const subAdminHeader        = document.getElementById('subAdminSectionHeader');
-      const subAdminSection       = document.getElementById('subAdminSection');
+      const authNotice      = document.getElementById('authNotice');
+      const dashboardCard   = document.querySelector('.dashboard-content-card');
+      const logoutBtn       = document.getElementById('logoutBtn');
+      const adminHeader     = document.getElementById('adminSectionHeader');
+      const adminSection    = document.getElementById('adminSection');
+      const subAdminHeader  = document.getElementById('subAdminSectionHeader');
+      const subAdminSection = document.getElementById('subAdminSection');
 
       // Full‑admin emails
-      const adminEmails    = [
+      const adminEmails = [
         '4simpleproblems@gmail.com',
-        'belkwy30@minerva.sparcc.org',
+        'belkwy30@minerva.sparcc.org'
       ];
+
       // Sub‑admin emails (vern pro only)
       const subAdminEmails = [
         'alleda30@minerva.sparcc.org',
         'bellja27@minerva.sparcc.org',
         'belkwy30@minerva.sparcc.org',
-        "otweno30@minerva.sparcc.org',
+        'otweno30@minerva.sparcc.org'
       ];
 
       if (user) {
         authNotice.classList.add('hidden');
-        dashboardContentCard.classList.remove('hidden');
+        dashboardCard.classList.remove('hidden');
         logoutBtn.classList.remove('hidden');
 
-        // Full‑admin toggle
+        // Toggle full admin
         if (adminEmails.includes(user.email)) {
           adminHeader.classList.remove('hidden');
           adminSection.classList.remove('hidden');
@@ -432,7 +437,7 @@
           adminSection.classList.add('hidden');
         }
 
-        // Sub‑admin toggle
+        // Toggle sub‑admin
         if (subAdminEmails.includes(user.email)) {
           subAdminHeader.classList.remove('hidden');
           subAdminSection.classList.remove('hidden');
@@ -442,20 +447,21 @@
         }
 
       } else {
+        // if not logged in, send back to sign‑in
         window.location.href = 'index.html';
       }
     }
 
-    // Initialize Firebase authentication and set up logout functionality
+    // Initialize Firebase authentication and set up logout
     function initAuth() {
       const auth = firebase.auth();
-      const logoutBtn = document.getElementById('logoutBtn');
-      logoutBtn.addEventListener('click', e => {
-        e.preventDefault();
-        auth.signOut().then(() => {
-          window.location.href = 'index.html';
-        }).catch(console.error);
-      });
+      document.getElementById('logoutBtn')
+        .addEventListener('click', e => {
+          e.preventDefault();
+          auth.signOut().then(() => {
+            window.location.href = 'index.html';
+          }).catch(console.error);
+        });
       auth.onAuthStateChanged(handleAuthState);
     }
 
