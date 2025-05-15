@@ -12,7 +12,7 @@
     <script src="firebase-config.js"></script>
     <style>
         * { font-family: 'Roboto Mono', monospace !important; text-decoration: none !important; box-sizing: border-box; }
-        :root { --light-gray: #e0e0e0; --dark-bg: #1a1a1a; --darker-bg: #0d0d0d; --light-text: #f0f0f0; --pill-radius: 50px; --card-radius: 24px; }
+        :root { --light-gray: #e0e0e0; --dark-bg: #1a1a1a; --darker-bg: #0d0d0d; --light-text: #f0f0f0; --pill-radius: 50px; --card-radius: 28px; }
         body { background-color: var(--light-gray); color: var(--dark-bg); margin: 0; padding: 0; min-height: 100vh; }
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 3rem; background-color: var(--darker-bg); color: var(--light-text); }
         .logo { font-size: 1.8rem; font-weight: 700; }
@@ -23,7 +23,7 @@
         .filter-container { margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; }
         .filter-label { font-weight: 500; margin-right: 0.5rem; }
         select { padding: 0.75rem 2rem 0.75rem 1rem; border-radius: var(--pill-radius); font-size: 1rem; border: 2px solid var(--dark-bg); cursor: pointer; background-color: white; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%231a1a1a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.75rem center; }
-        .requests-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; flex: 1; }
+        .requests-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 1.5rem; flex: 1; }
         .request-card { background: white; border-radius: var(--card-radius); padding: 1.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .request-card .category-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: var(--pill-radius); font-size: 0.75rem; margin-bottom: 0.5rem; color: white; }
         .category-badge.feedback { background-color: #3498db; }
@@ -37,7 +37,7 @@
     <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons">
-            <a href="feedback.html" class="btn secondary">Submit Feedback</a>
+            <a href="dashboard.html" class="btn secondary">Dashboard</a>
             <button id="logoutBtn" class="btn secondary">Log Out</button>
         </div>
     </nav>
