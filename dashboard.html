@@ -11,220 +11,218 @@
   <script src="firebase-config.js"></script>
 
   <style>
-    /* Base styles from index.html for consistency */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Roboto Mono', monospace;
-      background-color: #f5f5f5; /* Matching index.html body background */
-      color: #333; /* Matching index.html text color */
-      line-height: 1.6;
-      display: flex; /* Keep flexbox for full height dashboard */
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    .container {
-      width: 100%;
-      max-width: 1200px; /* Maximum width for the main content area */
-      margin: 0 auto; /* Center the main container */
-      padding: 20px; /* Matching index.html container padding */
-      flex: 1; /* Allow main content to grow */
-    }
+   /* Base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Roboto Mono', monospace;
+  background-color: #f5f5f5;
+  color: #333;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  flex: 1;
+}
 
-    /* Navbar - Adopted from index.html */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px; /* Matching index.html navbar padding */
-      background-color: #111; /* Matching index.html navbar background */
-      color: #fff;
-    }
-    .logo {
-      font-size: 24px; /* Matching index.html logo font size */
-      font-weight: 700;
-    }
-    .nav-buttons {
-      display: flex;
-      gap: 10px; /* Matching index.html nav buttons gap */
-      align-items: center; /* Ensure alignment */
-    }
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #111;
+  color: #fff;
+}
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+}
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
 
-    /* Buttons - Adopted from index.html */
-    .btn {
-      padding: 8px 16px; /* Matching index.html button padding */
-      border-radius: 30px; /* Matching index.html button border-radius */
-      text-decoration: none;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease; /* Matching index.html button transition */
-      border: none; /* Default no border, specific types will override */
-      font-family: 'Roboto Mono', monospace; /* Ensure font consistency */
-      display: inline-block; /* For consistency as some were links */
-      text-align: center; /* Ensure text is centered */
-    }
-    .btn.primary {
-      background-color: #4285F4; /* Matching index.html primary button */
-      color: #fff;
-      border: 1px solid;
-    }
-    .btn.secondary {
-      background-color: transparent;
-      color: white;
-      border: 1px solid white; /* Matching index.html secondary button */
-    }
-    .btn.primary:hover {
-      background-color: #3367d6; /* Matching index.html primary hover */
-    }
-    .btn.secondary:hover {
-      background-color: rgba(255,255,255,0.1); /* Matching index.html secondary hover */
-    }
-    /* Ensure logout button matches the secondary style */
-    #logoutBtn {
-      background-color: transparent;
-      color: white;
-      border: 1px solid white;
-    }
-    #logoutBtn:hover {
-      background-color: rgba(255,255,255,0.1);
-    }
+/* Buttons */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  min-height: 40px;               /* Ensure consistent height */
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-family: 'Roboto Mono', monospace;
+  text-align: center;
+  background-color: transparent;
+  color: #fff;
+  border: 1px solid currentColor;
+  line-height: 1.2;
+}
+.btn.primary {
+  background-color: #4285F4;
+  color: #fff;
+}
+.btn.secondary {
+  background-color: transparent;
+  color: #fff;
+}
+.btn.primary:hover {
+  background-color: #3367d6;
+}
+.btn.secondary:hover {
+  background-color: rgba(255,255,255,0.1);
+}
 
-    .hidden {
-      display: none !important;
-    }
+/* Logout button inherits .btn styles—no extra overrides needed */
+#logoutBtn {
+  /* Inherits padding, min-height, display flex, etc. */
+}
 
-    /* Dashboard Content Card - Left-aligned and wider */
-    .dashboard-content-card {
-      width: 100%;
-      max-width: 1100px; /* Increased max-width to allow for wider tiles and 3 in a row more comfortably */
-      margin: 40px 0; /* No longer centered, left-aligned within .container's padding */
-      background-color: #fff;
-      border-radius: 50px; /* Matching index.html home-container border-radius */
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Matching index.html home-container shadow */
-      overflow: hidden; /* Prevents internal scrolling within the card */
-      padding: 40px 30px; /* Matching index.html home-container padding */
-    }
+/* Hidden helper */
+.hidden {
+  display: none !important;
+}
 
-    /* Section headers - Base style */
-    .section-header {
-      margin: 3rem 0 1.5rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 3px solid; /* Keep border, color will be overridden */
-      color: #333;
-      font-weight: 700;
-      font-size: 1.5rem;
-    }
-    .section-header:first-of-type {
-      margin-top: 1rem;
-    }
+/* Dashboard Content Card – full width */
+.dashboard-content-card {
+  width: 100%;
+  max-width: none;
+  margin: 40px 0;
+  background-color: #fff;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+  padding: 40px 30px;
+}
 
-    /* Section header specific colors */
-    .media-entertainment-header { border-color: #4285f4; /* Blue */ }
-    .web-access-header            { border-color: #fd7e14; /* Orange */ }
-    .user-interaction-header      { border-color: #dc3545; /* Red */ }
-    .user-settings-header         { border-color: #6f42c1; /* Purple */ }
-    .others-header                { border-color: #20c997; /* Teal */ }
-    .admin-controls-header        { border-color: #FFD000; /* Yellow */ }
-    .sub-admin-controls-header        { border-color: #FF9500; /* Orange Yellow */ }
+/* Section headers – thicker bottom border */
+.section-header {
+  margin: 3rem 0 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 4px solid;
+  color: #333;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+.section-header:first-of-type {
+  margin-top: 1rem;
+}
+.media-entertainment-header { border-color: #4285f4; }
+.web-access-header            { border-color: #fd7e14; }
+.user-interaction-header      { border-color: #dc3545; }
+.user-settings-header         { border-color: #6f42c1; }
+.others-header                { border-color: #20c997; }
+.admin-controls-header        { border-color: #FFD000; }
+.sub-admin-controls-header    { border-color: #FF9500; }
 
-    /* Grid - Minor adjustment for responsiveness with new max-width */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-      gap: 2rem;
-      margin: 2rem 0;
-    }
-    .dashboard-grid:has(:nth-child(2):last-child) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    @media (min-width: 992px) {
-      .dashboard-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      .dashboard-grid:has(:nth-child(2):last-child) {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .dashboard-grid:has(:first-child:last-child) {
-        grid-template-columns: 1fr;
-      }
-    }
-    @media (min-width: 768px) and (max-width: 991px) {
-      .dashboard-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .dashboard-grid:has(:first-child:last-child) {
-        grid-template-columns: 1fr;
-      }
-    }
-    @media (max-width: 767px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+/* Grid – tiles expand to fill the row */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+.dashboard-grid:has(:nth-child(2):last-child) {
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 992px) {
+  .dashboard-grid:has(:first-child:last-child) {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-grid:has(:nth-child(2):last-child) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 991px) and (min-width: 768px) {
+  .dashboard-grid:has(:first-child:last-child) {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 767px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
-    /* Tiles - Adjusted for shorter height and implied wider based on grid */
-    .dashboard-tile {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      background: white;
-      border-radius: 30px; /* Matching index.html home-container border-radius */
-      padding: 2.5rem;
-      text-decoration: none;
-      color: #333; /* Matching index.html general text color */
-      overflow: hidden;
-      height: 180px; /* Made shorter as requested (from 280px) */
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      border: 1px solid #e0e0e0; /* Softer border, similar to index.html's subtle lines */
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Matching index.html home-container shadow */
-      width: 100%;
-    }
-    .dashboard-tile .tile-content {
-      position: relative;
-      z-index: 2;
-    }
-    .dashboard-tile h3 {
-      font-size: 1.6rem;
-      margin-bottom: 1rem;
-      font-weight: 600;
-    }
-    .dashboard-tile p {
-      font-size: 1rem;
-      line-height: 1.6;
-    }
-    .dashboard-tile .tile-frame {
-      position: absolute;
-      inset: 0;
-      border: 3px solid rgba(0, 0, 0, 0.08); /* Softer inner border */
-      border-radius: 28px; /* Slightly smaller than tile for visual effect */
-      z-index: 1;
-      transition: border-color 0.3s ease;
-    }
-    .dashboard-tile:hover {
-      transform: translateY(-5px) scale(1.03);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
-    .dashboard-tile:hover .tile-frame {
-      border-color: #333; /* Darker border on hover for consistency */
-    }
+/* Tiles – slightly taller, thicker borders */
+.dashboard-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: white;
+  border-radius: 30px;
+  padding: 2.5rem;
+  text-decoration: none;
+  color: #333;
+  overflow: hidden;
+  height: 200px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 2px solid #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  width: 100%;
+}
+.dashboard-tile .tile-content {
+  position: relative;
+  z-index: 2;
+}
+.dashboard-tile h3 {
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+.dashboard-tile p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
 
-    /* Games tile now matches default white */
-    .games-tile {
-      background-color: white;
-      border-color: #e0e0e0;
-    }
+/* Inner frame – increased to 4px */
+.dashboard-tile .tile-frame {
+  position: absolute;
+  inset: 0;
+  border: 4px solid rgba(0, 0, 0, 0.08);
+  border-radius: 28px;
+  z-index: 1;
+  transition: border-color 0.3s ease;
+}
+.dashboard-tile:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+.dashboard-tile:hover .tile-frame {
+  border-color: #333;
+}
 
-    /* Footer - Adopted from index.html */
-    footer {
-      text-align: center;
-      padding: 20px; /* Matching index.html footer padding */
-      color: #666; /* Matching index.html footer color */
-      font-size: 14px; /* Matching index.html footer font size */
-    }
+.games-tile {
+  background-color: white;
+  border-color: #e0e0e0;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-size: 14px;
+}
   </style>
 </head>
 <body>
@@ -279,13 +277,6 @@
           <div class="tile-content">
             <h3>Vern</h3>
             <p>The official proxy for 4SP.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="vernmini.html" class="dashboard-tile admin-tile">
-          <div class="tile-content">
-            <h3>US4</h3>
-            <p>Some website with games, a proxy and stuff.</p>
           </div>
           <div class="tile-frame"></div>
         </a>
@@ -393,7 +384,6 @@
           <div class="tile-frame"></div>
         </a>
       </div>
-
     </div>
   </main>
 
