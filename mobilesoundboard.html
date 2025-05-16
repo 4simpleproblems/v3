@@ -47,7 +47,7 @@
       flex: 0 0 auto;
       min-width: 100px;
       height: 100px;
-      border-radius: 9999px;             /* always pill/circle */
+      border-radius: 9999px;
       background-color: var(--light-text);
       color: var(--dark-bg);
       border: 3px solid var(--dark-bg);
@@ -64,7 +64,7 @@
       max-width: 500px;
       word-wrap: break-word;
       hyphens: auto;
-      user-select: none;                 /* disable text selection */
+      user-select: none;
       -webkit-user-select: none;
     }
 
@@ -89,7 +89,7 @@
       border: 2px solid var(--light-text);
       border-radius: 50px;
       cursor: pointer;
-      user-select: none;               /* prevent “Options” text selection too */
+      user-select: none;
     }
 
     .options-content {
@@ -101,7 +101,7 @@
       padding: 1rem;
       z-index: 2;
       right: 0;
-      border-radius: 30px;             /* keep the rounded corners */
+      border-radius: 30px;
       color: var(--light-text);
     }
 
@@ -355,7 +355,6 @@
 
       .options-content {
         right:auto; left:0; width:100%; box-sizing:border-box;
-        /* keep border-radius:30px */
       }
       .overlay { background-color:rgba(0,0,0,0.7); }
       .status-message { max-width:100%; font-size:0.85rem; }
@@ -476,9 +475,16 @@
       const rippleCont   = clearBtn.querySelector('.ripple-container');
       const playbackSpeed= document.getElementById('playbackSpeed');
 
-      let playing = [], autoInterval = null, rafId = null;
-      let pressedBtn = null, menuOpen = false, isRippling = false;
-      let currentSpeed = 1.0, statusTimeout = null;
+      let playing = [],
+          autoInterval = null,
+          rafId = null,
+          pressedBtn = null,
+          menuOpen = false,
+          menuAnimating = false,
+          MENU_ANIM_DURATION = 300,  // match CSS animation duration (0.3s)
+          isRippling = false,
+          currentSpeed = 1.0,
+          statusTimeout = null;
 
       function showStatus(text,type='info'){
         if(statusTimeout){
@@ -497,21 +503,31 @@
       }
 
       function openMenu(){
-        if(menuOpen) return;
-        menuOpen=true;
-        overlayEl.style.display='block'; overlayEl.classList.add('fade-in');
-        optionsMenu.style.display='block'; optionsMenu.classList.add('fade-in');
+        if(menuOpen || menuAnimating) return;
+        menuAnimating = true;
+        menuOpen = true;
+        overlayEl.style.display='block';
+        overlayEl.classList.add('fade-in');
+        optionsMenu.style.display='block';
+        optionsMenu.classList.add('fade-in');
+        setTimeout(()=>{
+          menuAnimating = false;
+        }, MENU_ANIM_DURATION);
       }
 
       function closeMenu(){
-        if(!menuOpen) return;
-        menuOpen=false;
-        overlayEl.classList.remove('fade-in'); optionsMenu.classList.remove('fade-in');
-        overlayEl.classList.add('fade-out'); optionsMenu.classList.add('fade-out');
+        if(!menuOpen || menuAnimating) return;
+        menuAnimating = true;
+        menuOpen = false;
+        overlayEl.classList.remove('fade-in');
+        optionsMenu.classList.remove('fade-in');
+        overlayEl.classList.add('fade-out');
+        optionsMenu.classList.add('fade-out');
         setTimeout(()=>{
           overlayEl.style.display='none';
           optionsMenu.style.display='none';
-        },300);
+          menuAnimating = false;
+        }, MENU_ANIM_DURATION);
       }
 
       function createRipple(e){
@@ -611,7 +627,7 @@
 
         // LONG‑PRESS handlers
         btn.addEventListener('mousedown',e=>{
-          e.preventDefault();      // no selection
+          e.preventDefault();
           pressedBtn=btn;
           startAuto();
         });
@@ -620,7 +636,7 @@
           stopAuto();
         });
         btn.addEventListener('touchstart',e=>{
-          e.preventDefault();      // no selection
+          e.preventDefault();
           pressedBtn=btn;
           startAuto();
         },{passive:false});
@@ -662,14 +678,15 @@
 
       optionsBtn.addEventListener('click',e=>{
         e.stopPropagation();
-        menuOpen? closeMenu(): openMenu();
+        if (menuAnimating) return;
+        menuOpen ? closeMenu() : openMenu();
       });
       overlayEl.addEventListener('click',closeMenu);
       document.addEventListener('click',ev=>{
-        // only close if click is truly outside both menu AND the entire button area
-        if(menuOpen 
-           && !optionsMenu.contains(ev.target) 
+        if(menuOpen
+           && !optionsMenu.contains(ev.target)
            && !optionsBtn.contains(ev.target)
+           && !menuAnimating
         ) {
           closeMenu();
         }
