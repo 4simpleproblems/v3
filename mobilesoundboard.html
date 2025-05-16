@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4SP | Soundboard</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <style>
+    /* Hide logout until auth state is confirmed */
+    #logoutBtn {
+      display: none;
+    }
+
+    /* Updated Styles */
+    .sound-section {
+      margin-bottom: 2rem;
+    }
+
+    .sound-section h2 {
+      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+      padding-bottom: 0.25rem;
+      border-bottom: 2px solid var(--dark-bg);
+      width: 100%;
+    }
+
+    .soundButtonsContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      padding: 1rem;
+      gap: 1.5rem;
+      width: 100%;
+    }
+
+    .sound-button {
+      min-width: 100px;
+      height: 100px;
+      border-radius: 50px;
+      background-color: var(--light-text);
+      color: var(--dark-bg);
+      border: 3px solid var(--dark-bg);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: bold;
+      padding: 0 1.5rem;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 500px;
+      word-wrap: break-word;
+      hyphens: auto;
+    }
+
+    .sound-button.short-text {
+      width: 100px;
+      padding: 0.5rem;
+      border-radius: 50%;
+    }
+
+    .sound-button:hover {
+      background-color: var(--light-gray);
+    }
+
+    .sound-button:active {
+      transform: scale(0.95);
+    }
+
+    .options-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .options-button {
+      background-color: transparent;
+      color: var(--light-text);
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: 2px solid var(--light-text);
+      border-radius: 50px;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+    }
+
+    .options-content {
+      display: none;
+      position: absolute;
+      background-color: var(--darker-bg);
+      min-width: 250px;
+      border: 2px solid var(--light-text);
+      padding: 1rem;
+      z-index: 2;
+      right: 0;
+      border-radius: 30px;
+      color: var(--light-text);
+    }
+
+    .options-content.fade-in {
+      display: block;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .options-content.fade-out {
+      display: block;
+      animation: fadeOut 0.3s ease forwards;
+    }
+
+    .options-content label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--light-text);
+    }
+
+    .options-content input[type="checkbox"] {
+      margin-right: 0.5rem;
+      vertical-align: middle;
+      background-color: var(--darker-bg);
+      border: 2px solid var(--light-text);
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      position: relative;
+      border-radius: 5px;
+    }
+
+    .options-content input[type="checkbox"]:checked {
+      background-image: url('checkmark.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .options-content #autoClickDelayLabel {
+      margin-top: 0.5rem;
+      display: block;
+    }
+
+    .options-content #autoClickDelay {
+      width: 60px;
+      padding: 0.25rem;
+      border-radius: 30px;
+      border: 2px solid var(--light-text);
+      background-color: var(--darker-bg);
+      color: var(--light-text);
+    }
+
+    /* Style for the playback speed select */
+    .options-content label.playback-speed-label {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .options-content #playbackSpeed {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      border-radius: 20px;
+      border: 2px solid var(--light-text);
+      background-color: var(--darker-bg);
+      color: var(--light-text);
+      font-size: 0.9rem;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 0.7rem center;
+      background-size: 1em;
+      cursor: pointer;
+    }
+
+    .options-content #playbackSpeed:focus {
+      outline: none;
+      border-color: var(--light-gray);
+    }
+
+    .options-section {
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .options-section:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .options-section h3 {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      color: var(--light-text);
+      opacity: 0.8;
+    }
+
+    .keyboard-shortcuts {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .keyboard-shortcuts p {
+      margin: 0.25rem 0;
+      font-size: 0.85rem;
+      color: var(--light-text);
+      opacity: 0.8;
+    }
+
+    #applyDelayBtn {
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--light-text);
+      border-radius: 30px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: var(--light-text);
+      cursor: pointer;
+      margin-left: 4px;
+      font-size: 0.8rem;
+    }
+
+    #applyDelayBtn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    #clearAllSoundsBtn {
+      width: 100%;
+      margin-top: 0.5rem;
+      background-color: rgba(255, 0, 0, 0.2);
+      color: var(--light-text);
+      border: 1px solid var(--light-text);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes buttonPop {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.15);
+      }
+      75% {
+        transform: scale(0.95);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0);
+        opacity: 0.5;
+      }
+      100% {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    #clearAllSoundsBtn.active {
+      animation: buttonPop 0.4s ease-in-out;
+      background-color: rgba(255, 0, 0, 0.4);
+    }
+
+    .ripple-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.4);
+      width: 100px;
+      height: 100px;
+      margin-top: -50px;
+      margin-left: -50px;
+      animation: ripple 0.6s ease-out;
+      pointer-events: none;
+    }
+
+    @keyframes fadeInOverlay {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOutOverlay {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1;
+    }
+
+    .overlay.fade-in {
+      display: block;
+      animation: fadeInOverlay 0.3s ease forwards;
+    }
+
+    .overlay.fade-out {
+      display: block;
+      animation: fadeOutOverlay 0.3s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOutDown {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    }
+
+    .status-message {
+      display: none;
+      padding: 0.5rem 1rem;
+      margin: 1rem auto;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      background-color: rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 80%;
+    }
+
+    .status-message.fade-in {
+      display: block;
+      animation: fadeInUp 0.3s ease forwards;
+    }
+
+    .status-message.fade-out {
+      display: block;
+      animation: fadeOutDown 0.3s ease forwards;
+    }
+
+    .status-message.success {
+      background-color: rgba(0, 255, 0, 0.1);
+      color: green;
+      border: 1px solid green;
+    }
+
+    .status-message.error {
+      background-color: rgba(255, 0, 0, 0.1);
+      color: red;
+      border: 1px solid red;
+    }
+
+    .status-message.info {
+      background-color: rgba(0, 0, 255, 0.1);
+      color: blue;
+      border: 1px solid blue;
+    }
+
+    /* —— MOBILE‑FIRST RESPONSIVE TWEAKS —— */
+    @media (max-width: 600px) {
+      /* Navbar stacks vertically */
+      .navbar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0.5rem 1rem;
+      }
+      .navbar .logo {
+        margin-bottom: 0.5rem;
+      }
+      .nav-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      .btn,
+      .options-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      /* Main container padding reduction */
+      main.container {
+        padding: 1rem;
+      }
+
+      /* Sound sections: two columns */
+      .soundButtonsContainer {
+        gap: 1rem;
+      }
+      .sound-button {
+        flex: 1 1 45%;
+        min-width: 0;
+        height: 80px;
+        font-size: 0.75rem;
+        padding: 0.5rem;
+      }
+
+      /* Shrink headings */
+      .sound-section h2 {
+        font-size: 1.25rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      p {
+        font-size: 0.9rem;
+      }
+
+      /* Options menu full‑width at bottom */
+      .options-content {
+        right: auto;
+        left: 0;
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 0;
+      }
+      .overlay {
+        background-color: rgba(0, 0, 0, 0.7);
+      }
+
+      /* Status message narrower */
+      .status-message {
+        max-width: 100%;
+        font-size: 0.85rem;
+      }
+
+      footer p {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+
+  <script>
+    // --- Firebase initialization & Auth guard ---
+    try {
+      if (typeof firebaseConfig !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+      } else {
+        console.error("Firebase configuration not found.");
+      }
+    } catch (e) {
+      console.error("Firebase initialization error:", e);
+    }
+
+    function handleAuthState(user) {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (user) {
+        logoutBtn.style.display = 'inline-flex';
+      } else {
+        window.location.href = 'login.html';
+      }
+    }
+
+    function initAuth() {
+      const auth = firebase.auth();
+      auth.onAuthStateChanged(handleAuthState);
+
+      const logoutBtn = document.getElementById('logoutBtn');
+      logoutBtn.addEventListener('click', e => {
+        e.preventDefault();
+        auth.signOut()
+          .then(() => window.location.href = 'login.html')
+          .catch(err => console.error("Logout error:", err));
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.firebase && firebase.auth) {
+        initAuth();
+      } else {
+        console.error("Firebase Auth SDK not available.");
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <div class="options-dropdown">
+        <button class="btn secondary options-button">Options</button>
+        <div class="options-content" id="optionsMenu">
+          <div class="options-section">
+            <h3>Playback Options</h3>
+            <label>
+              <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
+            </label>
+            <label for="playbackSpeed" class="playback-speed-label">Playback Speed:
+              <select id="playbackSpeed">
+                <option value="0.25">0.25x</option>
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="1" selected>1x (Normal)</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="1.75">1.75x</option>
+                <option value="2">2x</option>
+                <option value="2.25">2.25x</option>
+                <option value="2.5">2.5x</option>
+                <option value="2.75">2.75x</option>
+                <option value="3">3x</option>
+              </select>
+            </label>
+            <label>
+              <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
+            </label>
+            <label id="autoClickDelayLabel" style="display: none;">
+              Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" />
+              <button id="applyDelayBtn">Apply</button>
+            </label>
+          </div>
+          <div class="options-section">
+            <h3>Management</h3>
+            <button id="clearAllSoundsBtn" class="btn secondary">
+              Clear All Sounds
+              <div class="ripple-container"></div>
+            </button>
+          </div>
+          <div class="keyboard-shortcuts">
+            <p><strong>Keyboard Shortcuts:</strong></p>
+            <p>Shift + C: Mute & clear all sounds</p>
+          </div>
+        </div>
+      </div>
+      <a href="dashboard.html" class="btn secondary">Dashboard</a>
+      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h1>Soundboard</h1>
+    <p>Click the buttons to play a sound!</p>
+
+    <div class="status-message" id="statusMessage"></div>
+
+    <div class="sound-section">
+      <h2>Normal Sounds</h2>
+      <div id="normalSoundsContainer" class="soundButtonsContainer normal"></div>
+    </div>
+
+    <div class="sound-section">
+      <h2>Explicit Sounds</h2>
+      <div id="explicitSoundsContainer" class="soundButtonsContainer explicit"></div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 4SP</p>
+  </footer>
+
+  <div class="overlay" id="overlay"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // DOM Elements
+      const normalSoundsContainer = document.getElementById('normalSoundsContainer');
+      const explicitSoundsContainer = document.getElementById('explicitSoundsContainer');
+      const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
+      const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
+      const autoClickDelayInput = document.getElementById('autoClickDelay');
+      const autoClickDelayLabel = document.getElementById('autoClickDelayLabel');
+      const applyDelayBtn = document.getElementById('applyDelayBtn');
+      const overlay = document.getElementById('overlay');
+      const optionsButton = document.querySelector('.options-button');
+      const optionsMenu = document.getElementById('optionsMenu');
+      const statusMessage = document.getElementById('statusMessage');
+      const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
+      const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
+
+      // Playback speed element
+      const playbackSpeedSelect = document.getElementById('playbackSpeed');
+
+      // State variables
+      let playingAudios = [];
+      let autoClickInterval;
+      let requestAnimationFrameId = null;
+      let currentlyHoveredButton = null;
+      let statusMessageTimeout = null;
+      let menuIsOpen = false;
+      let isRippling = false;
+      let currentPlaybackSpeed = 1.0;
+
+      function showStatus(message, type = 'info') {
+        if (statusMessageTimeout) {
+          clearTimeout(statusMessageTimeout);
+          statusMessage.classList.remove('fade-in', 'fade-out');
+        }
+        statusMessage.textContent = message;
+        statusMessage.className = 'status-message ' + type;
+        statusMessage.style.display = 'block';
+        statusMessage.classList.remove('fade-out');
+        statusMessage.classList.add('fade-in');
+
+        statusMessageTimeout = setTimeout(() => {
+          statusMessage.classList.remove('fade-in');
+          statusMessage.classList.add('fade-out');
+          setTimeout(() => {
+            statusMessage.style.display = 'none';
+            statusMessage.classList.remove('fade-out');
+          }, 300);
+        }, 3000);
+      }
+
+      function openOptionsMenu() {
+        if (menuIsOpen) return;
+        menuIsOpen = true;
+        overlay.classList.remove('fade-out');
+        optionsMenu.classList.remove('fade-out');
+        overlay.style.display = 'block';
+        overlay.classList.add('fade-in');
+        optionsMenu.style.display = 'block';
+        optionsMenu.classList.add('fade-in');
+      }
+
+      function closeOptionsMenu() {
+        if (!menuIsOpen) return;
+        menuIsOpen = false;
+        overlay.classList.remove('fade-in');
+        optionsMenu.classList.remove('fade-in');
+        overlay.classList.add('fade-out');
+        optionsMenu.classList.add('fade-out');
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          overlay.classList.remove('fade-out');
+          optionsMenu.style.display = 'none';
+          optionsMenu.classList.remove('fade-out');
+        }, 300);
+      }
+
+      function createRipple(event) {
+        if (isRippling) return;
+        isRippling = true;
+        const rect = clearAllSoundsBtn.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        rippleContainer.innerHTML = '';
+        rippleContainer.appendChild(ripple);
+        setTimeout(() => {
+          ripple.remove();
+          isRippling = false;
+        }, 600);
+      }
+
+      function muteAllSounds() {
+        playingAudios.forEach(audio => audio.volume = 0);
+      }
+
+      function stopAllAudios(delay = 0) {
+        if (playingAudios.length === 0) return;
+        if (delay > 0) {
+          muteAllSounds();
+          setTimeout(() => {
+            playingAudios.forEach(audio => {
+              audio.pause();
+              audio.currentTime = 0;
+            });
+            playingAudios = [];
+          }, delay);
+        } else {
+          playingAudios.forEach(audio => {
+            audio.pause();
+            audio.currentTime = 0;
+          });
+          playingAudios = [];
+        }
+      }
+
+      function clearAllSounds(instantMute = false) {
+        const wasPlaying = playingAudios.length > 0;
+        if (wasPlaying) {
+          if (instantMute) {
+            muteAllSounds();
+            stopAllAudios(100);
+            showStatus('All sounds muted and cleared', 'success');
+          } else {
+            stopAllAudios();
+            showStatus('All sounds stopped', 'success');
+          }
+        } else if (!instantMute) {
+          showStatus('No sounds to clear', 'info');
+        }
+        if (instantMute) closeOptionsMenu();
+      }
+
+      function fastClicker() {
+        if (currentlyHoveredButton && autoClickerCheckbox.checked) {
+          currentlyHoveredButton.click();
+          requestAnimationFrameId = requestAnimationFrame(fastClicker);
+        }
+      }
+
+      function startAutoClicker() {
+        stopAutoClicker();
+        const delay = parseInt(autoClickDelayInput.value, 10) || 0;
+        if (!currentlyHoveredButton || !autoClickerCheckbox.checked) return;
+
+        if (delay === 0) {
+          requestAnimationFrameId = requestAnimationFrame(fastClicker);
+        } else {
+          autoClickInterval = setInterval(() => {
+            if (currentlyHoveredButton) {
+              currentlyHoveredButton.click();
+            } else {
+              stopAutoClicker();
+            }
+          }, delay);
+        }
+      }
+
+      function stopAutoClicker() {
+        if (autoClickInterval) {
+          clearInterval(autoClickInterval);
+          autoClickInterval = null;
+        }
+        if (requestAnimationFrameId) {
+          cancelAnimationFrame(requestAnimationFrameId);
+          requestAnimationFrameId = null;
+        }
+      }
+
+      function applyAutoClickerDelay() {
+        const delay = parseInt(autoClickDelayInput.value, 10);
+        if (isNaN(delay) || delay < 0) {
+          autoClickDelayInput.value = 0;
+        }
+        localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
+        if (autoClickerCheckbox.checked && currentlyHoveredButton) {
+          startAutoClicker();
+        }
+        showStatus(`Auto click delay set to ${autoClickDelayInput.value}ms`, 'info');
+      }
+
+      function applyPlaybackSpeedToAudio(audioElement) {
+        if (audioElement) {
+          audioElement.playbackRate = currentPlaybackSpeed;
+        }
+      }
+
+      function createSoundButton(folder, fileName, container) {
+        const soundName = fileName.replace('.mp3', '').replace(/_/g, ' ');
+        const soundPath = `${folder}/${fileName}`;
+        const button = document.createElement('button');
+        button.classList.add('sound-button');
+        button.textContent = soundName;
+        if (soundName.length < 10) button.classList.add('short-text');
+
+        button.addEventListener('click', () => {
+          if (!soundOverlayCheckbox.checked) {
+            stopAllAudios();
+          }
+          try {
+            const audio = new Audio(soundPath);
+            applyPlaybackSpeedToAudio(audio);
+            audio.addEventListener('ended', () => {
+              playingAudios = playingAudios.filter(a => a !== audio);
+            });
+            playingAudios.push(audio);
+            audio.play()
+              .catch(err => {
+                console.error(`Error playing sound "${soundName}":`, err);
+                showStatus(`Cannot play: ${soundName}`, 'error');
+                playingAudios = playingAudios.filter(a => a !== audio);
+              });
+          } catch (e) {
+            console.error(`Error creating audio object for "${soundName}":`, e);
+            showStatus(`Error loading: ${soundName}`, 'error');
+          }
+        });
+
+        button.addEventListener('mouseenter', () => {
+          currentlyHoveredButton = button;
+          if (autoClickerCheckbox.checked) startAutoClicker();
+        });
+        button.addEventListener('mouseleave', () => {
+          if (currentlyHoveredButton === button) {
+            currentlyHoveredButton = null;
+            stopAutoClicker();
+          }
+        });
+        container.appendChild(button);
+      }
+
+      soundOverlayCheckbox.addEventListener('change', function() {
+        if (!this.checked) stopAllAudios();
+        localStorage.setItem('soundOverlay', this.checked);
+      });
+
+      autoClickerCheckbox.addEventListener('change', function() {
+        autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
+        if (this.checked && currentlyHoveredButton) {
+          startAutoClicker();
+        } else if (!this.checked) {
+          stopAutoClicker();
+        }
+        localStorage.setItem('autoClicker', this.checked);
+      });
+
+      autoClickDelayInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          applyAutoClickerDelay();
+        }
+      });
+      applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
+
+      clearAllSoundsBtn.addEventListener('click', function(e) {
+        createRipple(e);
+        this.classList.add('active');
+        setTimeout(() => this.classList.remove('active'), 400);
+        clearAllSounds(false);
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.shiftKey && (e.key.toLowerCase() === 'c' || e.code.toLowerCase() === 'keyc')) {
+          e.preventDefault();
+          clearAllSounds(true);
+        }
+      });
+
+      optionsButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        menuIsOpen ? closeOptionsMenu() : openOptionsMenu();
+      });
+      overlay.addEventListener('click', closeOptionsMenu);
+      document.addEventListener('click', (event) => {
+        if (menuIsOpen && !optionsMenu.contains(event.target) && event.target !== optionsButton) {
+          closeOptionsMenu();
+        }
+      });
+
+      playbackSpeedSelect.addEventListener('change', function() {
+        currentPlaybackSpeed = parseFloat(this.value);
+        localStorage.setItem('playbackSpeed', currentPlaybackSpeed.toString());
+        playingAudios.forEach(applyPlaybackSpeedToAudio);
+        showStatus(`Playback speed set to ${currentPlaybackSpeed}x`, 'info');
+      });
+
+      (function loadPreferences() {
+        if (localStorage.getItem('soundOverlay') === 'true') soundOverlayCheckbox.checked = true;
+        if (localStorage.getItem('autoClicker') === 'true') {
+          autoClickerCheckbox.checked = true;
+          autoClickDelayLabel.style.display = 'block';
+        }
+        const savedDelay = localStorage.getItem('autoClickDelay');
+        if (savedDelay !== null) autoClickDelayInput.value = savedDelay;
+
+        const savedPlaybackSpeed = localStorage.getItem('playbackSpeed');
+        if (savedPlaybackSpeed !== null) {
+          currentPlaybackSpeed = parseFloat(savedPlaybackSpeed);
+          playbackSpeedSelect.value = currentPlaybackSpeed.toString();
+        } else {
+          playbackSpeedSelect.value = "1";
+          currentPlaybackSpeed = 1.0;
+        }
+        playingAudios.forEach(applyPlaybackSpeedToAudio);
+      })();
+
+      fetch('SoundboardSN.json')
+        .then(r => {
+          if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+          return r.json();
+        })
+        .then(data => {
+          (data.NormalSounds || []).forEach(f => createSoundButton('NormalSounds', f, normalSoundsContainer));
+          (data.ExplicitSounds || []).forEach(f => createSoundButton('ExplicitSounds', f, explicitSoundsContainer));
+          if ((data.NormalSounds || []).length === 0 && (data.ExplicitSounds || []).length === 0) {
+            showStatus('No sounds loaded. Check SoundboardSN.json.', 'info');
+          }
+        })
+        .catch(err => {
+          console.error("Failed to load or parse SoundboardSN.json:", err);
+          showStatus('Error loading sound list. See console for details.', 'error');
+          normalSoundsContainer.innerHTML = '<p style="color: var(--light-text);">Could not load sounds.</p>';
+          explicitSoundsContainer.innerHTML = '<p style="color: var(--light-text);">Could not load sounds.</p>';
+        });
+    });
+  </script>
+</body>
+
+</html>
