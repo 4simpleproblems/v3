@@ -16,7 +16,7 @@
   <script src="firebase-config.js"></script>
 
   <style>
-    /* ———— Core Styles ———— */
+    /* — Core Styles — */
 
     #logoutBtn {
       display: none;
@@ -47,8 +47,7 @@
       flex: 0 0 auto;
       min-width: 100px;
       height: 100px;
-      /* huge radius makes pills or circles everywhere */
-      border-radius: 9999px;
+      border-radius: 9999px;             /* always pill/circle */
       background-color: var(--light-text);
       color: var(--dark-bg);
       border: 3px solid var(--dark-bg);
@@ -65,9 +64,9 @@
       max-width: 500px;
       word-wrap: break-word;
       hyphens: auto;
+      user-select: none;                 /* disable text selection */
+      -webkit-user-select: none;
     }
-
-    /* we no longer need special 50% circles; 9999px handles everything */
 
     .sound-button:hover {
       background-color: var(--light-gray);
@@ -90,6 +89,7 @@
       border: 2px solid var(--light-text);
       border-radius: 50px;
       cursor: pointer;
+      user-select: none;               /* prevent “Options” text selection too */
     }
 
     .options-content {
@@ -101,8 +101,7 @@
       padding: 1rem;
       z-index: 2;
       right: 0;
-      /* restored rounded corners */
-      border-radius: 30px;
+      border-radius: 30px;             /* keep the rounded corners */
       color: var(--light-text);
     }
 
@@ -153,7 +152,6 @@
       width: 16px;
       height: 16px;
       cursor: pointer;
-      position: relative;
       border-radius: 5px;
     }
 
@@ -192,8 +190,6 @@
       background-color: var(--darker-bg);
       color: var(--light-text);
       font-size: 0.9rem;
-      -webkit-appearance: none;
-      -moz-appearance: none;
       appearance: none;
       background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
       background-repeat: no-repeat;
@@ -266,33 +262,15 @@
     }
 
     @keyframes buttonPop {
-      0% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.15);
-      }
-
-      75% {
-        transform: scale(0.95);
-      }
-
-      100% {
-        transform: scale(1);
-      }
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      75% { transform: scale(0.95); }
+      100% { transform: scale(1); }
     }
 
     @keyframes ripple {
-      0% {
-        transform: scale(0);
-        opacity: 0.5;
-      }
-
-      100% {
-        transform: scale(4);
-        opacity: 0;
-      }
+      0%   { transform: scale(0); opacity: 0.5; }
+      100% { transform: scale(4); opacity: 0; }
     }
 
     #clearAllSoundsBtn.active {
@@ -302,10 +280,7 @@
 
     .ripple-container {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       overflow: hidden;
       border-radius: inherit;
       pointer-events: none;
@@ -315,78 +290,27 @@
       position: absolute;
       border-radius: 50%;
       background-color: rgba(255, 255, 255, 0.4);
-      width: 100px;
-      height: 100px;
-      margin-top: -50px;
-      margin-left: -50px;
+      width: 100px; height: 100px;
+      margin-top: -50px; margin-left: -50px;
       animation: ripple 0.6s ease-out;
       pointer-events: none;
     }
 
-    @keyframes fadeInOverlay {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-
-    @keyframes fadeOutOverlay {
-      from {
-        opacity: 1;
-      }
-
-      to {
-        opacity: 0;
-      }
-    }
+    @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeOutOverlay { from { opacity: 1; } to { opacity: 0; } }
 
     .overlay {
       display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
+      position: fixed; top:0; left:0;
+      width:100%; height:100%;
+      background-color: rgba(0,0,0,0.5);
       z-index: 1;
     }
+    .overlay.fade-in  { display: block; animation: fadeInOverlay 0.3s ease forwards; }
+    .overlay.fade-out { display: block; animation: fadeOutOverlay 0.3s ease forwards; }
 
-    .overlay.fade-in {
-      display: block;
-      animation: fadeInOverlay 0.3s ease forwards;
-    }
-
-    .overlay.fade-out {
-      display: block;
-      animation: fadeOutOverlay 0.3s ease forwards;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeOutDown {
-      from {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      to {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-    }
+    @keyframes fadeInUp   { from { opacity:0; transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+    @keyframes fadeOutDown{ from { opacity:1; transform:translateY(0);}   to{opacity:0;transform:translateY(20px);} }
 
     .status-message {
       display: none;
@@ -394,127 +318,56 @@
       margin: 1rem auto;
       border-radius: 50px;
       font-size: 0.9rem;
-      background-color: rgba(0, 0, 0, 0.1);
+      background-color: rgba(0,0,0,0.1);
       text-align: center;
       max-width: 80%;
     }
+    .status-message.fade-in  { display:block; animation:fadeInUp 0.3s ease forwards; }
+    .status-message.fade-out { display:block; animation:fadeOutDown 0.3s ease forwards; }
+    .status-message.success  { background-color:rgba(0,255,0,0.1); color:green; border:1px solid green; }
+    .status-message.error    { background-color:rgba(255,0,0,0.1); color:red;   border:1px solid red;   }
+    .status-message.info     { background-color:rgba(0,0,255,0.1); color:blue;  border:1px solid blue;  }
 
-    .status-message.fade-in {
-      display: block;
-      animation: fadeInUp 0.3s ease forwards;
-    }
-
-    .status-message.fade-out {
-      display: block;
-      animation: fadeOutDown 0.3s ease forwards;
-    }
-
-    .status-message.success {
-      background-color: rgba(0, 255, 0, 0.1);
-      color: green;
-      border: 1px solid green;
-    }
-
-    .status-message.error {
-      background-color: rgba(255, 0, 0, 0.1);
-      color: red;
-      border: 1px solid red;
-    }
-
-    .status-message.info {
-      background-color: rgba(0, 0, 255, 0.1);
-      color: blue;
-      border: 1px solid blue;
-    }
-
-    /* ———— MOBILE‑FIRST TWEAKS ———— */
-    @media (max-width: 600px) {
-
+    /* — Mobile tweaks — */
+    @media (max-width:600px) {
       .navbar {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 0.5rem 1rem;
+        display:flex; flex-direction:column; align-items:center; padding:0.5rem 1rem;
       }
-
-      .navbar .logo {
-        margin-bottom: 0.5rem;
-      }
-
+      .navbar .logo { margin-bottom:0.5rem; }
       .nav-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.5rem;
+        display:flex; flex-wrap:wrap; justify-content:center; gap:0.5rem;
       }
+      .btn, .options-button { padding:0.5rem 1rem; font-size:0.9rem; }
 
-      .btn,
-      .options-button {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-      }
-
-      main.container {
-        padding: 1rem;
-      }
-
-      .soundButtonsContainer {
-        gap: 1rem;
-      }
-
+      main.container { padding:1rem; }
+      .soundButtonsContainer { gap:1rem; }
       .sound-button {
-        flex: 1 1 45%;
-        min-width: 0;
-        height: 80px;
-        font-size: 0.75rem;
-        padding: 0.5rem;
+        flex:1 1 45%;
+        min-width:0;
+        height:80px;
+        font-size:0.75rem;
+        padding:0.5rem;
       }
 
-      .sound-section h2 {
-        font-size: 1.25rem;
-      }
+      .sound-section h2 { font-size:1.25rem; }
+      h1               { font-size:1.5rem; }
+      p                { font-size:0.9rem; }
 
-      h1 {
-        font-size: 1.5rem;
-      }
-
-      p {
-        font-size: 0.9rem;
-      }
-
-      /* keep the rounded corners! */
       .options-content {
-        right: auto;
-        left: 0;
-        width: 100%;
-        box-sizing: border-box;
-        /* no border-radius override, stays 30px */
+        right:auto; left:0; width:100%; box-sizing:border-box;
+        /* keep border-radius:30px */
       }
-
-      .overlay {
-        background-color: rgba(0, 0, 0, 0.7);
-      }
-
-      .status-message {
-        max-width: 100%;
-        font-size: 0.85rem;
-      }
-
-      footer p {
-        font-size: 0.8rem;
-      }
+      .overlay { background-color:rgba(0,0,0,0.7); }
+      .status-message { max-width:100%; font-size:0.85rem; }
+      footer p { font-size:0.8rem; }
     }
   </style>
 
   <script>
     // Firebase init & auth guard
     try {
-      if (typeof firebaseConfig !== 'undefined') {
-        firebase.initializeApp(firebaseConfig);
-      }
-    } catch (e) {
-      console.error("Firebase init error:", e);
-    }
+      if (typeof firebaseConfig !== 'undefined') firebase.initializeApp(firebaseConfig);
+    } catch (e) { console.error("Firebase init error:", e); }
 
     function handleAuthState(user) {
       const btn = document.getElementById('logoutBtn');
@@ -526,10 +379,7 @@
       const auth = firebase.auth();
       auth.onAuthStateChanged(handleAuthState);
       document.getElementById('logoutBtn')
-        .addEventListener('click', e => {
-          e.preventDefault();
-          auth.signOut().then(() => window.location.href = 'login.html');
-        });
+        .addEventListener('click', e => { e.preventDefault(); auth.signOut().then(() => window.location.href='login.html'); });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -547,10 +397,9 @@
         <div class="options-content" id="optionsMenu">
           <div class="options-section">
             <h3>Playback Options</h3>
-            <label>
-              <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
-            </label>
-            <label for="playbackSpeed" class="playback-speed-label">Playback Speed:
+            <label><input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay</label>
+            <label for="playbackSpeed" class="playback-speed-label">
+              Playback Speed:
               <select id="playbackSpeed">
                 <option value="0.25">0.25x</option>
                 <option value="0.5">0.5x</option>
@@ -566,10 +415,8 @@
                 <option value="3">3x</option>
               </select>
             </label>
-            <label>
-              <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
-            </label>
-            <label id="autoClickDelayLabel" style="display: none;">
+            <label><input type="checkbox" id="autoClickerCheckbox" />Auto Clicker</label>
+            <label id="autoClickDelayLabel" style="display:none;">
               Delay (ms):
               <input type="number" id="autoClickDelay" value="1000" min="0" />
               <button id="applyDelayBtn">Apply</button>
@@ -578,8 +425,7 @@
           <div class="options-section">
             <h3>Management</h3>
             <button id="clearAllSoundsBtn" class="btn secondary">
-              Clear All Sounds
-              <div class="ripple-container"></div>
+              Clear All Sounds <div class="ripple-container"></div>
             </button>
           </div>
           <div class="keyboard-shortcuts">
@@ -610,204 +456,176 @@
     </div>
   </main>
 
-  <footer>
-    <p>© 2025 4SP</p>
-  </footer>
-
+  <footer><p>© 2025 4SP</p></footer>
   <div class="overlay" id="overlay"></div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const normalContainer = document.getElementById('normalSoundsContainer');
-      const explicitContainer = document.getElementById('explicitSoundsContainer');
+      const normalCon = document.getElementById('normalSoundsContainer');
+      const explicitCon = document.getElementById('explicitSoundsContainer');
       const soundOverlay = document.getElementById('soundOverlayCheckbox');
-      const autoClicker = document.getElementById('autoClickerCheckbox');
-      const delayInput = document.getElementById('autoClickDelay');
-      const delayLabel = document.getElementById('autoClickDelayLabel');
-      const applyBtn = document.getElementById('applyDelayBtn');
-      const overlayEl = document.getElementById('overlay');
-      const optionsBtn = document.querySelector('.options-button');
-      const optionsMenu = document.getElementById('optionsMenu');
-      const statusMsg = document.getElementById('statusMessage');
-      const clearBtn = document.getElementById('clearAllSoundsBtn');
-      const rippleCont = clearBtn.querySelector('.ripple-container');
-      const playbackSpeed = document.getElementById('playbackSpeed');
+      const autoClicker  = document.getElementById('autoClickerCheckbox');
+      const delayInput   = document.getElementById('autoClickDelay');
+      const delayLabel   = document.getElementById('autoClickDelayLabel');
+      const applyBtn     = document.getElementById('applyDelayBtn');
+      const overlayEl    = document.getElementById('overlay');
+      const optionsBtn   = document.querySelector('.options-button');
+      const optionsMenu  = document.getElementById('optionsMenu');
+      const statusMsg    = document.getElementById('statusMessage');
+      const clearBtn     = document.getElementById('clearAllSoundsBtn');
+      const rippleCont   = clearBtn.querySelector('.ripple-container');
+      const playbackSpeed= document.getElementById('playbackSpeed');
 
-      let playing = [];
-      let autoInterval = null;
-      let rafId = null;
-      let pressedButton = null;
-      let menuOpen = false;
-      let isRippling = false;
-      let currentSpeed = 1.0;
-      let statusTimeout = null;
+      let playing = [], autoInterval = null, rafId = null;
+      let pressedBtn = null, menuOpen = false, isRippling = false;
+      let currentSpeed = 1.0, statusTimeout = null;
 
-      function showStatus(text, type = 'info') {
-        if (statusTimeout) {
+      function showStatus(text,type='info'){
+        if(statusTimeout){
           clearTimeout(statusTimeout);
-          statusMsg.classList.remove('fade-in', 'fade-out');
+          statusMsg.classList.remove('fade-in','fade-out');
         }
-        statusMsg.textContent = text;
-        statusMsg.className = 'status-message ' + type;
-        statusMsg.style.display = 'block';
+        statusMsg.textContent=text;
+        statusMsg.className='status-message '+type;
+        statusMsg.style.display='block';
         statusMsg.classList.add('fade-in');
-        statusTimeout = setTimeout(() => {
+        statusTimeout=setTimeout(()=>{
           statusMsg.classList.remove('fade-in');
           statusMsg.classList.add('fade-out');
-          setTimeout(() => {
-            statusMsg.style.display = 'none';
-          }, 300);
-        }, 3000);
+          setTimeout(()=>statusMsg.style.display='none',300);
+        },3000);
       }
 
-      function openMenu() {
-        if (menuOpen) return;
-        menuOpen = true;
-        overlayEl.style.display = 'block';
-        overlayEl.classList.add('fade-in');
-        optionsMenu.style.display = 'block';
-        optionsMenu.classList.add('fade-in');
+      function openMenu(){
+        if(menuOpen) return;
+        menuOpen=true;
+        overlayEl.style.display='block'; overlayEl.classList.add('fade-in');
+        optionsMenu.style.display='block'; optionsMenu.classList.add('fade-in');
       }
 
-      function closeMenu() {
-        if (!menuOpen) return;
-        menuOpen = false;
-        overlayEl.classList.remove('fade-in');
-        optionsMenu.classList.remove('fade-in');
-        overlayEl.classList.add('fade-out');
-        optionsMenu.classList.add('fade-out');
-        setTimeout(() => {
-          overlayEl.style.display = 'none';
-          optionsMenu.style.display = 'none';
-        }, 300);
+      function closeMenu(){
+        if(!menuOpen) return;
+        menuOpen=false;
+        overlayEl.classList.remove('fade-in'); optionsMenu.classList.remove('fade-in');
+        overlayEl.classList.add('fade-out'); optionsMenu.classList.add('fade-out');
+        setTimeout(()=>{
+          overlayEl.style.display='none';
+          optionsMenu.style.display='none';
+        },300);
       }
 
-      function createRipple(e) {
-        if (isRippling) return;
-        isRippling = true;
-        const r = clearBtn.getBoundingClientRect();
-        const x = e.clientX - r.left;
-        const y = e.clientY - r.top;
-        const wave = document.createElement('span');
+      function createRipple(e){
+        if(isRippling) return;
+        isRippling=true;
+        const r=clearBtn.getBoundingClientRect();
+        const x=e.clientX-r.left, y=e.clientY-r.top;
+        const wave=document.createElement('span');
         wave.classList.add('ripple');
-        wave.style.left = x + 'px';
-        wave.style.top = y + 'px';
-        rippleCont.innerHTML = '';
-        rippleCont.appendChild(wave);
-        setTimeout(() => {
-          wave.remove();
-          isRippling = false;
-        }, 600);
+        wave.style.left=`${x}px`; wave.style.top=`${y}px`;
+        rippleCont.innerHTML=''; rippleCont.appendChild(wave);
+        setTimeout(()=>{ wave.remove(); isRippling=false; },600);
       }
 
-      function stopAll(delay = 0) {
-        if (!playing.length) return;
-        if (delay) {
-          playing.forEach(a => a.volume = 0);
-          setTimeout(() => {
-            playing.forEach(a => { a.pause(); a.currentTime = 0; });
-            playing = [];
-          }, delay);
+      function stopAll(delay=0){
+        if(!playing.length) return;
+        if(delay){
+          playing.forEach(a=>a.volume=0);
+          setTimeout(()=>{
+            playing.forEach(a=>{a.pause(); a.currentTime=0;});
+            playing=[];
+          },delay);
         } else {
-          playing.forEach(a => { a.pause(); a.currentTime = 0; });
-          playing = [];
+          playing.forEach(a=>{a.pause(); a.currentTime=0;});
+          playing=[];
         }
       }
 
-      function clearSounds(instant = false) {
-        if (playing.length) {
-          if (instant) {
-            playing.forEach(a => a.volume = 0);
+      function clearSounds(instant=false){
+        if(playing.length){
+          if(instant){
+            playing.forEach(a=>a.volume=0);
             stopAll(100);
-            showStatus('All sounds muted and cleared', 'success');
+            showStatus('All sounds muted and cleared','success');
           } else {
             stopAll();
-            showStatus('All sounds stopped', 'success');
+            showStatus('All sounds stopped','success');
           }
-        } else if (!instant) {
-          showStatus('No sounds to clear', 'info');
+        } else if(!instant){
+          showStatus('No sounds to clear','info');
         }
-        if (instant) closeMenu();
+        if(instant) closeMenu();
       }
 
-      function applySpeed(el) {
-        el.playbackRate = currentSpeed;
+      function applySpeed(el){
+        el.playbackRate=currentSpeed;
       }
 
-      function fastClick() {
-        if (pressedButton && autoClicker.checked) {
-          pressedButton.click();
-          rafId = requestAnimationFrame(fastClick);
+      function fastClick(){
+        if(pressedBtn && autoClicker.checked){
+          pressedBtn.click();
+          rafId=requestAnimationFrame(fastClick);
         }
       }
 
-      function startAuto() {
+      function startAuto(){
         stopAuto();
-        const d = parseInt(delayInput.value, 10) || 0;
-        if (!pressedButton || !autoClicker.checked) return;
-        if (d === 0) {
-          rafId = requestAnimationFrame(fastClick);
-        } else {
-          autoInterval = setInterval(() => {
-            if (pressedButton) pressedButton.click();
+        const d=parseInt(delayInput.value,10)||0;
+        if(!pressedBtn||!autoClicker.checked) return;
+        if(d===0) rafId=requestAnimationFrame(fastClick);
+        else {
+          autoInterval=setInterval(()=>{
+            if(pressedBtn) pressedBtn.click();
             else stopAuto();
           }, d);
         }
       }
 
-      function stopAuto() {
-        if (autoInterval) {
-          clearInterval(autoInterval);
-          autoInterval = null;
-        }
-        if (rafId) {
-          cancelAnimationFrame(rafId);
-          rafId = null;
-        }
+      function stopAuto(){
+        if(autoInterval){ clearInterval(autoInterval); autoInterval=null; }
+        if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
       }
 
-      function applyDelay() {
-        let v = parseInt(delayInput.value, 10);
-        if (isNaN(v) || v < 0) delayInput.value = 0;
-        localStorage.setItem('autoClickDelay', delayInput.value);
-        if (autoClicker.checked && pressedButton) startAuto();
-        showStatus(`Auto click delay set to ${delayInput.value}ms`, 'info');
+      function applyDelay(){
+        let v=parseInt(delayInput.value,10);
+        if(isNaN(v)||v<0) delayInput.value=0;
+        localStorage.setItem('autoClickDelay',delayInput.value);
+        if(autoClicker.checked&&pressedBtn) startAuto();
+        showStatus(`Auto click delay set to ${delayInput.value}ms`,'info');
       }
 
-      function createSoundButton(folder, file, container) {
-        const name = file.replace('.mp3','').replace(/_/g,' ');
-        const path = `${folder}/${file}`;
-        const btn = document.createElement('button');
-        btn.className = 'sound-button';
-        btn.textContent = name;
+      function createSoundButton(folder,file,container){
+        const name=file.replace('.mp3','').replace(/_/g,' ');
+        const path=`${folder}/${file}`;
+        const btn=document.createElement('button');
+        btn.className='sound-button';
+        btn.textContent=name;
 
-        btn.addEventListener('click', () => {
-          if (!soundOverlay.checked) stopAll();
-          const audio = new Audio(path);
+        btn.addEventListener('click',()=>{
+          if(!soundOverlay.checked) stopAll();
+          const audio=new Audio(path);
           applySpeed(audio);
-          audio.addEventListener('ended', () => {
-            playing = playing.filter(a => a !== audio);
-          });
+          audio.addEventListener('ended',()=>playing=playing.filter(a=>a!==audio));
           playing.push(audio);
-          audio.play().catch(_=> showStatus(`Cannot play: ${name}`, 'error'));
+          audio.play().catch(_=> showStatus(`Cannot play: ${name}`,'error'));
         });
 
-        // on hold → auto‑click
-        btn.addEventListener('mousedown', () => {
-          pressedButton = btn;
+        // LONG‑PRESS handlers
+        btn.addEventListener('mousedown',e=>{
+          e.preventDefault();      // no selection
+          pressedBtn=btn;
           startAuto();
         });
-        btn.addEventListener('mouseup', () => {
-          pressedButton = null;
+        btn.addEventListener('mouseup',()=>{
+          pressedBtn=null;
           stopAuto();
         });
-        // touch support
-        btn.addEventListener('touchstart', () => {
-          pressedButton = btn;
+        btn.addEventListener('touchstart',e=>{
+          e.preventDefault();      // no selection
+          pressedBtn=btn;
           startAuto();
-        });
-        btn.addEventListener('touchend', () => {
-          pressedButton = null;
+        },{passive:false});
+        btn.addEventListener('touchend',()=>{
+          pressedBtn=null;
           stopAuto();
         });
 
@@ -815,92 +633,89 @@
       }
 
       // wire up controls
-      soundOverlay.addEventListener('change', () => {
-        if (!soundOverlay.checked) stopAll();
-        localStorage.setItem('soundOverlay', soundOverlay.checked);
+      soundOverlay.addEventListener('change',()=>{
+        if(!soundOverlay.checked) stopAll();
+        localStorage.setItem('soundOverlay',soundOverlay.checked);
       });
-
-      autoClicker.addEventListener('change', () => {
-        delayLabel.style.display = autoClicker.checked ? 'block' : 'none';
-        if (!autoClicker.checked) stopAuto();
-        localStorage.setItem('autoClicker', autoClicker.checked);
+      autoClicker.addEventListener('change',()=>{
+        delayLabel.style.display=autoClicker.checked?'block':'none';
+        if(!autoClicker.checked) stopAuto();
+        localStorage.setItem('autoClicker',autoClicker.checked);
       });
-
-      delayInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
+      delayInput.addEventListener('keydown',e=>{
+        if(e.key==='Enter'){
           e.preventDefault();
           applyDelay();
         }
       });
-      applyBtn.addEventListener('click', applyDelay);
-
-      clearBtn.addEventListener('click', e => {
+      applyBtn.addEventListener('click',applyDelay);
+      clearBtn.addEventListener('click',e=>{
         createRipple(e);
         clearSounds(false);
       });
-
-      document.addEventListener('keydown', e => {
-        if (e.shiftKey && e.key.toLowerCase() === 'c') {
+      document.addEventListener('keydown',e=>{
+        if(e.shiftKey&&e.key.toLowerCase()==='c'){
           e.preventDefault();
           clearSounds(true);
         }
       });
 
-      optionsBtn.addEventListener('click', e => {
+      optionsBtn.addEventListener('click',e=>{
         e.stopPropagation();
-        menuOpen ? closeMenu() : openMenu();
+        menuOpen? closeMenu(): openMenu();
       });
-      overlayEl.addEventListener('click', closeMenu);
-      document.addEventListener('click', ev => {
-        if (menuOpen && !optionsMenu.contains(ev.target) && ev.target !== optionsBtn) {
+      overlayEl.addEventListener('click',closeMenu);
+      document.addEventListener('click',ev=>{
+        // only close if click is truly outside both menu AND the entire button area
+        if(menuOpen 
+           && !optionsMenu.contains(ev.target) 
+           && !optionsBtn.contains(ev.target)
+        ) {
           closeMenu();
         }
       });
 
-      playbackSpeed.addEventListener('change', () => {
-        currentSpeed = parseFloat(playbackSpeed.value);
-        localStorage.setItem('playbackSpeed', currentSpeed);
+      playbackSpeed.addEventListener('change',()=>{
+        currentSpeed=parseFloat(playbackSpeed.value);
+        localStorage.setItem('playbackSpeed',currentSpeed);
         playing.forEach(applySpeed);
-        showStatus(`Playback speed set to ${currentSpeed}x`, 'info');
+        showStatus(`Playback speed set to ${currentSpeed}x`,'info');
       });
 
-      // load prefs + sounds
-      (function init() {
-        if (localStorage.getItem('soundOverlay') === 'true') soundOverlay.checked = true;
-        if (localStorage.getItem('autoClicker') === 'true') {
-          autoClicker.checked = true;
-          delayLabel.style.display = 'block';
+      // load prefs
+      (function init(){
+        if(localStorage.getItem('soundOverlay')==='true') soundOverlay.checked=true;
+        if(localStorage.getItem('autoClicker')==='true'){
+          autoClicker.checked=true;
+          delayLabel.style.display='block';
         }
-        const sd = localStorage.getItem('autoClickDelay');
-        if (sd !== null) delayInput.value = sd;
-        const sp = localStorage.getItem('playbackSpeed');
-        if (sp !== null) {
-          currentSpeed = parseFloat(sp);
-          playbackSpeed.value = sp;
+        const sd=localStorage.getItem('autoClickDelay');
+        if(sd!==null) delayInput.value=sd;
+        const sp=localStorage.getItem('playbackSpeed');
+        if(sp!==null){
+          currentSpeed=parseFloat(sp);
+          playbackSpeed.value=sp;
         }
       })();
 
+      // fetch sounds
       fetch('SoundboardSN.json')
-        .then(r => {
-          if (!r.ok) throw new Error(r.statusText);
+        .then(r=>{
+          if(!r.ok) throw new Error(r.statusText);
           return r.json();
         })
-        .then(data => {
-          (data.NormalSounds || []).forEach(f =>
-            createSoundButton('NormalSounds', f, normalContainer)
-          );
-          (data.ExplicitSounds || []).forEach(f =>
-            createSoundButton('ExplicitSounds', f, explicitContainer)
-          );
-          if (!(data.NormalSounds || []).length && !(data.ExplicitSounds || []).length) {
-            showStatus('No sounds loaded. Check SoundboardSN.json.', 'info');
+        .then(data=>{
+          (data.NormalSounds||[]).forEach(f=> createSoundButton('NormalSounds',f,normalCon));
+          (data.ExplicitSounds||[]).forEach(f=> createSoundButton('ExplicitSounds',f,explicitCon));
+          if(!(data.NormalSounds||[]).length && !(data.ExplicitSounds||[]).length){
+            showStatus('No sounds loaded. Check SoundboardSN.json.','info');
           }
         })
-        .catch(err => {
+        .catch(err=>{
           console.error(err);
-          showStatus('Error loading sound list.', 'error');
-          normalContainer.innerHTML = '<p style="color:var(--light-text)">Could not load.</p>';
-          explicitContainer.innerHTML = '<p style="color:var(--light-text)">Could not load.</p>';
+          showStatus('Error loading sound list.','error');
+          normalCon.innerHTML  = '<p style="color:var(--light-text)">Could not load.</p>';
+          explicitCon.innerHTML= '<p style="color:var(--light-text)">Could not load.</p>';
         });
     });
   </script>
