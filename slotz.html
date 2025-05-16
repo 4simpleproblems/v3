@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Slotz</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap"
@@ -14,180 +14,124 @@
       --darker-bg: #070707;
       --light-text: #f0f0f0;
       --accent-color: #f0f0f0;
-      --primary: var(--light-text);
     }
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       font-family: 'Roboto Mono', monospace;
       font-weight: 500;
       color: var(--light-text);
     }
     body {
       margin: 0;
-      background-color: var(--dark-bg);
+      background: var(--dark-bg);
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
       overflow-x: hidden;
     }
-
     /* Navbar */
-    .navbar-container {
-      width: 100%;
-      flex-shrink: 0;
-    }
+    .navbar-container { width:100%; flex-shrink:0; }
     .navbar {
-      background-color: var(--darker-bg);
-      padding: 0.75rem 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid var(--accent-color);
+      background: var(--darker-bg);
+      padding:0.75rem 1.5rem;
+      display:flex; justify-content:space-between; align-items:center;
+      border-bottom:2px solid var(--accent-color);
     }
-    .logo {
-      font-size: 1.5rem;
-    }
-    .nav-buttons {
-      display: flex;
-      gap: 1rem;
-    }
+    .logo { font-size:1.5rem; }
+    .nav-buttons { display:flex; gap:1rem; }
     .btn {
-      padding: 0.5rem 1rem;
-      border-radius: 50px;
-      font-size: 0.9rem;
-      text-decoration: none;
-      background: transparent;
-      border: 2px solid var(--accent-color);
-      cursor: pointer;
-      transition: background 0.2s;
+      padding:0.5rem 1rem; border-radius:50px;
+      background:transparent; border:2px solid var(--accent-color);
+      cursor:pointer; text-decoration:none;
+      transition:background 0.2s;
     }
-    .btn:hover {
-      background: rgba(255,255,255,0.1);
-    }
+    .btn:hover { background:rgba(255,255,255,0.1); }
 
     /* Slot Machine */
     h1 {
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-      font-size: 2rem;
-      letter-spacing: 2px;
+      margin:2rem 0 1rem;
+      font-size:2rem; letter-spacing:2px;
       animation: glow 2s infinite;
     }
     #controls {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      align-items: center;
+      display:flex; gap:1rem; align-items:center;
+      margin-bottom:1.5rem;
     }
-    #controls div {
-      font-size: 1rem;
+    input, button {
+      background:transparent;
+      border:2px solid var(--accent-color);
+      padding:0.4rem 0.8rem;
+      border-radius:8px;
+      font-family:inherit; font-size:1rem;
+      color:var(--light-text);
     }
-    input[type=number], button {
-      background: transparent;
-      border: 2px solid var(--accent-color);
-      padding: 0.4rem 0.8rem;
-      font-family: inherit;
-      font-size: 1rem;
-      border-radius: 8px;
-      color: var(--light-text);
-    }
-    button {
-      position: relative;
-      overflow: hidden;
-    }
+    input { width:80px; text-align:center; }
+    button { position:relative; overflow:hidden; }
     button:after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.2), transparent 70%);
-      transform: rotate(45deg) translate(-100%, -100%);
-      opacity: 0;
-      transition: opacity 0.3s, transform 0.5s;
+      content:''; position:absolute; top:-50%; left:-50%;
+      width:200%; height:200%;
+      background:radial-gradient(circle at center, rgba(255,255,255,0.2),transparent 70%);
+      transform:rotate(45deg) translate(-100%,-100%);
+      opacity:0; transition:opacity 0.3s,transform 0.5s;
     }
     button:active:after {
-      opacity: 1;
-      transform: rotate(45deg) translate(0, 0);
-      transition: none;
+      opacity:1; transform:rotate(45deg) translate(0,0); transition:none;
     }
 
     #slot-machine {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
+      display:flex; gap:1rem; margin-bottom:1rem;
     }
     .reel {
-      width: 80px;
-      height: 80px;
-      border: 3px solid var(--accent-color);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
+      width:80px; height:80px;
+      border:3px solid var(--accent-color);
+      border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden; position:relative;
       animation: blink 1.5s infinite;
     }
-    .reel .number {
-      position: absolute;
-      font-size: 2.5rem;
+    .number {
+      position:absolute; font-size:2.5rem;
     }
     .reel.spinning .number {
       animation: slide 0.4s linear infinite;
-      filter: blur(4px);
+      filter:blur(4px);
     }
 
     #message {
-      font-size: 1.1rem;
-      height: 1.5rem;
-      margin-bottom: 2rem;
-      opacity: 0;
-      transition: opacity 0.5s;
+      height:1.5em; margin-bottom:2rem;
+      font-size:1.1rem; opacity:0;
+      transition:opacity 0.5s;
     }
-    #message.win {
-      animation: glow 1s infinite;
-      opacity: 1;
-    }
-    #message.win.x2 { color: #0f0; }
-    #message.win.x3 { color: #ff0; }
-    #message.lose {
-      color: #f00;
-      opacity: 1;
-    }
+    #message.win { animation: glow 1s infinite; opacity:1; }
+    #message.win.x2 { color:#0f0; }
+    #message.win.x3 { color:#ff0; }
+    #message.lose { color:#f00; opacity:1; }
 
-    /* Confetti */
     .confetti {
-      position: fixed;
-      width: 6px;
-      height: 6px;
-      background: var(--accent-color);
-      top: 0;
-      opacity: 0.8;
-      pointer-events: none;
-      animation: fall 2s ease-out forwards;
+      position:fixed; width:6px; height:6px;
+      background:var(--accent-color);
+      top:0; opacity:0.8; pointer-events:none;
+      animation:fall 2s ease-out forwards;
     }
 
     @keyframes slide {
-      0%   { transform: translateY(100%); }
-      100% { transform: translateY(-100%); }
+      0%  { transform:translateY(100%); }
+      100%{ transform:translateY(-100%); }
     }
     @keyframes blink {
-      0%,100% { border-color: var(--accent-color); }
-      50%     { border-color: #777; }
+      0%,100%{ border-color:var(--accent-color); }
+      50%    { border-color:#777; }
     }
     @keyframes glow {
-      0%,100% { text-shadow: 0 0 5px var(--accent-color); }
-      50%     { text-shadow: 0 0 20px var(--accent-color); }
+      0%,100%{ text-shadow:0 0 5px var(--accent-color); }
+      50%    { text-shadow:0 0 20px var(--accent-color); }
     }
     @keyframes fall {
       to {
-        transform: translate(var(--dx), 100vh) rotate(var(--rot));
-        opacity: 0;
+        transform:translate(var(--dx),100vh) rotate(var(--rot));
+        opacity:0;
       }
     }
   </style>
@@ -208,7 +152,7 @@
 
   <div id="controls">
     <div>Balance: <span id="balance">1000</span></div>
-    <div>Bet: <input type="number" id="bet" min="1" value="10"></div>
+    <div>Bet: <input type="number" id="bet" min="1" step="1" value="10"/></div>
     <button id="spin">SPIN</button>
   </div>
 
@@ -221,100 +165,121 @@
   <div id="message"></div>
 
   <script>
-    // Simple logout → redirect to login
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      window.location.href = 'login.html';
-    });
+    // ===== Reel strips (weights) just like physical reels =====
+    // Each symbol appears multiple times → controls its probability.
+    const strip = [
+      ...Array(30).fill(1),
+      ...Array(25).fill(2),
+      ...Array(20).fill(3),
+      ...Array(15).fill(4),
+      ...Array(7).fill(5),
+      ...Array(2).fill(6),
+      ...Array(1).fill(7)
+    ];
+    // shuffle once for each reel
+    const reelsData = [ shuffle(strip), shuffle(strip), shuffle(strip) ];
 
-    const reels = document.querySelectorAll('.reel .number');
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // pick a random symbol from a given reel strip
+    function spinReelValue(reel) {
+      const idx = Math.floor(Math.random() * reel.length);
+      return reel[idx];
+    }
+
+    // ===== UI & Logic =====
+    const reelsEls = document.querySelectorAll('.reel .number');
     const spinBtn = document.getElementById('spin');
     const balEl = document.getElementById('balance');
     const betEl = document.getElementById('bet');
     const msgEl = document.getElementById('message');
+    const logoutBtn = document.getElementById('logoutBtn');
     let balance = 1000;
 
+    logoutBtn.addEventListener('click', () => location.href = 'login.html');
     function updateBalance() { balEl.textContent = balance; }
 
-    // generous odds
-    function calculateResults(bet) {
-      const p3 = Math.min(0.05 + bet/500*0.05, 0.20);
-      const p2 = Math.min(0.20 + bet/500*0.10, 0.60);
-      const r = Math.random();
-      if (r < p3) {
-        const n = Math.ceil(Math.random()*7);
-        return [n,n,n];
-      } else if (r < p3 + p2) {
-        const n = Math.ceil(Math.random()*7);
-        let m; do { m = Math.ceil(Math.random()*7); } while (m === n);
-        const pos = Math.floor(Math.random()*3);
-        const arr = [n,n,n]; arr[pos] = m;
-        return arr;
-      } else {
-        const set = [];
-        while (set.length < 3) {
-          const x = Math.ceil(Math.random()*7);
-          if (!set.includes(x)) set.push(x);
-        }
-        return set;
-      }
+    function animateReel(el, duration, final) {
+      const parent = el.parentElement;
+      parent.classList.add('spinning');
+      return new Promise(res => {
+        setTimeout(() => {
+          parent.classList.remove('spinning');
+          el.textContent = final;
+          res(final);
+        }, duration);
+      });
     }
 
-    function burstConfetti() {
-      for (let i=0; i<40; i++) {
+    function burstConfetti(){
+      for(let i=0;i<30;i++){
         const c = document.createElement('div');
         c.className = 'confetti';
         c.style.left = (Math.random()*100)+'vw';
         c.style.setProperty('--dx', ((Math.random()*2-1)*100)+'vw');
         c.style.setProperty('--rot', (Math.random()*360)+'deg');
         document.body.appendChild(c);
-        setTimeout(()=> c.remove(), 2000);
+        setTimeout(() => c.remove(), 2000);
       }
     }
 
-    function spinReel(el, dur, final) {
-      const parent = el.parentElement;
-      parent.classList.add('spinning');
-      return new Promise(res =>{
-        setTimeout(()=>{
-          parent.classList.remove('spinning');
-          el.textContent = final;
-          res(final);
-        }, dur);
-      });
-    }
-
     spinBtn.addEventListener('click', async () => {
-      const bet = +betEl.value;
-      if (!bet || bet > balance) return alert('Invalid bet!');
-      balance -= bet; updateBalance();
-      msgEl.textContent = ''; msgEl.className = '';
+      const bet = Number(betEl.value);
+      // only whole numbers, ≥1 and ≤balance
+      if (!Number.isInteger(bet) || bet < 1 || bet > balance) {
+        return alert('Please enter a whole‑number bet between 1 and your balance.');
+      }
+      // lock controls
+      spinBtn.disabled = betEl.disabled = true;
 
-      const finals = calculateResults(bet);
-      const times = [1200,1400,1600].map(t => t + Math.random()*300);
-      const outs = await Promise.all(finals.map((n,i) =>
-        spinReel(reels[i], times[i], n)
+      balance -= bet;
+      updateBalance();
+      msgEl.textContent = '';
+      msgEl.className = '';
+
+      // spin each reel with staggered timing
+      const durations = [1200, 1400, 1600].map(d => d + Math.random()*300);
+      // pick final symbols from weighted strips
+      const finals = reelsData.map((strip, i) => spinReelValue(strip));
+      const results = await Promise.all(finals.map((val, i) =>
+        animateReel(reelsEls[i], durations[i], val)
       ));
 
-      const cnt = {};
-      outs.forEach(n=>cnt[n]=(cnt[n]||0)+1);
-      let payout=0, cls='';
-      if (Object.values(cnt).includes(3)) {
-        payout = bet*3; cls='x3';
+      // count matches
+      const counts = {};
+      results.forEach(n => counts[n] = (counts[n]||0) + 1);
+
+      // determine payout: 3× for any triple, 2× for any pair
+      let payout = 0, cls = '';
+      if (Object.values(counts).includes(3)) {
+        payout = bet * 3;
         msgEl.textContent = '🎉 JACKPOT! 3× WIN!';
-      } else if (Object.values(cnt).includes(2)) {
-        payout = bet*2; cls='x2';
+        cls = 'x3';
+      } else if (Object.values(counts).includes(2)) {
+        payout = bet * 2;
         msgEl.textContent = '✨ Nice! 2× WIN!';
+        cls = 'x2';
       } else {
-        payout = 0;
         msgEl.textContent = '😢 You lose';
         msgEl.className = 'lose';
       }
 
-      if (payout>0) {
+      if (payout > 0) {
         msgEl.className = `win ${cls}`;
         burstConfetti();
       }
-      balance += payout; updateBalance();
+      balance += payout;
+      updateBalance();
+
+      // unlock
+      spinBtn.disabled = betEl.disabled = false;
     });
 
     updateBalance();
