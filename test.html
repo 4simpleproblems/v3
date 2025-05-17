@@ -1,480 +1,460 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>4SP | Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | HOME</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff; /* Light background */
+            --text-color: #333333; /* Dark text */
+            --primary-color: #333333; /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc; /* Medium gray border */
+            --navbar-bg: #f0f0f0; /* Light gray for navbar */
+            --footer-bg: #f0f0f0; /* Light gray for footer */
+            --hover-bg: #e0e0e0; /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0; /* Light gray grid lines */
+            --accent-color: #333333; /* Dark accent color */
+        }
 
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="firebase-config.js"></script>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <style>
-   /* Base styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-body {
-  font-family: 'Roboto Mono', monospace;
-  background-color: #f5f5f5;
-  color: #333;
-  line-height: 1.6;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  flex: 1;
-}
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-align: center; /* Center all text by default */
+            position: relative;
+             overflow-x: hidden;
 
-/* Navbar */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  background-color: #111;
-  color: #fff;
-}
-.logo {
-  font-size: 24px;
-  font-weight: 700;
-}
-.nav-buttons {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px; /* Size of each grid cell */
+        }
 
-/* Buttons */
-.btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 16px;
-  min-height: 40px;               /* Ensure consistent height */
-  border-radius: 30px;
-  text-decoration: none;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-  font-family: 'Roboto Mono', monospace;
-  text-align: center;
-  background-color: transparent;
-  color: #fff;
-  border: 1px solid currentColor;
-  line-height: 1.2;
-}
-.btn.primary {
-  background-color: #4285F4;
-  color: #fff;
-}
-.btn.secondary {
-  background-color: transparent;
-  color: #fff;
-}
-.btn.primary:hover {
-  background-color: #3367d6;
-}
-.btn.secondary:hover {
-  background-color: rgba(255,255,255,0.1);
-}
+        /* Remove triangular gradients */
+        body::before, body::after {
+            content: none;
+        }
 
-/* Logout button inherits .btn styles—no extra overrides needed */
-#logoutBtn {
-  /* Inherits padding, min-height, display flex, etc. */
-}
 
-/* Hidden helper */
-.hidden {
-  display: none !important;
-}
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
 
-/* Dashboard Content Card – full width */
-.dashboard-content-card {
-  width: 100%;
-  max-width: none;
-  margin: 40px 0;
-  background-color: #fff;
-  border-radius: 50px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  overflow: hidden;
-  padding: 40px 30px;
-}
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 20px;
+            background-color: var(--navbar-bg);
+             text-align: left; /* Override center for navbar layout */
+            width: 100%;
+        }
 
-/* Section headers – thicker bottom border */
-.section-header {
-  margin: 3rem 0 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 4px solid;
-  color: #333;
-  font-weight: 700;
-  font-size: 1.5rem;
-}
-.section-header:first-of-type {
-  margin-top: 1rem;
-}
-.media-entertainment-header { border-color: #4285f4; }
-.web-access-header            { border-color: #fd7e14; }
-.user-interaction-header      { border-color: #dc3545; }
-.user-settings-header         { border-color: #6f42c1; }
-.others-header                { border-color: #20c997; }
-.admin-controls-header        { border-color: #FFD000; }
-.sub-admin-controls-header    { border-color: #FF9500; }
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-color);
+        }
 
-/* Grid – tiles expand to fill the row */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin: 2rem 0;
-}
-.dashboard-grid:has(:nth-child(2):last-child) {
-  grid-template-columns: repeat(2, 1fr);
-}
-@media (min-width: 992px) {
-  .dashboard-grid:has(:first-child:last-child) {
-    grid-template-columns: 1fr;
-  }
-  .dashboard-grid:has(:nth-child(2):last-child) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (max-width: 991px) and (min-width: 768px) {
-  .dashboard-grid:has(:first-child:last-child) {
-    grid-template-columns: 1fr;
-  }
-  .dashboard-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (max-width: 767px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-}
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+             text-align: left; /* Ensure text in buttons is not affected by body center */
+        }
 
-/* Tiles – slightly taller, thicker borders */
-.dashboard-tile {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background: white;
-  border-radius: 30px;
-  padding: 2.5rem;
-  text-decoration: none;
-  color: #333;
-  overflow: hidden;
-  height: 200px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 2px solid #e0e0e0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  width: 100%;
-}
-.dashboard-tile .tile-content {
-  position: relative;
-  z-index: 2;
-}
-.dashboard-tile h3 {
-  font-size: 1.6rem;
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-.dashboard-tile p {
-  font-size: 1rem;
-  line-height: 1.6;
-}
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center; /* Center button text */
+             display: inline-flex; /* Use flex to align content and arrow */
+            align-items: center; /* Vertically center content and arrow */
+        }
 
-/* Inner frame – increased to 4px */
-.dashboard-tile .tile-frame {
-  position: absolute;
-  inset: 0;
-  border: 4px solid rgba(0, 0, 0, 0.08);
-  border-radius: 28px;
-  z-index: 1;
-  transition: border-color 0.3s ease;
-}
-.dashboard-tile:hover {
-  transform: translateY(-5px) scale(1.03);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-}
-.dashboard-tile:hover .tile-frame {
-  border-color: #333;
-}
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--bg-color); /* White text on dark primary */
+            border: 1px solid var(--primary-color);
+        }
 
-.games-tile {
-  background-color: white;
-  border-color: #e0e0e0;
-}
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--secondary-border-color);
+        }
 
-/* Footer */
-footer {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-  font-size: 14px;
-}
-  </style>
+        .btn.google { /* Keeping google style as a distinct option if needed */
+             background-color: #4285F4;
+            color: #ffffff;
+            border: 1px solid #4285F4;
+        }
+
+        .btn.primary:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-color); /* Dark text on light hover */
+            border-color: var(--hover-bg);
+        }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+            border-color: var(--hover-bg);
+        }
+         .btn.google:hover {
+            background-color: darken(#4285F4, 10%);
+             border-color: darken(#4285F4, 10%);
+        }
+
+        /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192'; /* Right arrow character */
+            margin-right: 8px; /* Space between arrow and text */
+            font-weight: bold; /* Make arrow slightly bolder */
+             color: var(--accent-color); /* Dark accent color for arrow */
+        }
+
+        /* Hero Section */
+        .hero-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center; /* Ensure hero section text is centered */
+            min-height: calc(100vh - 140px);
+            padding: 40px 20px;
+            background-color: transparent; /* Make hero background transparent to see grid */
+            color: var(--text-color);
+        }
+
+        .hero-title {
+            font-size: 60px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            color: var(--text-color);
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            font-weight: 400;
+            color: rgba(51, 51, 51, 0.8); /* Slightly lighter dark color for subtitle */
+            margin-bottom: 40px;
+            max-width: 800px;
+            min-height: 24px; /* Ensure space is reserved for the typing quote */
+             white-space: pre-wrap; /* Preserve whitespace and allow wrapping */
+        }
+
+        .hero-cta-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hero-cta-buttons .btn {
+            min-width: 150px;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center; /* Ensure footer text is centered */
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6); /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+        }
+
+        /* Hide elements utility */
+        .hidden {
+            display: none;
+        }
+
+         /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .hero-title {
+                font-size: 40px;
+            }
+
+            .hero-subtitle {
+                font-size: 16px;
+            }
+
+            .hero-cta-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .hero-cta-buttons .btn {
+                 width: 100%;
+                 min-width: unset;
+            }
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                padding: 15px 10px;
+            }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+             }
+
+            .hero-section {
+                padding: 30px 10px;
+            }
+
+            .hero-title {
+                font-size: 30px;
+            }
+
+            .hero-subtitle {
+                font-size: 14px;
+            }
+        }
+
+         /* Typing Effect Cursor */
+         .hero-subtitle::after {
+            content: '|';
+            animation: blink-caret .75s step-end infinite;
+             color: var(--text-color); /* Cursor color matches text */
+         }
+
+         @keyframes blink-caret {
+            from, to { color: transparent }
+            50% { color: var(--text-color); }
+         }
+
+    </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="legal-list.html" class="btn secondary">Legal</a>
-      <a href="index.html" class="btn secondary">Home</a>
-      <button class="btn secondary" id="logoutBtn">Log Out</button>
-    </div>
-  </nav>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="legal-list.html" class="btn secondary btn-with-arrow">Legal</a>
+            <a href="login.html" class="btn secondary btn-with-arrow" id="loginNavBtn">Login</a>
+            <a href="signup.html" class="btn secondary btn-with-arrow" id="signupNavBtn">Sign Up</a>
+            <a href="dashboard.html" class="btn secondary btn-with-arrow hidden" id="dashboardNavBtn">Dashboard</a>
+            <button class="btn primary hidden" id="logoutNavBtn">Logout</button>
+        </div>
+    </nav>
 
-  <main class="container">
-    <div class="dashboard-content-card">
-      <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
+    <main>
+        <section class="hero-section">
+            <h1 class="hero-title">4SP</h1>
+            <p class="hero-subtitle" id="randomQuote"></p> <div class="hero-cta-buttons">
+                <a href="signup.html" class="btn primary btn-with-arrow" id="getStartedBtn">Get Started</a>
+                <a href="login.html" class="btn secondary btn-with-arrow" id="loginCtaBtn">Login</a>
+                <a href="dashboard.html" class="btn primary btn-with-arrow hidden" id="goToDashboardBtn">Go to Dashboard</a>
+            </div>
+        </section>
+    </main>
 
-      <h2 class="section-header media-entertainment-header">Media &amp; Entertainment</h2>
-      <div class="dashboard-grid">
-        <a href="soundboard.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Soundboard</h3>
-            <p>Access all available sound clips and categories. Play, hear, and admire these amazing sounds.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="playlist.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Playlists (Beta)</h3>
-            <p>Access and store sounds you like.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="localsounds.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Local Sounds</h3>
-            <p>Upload and play your own local MP3 files.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="https://4simpleproblems.github.io/game/" target="_blank" rel="noopener" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Retro Games</h3>
-            <p>Play a variety of retro games from somebody else's curated collection.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
+    <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
 
-      <h2 class="section-header web-access-header">Web Access</h2>
-      <div class="dashboard-grid">
-        <a href="vern.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Vern</h3>
-            <p>The official proxy for 4SP.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="vernmini.html" class="dashboard-tile admin-tile">
-          <div class="tile-content">
-            <h3>US4</h3>
-            <p>Some website with games, a proxy and stuff.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="links.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Links</h3>
-            <p>Uploaded links by 4SP, including Eaglercraft, and other crap.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
+    <script>
+        // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-      <h2 class="section-header user-interaction-header">User Interaction</h2>
-      <div class="dashboard-grid">
-        <a href="requests.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Request a Sound</h3>
-            <p>Submit requests for new sounds to be added to the collection. Sounds may be approved or denied.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="collections.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Sound Request Collection</h3>
-            <p>View sound requests organized by category.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="feedback.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Feedback</h3>
-            <p>Suggest user feedback, new features, or proxy reports to 4SP for improvement in the website.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
+        // Quotes for typing effect
+        const quotes = [
+            "A NON-COLLABORATIVE PLATFORM FOR INCONVENIENT PEOPLE",
+            "WHERE AUDIO PROBLEMS MEET ANYONE BUT ME.",
+            "SIX OR SEVEN PROBLEMS. INFINITE SOLUTIONS.",
+            "THAT ONE TEACHER HATES 6 7",
+            "P*SS OFF YOUR TEACHER.",
+            "I THINK SOUNDS ARE FUNNY.",
+            "YOU CAN’T FAIL IF YOU NEVER TRY. THINK ABOUT IT.",
+            "NOW WITH A PROXY!",
+            "I CHOSE THE PROXY WITHOUT ADS, BECAUSE I'M NOT GREEDY.",
+            "I TRIED.",
+            "THIS IS MORE THAN A SH***Y SOUNDBOARD. IT'S A DREAM.",
+            "THIS PLATFORM ISN'T SO INCONVENIENT NOW EH?",
+            "IF THIS WEBSITE CRASHES, IT'S YOUR FAULT.",
+            "HELD TOGETHER BY FIREBASE AND THIS PAGE.",
+            "SURPRISED THIS EVEN WORKS.",
+            "YOU SMELL GOOD TODAY!",
+            "IF YOU CAN MAKE HER LAUGH AND GIGGLE, THEN-",
+            "I LOVE THE INTERNET.",
+            "IT'S TODAYS DATE.",
+            "IS THIS WEBSITE GOOD?",
+            "STOP ASKING ME AND JUST REQUEST FOR SOUNDS ON THE WEBSITE!",
+            "IM NOT ACCEPTING SOUND REQUESTS IN PERSON!!",
+            "AMERICA🇺🇸",
+            "WHAT YOU GONNA DO ABOUT IT IF I SHOW ALL THEM WHAT YOU SENT ME?",
+            "I F***ING HATE ADS.",
+            "I LOVE MESSING UP THAT BIRD SCIENCE PROJECT.",
+            "I'M SINGLE!",
+            "GET SAUCY WITH ME🤑",
+            "YEEHAW",
+            "MORE PEOPLE ARE LAUGHING AT ME THAN YOU SAYING 6-7! - MR. 67",
+            "DEVELOPED IN THE US OF A!!!",
+            "SLOPPY TOPPY WITH A TWIST!",
+            "ALL THIS STUFF IS ON THE INTERNET...",
+            "STOP BLOCKING MY PROXIES!",
+            "I LOVE THEM NIKE PROS🤩🤩",
+            "DR. SQUATCH HAS AN AMAZING BODY WASH GENIE!",
+            "I'M GETTING TIRED OF WRITING THESE QUOTES.",
+            "YOU KNOW IT'S MASSIVE.",
+            "SHUT UP @Y!",
+            "BROO SHE WAS FR SO FREAKKY💀",
+            "IT'S 9:25 - ",
+            "YOU GOT SECRETS TOO?",
+            "I GOT 4 SIMPLE PROBLEMS, AND I GOT 1 ANSWER TO A FIFTH.",
+            "ITS CUZ U WASNT FREAKY ENOUG🤩",
+            "THAT GUY WANTED TO HANG ME BY MY TOENAILS :(",
+            "THAT'S A MASSIVE LOG AIDYN!",
+            "MWUAH",
+            "GIMME A SMOOCH💀",
+            "YES KINGGG",
+            "MIGHT MAKE A V3 DURING THE SUMMER"
+        ];
 
-      <h2 class="section-header user-settings-header">User Settings</h2>
-      <div class="dashboard-grid">
-        <a href="settings.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Settings</h3>
-            <p>Manage and view your settings and preferences. Updating your entire profile with usernames is in beta.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="legal-list.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Legal &amp; Policies</h3>
-            <p>Legal center for our website, including privacy policy and our terms of service.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
+        // Typing effect function
+        function typeQuote(elementId, text, delay = 50) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
 
-      <h2 class="section-header others-header">Others</h2>
-      <div class="dashboard-grid">
-        <a href="schedule.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Working Schedule</h3>
-            <p>A working schedule from which websites will be updated.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="https://optana-web.github.io/" target="_blank" rel="noopener" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Optana Website</h3>
-            <p>A website I created based around wishlists. I would be able to make wishlists, and edit them so people know what I want. This is currently in alpha.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
+            let i = 0;
+            element.textContent = ''; // Clear content before typing
+            element.style.minHeight = '24px'; // Ensure space is reserved
 
-      <!-- Full Admin Section -->
-      <h2 class="section-header admin-controls-header hidden" id="adminSectionHeader">
-        Admin Powers (Private)
-      </h2>
-      <div class="dashboard-grid hidden" id="adminSection">
-        <a href="feedback-collections.html" class="dashboard-tile admin-tile">
-          <div class="tile-content">
-            <h3>Feedback Collection</h3>
-            <p>Access user feedback and suggestions.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="vernproview.html" class="dashboard-tile admin-tile">
-          <div class="tile-content">
-            <h3>Vern Pro</h3>
-            <p>Access the internet with a private proxy, away from the public.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
-
-      <!-- Sub‑Admin Section (Vern Pro Only) -->
-      <h2 class="section-header sub-admin-controls-header hidden" id="subAdminSectionHeader">
-        Sub‑Admin Powers (Vern Pro Only)
-      </h2>
-      <div class="dashboard-grid hidden" id="subAdminSection">
-        <a href="vernproview.html" class="dashboard-tile admin-tile">
-          <div class="tile-content">
-            <h3>Vern Pro</h3>
-            <p>Access the internet with a private proxy, away from the public.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
-    </div>
-  </main>
-
-  <footer><p>© 2025 4SP</p></footer>
-
-  <script>
-    // Authentication state management
-    function handleAuthState(user) {
-      const authNotice      = document.getElementById('authNotice');
-      const dashboardCard   = document.querySelector('.dashboard-content-card');
-      const logoutBtn       = document.getElementById('logoutBtn');
-      const adminHeader     = document.getElementById('adminSectionHeader');
-      const adminSection    = document.getElementById('adminSection');
-      const subAdminHeader  = document.getElementById('subAdminSectionHeader');
-      const subAdminSection = document.getElementById('subAdminSection');
-
-      // Full‑admin emails
-      const adminEmails = [
-        '4simpleproblems@gmail.com',
-        'belkwy30@minerva.sparcc.org'
-      ];
-
-      // Sub‑admin emails (vern pro only)
-      const subAdminEmails = [
-        '4simpleproblems@gmail.com',
-        'alleda30@minerva.sparcc.org',
-        'bellja27@minerva.sparcc.org',
-        'belkwy30@minerva.sparcc.org',
-        'moyegl30@minerva.sparcc.org',
-      ];
-
-      if (user) {
-        authNotice.classList.add('hidden');
-        dashboardCard.classList.remove('hidden');
-        logoutBtn.classList.remove('hidden');
-
-        // Toggle full admin
-        if (adminEmails.includes(user.email)) {
-          adminHeader.classList.remove('hidden');
-          adminSection.classList.remove('hidden');
-        } else {
-          adminHeader.classList.add('hidden');
-          adminSection.classList.add('hidden');
+            function type() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, delay);
+                }
+            }
+            type();
         }
 
-        // Toggle sub‑admin
-        if (subAdminEmails.includes(user.email)) {
-          subAdminHeader.classList.remove('hidden');
-          subAdminSection.classList.remove('hidden');
-        } else {
-          subAdminHeader.classList.add('hidden');
-          subAdminSection.classList.add('hidden');
-        }
-
-      } else {
-        // if not logged in, send back to sign‑in
-        window.location.href = 'index.html';
-      }
-    }
-
-    // Initialize Firebase authentication and set up logout
-    function initAuth() {
-      const auth = firebase.auth();
-      document.getElementById('logoutBtn')
-        .addEventListener('click', e => {
-          e.preventDefault();
-          auth.signOut().then(() => {
-            window.location.href = 'index.html';
-          }).catch(console.error);
+        // Select a random quote and start typing effect on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            typeQuote('randomQuote', randomQuote);
         });
-      auth.onAuthStateChanged(handleAuthState);
-    }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      if (firebase && firebase.auth) {
-        initAuth();
-      } else {
-        console.error("Firebase SDK not loaded.");
-        const notice = document.getElementById('authNotice');
-        notice.textContent = 'Error loading application components. Please try again later.';
-        notice.classList.remove('hidden');
-        document.querySelector('.dashboard-content-card').classList.add('hidden');
-      }
-    });
-  </script>
+
+        // Toggle the authentication UI by showing/hiding elements
+        function toggleAuthUI(user) {
+            const loginNavBtn = document.getElementById('loginNavBtn');
+            const signupNavBtn = document.getElementById('signupNavBtn');
+            const loginCtaBtn = document.getElementById('loginCtaBtn');
+            const getStartedBtn = document.getElementById('getStartedBtn');
+            const dashboardNavBtn = document.getElementById('dashboardNavBtn');
+            const logoutNavBtn = document.getElementById('logoutNavBtn');
+            const goToDashboardBtn = document.getElementById('goToDashboardBtn');
+
+            if (user) {
+                loginNavBtn.classList.add('hidden');
+                signupNavBtn.classList.add('hidden');
+                loginCtaBtn.classList.add('hidden');
+                getStartedBtn.classList.add('hidden');
+                dashboardNavBtn.classList.remove('hidden');
+                logoutNavBtn.classList.remove('hidden');
+                goToDashboardBtn.classList.remove('hidden');
+            } else {
+                loginNavBtn.classList.remove('hidden');
+                signupNavBtn.classList.remove('hidden');
+                loginCtaBtn.classList.remove('hidden');
+                getStartedBtn.classList.remove('hidden');
+                dashboardNavBtn.classList.add('hidden');
+                logoutNavBtn.classList.add('hidden');
+                goToDashboardBtn.classList.add('hidden');
+            }
+        }
+
+        function initAuth() {
+            try {
+                const auth = firebase.auth();
+                auth.onAuthStateChanged(user => {
+                    toggleAuthUI(user);
+                    const logoutButton = document.getElementById('logoutNavBtn');
+                    // Ensure the element exists before adding a listener
+                    if (logoutButton) {
+                         // Remove any existing listeners before adding a new one to prevent duplicates
+                        const newLogoutButton = logoutButton.cloneNode(true);
+                        logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
+
+                        newLogoutButton.addEventListener('click', () => {
+                            auth.signOut().catch(error => {
+                                console.error("Logout error:", error);
+                            });
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error("Auth initialization error:", error);
+                 // If Firebase init fails, still try to toggle UI to logged out state
+                 document.addEventListener('DOMContentLoaded', () => toggleAuthUI(null));
+            }
+        }
+
+        /*
+         Initialize Firebase Auth after Firebase scripts are loaded.
+         The Firebase scripts are placed at the end of the body for better performance,
+         so we should wait for the window load event or place the initAuth call after scripts.
+         Placing scripts at the end of the body is standard practice.
+         We'll rely on the DOMContentLoaded listener within initAuth.
+        */
+
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+     <script>
+        // Call initAuth after Firebase scripts are guaranteed to be loaded
+        if (typeof firebase !== 'undefined') {
+            initAuth();
+        } else {
+            console.error("Firebase is not loaded after script inclusion.");
+            // Fallback UI toggle if Firebase is still undefined
+            document.addEventListener('DOMContentLoaded', () => toggleAuthUI(null));
+        }
+     </script>
 </body>
 </html>
