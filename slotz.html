@@ -1,288 +1,725 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Slotz</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap"
-    rel="stylesheet"
-  />
-  <style>
-    :root {
-      --dark-bg: #0a0a0a;
-      --darker-bg: #070707;
-      --light-text: #f0f0f0;
-      --accent-color: #f0f0f0;
-    }
-    * {
-      box-sizing: border-box;
-      margin: 0; padding: 0;
-      font-family: 'Roboto Mono', monospace;
-      font-weight: 500;
-      color: var(--light-text);
-    }
-    body {
-      margin: 0;
-      background: var(--dark-bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-    /* Navbar */
-    .navbar-container { width:100%; flex-shrink:0; }
-    .navbar {
-      background: var(--darker-bg);
-      padding:0.75rem 1.5rem;
-      display:flex; justify-content:space-between; align-items:center;
-      border-bottom:2px solid var(--accent-color);
-    }
-    .logo { font-size:1.5rem; }
-    .nav-buttons { display:flex; gap:1rem; }
-    .btn {
-      padding:0.5rem 1rem; border-radius:50px;
-      background:transparent; border:2px solid var(--accent-color);
-      cursor:pointer; text-decoration:none;
-      transition:background 0.2s;
-    }
-    .btn:hover { background:rgba(255,255,255,0.1); }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>4SP | SLOTZ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
 
-    /* Slot Machine */
-    h1 {
-      margin:2rem 0 1rem;
-      font-size:2rem; letter-spacing:2px;
-      animation: glow 2s infinite;
-    }
-    #controls {
-      display:flex; gap:1rem; align-items:center;
-      margin-bottom:1.5rem;
-    }
-    input, button {
-      background:transparent;
-      border:2px solid var(--accent-color);
-      padding:0.4rem 0.8rem;
-      border-radius:8px;
-      font-family:inherit; font-size:1rem;
-      color:var(--light-text);
-    }
-    input { width:80px; text-align:center; }
-    button { position:relative; overflow:hidden; }
-    button:after {
-      content:''; position:absolute; top:-50%; left:-50%;
-      width:200%; height:200%;
-      background:radial-gradient(circle at center, rgba(255,255,255,0.2),transparent 70%);
-      transform:rotate(45deg) translate(-100%,-100%);
-      opacity:0; transition:opacity 0.3s,transform 0.5s;
-    }
-    button:active:after {
-      opacity:1; transform:rotate(45deg) translate(0,0); transition:none;
-    }
+    <style>
+        * {
+            /* Removed !important overrides */
+            font-family: 'Outfit', sans-serif;
+            box-sizing: border-box;
+             /* Removed default margin/padding/font-weight/color */
+        }
 
-    #slot-machine {
-      display:flex; gap:1rem; margin-bottom:1rem;
-    }
-    .reel {
-      width:80px; height:80px;
-      border:3px solid var(--accent-color);
-      border-radius:12px;
-      display:flex; align-items:center; justify-content:center;
-      overflow:hidden; position:relative;
-      animation: blink 1.5s infinite;
-    }
-    .number {
-      position:absolute; font-size:2.5rem;
-    }
-    .reel.spinning .number {
-      animation: slide 0.4s linear infinite;
-      filter:blur(4px);
-    }
+        :root {
+            --bg-color: #ffffff; /* Light background */
+            --text-color: #333333; /* Dark text */
+            --primary-color: #333333; /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc; /* Medium gray border */
+            --navbar-bg: #f0f0f0; /* Light gray for navbar */
+            --footer-bg: #f0f0f0; /* Light gray for footer */
+            --hover-bg: #e0e0e0; /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0; /* Light gray grid lines */
+            --accent-color: #333333; /* Dark accent color */
 
-    #message {
-      height:1.5em; margin-bottom:2rem;
-      font-size:1.1rem; opacity:0;
-      transition:opacity 0.5s;
-    }
-    #message.win { animation: glow 1s infinite; opacity:1; }
-    #message.win.x2 { color:#0f0; }
-    #message.win.x3 { color:#ff0; }
-    #message.lose { color:#f00; opacity:1; }
+            /* Game specific colors (adapted for light theme) */
+            --reel-border-color: var(--secondary-border-color);
+            --reel-number-color: var(--primary-color);
+            --win-message-color-x2: #28a745; /* Green */
+            --win-message-color-x3: #ffc107; /* Yellow */
+            --lose-message-color: #dc3545; /* Red */
+            --confetti-color: var(--accent-color);
+            --input-border-color: var(--secondary-border-color);
+            --input-bg-color: var(--bg-color);
+            --input-text-color: var(--text-color);
+            --input-focus-border-color: var(--accent-color);
+        }
 
-    .confetti {
-      position:fixed; width:6px; height:6px;
-      background:var(--accent-color);
-      top:0; opacity:0.8; pointer-events:none;
-      animation:fall 2s ease-out forwards;
-    }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+             /* Centered content */
+            align-items: center; /* Center horizontally */
+            justify-content: flex-start; /* Align to top initially */
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-align: center; /* Center content by default */
+            position: relative;
+            overflow-x: hidden;
 
-    @keyframes slide {
-      0%  { transform:translateY(100%); }
-      100%{ transform:translateY(-100%); }
-    }
-    @keyframes blink {
-      0%,100%{ border-color:var(--accent-color); }
-      50%    { border-color:#777; }
-    }
-    @keyframes glow {
-      0%,100%{ text-shadow:0 0 5px var(--accent-color); }
-      50%    { text-shadow:0 0 20px var(--accent-color); }
-    }
-    @keyframes fall {
-      to {
-        transform:translate(var(--dx),100vh) rotate(var(--rot));
-        opacity:0;
-      }
-    }
-  </style>
+             /* Add padding to account for fixed navbar and footer */
+             padding-top: 80px; /* Default padding for fixed navbar */
+             padding-bottom: 60px; /* Default padding for fixed footer */
+
+             /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px; /* Size of each grid cell */
+        }
+
+         /* Remove triangular gradients */
+        body::before, body::after {
+            content: none;
+        }
+
+         a {
+              /* Inherit color or set theme color, text decoration handled by specific classes */
+             color: var(--text-color);
+             text-decoration: none;
+         }
+
+        /* Navbar - consistent with other pages */
+        .navbar {
+            display: flex;
+            justify-content: space-between; /* Pushes logo to left, buttons to right */
+            align-items: center; /* Vertically centers items in navbar */
+            padding: 20px 20px;
+            /* Adjusted padding */
+            background-color: var(--navbar-bg);
+            /* Light gray */
+            color: var(--text-color);
+            /* Dark text */
+             text-align: left; /* Override center for navbar layout */
+            width: 100%;
+            position: fixed; /* Ensure navbar is fixed */
+            top: 0;
+            left: 0; /* Ensure it starts from the left edge */
+            z-index: 100; /* Ensure it's above other content */
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+             color: var(--text-color);
+             /* Removed specific letter-spacing */
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            /* Adjusted gap */
+            align-items: center; /* Vertically centers buttons within nav-buttons */
+             text-align: left; /* Ensure text in buttons is not affected by body center */
+             margin-left: auto; /* Pushes the nav-buttons group to the right */
+        }
+
+        /* Buttons (Base Styles) */
+        .btn {
+            display: inline-flex; /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px; /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px; /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none; /* Removed default transparent border */
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--bg-color); /* White text on dark primary */
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--text-color); /* Dark text on light secondary */
+            border: 1px solid var(--secondary-border-color);
+        }
+
+        .btn.primary:hover {
+            background-color: var(--hover-bg);
+             color: var(--text-color);
+             border-color: var(--hover-bg);
+         }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+             border-color: var(--hover-bg);
+        }
+
+         /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192'; /* Right arrow character */
+            margin-right: 8px; /* Space between arrow and text */
+            font-weight: bold; /* Make arrow slightly bolder */
+             color: var(--accent-color); /* Dark accent color for arrow */
+        }
+
+        /* Slot Machine Title */
+        h1 {
+            margin: 2rem 0 1rem;
+            font-size: 3rem; /* Adjusted size */
+            letter-spacing: normal; /* Removed letter-spacing */
+             color: var(--primary-color); /* Dark text color */
+             font-weight: 900;
+             text-transform: uppercase;
+             animation: none; /* Removed glow animation */
+        }
+
+        /* Controls Area */
+        #controls {
+            display: flex;
+            gap: 1.5rem; /* Adjusted gap */
+            align-items: center;
+            justify-content: center; /* Center controls */
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            color: var(--text-color); /* Apply text color to labels */
+             font-weight: 600; /* Make labels bolder */
+        }
+
+        /* Input and Button within Controls */
+        #controls input[type="number"],
+        #controls button {
+             /* Inherit button/input styles from the theme */
+            background-color: var(--input-bg-color);
+            border: 1px solid var(--input-border-color);
+            padding: 10px 20px; /* Use theme padding */
+            border-radius: 5px; /* Less rounded */
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            color: var(--input-text-color);
+            text-transform: uppercase;
+            /* Apply uppercase to button text */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        #controls input[type="number"] {
+            width: 100px; /* Wider input */
+            text-align: center;
+             text-transform: none; /* Keep input text mixed case */
+             padding: 10px 8px; /* Adjust padding for number input */
+        }
+         #controls input[type="number"]:focus {
+             border-color: var(--input-focus-border-color);
+             box-shadow: 0 0 5px rgba(51, 51, 51, 0.2);
+         }
+
+
+        #controls button#spin {
+             /* Inherit primary button styles */
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: 1px solid var(--primary-color);
+             /* Removed pseudo-element effects */
+             position: static; /* Remove relative positioning */
+             overflow: visible; /* Remove overflow hidden */
+        }
+         #controls button#spin:hover {
+             /* Inherit primary button hover styles */
+            background-color: var(--hover-bg);
+            color: var(--text-color);
+            border-color: var(--hover-bg);
+             box-shadow: none; /* Remove default hover box shadow */
+         }
+          #controls button#spin:active:after { /* Removed pseudo-element active state */
+              content: none;
+          }
+
+
+        /* Slot Machine Reels Container */
+        #slot-machine {
+            display: flex;
+            gap: 20px;
+            /* Wider gap */
+            margin-bottom: 1rem;
+            justify-content: center; /* Center reels */
+        }
+
+        /* Individual Reels */
+        .reel {
+            width: 100px;
+            /* Larger reels */
+            height: 100px;
+            border: 3px solid var(--reel-border-color);
+            /* Theme border */
+            border-radius: 10px;
+            /* Less rounded */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+             background-color: var(--card-bg); /* Light background for reels */
+             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+            animation: none; /* Removed blink animation */
+        }
+
+        .number {
+            position: absolute;
+            font-size: 3rem;
+            /* Larger numbers */
+            color: var(--reel-number-color);
+            /* Theme number color */
+             font-weight: 900; /* Bolder numbers */
+             text-transform: uppercase; /* Ensure numbers are uppercase (though they are numbers) */
+        }
+
+        .reel.spinning .number {
+            animation: slide 0.4s linear infinite;
+            filter: blur(4px);
+             /* Keep blur effect while spinning */
+             text-transform: uppercase; /* Ensure spinning numbers are uppercase */
+        }
+
+        /* Message Area */
+        #message {
+            height: 1.5em;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            /* Larger message font */
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            text-transform: uppercase;
+            /* All caps */
+             font-weight: 700; /* Bolder message */
+             text-align: center; /* Ensure message is centered */
+        }
+         #message.win {
+             animation: none; /* Removed glow animation */
+             opacity: 1;
+         }
+         #message.win.x2 {
+             color: var(--win-message-color-x2);
+         }
+         #message.win.x3 {
+             color: var(--win-message-color-x3);
+         }
+         #message.lose {
+             color: var(--lose-message-color);
+             opacity: 1;
+         }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 8px;
+            /* Slightly larger confetti */
+            height: 8px;
+            background: var(--confetti-color);
+            /* Theme confetti color */
+            top: 0;
+            opacity: 0.8;
+            pointer-events: none;
+            animation: fall 2s ease-out forwards;
+             border-radius: 2px; /* Make confetti square or slightly rounded */
+        }
+
+        /* Animations - kept slide and fall, removed blink and glow */
+        @keyframes slide {
+            0% {
+                transform: translateY(100%);
+            }
+            100% {
+                transform: translateY(-100%);
+            }
+        }
+        /* Removed @keyframes blink */
+        /* Removed @keyframes glow */
+        @keyframes fall {
+            to {
+                transform: translate(var(--dx), 100vh) rotate(var(--rot));
+                opacity: 0;
+            }
+        }
+
+         /* Responsive adjustments */
+         @media (max-width: 768px) {
+             .navbar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+                 margin-left: 0;
+                 width: 100%;
+            }
+
+            body {
+                 padding-top: 120px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 80px; /* Adjust padding for footer */
+            }
+
+             h1 {
+                 font-size: 2.5rem;
+                 margin-top: 1.5rem;
+                 margin-bottom: 0.8rem;
+             }
+
+             #controls {
+                 gap: 1rem;
+                 margin-bottom: 1rem;
+                 font-size: 0.9rem;
+             }
+              #controls input[type="number"], #controls button {
+                  padding: 8px 15px;
+                  font-size: 12px;
+              }
+              #controls input[type="number"] {
+                  width: 80px;
+                   padding: 8px 6px;
+              }
+
+
+             #slot-machine {
+                 gap: 15px;
+                 margin-bottom: 0.8rem;
+             }
+             .reel {
+                 width: 80px;
+                 height: 80px;
+                 border-width: 2px;
+                 border-radius: 8px;
+             }
+             .number {
+                 font-size: 2.5rem;
+             }
+
+             #message {
+                 font-size: 1.2rem;
+                 margin-bottom: 1.5rem;
+             }
+
+              .confetti {
+                  width: 6px;
+                  height: 6px;
+                  border-radius: 1px;
+              }
+         }
+
+         @media (max-width: 480px) {
+            .navbar {
+                 padding: 15px 10px;
+             }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             body {
+                 padding-top: 150px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 100px; /* Adjust padding for footer */
+             }
+
+             h1 {
+                 font-size: 1.8rem;
+                 margin-top: 1rem;
+                 margin-bottom: 0.6rem;
+             }
+
+              #controls {
+                 gap: 0.8rem;
+                 margin-bottom: 0.8rem;
+                 font-size: 0.8rem;
+             }
+              #controls input[type="number"], #controls button {
+                  padding: 6px 10px;
+                  font-size: 10px;
+              }
+              #controls input[type="number"] {
+                  width: 60px;
+                   padding: 6px 4px;
+              }
+
+
+             #slot-machine {
+                 gap: 10px;
+                 margin-bottom: 0.6rem;
+             }
+             .reel {
+                 width: 60px;
+                 height: 60px;
+                 border-width: 1px;
+                 border-radius: 5px;
+             }
+             .number {
+                 font-size: 1.8rem;
+             }
+              #message {
+                 font-size: 1rem;
+                 margin-bottom: 1rem;
+             }
+
+              .confetti {
+                  width: 4px;
+                  height: 4px;
+                  border-radius: 0;
+              }
+        }
+
+         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
+        /* function darken(color, percent) { ... } */
+
+    </style>
 </head>
 <body>
 
-  <div class="navbar-container">
     <nav class="navbar">
-      <div class="logo">Slotz</div>
-      <div class="nav-buttons">
-        <a href="dashboard.html" class="btn">Dashboard</a>
-        <button class="btn" id="logoutBtn">Logout</button>
-      </div>
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+             <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+             <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+             <a href="collections.html" class="btn secondary btn-with-arrow">Collections</a>
+             <button id="logoutBtn" class="btn secondary">Log Out</button>
+        </div>
     </nav>
-  </div>
 
-  <h1>Slotz</h1>
 
-  <div id="controls">
-    <div>Balance: <span id="balance">1000</span></div>
-    <div>Bet: <input type="number" id="bet" min="1" step="1" value="10"/></div>
-    <button id="spin">SPIN</button>
-  </div>
+    <h1>Slotz</h1>
 
-  <div id="slot-machine">
-    <div class="reel"><div class="number">0</div></div>
-    <div class="reel"><div class="number">0</div></div>
-    <div class="reel"><div class="number">0</div></div>
-  </div>
+    <div id="controls">
+        <div>BALANCE: <span id="balance">1000</span></div>
+        <div>BET: <input type="number" id="bet" min="1" step="1" value="10"/></div>
+        <button id="spin" class="primary">SPIN</button> </div>
 
-  <div id="message"></div>
+    <div id="slot-machine">
+        <div class="reel"><div class="number">0</div></div>
+        <div class="reel"><div class="number">0</div></div>
+        <div class="reel"><div class="number">0</div></div>
+    </div>
 
-  <script>
-    // ===== Reel strips (weights) just like physical reels =====
-    // Each symbol appears multiple times → controls its probability.
-    const strip = [
-      ...Array(30).fill(1),
-      ...Array(25).fill(2),
-      ...Array(20).fill(3),
-      ...Array(15).fill(4),
-      ...Array(7).fill(5),
-      ...Array(2).fill(6),
-      ...Array(1).fill(7)
-    ];
-    // shuffle once for each reel
-    const reelsData = [ shuffle(strip), shuffle(strip), shuffle(strip) ];
+    <div id="message"></div>
 
-    function shuffle(arr) {
-      const a = arr.slice();
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
+     <script>
+        // ===== Reel strips (weights) just like physical reels =====
+        // Each symbol appears multiple times → controls its probability.
+        const strip = [
+            ...Array(30).fill(1),
+            ...Array(25).fill(2),
+            ...Array(20).fill(3),
+            ...Array(15).fill(4),
+            ...Array(7).fill(5),
+            ...Array(2).fill(6),
+            ...Array(1).fill(7)
+        ];
+        // shuffle once for each reel
+        const reelsData = [ shuffle(strip), shuffle(strip), shuffle(strip) ];
 
-    // pick a random symbol from a given reel strip
-    function spinReelValue(reel) {
-      const idx = Math.floor(Math.random() * reel.length);
-      return reel[idx];
-    }
+        function shuffle(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
 
-    // ===== UI & Logic =====
-    const reelsEls = document.querySelectorAll('.reel .number');
-    const spinBtn = document.getElementById('spin');
-    const balEl = document.getElementById('balance');
-    const betEl = document.getElementById('bet');
-    const msgEl = document.getElementById('message');
-    const logoutBtn = document.getElementById('logoutBtn');
-    let balance = 1000;
+        // pick a random symbol from a given reel strip
+        function spinReelValue(reel) {
+            const idx = Math.floor(Math.random() * reel.length);
+            return reel[idx];
+        }
 
-    logoutBtn.addEventListener('click', () => location.href = 'login.html');
-    function updateBalance() { balEl.textContent = balance; }
+        // ===== UI & Logic =====
+        const reelsEls = document.querySelectorAll('.reel .number');
+        const spinBtn = document.getElementById('spin');
+        const balEl = document.getElementById('balance');
+        const betEl = document.getElementById('bet');
+        const msgEl = document.getElementById('message');
+        const logoutBtn = document.getElementById('logoutBtn'); // Get the logout button
 
-    function animateReel(el, duration, final) {
-      const parent = el.parentElement;
-      parent.classList.add('spinning');
-      return new Promise(res => {
-        setTimeout(() => {
-          parent.classList.remove('spinning');
-          el.textContent = final;
-          res(final);
-        }, duration);
-      });
-    }
+        let balance = 1000; // Starting balance
 
-    function burstConfetti(){
-      for(let i=0;i<30;i++){
-        const c = document.createElement('div');
-        c.className = 'confetti';
-        c.style.left = (Math.random()*100)+'vw';
-        c.style.setProperty('--dx', ((Math.random()*2-1)*100)+'vw');
-        c.style.setProperty('--rot', (Math.random()*360)+'deg');
-        document.body.appendChild(c);
-        setTimeout(() => c.remove(), 2000);
-      }
-    }
+        // --- Firebase Auth Listener & Logout ---
+        let auth;
+        document.addEventListener('DOMContentLoaded', () => {
+             // Check if Firebase SDK is available and initialized
+             if (typeof firebase !== 'undefined') {
+                 // Initialize Firebase app if not already initialized
+                 if (firebase.apps.length === 0 && typeof firebaseConfig !== 'undefined') {
+                     try {
+                          firebase.initializeApp(firebaseConfig);
+                     } catch (error) {
+                         console.error("Firebase initialization error:", error);
+                          // Handle initialization error - maybe show a message on the page
+                          msgEl.textContent = 'ERROR LOADING FIREBASE SERVICES.';
+                          msgEl.className = 'lose'; // Use lose class for error message styling
+                          spinBtn.disabled = true; // Disable spin button
+                          if(logoutBtn) logoutBtn.disabled = true; // Disable logout button
+                         return; // Stop script execution if Firebase fails to initialize
+                     }
+                 }
+                  // Assign auth instance
+                  auth = firebase.auth();
 
-    spinBtn.addEventListener('click', async () => {
-      const bet = Number(betEl.value);
-      // only whole numbers, ≥1 and ≤balance
-      if (!Number.isInteger(bet) || bet < 1 || bet > balance) {
-        return alert('Please enter a whole‑number bet between 1 and your balance.');
-      }
-      // lock controls
-      spinBtn.disabled = betEl.disabled = true;
+                  // Set up auth state change listener
+                  auth.onAuthStateChanged(user => {
+                      if (!user) {
+                          console.log("No user logged in. Redirecting to index.html");
+                          // Redirect if not authenticated
+                          window.location.href = 'index.html';
+                      } else {
+                           console.log("User logged in:", user.email);
+                           // User is logged in, enable buttons if they were disabled due to initial load state
+                           spinBtn.disabled = false;
+                           betEl.disabled = false;
+                           if(logoutBtn) logoutBtn.disabled = false;
+                           // Set up the logout listener here after auth is confirmed and button is enabled
+                            if(logoutBtn) {
+                                 logoutBtn.addEventListener('click', () => {
+                                     if(auth) {
+                                         auth.signOut().then(() => {
+                                             console.log("User signed out.");
+                                             window.location.href = 'index.html'; // Redirect after logout
+                                         }).catch(error => {
+                                             console.error("Logout Error:", error);
+                                             alert("Error logging out. Please try again.");
+                                         });
+                                     } else {
+                                          console.error("Firebase Auth not available for logout click.");
+                                          alert("Logout failed. Firebase services not available.");
+                                     }
+                                 });
+                             } else {
+                                  console.error("Logout button not found after auth check.");
+                             }
+                      }
+                  });
 
-      balance -= bet;
-      updateBalance();
-      msgEl.textContent = '';
-      msgEl.className = '';
 
-      // spin each reel with staggered timing
-      const durations = [1200, 1400, 1600].map(d => d + Math.random()*300);
-      // pick final symbols from weighted strips
-      const finals = reelsData.map((strip, i) => spinReelValue(strip));
-      const results = await Promise.all(finals.map((val, i) =>
-        animateReel(reelsEls[i], durations[i], val)
-      ));
+             } else {
+                 console.error("Firebase SDK not available.");
+                 // Handle case where Firebase script failed to load
+                 msgEl.textContent = 'FIREBASE SDK NOT LOADED. CANNOT PLAY.';
+                 msgEl.className = 'lose'; // Use lose class for error message styling
+                 spinBtn.disabled = true; // Disable spin button
+                 if(logoutBtn) logoutBtn.disabled = true; // Disable logout button
+             }
+        });
+        // --- End Firebase Auth Listener ---
 
-      // count matches
-      const counts = {};
-      results.forEach(n => counts[n] = (counts[n]||0) + 1);
 
-      // determine payout: 3× for any triple, 2× for any pair
-      let payout = 0, cls = '';
-      if (Object.values(counts).includes(3)) {
-        payout = bet * 3;
-        msgEl.textContent = '🎉 JACKPOT! 3× WIN!';
-        cls = 'x3';
-      } else if (Object.values(counts).includes(2)) {
-        payout = bet * 2;
-        msgEl.textContent = '✨ Nice! 2× WIN!';
-        cls = 'x2';
-      } else {
-        msgEl.textContent = '😢 You lose';
-        msgEl.className = 'lose';
-      }
+        function updateBalance() {
+            balEl.textContent = balance;
+        }
 
-      if (payout > 0) {
-        msgEl.className = `win ${cls}`;
-        burstConfetti();
-      }
-      balance += payout;
-      updateBalance();
+        function animateReel(el, duration, final) {
+            const parent = el.parentElement;
+            // Check if parent and classList exist before adding/removing classes
+             if (parent && parent.classList) {
+                 parent.classList.add('spinning');
+             }
 
-      // unlock
-      spinBtn.disabled = betEl.disabled = false;
-    });
+            return new Promise(res => {
+                setTimeout(() => {
+                    // Check if parent and classList exist before adding/removing classes
+                    if (parent && parent.classList) {
+                         parent.classList.remove('spinning');
+                    }
+                    el.textContent = final;
+                    res(final);
+                }, duration);
+            });
+        }
 
-    updateBalance();
-  </script>
+        function burstConfetti(){
+            for(let i=0;i<30;i++){
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = (Math.random()*100)+'vw';
+                c.style.setProperty('--dx', ((Math.random()*2-1)*100)+'vw');
+                c.style.setProperty('--rot', (Math.random()*360)+'deg');
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 2000);
+            }
+        }
+
+        spinBtn.addEventListener('click', async () => {
+            const bet = Number(betEl.value);
+            // only whole numbers, ≥1 and ≤balance
+            if (!Number.isInteger(bet) || bet < 1 || bet > balance) {
+                // Use a consistent way to display messages, maybe the message div
+                 msgEl.textContent = 'PLEASE ENTER A WHOLE‑NUMBER BET BETWEEN 1 AND YOUR BALANCE.'; // Uppercase message
+                 msgEl.className = 'lose'; // Use lose class for error message styling
+                 // alert('Please enter a whole‑number bet between 1 and your balance.'); // Fallback to alert
+                return;
+            }
+            // lock controls
+            spinBtn.disabled = true;
+            betEl.disabled = true;
+
+            balance -= bet;
+            updateBalance();
+            msgEl.textContent = ''; // Clear message
+            msgEl.className = ''; // Remove win/lose classes
+
+            // spin each reel with staggered timing
+            const durations = [1200, 1400, 1600].map(d => d + Math.random()*300);
+            // pick final symbols from weighted strips
+            const finals = reelsData.map((strip, i) => spinReelValue(strip));
+            const results = await Promise.all(finals.map((val, i) =>
+                animateReel(reelsEls[i], durations[i], val)
+            ));
+
+            // count matches
+            const counts = {};
+            results.forEach(n => counts[n] = (counts[n]||0) + 1);
+
+            // determine payout: 3× for any triple, 2× for any pair
+            let payout = 0, cls = '';
+            if (Object.values(counts).includes(3)) {
+                payout = bet * 3;
+                msgEl.textContent = '🎉 JACKPOT! 3× WIN!'; // Uppercase message
+                cls = 'x3';
+            } else if (Object.values(counts).includes(2)) {
+                payout = bet * 2;
+                msgEl.textContent = '✨ NICE! 2× WIN!'; // Uppercase message
+                cls = 'x2';
+            } else {
+                msgEl.textContent = '😢 YOU LOSE'; // Uppercase message
+                msgEl.className = 'lose';
+            }
+
+            if (payout > 0) {
+                msgEl.className = `win ${cls}`;
+                burstConfetti(); // Only burst confetti on win
+            }
+            balance += payout;
+            updateBalance();
+
+            // unlock controls
+            spinBtn.disabled = false;
+            betEl.disabled = false;
+        });
+
+        // Initial balance display on load
+        updateBalance();
+    </script>
 </body>
 </html>
