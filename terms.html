@@ -2,131 +2,372 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4SP | Terms of Service</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --dark-bg: #121212;
-      --darker-bg: #1e1e1e;
-      --light-text: #ffffff;
-      --light-gray: #f0f0f0;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4SP | TERMS OF SERVICE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            /* Light background */
+            --text-color: #333333;
+            /* Dark text */
+            --primary-color: #333333;
+            /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc;
+            /* Medium gray border */
+            --navbar-bg: #f0f0f0;
+            /* Light gray for navbar */
+            --footer-bg: #f0f0f0;
+            /* Light gray for footer */
+            --hover-bg: #e0e0e0;
+            /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0;
+            /* Light gray grid lines */
+            --accent-color: #333333;
+            /* Dark accent color */
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+             /* Content container/card colors */
+             --content-bg: var(--navbar-bg); /* Use navbar background for content card */
+             --content-border: var(--secondary-border-color);
+             --content-shadow: rgba(0, 0, 0, 0.08);
 
-    body {
-      font-family: 'Roboto Mono', monospace;
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-      line-height: 1.6;
-    }
+        }
 
-    a {
-      color: var(--light-text);
-      text-decoration: none;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+             font-family: 'Outfit', sans-serif; /* Applied Outfit font */
+        }
 
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: var(--darker-bg);
-      padding: 0.75rem 1.5rem;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      border-radius: 0;
-      z-index: 999;
-    }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-align: center;
+            /* Center all text by default */
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
 
-    .navbar .logo {
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px;
+            /* Size of each grid cell */
 
-    .nav-buttons {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+             /* Add padding to account for fixed navbar and footer */
+             padding-top: 80px; /* Default padding for fixed navbar */
+             padding-bottom: 60px; /* Default padding for fixed footer */
+        }
 
-    .btn.secondary {
-      background-color: transparent;
-      border: 1px solid var(--light-text);
-      color: var(--light-text);
-      padding: 0.5rem 1rem;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
+        /* Remove triangular gradients */
+        body::before,
+        body::after {
+            content: none;
+        }
 
-    .btn.secondary:hover {
-      background-color: var(--light-gray);
-      color: var(--dark-bg);
-    }
+        a {
+            /* Inherit color or set theme color, text decoration handled by specific classes */
+            color: var(--text-color);
+            text-decoration: none;
+        }
 
-    main.container {
-      max-width: 800px;
-      margin: 6rem auto 2rem auto;
-      background-color: var(--darker-bg);
-      padding: 2rem;
-      border-radius: 30px;
-    }
+        /* Navbar - consistent with other pages */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 20px;
+            /* Adjusted padding */
+            background-color: var(--navbar-bg);
+            /* Light gray */
+            color: var(--text-color);
+            /* Dark text */
+            text-align: left;
+            /* Override center for navbar layout */
+            width: 100%;
+            position: fixed; /* Ensure navbar is fixed */
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
 
-    main.container h1 {
-      margin-bottom: 1rem;
-      font-size: 1.75rem;
-    }
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-color);
+        }
 
-    main.container p {
-      margin-bottom: 1rem;
-    }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            /* Adjusted gap */
+            align-items: center;
+            text-align: left;
+            /* Ensure text in buttons is not affected by body center */
+            margin-left: auto; /* Push to the right */
+        }
 
-    footer {
-      text-align: center;
-      padding: 1rem 0;
-      background-color: var(--darker-bg);
-      position: fixed;
-      width: 100%;
-      bottom: 0;
-      border-radius: 0;
-    }
+        /* Buttons (Base Styles) */
+        .btn {
+            display: inline-flex;
+            /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px;
+            /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+        }
 
-    footer p {
-      font-size: 0.85rem;
-      opacity: 0.7;
-    }
-  </style>
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            /* White text on dark primary */
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--text-color);
+            /* Dark text on light secondary */
+            border: 1px solid var(--secondary-border-color);
+        }
+
+        .btn.primary:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-color);
+            /* Dark text on light hover */
+            border-color: var(--hover-bg);
+        }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+            border-color: var(--hover-bg);
+        }
+
+        /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192';
+            /* Right arrow character */
+            margin-right: 8px;
+            /* Space between arrow and text */
+            font-weight: bold;
+            /* Make arrow slightly bolder */
+            color: var(--accent-color);
+            /* Dark accent color for arrow */
+        }
+
+        main {
+             flex: 1; /* Allow main content to grow */
+             width: 100%; /* Ensure main takes full width */
+        }
+
+        /* Content container/card */
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--content-bg); /* Content card background */
+            border-radius: 10px; /* Less rounded */
+            box-shadow: 0 4px 12px var(--content-shadow); /* Subtle shadow */
+            border: 1px solid var(--content-border); /* Subtle border */
+             text-align: left; /* Align content left */
+        }
+
+        .container h1 {
+            margin-bottom: 1.5rem;
+            /* Adjusted margin */
+            font-size: 2.5rem;
+            /* Consistent heading size */
+            color: var(--text-color);
+            font-weight: 900;
+            text-align: center;
+            /* Center title */
+            text-transform: uppercase;
+            /* All caps */
+        }
+
+        .container p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            /* Dark text */
+            text-transform: none;
+            /* Prevent uppercase for readability */
+        }
+
+         .container p:last-child {
+             margin-bottom: 0; /* Remove bottom margin on last paragraph */
+         }
+
+
+        /* Footer - consistent */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6);
+            /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+         /* Responsive adjustments */
+        @media (max-width: 768px) {
+             .navbar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+                 margin-left: 0;
+                 width: 100%;
+            }
+
+            body {
+                 padding-top: 120px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 80px; /* Adjust padding for footer */
+            }
+
+             .container {
+                 padding: 1.5rem;
+                 margin: 1.5rem auto;
+             }
+
+             .container h1 {
+                 font-size: 1.8rem;
+                 margin-bottom: 1rem;
+             }
+
+             .container p {
+                 font-size: 0.9rem;
+                 margin-bottom: 0.8rem;
+             }
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                 padding: 15px 10px;
+             }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             body {
+                 padding-top: 150px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 100px; /* Adjust padding for footer */
+             }
+
+             .container {
+                 padding: 1rem;
+                 margin: 1rem auto;
+             }
+
+              .container h1 {
+                 font-size: 1.5rem;
+                 margin-bottom: 0.8rem;
+             }
+
+              .container p {
+                 font-size: 0.8rem;
+                 margin-bottom: 0.6rem;
+             }
+        }
+
+         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
+        /* function darken(color, percent) { ... } */
+
+    </style>
 </head>
 
 <body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="index.html" class="btn secondary">Home</a>
-    </div>
-  </nav>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+             <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+             </div>
+    </nav>
 
-  <main class="container">
-    <h1>Terms of Service</h1>
-    <p>
-      By using this website and its services, including any proxy functionality that provides access to the Internet, you acknowledge and agree that the provider is not responsible for any misuse or unauthorized activities carried out through this platform. You assume full responsibility for compliance with all applicable laws, regulations, and ethical standards, and must refrain from any actions that infringe upon the rights of others or violate legal requirements.
-    </p>
-    <p>
-      The service is provided "as is," without warranties of any kind, whether express or implied, including but not limited to warranties of performance, reliability, or fitness for a particular purpose. In no event shall the provider be liable for any direct, indirect, incidental, consequential, or special damages arising from or related to the use or inability to use the website or proxy service, including data loss, security breaches, or other adverse outcomes. Your use of this service is at your own risk.
-    </p>
-  </main>
+    <main>
+        <div class="container">
+            <h1>Terms of Service</h1>
+            <p>
+                BY USING THIS WEBSITE AND ITS SERVICES, INCLUDING ANY PROXY FUNCTIONALITY THAT PROVIDES ACCESS TO THE INTERNET, YOU ACKNOWLEDGE AND AGREE THAT THE PROVIDER IS NOT RESPONSIBLE FOR ANY MISUSE OR UNAUTHORIZED ACTIVITIES CARRIED OUT THROUGH THIS PLATFORM. YOU ASSUME FULL RESPONSIBILITY FOR COMPLIANCE WITH ALL APPLICABLE LAWS, REGULATIONS, AND ETHICAL STANDARDS, AND MUST REFRAIN FROM ANY ACTIONS THAT INFRINGE UPON THE RIGHTS OF OTHERS OR VIOLATE LEGAL REQUIREMENTS.
+            </p>
+            <p>
+                THE SERVICE IS PROVIDED "AS IS," WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF PERFORMANCE, RELIABILITY, OR FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT SHALL THE PROVIDER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, CONSEQUENTIAL, OR SPECIAL DAMAGES ARISING FROM OR RELATED TO THE USE OR INABILITY TO USE THE WEBSITE OR PROXY SERVICE, INCLUDING DATA LOSS, SECURITY BREACHES, OR OTHER ADVERSE OUTCOMES. YOUR USE OF THIS SERVICE IS AT YOUR OWN RISK.
+            </p>
+        </div>
+    </main>
 
-  <footer>
-    <p>© 2025 4SP</p>
-  </footer>
+     <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
+
+     <script>
+        // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+         // Optional: Add logout functionality if Firebase SDK is included and user is logged in
+         // document.addEventListener('DOMContentLoaded', () => {
+         //     const logoutButton = document.getElementById('logoutBtn');
+         //     if (window.firebase && firebase.auth) {
+         //         const auth = firebase.auth();
+         //         auth.onAuthStateChanged(user => {
+         //             if (user) {
+         //                 if (logoutButton) logoutButton.style.display = 'inline-flex'; // Show button
+         //                 if (logoutButton) {
+         //                     logoutButton.addEventListener('click', () => {
+         //                         auth.signOut().then(() => {
+         //                             window.location.href = 'index.html';
+         //                         });
+         //                     });
+         //                 }
+         //             } else {
+         //                 if (logoutButton) logoutButton.style.display = 'none'; // Hide button
+         //             }
+         //         });
+         //     } else {
+         //         if (logoutButton) logoutButton.style.display = 'none'; // Hide if Firebase not available
+         //     }
+         // });
+    </script>
 </body>
 
 </html>
