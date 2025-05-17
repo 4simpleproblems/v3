@@ -1,21 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4SP | HOME</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4SP | SOUNDBOARD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
     <style>
         :root {
-            --bg-color: #ffffff; /* Light background */
-            --text-color: #333333; /* Dark text */
-            --primary-color: #333333; /* Dark primary for contrast on light */
-            --secondary-border-color: #cccccc; /* Medium gray border */
-            --navbar-bg: #f0f0f0; /* Light gray for navbar */
-            --footer-bg: #f0f0f0; /* Light gray for footer */
-            --hover-bg: #e0e0e0; /* Lighter gray on hover */
-            --grid-line-color: #f0f0f0; /* Light gray grid lines */
-            --accent-color: #333333; /* Dark accent color */
+            --bg-color: #ffffff;
+            /* Light background */
+            --text-color: #333333;
+            /* Dark text */
+            --primary-color: #333333;
+            /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc;
+            /* Medium gray border */
+            --navbar-bg: #f0f0f0;
+            /* Light gray for navbar */
+            --footer-bg: #f0f0f0;
+            /* Light gray for footer */
+            --hover-bg: #e0e0e0;
+            /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0;
+            /* Light gray grid lines */
+            --accent-color: #333333;
+            /* Dark accent color */
+
+            /* Message box colors for light theme */
+            --success-bg: #d4edda;
+            --success-color: #155724;
+            --error-bg: #f8d7da;
+            --error-color: #721c24;
+            --warning-bg: #fff3cd;
+            --warning-color: #856404;
+
+            /* Sound Button Colors (adapted for light theme) */
+            --sound-button-bg: #f8f8f8; /* Very light gray */
+            --sound-button-border: #cccccc; /* Medium gray */
+            --sound-button-text: #333333; /* Dark text */
+            --sound-button-hover-bg: #e0e0e0; /* Lighter gray */
+
+            /* Options Dropdown Colors (adapted for light theme) */
+            --options-bg: #f8f8f8; /* Very light gray */
+            --options-border: #cccccc; /* Medium gray */
+            --options-text: #333333; /* Dark text */
+            --options-section-border: rgba(51, 51, 51, 0.2); /* Darker border for sections */
+
+             /* Status Message Colors (adapted for light theme) */
+             --status-success-bg: #d4edda;
+             --status-success-color: #155724;
+             --status-success-border: #155724;
+             --status-error-bg: #f8d7da;
+             --status-error-color: #721c24;
+             --status-error-border: #721c24;
+             --status-info-bg: #cce5ff;
+             --status-info-color: #004085;
+             --status-info-border: #004085;
+
         }
 
         * {
@@ -32,25 +78,33 @@
             text-transform: uppercase;
             text-align: center; /* Center all text by default */
             position: relative;
-             overflow-x: hidden;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
 
             /* Grid Background */
             background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
-                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
-            background-size: 20px 20px; /* Size of each grid cell */
+                repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px;
+            /* Size of each grid cell */
         }
 
         /* Remove triangular gradients */
-        body::before, body::after {
+        body::before,
+        body::after {
             content: none;
         }
-
 
         .container {
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+            /* Adjusted padding */
+            flex: 1;
+            /* Allow container to grow */
+             text-align: left; /* Align content within the container to the left */
         }
 
         /* Navbar */
@@ -60,7 +114,8 @@
             align-items: center;
             padding: 20px 20px;
             background-color: var(--navbar-bg);
-             text-align: left; /* Override center for navbar layout */
+            text-align: left;
+            /* Override center for navbar layout */
             width: 100%;
         }
 
@@ -73,13 +128,23 @@
         .nav-buttons {
             display: flex;
             gap: 15px;
+            /* Adjusted gap */
             align-items: center;
-             text-align: left; /* Ensure text in buttons is not affected by body center */
+            text-align: left;
+            /* Ensure text in buttons is not affected by body center */
         }
 
+        /* Buttons */
         .btn {
+            display: inline-flex;
+            /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
             padding: 10px 20px;
+            /* Adjusted padding */
+            min-height: 40px;
             border-radius: 5px;
+            /* Less rounded */
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
@@ -88,32 +153,34 @@
             font-family: 'Outfit', sans-serif;
             text-transform: uppercase;
             font-size: 14px;
-            text-align: center; /* Center button text */
-             display: inline-flex; /* Use flex to align content and arrow */
-            align-items: center; /* Vertically center content and arrow */
+            text-align: center;
         }
 
         .btn.primary {
             background-color: var(--primary-color);
-            color: var(--bg-color); /* White text on dark primary */
+            color: var(--bg-color);
+            /* White text on dark primary */
             border: 1px solid var(--primary-color);
         }
 
         .btn.secondary {
             background-color: transparent;
             color: var(--text-color);
+            /* Dark text on light secondary */
             border: 1px solid var(--secondary-border-color);
         }
 
-        .btn.google { /* Keeping google style as a distinct option if needed */
-             background-color: #4285F4;
+        .btn.google {
+            /* Keeping google style as a distinct option if needed */
+            background-color: #4285F4;
             color: #ffffff;
             border: 1px solid #4285F4;
         }
 
         .btn.primary:hover {
             background-color: var(--hover-bg);
-            color: var(--text-color); /* Dark text on light hover */
+            color: var(--text-color);
+            /* Dark text on light hover */
             border-color: var(--hover-bg);
         }
 
@@ -121,77 +188,528 @@
             background-color: var(--hover-bg);
             border-color: var(--hover-bg);
         }
-         .btn.google:hover {
+
+        .btn.google:hover {
             background-color: darken(#4285F4, 10%);
-             border-color: darken(#4285F4, 10%);
+            border-color: darken(#4285F4, 10%);
         }
 
         /* Button with Arrow */
         .btn-with-arrow::before {
-            content: '\2192'; /* Right arrow character */
-            margin-right: 8px; /* Space between arrow and text */
-            font-weight: bold; /* Make arrow slightly bolder */
-             color: var(--accent-color); /* Dark accent color for arrow */
+            content: '\2192';
+            /* Right arrow character */
+            margin-right: 8px;
+            /* Space between arrow and text */
+            font-weight: bold;
+            /* Make arrow slightly bolder */
+            color: var(--accent-color);
+            /* Dark accent color for arrow */
         }
 
-        /* Hero Section */
-        .hero-section {
+
+        /* Soundboard specific styles */
+        main h1 {
+             text-align: center; /* Center main title */
+             margin-top: 20px;
+             margin-bottom: 10px;
+        }
+
+        main p {
+            text-align: center; /* Center intro paragraph */
+            margin-bottom: 30px;
+            color: rgba(51, 51, 51, 0.8);
+        }
+
+
+        .sound-section {
+            margin-bottom: 2rem;
+             text-align: left; /* Align section content to the left */
+        }
+
+        .sound-section h2 {
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+            padding-bottom: 0.25rem;
+            border-bottom: 2px solid var(--secondary-border-color); /* Light theme border */
+            color: var(--text-color); /* Dark text */
+            width: 100%;
+             text-transform: uppercase; /* All caps */
+        }
+
+        .soundButtonsContainer {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center; /* Ensure hero section text is centered */
-            min-height: calc(100vh - 140px);
-            padding: 40px 20px;
-            background-color: transparent; /* Make hero background transparent to see grid */
-            color: var(--text-color);
-        }
-
-        .hero-title {
-            font-size: 60px;
-            font-weight: 900;
-            margin-bottom: 20px;
-            line-height: 1.1;
-            color: var(--text-color);
-        }
-
-        .hero-subtitle {
-            font-size: 20px;
-            font-weight: 400;
-            color: rgba(51, 51, 51, 0.8); /* Slightly lighter dark color for subtitle */
-            margin-bottom: 40px;
-            max-width: 800px;
-            min-height: 24px; /* Ensure space is reserved for the typing quote */
-             white-space: pre-wrap; /* Preserve whitespace and allow wrapping */
-        }
-
-        .hero-cta-buttons {
-            display: flex;
-            gap: 20px;
             flex-wrap: wrap;
+            justify-content: flex-start;
+            padding: 1rem 0; /* Adjusted padding */
+            gap: 15px; /* Adjusted gap */
+            width: 100%;
+        }
+
+        .sound-button {
+            min-width: 100px;
+            height: 100px;
+            border-radius: 10px; /* Less rounded, use a consistent style */
+            background-color: var(--sound-button-bg); /* Light background */
+            color: var(--sound-button-text); /* Dark text */
+            border: 2px solid var(--sound-button-border); /* Medium gray border */
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600; /* Bolder */
+            padding: 0 1.5rem;
+            transition: background-color 0.3s ease, transform 0.1s ease, border-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.2;
+            max-width: 150px; /* Constrain width slightly */
+            word-wrap: break-word;
+            hyphens: auto;
+             text-transform: uppercase; /* All caps */
+        }
+
+        /* Adjust short text buttons for potentially smaller size or different padding if circular is intended */
+         .sound-button.short-text {
+            /* If you want circular, use these styles */
+             width: 100px;
+             height: 100px;
+             border-radius: 50%; /* Keep circular if desired */
+             padding: 0.5rem;
+         }
+
+
+        .sound-button:hover {
+            background-color: var(--sound-button-hover-bg); /* Lighter gray hover */
+            border-color: var(--accent-color); /* Accent border on hover */
+        }
+
+        .sound-button:active {
+            transform: scale(0.95);
+        }
+
+        .options-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .options-button {
+            background-color: transparent;
+            color: var(--text-color); /* Dark text */
+            padding: 10px 20px; /* Matches other buttons */
+            font-size: 14px; /* Matches other buttons */
+            border: 1px solid var(--secondary-border-color); /* Matches other buttons */
+            border-radius: 5px; /* Matches other buttons */
+            cursor: pointer;
+             text-transform: uppercase; /* All caps */
+             font-weight: 600;
+             display: inline-flex; /* Needed for flex layout */
+            align-items: center;
             justify-content: center;
         }
+         /* Add arrow to options button? */
+         /* .options-button.btn-with-arrow::before {
+             content: '\2192';
+             margin-right: 8px;
+             font-weight: bold;
+             color: var(--accent-color);
+         } */
 
-        .hero-cta-buttons .btn {
-            min-width: 150px;
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px); /* Subtle animation */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px); /* Subtle animation */
+            }
+        }
+
+        .options-content {
+            display: none;
+            position: absolute;
+            background-color: var(--options-bg); /* Light gray */
+            min-width: 250px;
+            border: 1px solid var(--options-border); /* Medium gray */
+            padding: 1rem;
+            z-index: 2;
+            right: 0;
+            border-radius: 5px; /* Less rounded */
+            color: var(--options-text); /* Dark text */
+             box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Subtle shadow */
+             text-align: left; /* Align options content to the left */
+             text-transform: none; /* Prevent uppercase for readability */
+        }
+
+        .options-content.fade-in {
+            display: block;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .options-content.fade-out {
+            display: block;
+            animation: fadeOut 0.3s ease forwards;
+        }
+
+        .options-content label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--options-text); /* Dark text */
+             font-size: 0.9rem;
+        }
+
+        .options-content input[type="checkbox"] {
+            margin-right: 0.5rem;
+            vertical-align: middle;
+            background-color: var(--bg-color); /* White background */
+            border: 1px solid var(--secondary-border-color); /* Medium gray border */
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            position: relative;
+            border-radius: 3px; /* Slightly rounded checkbox */
+             outline: none;
+             transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+         .options-content input[type="checkbox"]:checked {
+             background-color: var(--accent-color); /* Dark background when checked */
+             border-color: var(--accent-color);
+             /* Simple white checkmark - adjust color if needed */
+             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='20 6 9 17 4 12'%3e%3c/polyline%3e%3c/svg%3e");
+             background-size: 80%;
+             background-repeat: no-repeat;
+             background-position: center;
+         }
+         .options-content input[type="checkbox"]:focus {
+             box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
+         }
+
+
+        .options-content #autoClickDelayLabel {
+            margin-top: 0.5rem;
+            display: block;
+             font-size: 0.9rem;
+        }
+
+        .options-content #autoClickDelay {
+            width: 70px; /* Slightly wider input */
+            padding: 0.4rem; /* Adjusted padding */
+            border-radius: 5px; /* Less rounded */
+            border: 1px solid var(--secondary-border-color); /* Medium gray border */
+            background-color: var(--bg-color); /* White background */
+            color: var(--text-color); /* Dark text */
+             font-family: 'Outfit', sans-serif;
+             font-size: 0.9rem;
+             text-transform: none; /* Prevent uppercase */
+             outline: none;
+             transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+         .options-content #autoClickDelay:focus {
+              border-color: var(--accent-color);
+              box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
+         }
+
+        /* Style for the playback speed select */
+        .options-content label.playback-speed-label {
+            margin-top: 0.5rem;
+            /* Spacing from previous element */
+            margin-bottom: 0.5rem;
+            /* Spacing to next element */
+             display: block; /* Ensure label is block */
+             font-size: 0.9rem;
+        }
+
+        .options-content #playbackSpeed {
+            width: 100%;
+            /* Full width of its container */
+            padding: 0.5rem;
+            margin-top: 0.25rem;
+            /* Space below the label text */
+            border-radius: 5px; /* Less rounded */
+            border: 1px solid var(--secondary-border-color); /* Medium gray border */
+            background-color: var(--bg-color); /* White background */
+            color: var(--text-color); /* Dark text */
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            /* Using dark accent color for stroke */
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 1em;
+            cursor: pointer;
+             outline: none;
+             transition: border-color 0.2s ease, box-shadow 0.2s ease;
+             text-transform: none; /* Prevent uppercase */
+        }
+
+        .options-content #playbackSpeed:focus {
+            border-color: var(--accent-color); /* Accent color on focus */
+            box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
+        }
+        .options-content #playbackSpeed option {
+             background-color: var(--options-bg); /* Background for dropdown options */
+             color: var(--options-text); /* Text color for dropdown options */
+        }
+
+
+        .options-section {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--options-section-border); /* Darker border */
+        }
+
+        .options-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .options-section h3 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: var(--options-text); /* Dark text */
+            opacity: 0.8;
+             text-transform: uppercase; /* All caps */
+        }
+
+        .keyboard-shortcuts {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 5px; /* Less rounded */
+            background-color: rgba(51, 51, 51, 0.05); /* Very subtle dark background */
+             border: 1px solid var(--secondary-border-color);
+             text-align: left; /* Align shortcut text left */
+        }
+
+        .keyboard-shortcuts p {
+            margin: 0.25rem 0;
+            font-size: 0.85rem;
+            color: var(--text-color); /* Dark text */
+            opacity: 0.8;
+             text-transform: none; /* Prevent uppercase for readability */
+        }
+
+        #applyDelayBtn {
+            padding: 0.4rem 0.8rem; /* Adjusted padding */
+            border: 1px solid var(--secondary-border-color); /* Medium gray border */
+            border-radius: 5px; /* Less rounded */
+            background-color: var(--hover-bg); /* Light gray background */
+            color: var(--text-color); /* Dark text */
+            cursor: pointer;
+            margin-left: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase; /* All caps */
+            font-family: 'Outfit', sans-serif;
+             transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        #applyDelayBtn:hover {
+            background-color: var(--secondary-border-color); /* Darker gray on hover */
+             border-color: var(--accent-color);
+        }
+
+        #clearAllSoundsBtn {
+            width: 100%;
+            margin-top: 0.5rem;
+            background-color: var(--hover-bg); /* Light gray background */
+            color: var(--text-color); /* Dark text */
+            border: 1px solid var(--secondary-border-color); /* Medium gray border */
+            position: relative;
+            overflow: hidden;
+             border-radius: 5px; /* Less rounded */
+        }
+        #clearAllSoundsBtn:hover {
+             background-color: var(--secondary-border-color);
+             border-color: var(--accent-color);
+        }
+
+
+        @keyframes buttonPop {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05); /* Subtle pop */
+            }
+            75% {
+                transform: scale(0.98);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        #clearAllSoundsBtn.active {
+            animation: none; /* Remove pop animation */
+            background-color: var(--error-bg); /* Error background color */
+            border-color: var(--error-color); /* Error border color */
+            color: var(--error-color); /* Error text color */
+        }
+
+        .ripple-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 0, 0, 0.4); /* Reddish ripple for clear button */
+            width: 100px;
+            height: 100px;
+            margin-top: -50px;
+            margin-left: -50px;
+            animation: ripple 0.6s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes fadeInOverlay {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOutOverlay {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        .overlay.fade-in {
+            display: block;
+            animation: fadeInOverlay 0.3s ease forwards;
+        }
+
+        .overlay.fade-out {
+            display: block;
+            animation: fadeOutOverlay 0.3s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOutDown {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+
+        .status-message {
+            display: none;
+            padding: 0.75rem 1.5rem; /* Adjusted padding */
+            margin: 1rem auto;
+            border-radius: 5px; /* Less rounded */
+            font-size: 0.9rem;
+            background-color: var(--navbar-bg); /* Use a light theme background */
+            text-align: center;
+            max-width: 80%;
+             text-transform: none; /* Prevent uppercase */
+             border: 1px solid transparent; /* Add a subtle border */
+        }
+
+        .status-message.fade-in {
+            display: block;
+            animation: fadeInUp 0.3s ease forwards;
+        }
+
+        .status-message.fade-out {
+            display: block;
+            animation: fadeOutDown 0.3s ease forwards;
+        }
+
+        .status-message.success {
+            background-color: var(--status-success-bg);
+            color: var(--status-success-color);
+            border-color: var(--status-success-border);
+        }
+
+        .status-message.error {
+            background-color: var(--status-error-bg);
+            color: var(--status-error-color);
+            border-color: var(--status-error-border);
+        }
+
+        .status-message.info {
+            background-color: var(--status-info-bg);
+            color: var(--status-info-color);
+            border-color: var(--status-info-border);
+        }
 
         /* Footer */
         footer {
-            text-align: center; /* Ensure footer text is centered */
+            text-align: center;
             padding: 20px;
-            color: rgba(51, 51, 51, 0.6); /* Slightly lighter dark color for footer text */
+            color: rgba(51, 51, 51, 0.6);
+            /* Slightly lighter dark color for footer text */
             font-size: 14px;
             background-color: var(--footer-bg);
             text-transform: uppercase;
             width: 100%;
         }
 
-        /* Hide elements utility */
-        .hidden {
-            display: none;
-        }
 
          /* Responsive adjustments */
         @media (max-width: 768px) {
@@ -205,23 +723,28 @@
                 gap: 10px;
             }
 
-            .hero-title {
-                font-size: 40px;
-            }
+             main h1 {
+                 font-size: 2rem;
+             }
 
-            .hero-subtitle {
-                font-size: 16px;
-            }
+             .sound-section h2 {
+                 font-size: 1.3rem;
+             }
 
-            .hero-cta-buttons {
-                flex-direction: column;
-                gap: 15px;
+            .sound-button {
+                 min-width: 80px;
+                 height: 80px;
+                 font-size: 0.75rem;
+                 padding: 0 1rem;
             }
+             .sound-button.short-text {
+                 width: 80px;
+                 height: 80px;
+             }
 
-            .hero-cta-buttons .btn {
-                 width: 100%;
-                 min-width: unset;
-            }
+             .options-content {
+                 min-width: 200px;
+             }
         }
 
          @media (max-width: 480px) {
@@ -239,222 +762,567 @@
             .btn {
                  padding: 8px 15px;
                  font-size: 12px;
+            }
+
+             main h1 {
+                 font-size: 1.5rem;
+                 margin-top: 10px;
+                 margin-bottom: 5px;
+             }
+             main p {
+                 font-size: 0.9rem;
+                 margin-bottom: 20px;
              }
 
-            .hero-section {
-                padding: 30px 10px;
-            }
 
-            .hero-title {
-                font-size: 30px;
-            }
+             .sound-section h2 {
+                 font-size: 1.1rem;
+             }
 
-            .hero-subtitle {
-                font-size: 14px;
+             .soundButtonsContainer {
+                 gap: 10px;
+                 padding: 0.5rem 0;
+             }
+
+             .sound-button {
+                 min-width: 70px;
+                 height: 70px;
+                 font-size: 0.7rem;
+                 padding: 0 0.5rem;
             }
+             .sound-button.short-text {
+                 width: 70px;
+                 height: 70px;
+                 padding: 0.5rem;
+             }
+
+             .options-content {
+                 min-width: 180px;
+                 padding: 0.8rem;
+             }
+
+             .options-content label,
+             .options-content #autoClickDelayLabel,
+             .options-content #playbackSpeed,
+             .options-content #autoClickDelay {
+                 font-size: 0.8rem;
+             }
+
+             .keyboard-shortcuts p {
+                 font-size: 0.75rem;
+             }
+
+             #applyDelayBtn {
+                 padding: 0.3rem 0.6rem;
+                 font-size: 0.7rem;
+             }
         }
 
-         /* Typing Effect Cursor */
-         .hero-subtitle::after {
-            content: '|';
-            animation: blink-caret .75s step-end infinite;
-             color: var(--text-color); /* Cursor color matches text */
-         }
 
-         @keyframes blink-caret {
-            from, to { color: transparent }
-            50% { color: var(--text-color); }
-         }
-
+         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
+        /* For simplicity, manual adjustment is used in the variables above */
+        /* function darken(color, percent) { ... } */
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons">
-            <a href="legal-list.html" class="btn secondary btn-with-arrow">Legal</a>
-            <a href="login.html" class="btn secondary btn-with-arrow" id="loginNavBtn">Login</a>
-            <a href="signup.html" class="btn secondary btn-with-arrow" id="signupNavBtn">Sign Up</a>
-            <a href="dashboard.html" class="btn secondary btn-with-arrow hidden" id="dashboardNavBtn">Dashboard</a>
-            <button class="btn primary hidden" id="logoutNavBtn">Logout</button>
+            <div class="options-dropdown">
+                <button class="options-button">Options</button>
+                <div class="options-content" id="optionsMenu">
+                    <div class="options-section">
+                        <h3>Playback Options</h3>
+                        <label>
+                            <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
+                        </label>
+                        <label for="playbackSpeed" class="playback-speed-label">Playback Speed:
+                            <select id="playbackSpeed">
+                                <option value="0.25">0.25x</option>
+                                <option value="0.5">0.5x</option>
+                                <option value="0.75">0.75x</option>
+                                <option value="1" selected>1x (Normal)</option>
+                                <option value="1.25">1.25x</option>
+                                <option value="1.5">1.5x</option>
+                                <option value="1.75">1.75x</option>
+                                <option value="2">2x</option>
+                                <option value="2.25">2.25x</option>
+                                <option value="2.5">2.5x</option>
+                                <option value="2.75">2.75x</option>
+                                <option value="3">3x</option>
+                            </select>
+                        </label>
+                        <label>
+                            <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
+                        </label>
+                        <label id="autoClickDelayLabel" style="display: none;">
+                            Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" />
+                            <button id="applyDelayBtn">Apply</button>
+                        </label>
+                    </div>
+                    <div class="options-section">
+                        <h3>Management</h3>
+                        <button id="clearAllSoundsBtn" class="btn secondary">
+                            Clear All Sounds
+                            <div class="ripple-container"></div>
+                        </button>
+                    </div>
+                    <div class="keyboard-shortcuts">
+                        <p><strong>Keyboard Shortcuts:</strong></p>
+                        <p>Shift + C: Mute & clear all sounds</p>
+                    </div>
+                </div>
+            </div>
+            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+            <button class="btn secondary" id="logoutBtn">Log Out</button>
         </div>
     </nav>
 
     <main>
-        <section class="hero-section">
-            <h1 class="hero-title">4SP</h1>
-            <p class="hero-subtitle" id="randomQuote"></p> <div class="hero-cta-buttons">
-                <a href="signup.html" class="btn primary btn-with-arrow" id="getStartedBtn">Get Started</a>
-                <a href="login.html" class="btn secondary btn-with-arrow" id="loginCtaBtn">Login</a>
-                <a href="dashboard.html" class="btn primary btn-with-arrow hidden" id="goToDashboardBtn">Go to Dashboard</a>
+        <div class="container">
+            <h1>Soundboard</h1>
+            <p>Click the buttons to play a sound!</p>
+
+            <div class="status-message" id="statusMessage"></div>
+
+            <div class="sound-section">
+                <h2>Normal Sounds</h2>
+                <div id="normalSoundsContainer" class="soundButtonsContainer normal"></div>
             </div>
-        </section>
+
+            <div class="sound-section">
+                <h2>Explicit Sounds</h2>
+                <div id="explicitSoundsContainer" class="soundButtonsContainer explicit"></div>
+            </div>
+        </div>
     </main>
 
     <footer>
         <p>&copy; <span id="currentYear"></span> 4SP</p>
     </footer>
 
+    <div class="overlay" id="overlay"></div>
+
     <script>
         // Display current year in footer
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-        // Quotes for typing effect
-        const quotes = [
-            "A NON-COLLABORATIVE PLATFORM FOR INCONVENIENT PEOPLE",
-            "WHERE AUDIO PROBLEMS MEET ANYONE BUT ME.",
-            "SIX OR SEVEN PROBLEMS. INFINITE SOLUTIONS.",
-            "THAT ONE TEACHER HATES 6 7",
-            "P*SS OFF YOUR TEACHER.",
-            "I THINK SOUNDS ARE FUNNY.",
-            "YOU CAN’T FAIL IF YOU NEVER TRY. THINK ABOUT IT.",
-            "NOW WITH A PROXY!",
-            "I CHOSE THE PROXY WITHOUT ADS, BECAUSE I'M NOT GREEDY.",
-            "I TRIED.",
-            "THIS IS MORE THAN A SH***Y SOUNDBOARD. IT'S A DREAM.",
-            "THIS PLATFORM ISN'T SO INCONVENIENT NOW EH?",
-            "IF THIS WEBSITE CRASHES, IT'S YOUR FAULT.",
-            "HELD TOGETHER BY FIREBASE AND THIS PAGE.",
-            "SURPRISED THIS EVEN WORKS.",
-            "YOU SMELL GOOD TODAY!",
-            "IF YOU CAN MAKE HER LAUGH AND GIGGLE, THEN-",
-            "I LOVE THE INTERNET.",
-            "IT'S TODAYS DATE.",
-            "IS THIS WEBSITE GOOD?",
-            "STOP ASKING ME AND JUST REQUEST FOR SOUNDS ON THE WEBSITE!",
-            "IM NOT ACCEPTING SOUND REQUESTS IN PERSON!!",
-            "AMERICA🇺🇸",
-            "WHAT YOU GONNA DO ABOUT IT IF I SHOW ALL THEM WHAT YOU SENT ME?",
-            "I F***ING HATE ADS.",
-            "I LOVE MESSING UP THAT BIRD SCIENCE PROJECT.",
-            "I'M SINGLE!",
-            "GET SAUCY WITH ME🤑",
-            "YEEHAW",
-            "MORE PEOPLE ARE LAUGHING AT ME THAN YOU SAYING 6-7! - MR. 67",
-            "DEVELOPED IN THE US OF A!!!",
-            "SLOPPY TOPPY WITH A TWIST!",
-            "ALL THIS STUFF IS ON THE INTERNET...",
-            "STOP BLOCKING MY PROXIES!",
-            "I LOVE THEM NIKE PROS🤩🤩",
-            "DR. SQUATCH HAS AN AMAZING BODY WASH GENIE!",
-            "I'M GETTING TIRED OF WRITING THESE QUOTES.",
-            "YOU KNOW IT'S MASSIVE.",
-            "SHUT UP @Y!",
-            "BROO SHE WAS FR SO FREAKKY💀",
-            "IT'S 9:25 - ",
-            "YOU GOT SECRETS TOO?",
-            "I GOT 4 SIMPLE PROBLEMS, AND I GOT 1 ANSWER TO A FIFTH.",
-            "ITS CUZ U WASNT FREAKY ENOUG🤩",
-            "THAT GUY WANTED TO HANG ME BY MY TOENAILS :(",
-            "THAT'S A MASSIVE LOG AIDYN!",
-            "MWUAH",
-            "GIMME A SMOOCH💀",
-            "YES KINGGG",
-            "MIGHT MAKE A V3 DURING THE SUMMER"
-        ];
-
-        // Typing effect function
-        function typeQuote(elementId, text, delay = 50) {
-            const element = document.getElementById(elementId);
-            if (!element) return;
-
-            let i = 0;
-            element.textContent = ''; // Clear content before typing
-            element.style.minHeight = '24px'; // Ensure space is reserved
-
-            function type() {
-                if (i < text.length) {
-                    element.textContent += text.charAt(i);
-                    i++;
-                    setTimeout(type, delay);
-                }
-            }
-            type();
+        // --- Firebase initialization & Auth guard ---
+        let auth;
+        try {
+             // Check if firebaseConfig is defined and firebase is not already initialized
+             if (typeof firebaseConfig !== 'undefined' && firebase.apps.length === 0) {
+                 firebase.initializeApp(firebaseConfig);
+                 auth = firebase.auth();
+             } else if (firebase.apps.length > 0) {
+                  // Firebase is already initialized, get the auth instance
+                 auth = firebase.auth();
+             } else {
+                 console.error("Firebase configuration not found or Firebase app not initialized.");
+                 // Handle error, maybe redirect to a static error page
+             }
+        } catch (e) {
+            console.error("Firebase initialization error:", e);
+             // Handle error
         }
 
-        // Select a random quote and start typing effect on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', () => {
-            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-            typeQuote('randomQuote', randomQuote);
-        });
-
-
-        // Toggle the authentication UI by showing/hiding elements
-        function toggleAuthUI(user) {
-            const loginNavBtn = document.getElementById('loginNavBtn');
-            const signupNavBtn = document.getElementById('signupNavBtn');
-            const loginCtaBtn = document.getElementById('loginCtaBtn');
-            const getStartedBtn = document.getElementById('getStartedBtn');
-            const dashboardNavBtn = document.getElementById('dashboardNavBtn');
-            const logoutNavBtn = document.getElementById('logoutNavBtn');
-            const goToDashboardBtn = document.getElementById('goToDashboardBtn');
-
+        function handleAuthState(user) {
+            const logoutBtn = document.getElementById('logoutBtn');
             if (user) {
-                loginNavBtn.classList.add('hidden');
-                signupNavBtn.classList.add('hidden');
-                loginCtaBtn.classList.add('hidden');
-                getStartedBtn.classList.add('hidden');
-                dashboardNavBtn.classList.remove('hidden');
-                logoutNavBtn.classList.remove('hidden');
-                goToDashboardBtn.classList.remove('hidden');
+                logoutBtn.classList.remove('hidden'); // Use class for consistency
             } else {
-                loginNavBtn.classList.remove('hidden');
-                signupNavBtn.classList.remove('hidden');
-                loginCtaBtn.classList.remove('hidden');
-                getStartedBtn.classList.remove('hidden');
-                dashboardNavBtn.classList.add('hidden');
-                logoutNavBtn.classList.add('hidden');
-                goToDashboardBtn.classList.add('hidden');
+                // If not logged in, redirect to login
+                window.location.href = 'login.html';
             }
         }
 
         function initAuth() {
-            try {
-                const auth = firebase.auth();
-                auth.onAuthStateChanged(user => {
-                    toggleAuthUI(user);
-                    const logoutButton = document.getElementById('logoutNavBtn');
-                    // Ensure the element exists before adding a listener
-                    if (logoutButton) {
-                         // Remove any existing listeners before adding a new one to prevent duplicates
-                        const newLogoutButton = logoutButton.cloneNode(true);
-                        logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
+             if (!auth) {
+                 console.error("Firebase Auth not initialized.");
+                 // Handle error, maybe redirect
+                 window.location.href = 'login.html';
+                 return;
+             }
 
-                        newLogoutButton.addEventListener('click', () => {
-                            auth.signOut().catch(error => {
-                                console.error("Logout error:", error);
-                            });
-                        });
-                    }
+            auth.onAuthStateChanged(handleAuthState);
+
+            const logoutButton = document.getElementById('logoutBtn');
+             // Ensure the element exists before adding a listener
+            if (logoutButton) {
+                  // Remove any existing listeners before adding a new one to prevent duplicates
+                 const newLogoutButton = logoutButton.cloneNode(true);
+                 logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
+
+
+                newLogoutButton.addEventListener('click', e => {
+                    e.preventDefault();
+                    auth.signOut()
+                        .then(() => window.location.href = 'login.html')
+                        .catch(err => console.error("Logout error:", err));
                 });
-            } catch (error) {
-                console.error("Auth initialization error:", error);
-                 // If Firebase init fails, still try to toggle UI to logged out state
-                 document.addEventListener('DOMContentLoaded', () => toggleAuthUI(null));
             }
         }
 
-        /*
-         Initialize Firebase Auth after Firebase scripts are loaded.
-         The Firebase scripts are placed at the end of the body for better performance,
-         so we should wait for the window load event or place the initAuth call after scripts.
-         Placing scripts at the end of the body is standard practice.
-         We'll rely on the DOMContentLoaded listener within initAuth.
-        */
+        document.addEventListener('DOMContentLoaded', () => {
+             // Initialize Auth if Firebase and Auth are available
+            if (typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined' && auth) {
+                initAuth();
+            } else {
+                console.error("Firebase SDK or Auth not available on DOM load.");
+                 // Fallback redirect if Firebase is not critical for initial render but needed for auth
+                 // This might cause a flicker if Firebase loads slowly.
+                 // A loading spinner and delayed check might be better in a production app.
+                 // window.location.href = 'login.html';
+            }
 
+            // DOM Elements (re-get references as initAuth might replace logoutBtn)
+            const normalSoundsContainer = document.getElementById('normalSoundsContainer');
+            const explicitSoundsContainer = document.getElementById('explicitSoundsContainer');
+            const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
+            const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
+            const autoClickDelayInput = document.getElementById('autoClickDelay');
+            const autoClickDelayLabel = document.getElementById('autoClickDelayLabel');
+            const applyDelayBtn = document.getElementById('applyDelayBtn');
+            const overlay = document.getElementById('overlay');
+            const optionsButton = document.querySelector('.options-button');
+            const optionsMenu = document.getElementById('optionsMenu');
+            const statusMessage = document.getElementById('statusMessage');
+            const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
+            const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
+            const playbackSpeedSelect = document.getElementById('playbackSpeed');
+
+            // State variables
+            let playingAudios = [];
+            let autoClickInterval;
+            let requestAnimationFrameId = null;
+            let currentlyHoveredButton = null;
+            let statusMessageTimeout = null;
+            let menuIsOpen = false;
+            let isRippling = false;
+            let currentPlaybackSpeed = 1.0;
+
+
+            function showStatus(message, type = 'info') {
+                if (statusMessageTimeout) {
+                    clearTimeout(statusMessageTimeout);
+                    statusMessage.classList.remove('fade-in', 'fade-out');
+                }
+                statusMessage.textContent = message.toUpperCase(); // Keep status messages uppercase
+                statusMessage.className = 'status-message ' + type;
+
+                // Simplified fade logic for status message
+                statusMessage.style.display = 'block';
+                statusMessage.classList.remove('fade-out'); // Ensure it's not stuck in fade-out
+                statusMessage.classList.add('fade-in');
+
+                statusMessageTimeout = setTimeout(() => {
+                    statusMessage.classList.remove('fade-in');
+                    statusMessage.classList.add('fade-out');
+                    setTimeout(() => {
+                        statusMessage.style.display = 'none';
+                        statusMessage.classList.remove('fade-out');
+                    }, 300); // Match fadeOut animation duration
+                }, 3000); // Message visible for 3 seconds
+            }
+
+            function openOptionsMenu() {
+                if (menuIsOpen) return;
+                menuIsOpen = true;
+                overlay.classList.remove('fade-out'); // Ensure no conflicting animation
+                optionsMenu.classList.remove('fade-out');
+                overlay.style.display = 'block';
+                overlay.classList.add('fade-in');
+                optionsMenu.style.display = 'block';
+                optionsMenu.classList.add('fade-in');
+            }
+
+            function closeOptionsMenu() {
+                if (!menuIsOpen) return;
+                menuIsOpen = false;
+                overlay.classList.remove('fade-in');
+                optionsMenu.classList.remove('fade-in');
+                overlay.classList.add('fade-out');
+                optionsMenu.classList.add('fade-out');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    overlay.classList.remove('fade-out');
+                    optionsMenu.style.display = 'none';
+                    optionsMenu.classList.remove('fade-out');
+                }, 300); // Match animation duration
+            }
+
+            function createRipple(event) {
+                if (isRippling) return;
+                isRippling = true;
+                const rect = clearAllSoundsBtn.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                rippleContainer.innerHTML = ''; // Clear previous ripples
+                rippleContainer.appendChild(ripple);
+                setTimeout(() => {
+                    ripple.remove();
+                    isRippling = false;
+                }, 600); // Ripple animation duration
+            }
+
+            function muteAllSounds() {
+                playingAudios.forEach(audio => audio.volume = 0);
+            }
+
+            function stopAllAudios(delay = 0) {
+                if (playingAudios.length === 0) return;
+                if (delay > 0) {
+                    muteAllSounds();
+                    setTimeout(() => {
+                        playingAudios.forEach(audio => {
+                            audio.pause();
+                            audio.currentTime = 0;
+                        });
+                        playingAudios = [];
+                    }, delay);
+                } else {
+                    playingAudios.forEach(audio => {
+                        audio.pause();
+                        audio.currentTime = 0;
+                    });
+                    playingAudios = [];
+                }
+            }
+
+            function clearAllSounds(instantMute = false) {
+                const wasPlaying = playingAudios.length > 0;
+                if (wasPlaying) {
+                    if (instantMute) {
+                        muteAllSounds();
+                        stopAllAudios(100); // Small delay for mute to take effect before stopping
+                        showStatus('All sounds muted and cleared', 'success');
+                    } else {
+                        stopAllAudios();
+                        showStatus('All sounds stopped', 'success');
+                    }
+                } else if (!instantMute) {
+                    showStatus('No sounds to clear', 'info');
+                }
+                if (instantMute) closeOptionsMenu();
+            }
+
+            function fastClicker() {
+                if (currentlyHoveredButton && autoClickerCheckbox.checked) {
+                    currentlyHoveredButton.click();
+                    requestAnimationFrameId = requestAnimationFrame(fastClicker);
+                }
+            }
+
+            function startAutoClicker() {
+                stopAutoClicker(); // Clear any existing intervals/frames
+                const delay = parseInt(autoClickDelayInput.value, 10) || 0;
+                if (!currentlyHoveredButton || !autoClickerCheckbox.checked) return;
+
+                if (delay === 0) {
+                    requestAnimationFrameId = requestAnimationFrame(fastClicker);
+                } else {
+                    autoClickInterval = setInterval(() => {
+                        if (currentlyHoveredButton) { // Check again in case mouse left during interval
+                            currentlyHoveredButton.click();
+                        } else {
+                            stopAutoClicker(); // Stop if button is no longer hovered
+                        }
+                    }, delay);
+                }
+            }
+
+            function stopAutoClicker() {
+                if (autoClickInterval) {
+                    clearInterval(autoClickInterval);
+                    autoClickInterval = null;
+                }
+                if (requestAnimationFrameId) {
+                    cancelAnimationFrame(requestAnimationFrameId);
+                    requestAnimationFrameId = null;
+                }
+            }
+
+            function applyAutoClickerDelay() {
+                const delay = parseInt(autoClickDelayInput.value, 10);
+                if (isNaN(delay) || delay < 0) {
+                    autoClickDelayInput.value = 0; // Reset to 0 if invalid
+                }
+                localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
+                if (autoClickerCheckbox.checked && currentlyHoveredButton) {
+                    startAutoClicker(); // Restart with new delay if active
+                }
+                // closeOptionsMenu(); // Consider if closing menu is desired here
+                showStatus(`AUTO CLICK DELAY SET TO ${autoClickDelayInput.value}MS`, 'info'); // Uppercase status
+            }
+
+            function applyPlaybackSpeedToAudio(audioElement) {
+                if (audioElement) {
+                    audioElement.playbackRate = currentPlaybackSpeed;
+                }
+            }
+
+            function createSoundButton(folder, fileName, container) {
+                const soundName = fileName.replace('.mp3', '').replace(/_/g, ' ');
+                const soundPath = `${folder}/${fileName}`;
+                const button = document.createElement('button');
+                button.classList.add('sound-button');
+                button.textContent = soundName;
+                if (soundName.length < 10) button.classList.add('short-text'); // Keep short text class
+
+                button.addEventListener('click', () => {
+                    if (!soundOverlayCheckbox.checked) {
+                        stopAllAudios();
+                    }
+                    try {
+                        const audio = new Audio(soundPath);
+                        applyPlaybackSpeedToAudio(audio); // Apply current speed
+                        audio.addEventListener('ended', () => {
+                            playingAudios = playingAudios.filter(a => a !== audio);
+                        });
+                        playingAudios.push(audio);
+                        audio.play()
+                            .catch(err => {
+                                console.error(`Error playing sound "${soundName}":`, err);
+                                showStatus(`CANNOT PLAY: ${soundName}`, 'error'); // Uppercase status
+                                playingAudios = playingAudios.filter(a => a !== audio); // Remove if play fails
+                            });
+                    } catch (e) {
+                        console.error(`Error creating audio object for "${soundName}":`, e);
+                        showStatus(`ERROR LOADING: ${soundName}`, 'error'); // Uppercase status
+                    }
+                });
+
+                button.addEventListener('mouseenter', () => {
+                    currentlyHoveredButton = button;
+                    if (autoClickerCheckbox.checked) startAutoClicker();
+                });
+                button.addEventListener('mouseleave', () => {
+                    if (currentlyHoveredButton === button) {
+                        currentlyHoveredButton = null;
+                        stopAutoClicker();
+                    }
+                });
+                container.appendChild(button);
+            }
+
+            // Event Listeners
+            soundOverlayCheckbox.addEventListener('change', function() {
+                if (!this.checked) stopAllAudios();
+                localStorage.setItem('soundOverlay', this.checked);
+                showStatus(`SOUND OVERLAY: ${this.checked ? 'ON' : 'OFF'}`, 'info'); // Uppercase status
+            });
+
+            autoClickerCheckbox.addEventListener('change', function() {
+                autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
+                if (this.checked && currentlyHoveredButton) {
+                    startAutoClicker();
+                } else if (!this.checked) {
+                    stopAutoClicker();
+                }
+                localStorage.setItem('autoClicker', this.checked);
+                 showStatus(`AUTO CLICKER: ${this.checked ? 'ON' : 'OFF'}`, 'info'); // Uppercase status
+            });
+
+            autoClickDelayInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    applyAutoClickerDelay();
+                }
+            });
+            applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
+
+            clearAllSoundsBtn.addEventListener('click', function(e) {
+                createRipple(e);
+                // Remove the 'active' class animation as it clashes with the new style
+                // this.classList.add('active');
+                // setTimeout(() => this.classList.remove('active'), 400);
+                clearAllSounds(false);
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.shiftKey && (e.key.toLowerCase() === 'c' || e.code.toLowerCase() === 'keyc')) {
+                    e.preventDefault(); // Prevent browser find (Ctrl+C) or other defaults if C is used
+                    clearAllSounds(true);
+                }
+            });
+
+            optionsButton.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent click from bubbling to document/overlay
+                menuIsOpen ? closeOptionsMenu() : openOptionsMenu();
+            });
+            overlay.addEventListener('click', closeOptionsMenu);
+            document.addEventListener('click', (event) => { // Close menu if clicked outside
+                if (menuIsOpen && !optionsMenu.contains(event.target) && event.target !== optionsButton) {
+                    closeOptionsMenu();
+                }
+            });
+
+            playbackSpeedSelect.addEventListener('change', function() {
+                currentPlaybackSpeed = parseFloat(this.value);
+                localStorage.setItem('playbackSpeed', currentPlaybackSpeed.toString());
+                playingAudios.forEach(applyPlaybackSpeedToAudio); // Update speed for already playing sounds
+                showStatus(`PLAYBACK SPEED SET TO ${currentPlaybackSpeed}X`, 'info'); // Uppercase status
+            });
+
+
+            // Load preferences & sounds
+            (function loadPreferences() {
+                if (localStorage.getItem('soundOverlay') === 'true') soundOverlayCheckbox.checked = true;
+                if (localStorage.getItem('autoClicker') === 'true') {
+                    autoClickerCheckbox.checked = true;
+                    autoClickDelayLabel.style.display = 'block';
+                }
+                const savedDelay = localStorage.getItem('autoClickDelay');
+                if (savedDelay !== null) autoClickDelayInput.value = savedDelay;
+
+                const savedPlaybackSpeed = localStorage.getItem('playbackSpeed');
+                if (savedPlaybackSpeed !== null) {
+                    currentPlaybackSpeed = parseFloat(savedPlaybackSpeed);
+                    playbackSpeedSelect.value = currentPlaybackSpeed.toString();
+                } else {
+                    playbackSpeedSelect.value = "1"; // Default to 1x if nothing saved
+                    currentPlaybackSpeed = 1.0;
+                }
+                playingAudios.forEach(applyPlaybackSpeedToAudio); // Apply to any sounds that might be playing on load
+
+            })();
+
+            // Fetch sounds from JSON
+            fetch('SoundboardSN.json')
+                .then(r => {
+                    if (!r.ok) {
+                        throw new Error(`HTTP error! status: ${r.status}`);
+                    }
+                    return r.json();
+                })
+                .then(data => {
+                    // Sort sounds alphabetically by filename before creating buttons
+                    const normalSounds = (data.NormalSounds || []).sort();
+                    const explicitSounds = (data.ExplicitSounds || []).sort();
+
+                    normalSounds.forEach(f => createSoundButton('NormalSounds', f, normalSoundsContainer));
+                    explicitSounds.forEach(f => createSoundButton('ExplicitSounds', f, explicitSoundsContainer));
+
+                    if (normalSounds.length === 0 && explicitSounds.length === 0) {
+                        showStatus('NO SOUNDS LOADED. CHECK SOUNDBOARDSN.JSON.', 'info'); // Uppercase status
+                    }
+                })
+                .catch(err => {
+                    console.error("Failed to load or parse SoundboardSN.json:", err);
+                    showStatus('ERROR LOADING SOUND LIST. SEE CONSOLE FOR DETAILS.', 'error'); // Uppercase status
+                    // Provide fallback message in the containers
+                    if (normalSoundsContainer) normalSoundsContainer.innerHTML = '<p style="color: var(--text-color);">COULD NOT LOAD SOUNDS.</p>';
+                    if (explicitSoundsContainer) explicitSoundsContainer.innerHTML = '<p style="color: var(--text-color);">COULD NOT LOAD SOUNDS.</p>';
+                });
+        });
     </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="firebase-config.js"></script>
-     <script>
-        // Call initAuth after Firebase scripts are guaranteed to be loaded
-        if (typeof firebase !== 'undefined') {
-            initAuth();
-        } else {
-            console.error("Firebase is not loaded after script inclusion.");
-            // Fallback UI toggle if Firebase is still undefined
-            document.addEventListener('DOMContentLoaded', () => toggleAuthUI(null));
-        }
-     </script>
-</body>
+    </body>
+
 </html>
