@@ -163,7 +163,7 @@
     main {
       flex: 1;
       margin-top: 80px; /* push down below navbar */
-      margin-bottom: 60px; /* leave space for footer */
+      margin-bottom: 0px; /* leave space for footer */
     }
 
     .iframe-container {
@@ -176,23 +176,6 @@
       height: 100%;
       border: none;
       display: block;
-    }
-
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 20px;
-      color: rgba(51, 51, 51, 0.6);
-      font-size: 14px;
-      background-color: var(--footer-bg);
-      text-transform: uppercase;
-      width: 100%;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      height: 60px; /* explicit height */
-      line-height: 20px;
-      z-index: 100;
     }
 
     /* Access Denied */
@@ -404,10 +387,6 @@
   </main>
 
   <div class="status-message" id="statusMessage"></div>
-
-  <footer>
-    <p>&copy; <span id="currentYear"></span> 4SP</p>
-  </footer>
 
   <script>
     document.getElementById('currentYear').textContent =
