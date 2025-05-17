@@ -2,174 +2,407 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4SP | Privacy Policy</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --dark-bg: #121212;
-      --darker-bg: #1e1e1e;
-      --light-text: #ffffff;
-      --light-gray: #f0f0f0;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4SP | PRIVACY POLICY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            /* Light background */
+            --text-color: #333333;
+            /* Dark text */
+            --primary-color: #333333;
+            /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc;
+            /* Medium gray border */
+            --navbar-bg: #f0f0f0;
+            /* Light gray for navbar */
+            --footer-bg: #f0f0f0;
+            /* Light gray for footer */
+            --hover-bg: #e0e0e0;
+            /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0;
+            /* Light gray grid lines */
+            --accent-color: #333333;
+            /* Dark accent color */
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+             /* Content container/card colors */
+             --content-bg: var(--navbar-bg); /* Use navbar background for content card */
+             --content-border: var(--secondary-border-color);
+             --content-shadow: rgba(0, 0, 0, 0.08);
 
-    body {
-      font-family: 'Roboto Mono', monospace;
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-      line-height: 1.6;
-    }
+        }
 
-    a {
-      color: var(--light-text);
-      text-decoration: none;
-    }
+        * {
+            /* Removed font-family !important */
+            font-family: 'Outfit', sans-serif;
+            box-sizing: border-box;
+        }
 
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: var(--darker-bg);
-      padding: 0.75rem 1.5rem;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      border-radius: 0;
-      z-index: 999;
-    }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-align: center;
+            /* Center all text by default */
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
 
-    .navbar .logo {
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px;
+            /* Size of each grid cell */
 
-    .nav-buttons {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+             /* Add padding to account for fixed navbar and footer */
+             padding-top: 80px; /* Default padding for fixed navbar */
+             padding-bottom: 60px; /* Default padding for fixed footer */
+        }
 
-    .btn.secondary {
-      background-color: transparent;
-      border: 1px solid var(--light-text);
-      color: var(--light-text);
-      padding: 0.5rem 1rem;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
+        /* Remove triangular gradients */
+        body::before,
+        body::after {
+            content: none;
+        }
 
-    .btn.secondary:hover {
-      background-color: var(--light-gray);
-      color: var(--dark-bg);
-    }
 
-    main.container {
-      max-width: 800px;
-      margin: 6rem auto 2rem auto;
-      background-color: var(--darker-bg);
-      padding: 2rem;
-      border-radius: 30px;
-    }
+        a {
+            /* Inherit color or set theme color, text decoration handled by specific classes */
+            color: var(--text-color);
+            text-decoration: none;
+        }
 
-    main.container h1 {
-      margin-bottom: 1rem;
-      font-size: 1.75rem;
-    }
+        /* Navbar - consistent with other pages */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 20px;
+            /* Adjusted padding */
+            background-color: var(--navbar-bg);
+            /* Light gray */
+            color: var(--text-color);
+            /* Dark text */
+            text-align: left;
+            /* Override center for navbar layout */
+            width: 100%;
+            position: fixed; /* Ensure navbar is fixed */
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
 
-    main.container h2 {
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-      font-size: 1.2rem;
-    }
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-color);
+        }
 
-    main.container p {
-      margin-bottom: 1rem;
-    }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            /* Adjusted gap */
+            align-items: center;
+            text-align: left;
+            /* Ensure text in buttons is not affected by body center */
+        }
 
-    footer {
-      text-align: center;
-      padding: 1rem 0;
-      background-color: var(--darker-bg);
-      position: fixed;
-      width: 100%;
-      bottom: 0;
-      border-radius: 0;
-    }
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px;
+            /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+        }
 
-    footer p {
-      font-size: 0.85rem;
-      opacity: 0.7;
-    }
-  </style>
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            /* White text on dark primary */
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--text-color);
+            /* Dark text on light secondary */
+            border: 1px solid var(--secondary-border-color);
+        }
+
+        .btn.primary:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-color);
+            /* Dark text on light hover */
+            border-color: var(--hover-bg);
+        }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+            border-color: var(--hover-bg);
+        }
+
+        /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192';
+            /* Right arrow character */
+            margin-right: 8px;
+            /* Space between arrow and text */
+            font-weight: bold;
+            /* Make arrow slightly bolder */
+            color: var(--accent-color);
+            /* Dark accent color for arrow */
+        }
+
+        main {
+             flex: 1; /* Allow main content to grow */
+             width: 100%; /* Ensure main takes full width */
+        }
+
+        /* Content container/card */
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--content-bg); /* Content card background */
+            border-radius: 10px; /* Less rounded */
+            box-shadow: 0 4px 12px var(--content-shadow); /* Subtle shadow */
+            border: 1px solid var(--content-border); /* Subtle border */
+             text-align: left; /* Align content left */
+        }
+
+
+        .container h1 {
+            margin-bottom: 1.5rem; /* Adjusted margin */
+            font-size: 2.5rem;
+            /* Consistent heading size */
+            color: var(--text-color);
+            font-weight: 900;
+            text-align: center; /* Center title */
+             text-transform: uppercase; /* All caps */
+        }
+
+        .container h2 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            /* Adjusted font size */
+            color: var(--text-color);
+            font-weight: 700;
+             text-transform: uppercase; /* All caps */
+        }
+
+        .container p {
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            /* Dark text */
+            text-transform: none;
+            /* Prevent uppercase for readability */
+        }
+
+         .container p:last-child {
+             margin-bottom: 0; /* Remove bottom margin on last paragraph */
+         }
+
+         .container a {
+             color: var(--accent-color); /* Accent color for links */
+             text-decoration: underline;
+             font-weight: 600;
+             transition: color 0.2s ease;
+         }
+          .container a:hover {
+              color: var(--text-color); /* Dark text on hover */
+          }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6);
+            /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+            margin-top: auto; /* Push footer to the bottom */
+        }
+
+
+         /* Responsive adjustments */
+        @media (max-width: 768px) {
+             .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            body {
+                 padding-top: 120px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 80px; /* Adjust padding for footer */
+            }
+
+             .container {
+                 padding: 1.5rem;
+                 margin: 1.5rem auto;
+             }
+
+             .container h1 {
+                 font-size: 1.8rem;
+                 margin-bottom: 1rem;
+             }
+
+             .container h2 {
+                 font-size: 1.2rem;
+                 margin-top: 1.5rem;
+                 margin-bottom: 0.8rem;
+             }
+
+             .container p {
+                 font-size: 0.9rem;
+                 margin-bottom: 0.8rem;
+             }
+
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                 padding: 15px 10px;
+             }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             body {
+                 padding-top: 150px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 100px; /* Adjust padding for footer */
+             }
+
+             .container {
+                 padding: 1rem;
+                 margin: 1rem auto;
+             }
+
+              .container h1 {
+                 font-size: 1.5rem;
+                 margin-bottom: 0.8rem;
+             }
+
+              .container h2 {
+                 font-size: 1rem;
+                 margin-top: 1.2rem;
+                 margin-bottom: 0.6rem;
+             }
+
+              .container p {
+                 font-size: 0.8rem;
+                 margin-bottom: 0.6rem;
+             }
+        }
+
+         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
+        /* function darken(color, percent) { ... } */
+    </style>
 </head>
 
 <body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="index.html" class="btn secondary">Home</a>
-    </div>
-  </nav>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+             <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+        </div>
+    </nav>
 
-  <main class="container">
-    <h1>Privacy Policy</h1>
-    <p>
-      Your privacy is important to us. This Privacy Policy explains how 4SP ("we", "us", or "our") collects, uses, and protects your information when you use our website and services.
-    </p>
+    <main>
+        <div class="container">
+            <h1>Privacy Policy</h1>
+            <p>
+                YOUR PRIVACY IS IMPORTANT TO US. THIS PRIVACY POLICY EXPLAINS HOW 4SP ("WE", "US", OR "OUR") COLLECTS, USES, AND PROTECTS YOUR INFORMATION WHEN YOU USE OUR WEBSITE AND SERVICES.
+            </p>
 
-    <h2>1. Information We Collect</h2>
-    <p>
-      We may collect information that you provide directly to us, such as your email address when you create an account or contact us. We may also collect usage data, such as pages visited, sounds played, and feedback submitted, to improve our services.
-    </p>
+            <h2>1. INFORMATION WE COLLECT</h2>
+            <p>
+                WE MAY COLLECT INFORMATION THAT YOU PROVIDE DIRECTLY TO US, SUCH AS YOUR EMAIL ADDRESS WHEN YOU CREATE AN ACCOUNT OR CONTACT US. WE MAY ALSO COLLECT USAGE DATA, SUCH AS PAGES VISITED, SOUNDS PLAYED, AND FEEDBACK SUBMITTED, TO IMPROVE OUR SERVICES.
+            </p>
 
-    <h2>2. How We Use Your Information</h2>
-    <p>
-      We use your information to operate and improve the website, personalize your experience, respond to your requests, and communicate important updates. We do not sell your personal information to third parties.
-    </p>
+            <h2>2. HOW WE USE YOUR INFORMATION</h2>
+            <p>
+                WE USE YOUR INFORMATION TO OPERATE AND IMPROVE THE WEBSITE, PERSONALIZE YOUR EXPERIENCE, RESPOND TO YOUR REQUESTS, AND COMMUNICATE IMPORTANT UPDATES. WE DO NOT SELL YOUR PERSONAL INFORMATION TO THIRD PARTIES.
+            </p>
 
-    <h2>3. Cookies and Tracking</h2>
-    <p>
-      Our website may use cookies or similar technologies to enhance user experience, analyze trends, and gather usage data. You can control the use of cookies through your browser settings.
-    </p>
+            <h2>3. COOKIES AND TRACKING</h2>
+            <p>
+                OUR WEBSITE MAY USE COOKIES OR SIMILAR TECHNOLOGIES TO ENHANCE USER EXPERIENCE, ANALYZE TRENDS, AND GATHER USAGE DATA. YOU CAN CONTROL THE USE OF COOKIES THROUGH YOUR BROWSER SETTINGS.
+            </p>
 
-    <h2>4. Data Security</h2>
-    <p>
-      We take reasonable measures to protect your information from unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the Internet or electronic storage is 100% secure.
-    </p>
+            <h2>4. DATA SECURITY</h2>
+            <p>
+                WE TAKE REASONABLE MEASURES TO PROTECT YOUR INFORMATION FROM UNAUTHORIZED ACCESS, ALTERATION, DISCLOSURE, OR DESTRUCTION. HOWEVER, NO METHOD OF TRANSMISSION OVER THE INTERNET OR ELECTRONIC STORAGE IS 100% SECURE.
+            </p>
 
-    <h2>5. Third-Party Services</h2>
-    <p>
-      Some features may rely on third-party services (such as authentication or analytics). These providers may collect information as described in their own privacy policies.
-    </p>
+            <h2>5. THIRD-PARTY SERVICES</h2>
+            <p>
+                SOME FEATURES MAY RELY ON THIRD-PARTY SERVICES (SUCH AS AUTHENTICATION OR ANALYTICS). THESE PROVIDERS MAY COLLECT INFORMATION AS DESCRIBED IN THEIR OWN PRIVACY POLICIES.
+            </p>
 
-    <h2>6. Your Choices and Rights</h2>
-    <p>
-      You can access, update, or delete your account information at any time. If you have questions or requests regarding your data, please contact us at <a href="mailto:4simpleproblems@gmail.com">4simpleproblems@gmail.com</a>.
-    </p>
+            <h2>6. YOUR CHOICES AND RIGHTS</h2>
+            <p>
+                YOU CAN ACCESS, UPDATE, OR DELETE YOUR ACCOUNT INFORMATION AT ANY TIME. IF YOU HAVE QUESTIONS OR REQUESTS REGARDING YOUR DATA, PLEASE CONTACT US AT <a href="mailto:4simpleproblems@gmail.com">4SIMPLEPROBLEMS@GMAIL.COM</a>.
+            </p>
 
-    <h2>7. Changes to This Policy</h2>
-    <p>
-      We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated effective date.
-    </p>
+            <h2>7. CHANGES TO THIS POLICY</h2>
+            <p>
+                WE MAY UPDATE THIS PRIVACY POLICY FROM TIME TO TIME. CHANGES WILL BE POSTED ON THIS PAGE WITH AN UPDATED EFFECTIVE DATE.
+            </p>
 
-    <h2>8. Contact Us</h2>
-    <p>
-      If you have any questions about this Privacy Policy, please contact us at <a href="mailto:4simpleproblems@gmail.com">4simpleproblems@gmail.com</a>.
-    </p>
-  </main>
+            <h2>8. CONTACT US</h2>
+            <p>
+                IF YOU HAVE ANY QUESTIONS ABOUT THIS PRIVACY POLICY, PLEASE CONTACT US AT <a href="mailto:4simpleproblems@gmail.com">4SIMPLEPROBLEMS@GMAIL.COM</a>.
+            </p>
+        </div>
+    </main>
 
-  <footer>
-    <p>© 2025 4SP</p>
-  </footer>
+    <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
+
+     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+      <script src="firebase-config.js">
+  </script>
 </body>
-
 </html>
