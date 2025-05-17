@@ -63,8 +63,6 @@
 
             /* Add padding to account for fixed navbar and footer */
             padding-top: 80px;
-            /* Default padding for fixed navbar */
-            padding-bottom: 60px;
             /* Default padding for fixed footer */
         }
 
@@ -197,23 +195,6 @@
              flex-grow: 1; /* Allow iframe to grow and fill vertical space */
         }
 
-
-        /* Footer - consistent */
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: rgba(51, 51, 51, 0.6);
-            /* Slightly lighter dark color for footer text */
-            font-size: 14px;
-            background-color: var(--footer-bg);
-            text-transform: uppercase;
-            width: 100%;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-        }
-
          .hidden {
             display: none !important;
          }
@@ -236,7 +217,7 @@
 
             body {
                  padding-top: 120px; /* Adjust padding for stacked navbar */
-                 padding-bottom: 80px; /* Adjust padding for footer */
+                 padding-bottom: 0px; /* Adjust padding for footer */
             }
 
              /* No specific responsive styles needed for main/iframe layout unless adjusting padding */
@@ -261,7 +242,7 @@
 
              body {
                  padding-top: 150px; /* Adjust padding for stacked navbar */
-                 padding-bottom: 100px; /* Adjust padding for footer */
+                 padding-bottom: 0px; /* Adjust padding for footer */
              }
 
              /* No specific responsive styles needed for main/iframe layout unless adjusting padding */
@@ -296,9 +277,7 @@
         </iframe>
     </main>
 
-    <footer>
-        <p>&copy; <span id="currentYear"></span> 4SP</p>
-    </footer>
+
 
     <script>
         // Display current year in footer
