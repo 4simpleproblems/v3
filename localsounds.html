@@ -4,15 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4SP | LOCAL SOUNDS</title>
+    <title>4SP | LOCAL SOUNDBOARD</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-     <script src="firebase-config.js"></script>
-
     <style>
         :root {
             --bg-color: #ffffff;
@@ -33,6 +26,14 @@
             /* Light gray grid lines */
             --accent-color: #333333;
             /* Dark accent color */
+
+            /* Message box colors for light theme */
+            --success-bg: #d4edda;
+            --success-color: #155724;
+            --error-bg: #f8d7da;
+            --error-color: #721c24;
+            --warning-bg: #fff3cd;
+            --warning-color: #856404;
 
             /* Sound Button Colors (adapted for light theme) */
             --sound-button-bg: #f8f8f8;
@@ -65,15 +66,6 @@
             --status-info-color: #004085;
             --status-info-border: #004085;
 
-            /* Action Button Colors (Edit/Delete) */
-            --edit-color: #007bff; /* Blue */
-            --delete-color: #dc3545; /* Red */
-
-             /* Modal Overlay Colors */
-             --modal-overlay-bg: rgba(0, 0, 0, 0.7);
-             --modal-bg: var(--bg-color);
-             --modal-border: var(--secondary-border-color);
-             --modal-text: var(--text-color);
         }
 
         * {
@@ -117,7 +109,8 @@
             /* Adjusted padding */
             flex: 1;
             /* Allow container to grow */
-             text-align: left; /* Align content within the container to the left */
+            text-align: left;
+            /* Align content within the container to the left */
         }
 
         /* Navbar */
@@ -126,7 +119,6 @@
             justify-content: space-between;
             align-items: center;
             padding: 20px 20px;
-            /* Adjusted padding */
             background-color: var(--navbar-bg);
             text-align: left;
             /* Override center for navbar layout */
@@ -148,7 +140,7 @@
             /* Ensure text in buttons is not affected by body center */
         }
 
-        /* Buttons (Base Styles) */
+        /* Buttons */
         .btn {
             display: inline-flex;
             /* Use inline-flex */
@@ -184,6 +176,13 @@
             border: 1px solid var(--secondary-border-color);
         }
 
+        .btn.danger {
+            background-color: var(--error-color);
+            color: var(--bg-color);
+            border: 1px solid var(--error-color);
+        }
+
+
         .btn.primary:hover {
             background-color: var(--hover-bg);
             color: var(--text-color);
@@ -195,6 +194,12 @@
             background-color: var(--hover-bg);
             border-color: var(--hover-bg);
         }
+
+        .btn.danger:hover {
+            background-color: darken(#e74c3c, 10%); /* Placeholder for darkening */
+            border-color: darken(#e74c3c, 10%); /* Placeholder for darkening */
+        }
+
 
         /* Button with Arrow */
         .btn-with-arrow::before {
@@ -208,15 +213,11 @@
             /* Dark accent color for arrow */
         }
 
-        /* Local Soundboard Specific Styles */
-         main {
-             padding-top: 20px; /* Space below navbar */
-         }
-
+        /* Soundboard specific styles */
         main h1 {
             text-align: center;
             /* Center main title */
-            margin-top: 0;
+            margin-top: 20px;
             margin-bottom: 10px;
         }
 
@@ -227,92 +228,20 @@
             color: rgba(51, 51, 51, 0.8);
         }
 
-        .sound-section {
-            margin-bottom: 2rem;
-            text-align: left;
-            /* Align section content to the left */
-        }
-
-        .sound-section h2 {
-            margin-bottom: 0.5rem;
-            font-size: 1.5rem;
-            padding-bottom: 0.25rem;
-            border-bottom: 2px solid var(--secondary-border-color);
-            /* Light theme border */
-            color: var(--text-color);
-            /* Dark text */
-            width: 100%;
-            text-transform: uppercase;
-            /* All caps */
-        }
-
-        /* Upload Area */
-         .upload-area {
-             background-color: var(--navbar-bg);
-             padding: 1.5rem;
-             border-radius: 10px;
-             border: 1px dashed var(--secondary-border-color);
-             text-align: center;
-             margin-bottom: 2rem;
-         }
-         .upload-area h3 {
-              font-size: 1.2rem;
-              margin-bottom: 1rem;
-              color: var(--text-color);
-               text-transform: uppercase;
-         }
-         .upload-area input[type="file"] {
-             display: none; /* Hide the default file input */
-         }
-         .upload-button-label {
-             display: inline-block;
-             padding: 10px 20px;
-             background-color: var(--primary-color);
-             color: var(--bg-color);
-             border: 1px solid var(--primary-color);
-             border-radius: 5px;
-             cursor: pointer;
-             font-weight: 600;
-             text-transform: uppercase;
-             transition: all 0.3s ease;
-         }
-         .upload-button-label:hover {
-             background-color: var(--hover-bg);
-             color: var(--text-color);
-             border-color: var(--hover-bg);
-         }
-         .upload-area p {
-              font-size: 0.9rem;
-              color: rgba(51, 51, 51, 0.8);
-              margin-top: 1rem;
-              text-transform: none; /* Don't uppercase file types */
-         }
-
-
-        .soundButtonsContainer {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-            padding: 1rem 0;
-            /* Adjusted padding */
+        .soundboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 15px;
-            /* Adjusted gap */
+            margin-top: 20px;
+            padding: 1rem 0;
             width: 100%;
         }
 
-        .sound-button-wrapper {
-             position: relative; /* Needed for absolute positioning of actions */
-             display: inline-flex; /* Treat wrapper as inline block */
-             flex-direction: column; /* Stack button and actions vertically */
-             align-items: center; /* Center content within the wrapper */
-             gap: 5px; /* Space between button and actions */
-        }
 
         .sound-button {
-            min-width: 100px;
-            height: 100px;
+            height: 120px;
             border-radius: 20px;
-            /* Less rounded, use a consistent style */
+            /* Adjusted border-radius to match soundboard.html */
             background-color: var(--sound-button-bg);
             /* Light background */
             color: var(--sound-button-text);
@@ -322,440 +251,106 @@
             cursor: pointer;
             font-size: 0.85rem;
             font-weight: 600;
-            /* Bolder */
             padding: 0 1.5rem;
             transition: background-color 0.3s ease, transform 0.1s ease, border-color 0.3s ease;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
+            align-items: center;
             text-align: center;
             line-height: 1.2;
-            max-width: 150px;
-            /* Constrain width slightly */
+            max-width: 300px;
             word-wrap: break-word;
             hyphens: auto;
             text-transform: uppercase;
-            /* All caps */
+            position: relative;
+            overflow: hidden;
         }
-
-         /* Adjust short text buttons for potentially smaller size or different padding if circular is intended */
-         /* Revert to non-circular for consistency */
-         .sound-button.short-text {
-            /* Remove circular styles */
-             width: auto; /* Auto width based on content */
-             height: 100px;
-             border-radius: 20px;
-             padding: 0 1.5rem;
-         }
-
 
         .sound-button:hover {
             background-color: var(--sound-button-hover-bg);
-            /* Lighter gray hover */
             border-color: var(--accent-color);
-            /* Accent border on hover */
         }
 
         .sound-button:active {
             transform: scale(0.95);
         }
 
-        /* Manage Mode Actions */
-        .sound-actions {
-             display: none; /* Hidden by default */
-             gap: 5px; /* Space between action buttons */
-             align-items: center;
-        }
-         .manage-mode .sound-actions {
-             display: flex; /* Show in manage mode */
-         }
-
-        .sound-action-btn {
-             background: none;
-             border: none;
-             cursor: pointer;
-             font-size: 1rem;
-             color: var(--text-color);
-             transition: color 0.2s ease;
-        }
-         .sound-action-btn:hover {
-             color: var(--accent-color);
-         }
-         .sound-action-btn.edit-btn:hover {
-             color: var(--edit-color);
-         }
-         .sound-action-btn.delete-btn:hover {
-             color: var(--delete-color);
-         }
-
-
-        /* Options Dropdown */
-        .options-dropdown {
-            position: relative;
-            display: inline-block;
+        .sound-button.playing {
+            background-color: var(--status-success-bg);
+            color: var(--status-success-color);
+            border-color: var(--status-success-border);
+            animation: pulse 1s infinite;
         }
 
-        .options-button {
-            background-color: transparent;
-            color: var(--text-color);
-            /* Dark text */
-            padding: 10px 20px;
-            /* Matches other buttons */
-            font-size: 14px;
-            /* Matches other buttons */
-            border: 1px solid var(--secondary-border-color);
-            /* Matches other buttons */
-            border-radius: 5px;
-            /* Less rounded */
-            cursor: pointer;
-            text-transform: uppercase;
-            /* All caps */
-            font-weight: 600;
-            display: inline-flex;
-            /* Needed for flex layout */
-            align-items: center;
-            justify-content: center;
-        }
-
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-                /* Subtle animation */
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateY(-10px);
-                /* Subtle animation */
-            }
-        }
-
-        .options-content {
-            display: none;
-            position: absolute;
-            background-color: var(--options-bg);
-            /* Light gray */
-            min-width: 250px;
-            border: 1px solid var(--options-border);
-            /* Medium gray */
-            padding: 1rem;
-            z-index: 2;
-            right: 0;
-            border-radius: 5px;
-            /* Less rounded */
-            color: var(--options-text);
-            /* Dark text */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            /* Subtle shadow */
-            text-align: left;
-            /* Align options content to the left */
-            text-transform: none;
-            /* Prevent uppercase for readability */
-        }
-
-        .options-content.fade-in {
-            display: block;
-            animation: fadeIn 0.3s ease forwards;
-        }
-
-        .options-content.fade-out {
-            display: block;
-            animation: fadeOut 0.3s ease forwards;
-        }
-
-        .options-content label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--options-text);
-            /* Dark text */
-            font-size: 0.9rem;
-        }
-
-        .options-content input[type="checkbox"] {
-            margin-right: 0.5rem;
-            vertical-align: middle;
-            background-color: var(--bg-color);
-            /* White background */
-            border: 1px solid var(--secondary-border-color);
-            /* Medium gray border */
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-            position: relative;
-            border-radius: 3px;
-            /* Slightly rounded checkbox */
-            outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .options-content input[type="checkbox"]:checked {
-            background-color: var(--accent-color);
-            /* Dark background when checked */
-            border-color: var(--accent-color);
-            /* Simple white checkmark - adjust color if needed */
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='20 6 9 17 4 12'%3e%3c/polyline%3e%3c/svg%3e");
-            background-size: 80%;
-            background-repeat: no-repeat;
-            background-position: center;
-        }
-
-        .options-content input[type="checkbox"]:focus {
-            box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
-        }
-
-
-        .options-content #autoClickDelayLabel {
-            margin-top: 0.5rem;
-            display: block;
-            font-size: 0.9rem;
-        }
-
-        .options-content #autoClickDelay {
-            width: 70px;
-            /* Slightly wider input */
-            padding: 0.4rem;
-            /* Adjusted padding */
-            border-radius: 5px;
-            /* Less rounded */
-            border: 1px solid var(--secondary-border-color);
-            /* Medium gray border */
-            background-color: var(--bg-color);
-            /* White background */
-            color: var(--text-color);
-            /* Dark text */
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.9rem;
-            text-transform: none;
-            /* Prevent uppercase */
-            outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .options-content #autoClickDelay:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
-        }
-
-        /* Style for the playback speed select */
-        .options-content label.playback-speed-label {
-            margin-top: 0.5rem;
-            /* Spacing from previous element */
-            margin-bottom: 0.5rem;
-            /* Spacing to next element */
-            display: block;
-            /* Ensure label is block */
-            font-size: 0.9rem;
-        }
-
-        .options-content #playbackSpeed {
-            width: 100%;
-            /* Full width of its container */
-            padding: 0.5rem;
-            margin-top: 0.25rem;
-            /* Space below the label text */
-            border-radius: 5px;
-            /* Less rounded */
-            border: 1px solid var(--secondary-border-color);
-            /* Medium gray border */
-            background-color: var(--bg-color);
-            /* White background */
-            color: var(--text-color);
-            /* Dark text */
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.9rem;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            /* Using dark accent color for stroke */
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 0.7rem center;
-            background-size: 1em;
-            cursor: pointer;
-            outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            text-transform: none;
-            /* Prevent uppercase */
-        }
-
-        .options-content #playbackSpeed:focus {
-            border-color: var(--accent-color);
-            /* Accent color on focus */
-            box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
-        }
-
-        .options-content #playbackSpeed option {
-            background-color: var(--options-bg);
-            /* Background for dropdown options */
-            color: var(--options-text);
-            /* Text color for dropdown options */
-        }
-
-
-        .options-section {
-            margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--options-section-border);
-            /* Darker border */
-        }
-
-        .options-section:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-        }
-
-        .options-section h3 {
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            color: var(--options-text);
-            /* Dark text */
-            opacity: 0.8;
-            text-transform: uppercase;
-            /* All caps */
-        }
-
-        .keyboard-shortcuts {
-            margin-top: 1rem;
-            padding: 0.5rem;
-            border-radius: 5px;
-            /* Less rounded */
-            background-color: rgba(51, 51, 51, 0.05);
-            /* Very subtle dark background */
-            border: 1px solid var(--secondary-border-color);
-            text-align: left;
-            /* Align shortcut text left */
-        }
-
-        .keyboard-shortcuts p {
-            margin: 0.25rem 0;
-            font-size: 0.85rem;
-            color: var(--text-color);
-            /* Dark text */
-            opacity: 0.8;
-            text-transform: none;
-            /* Prevent uppercase for readability */
-        }
-
-        #applyDelayBtn {
-            padding: 0.4rem 0.8rem;
-            /* Adjusted padding */
-            border: 1px solid var(--secondary-border-color);
-            /* Medium gray border */
-            border-radius: 5px;
-            /* Less rounded */
-            background-color: var(--hover-bg);
-            /* Light gray background */
-            color: var(--text-color);
-            /* Dark text */
-            cursor: pointer;
-            margin-left: 4px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            /* All caps */
-            font-family: 'Outfit', sans-serif;
-            transition: background-color 0.2s ease, border-color 0.2s ease;
-        }
-
-        #applyDelayBtn:hover {
-            background-color: var(--secondary-border-color);
-            /* Darker gray on hover */
-            border-color: var(--accent-color);
-        }
-
-         #clearAllSoundsBtn {
-            width: 100%;
-            margin-top: 0.5rem;
-            background-color: var(--hover-bg);
-            /* Light gray background */
-            color: var(--text-color);
-            /* Dark text */
-            border: 1px solid var(--secondary-border-color);
-            /* Medium gray border */
-            position: relative;
-            overflow: hidden;
-             border-radius: 5px; /* Less rounded */
-        }
-        #clearAllSoundsBtn:hover {
-             background-color: var(--secondary-border-color);
-             border-color: var(--accent-color);
-        }
-
-        @keyframes buttonPop {
+        @keyframes pulse {
             0% {
                 transform: scale(1);
             }
             50% {
-                transform: scale(1.05);
-                /* Subtle pop */
-            }
-            75% {
-                transform: scale(0.98);
+                transform: scale(1.02); /* Slightly reduced scale for subtlety */
             }
             100% {
                 transform: scale(1);
             }
         }
 
-        @keyframes ripple {
-            0% {
-                transform: scale(0);
-                opacity: 0.5;
-            }
-            100% {
-                transform: scale(4);
-                opacity: 0;
-            }
+
+        .edit-mode .sound-button {
+            cursor: move;
+            border: 2px dashed #555;
         }
 
-        #clearAllSoundsBtn.active {
-            animation: none;
-            /* Remove pop animation */
-            background-color: var(--error-bg);
-            /* Error background color */
-            border-color: var(--error-color);
-            /* Error border color */
-            color: var(--error-color);
-            /* Error text color */
-        }
-
-        .ripple-container {
+        .button-controls {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overflow: hidden;
-            border-radius: inherit;
-            pointer-events: none;
+            top: 5px;
+            right: 5px;
+            display: none;
+            gap: 5px;
         }
 
-        .ripple {
-            position: absolute;
+        .edit-mode .button-controls {
+            display: flex;
+        }
+
+        .button-control {
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background-color: rgba(255, 0, 0, 0.4);
-            /* Reddish ripple for clear button */
-            width: 100px;
-            height: 100px;
-            margin-top: -50px;
-            margin-left: -50px;
-            animation: ripple 0.6s ease-out;
-            pointer-events: none;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
         }
 
+        .edit-btn {
+            background-color: #f39c12;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            animation: fadeInOverlay 0.3s ease forwards; /* Added fade-in animation */
+        }
+
+        .modal.fade-out {
+            animation: fadeOutOverlay 0.3s ease forwards;
+        }
 
         @keyframes fadeInOverlay {
             from {
@@ -775,27 +370,19 @@
             }
         }
 
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1; /* Below modal */
-        }
 
-        .overlay.fade-in {
-            display: block;
-            animation: fadeInOverlay 0.3s ease forwards;
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: fadeInUp 0.3s ease forwards; /* Added slide-in animation */
         }
-
-        .overlay.fade-out {
-            display: block;
-            animation: fadeOutOverlay 0.3s ease forwards;
-        }
-
+         .modal-content.fade-out {
+             animation: fadeOutDown 0.3s ease forwards;
+         }
 
         @keyframes fadeInUp {
             from {
@@ -820,134 +407,146 @@
         }
 
 
-        .status-message {
-            display: none;
-            padding: 0.75rem 1.5rem;
-            /* Adjusted padding */
-            margin: 1rem auto;
-            border-radius: 5px;
-            /* Less rounded */
-            font-size: 0.9rem;
-            background-color: var(--navbar-bg);
-            /* Use a light theme background */
-            text-align: center;
-            max-width: 80%;
-            text-transform: none;
-            /* Prevent uppercase */
-            border: 1px solid transparent;
-            /* Add a subtle border */
-        }
-
-        .status-message.fade-in {
-            display: block;
-            animation: fadeInUp 0.3s ease forwards;
-        }
-
-        .status-message.fade-out {
-            display: block;
-            animation: fadeOutDown 0.3s ease forwards;
-        }
-
-        .status-message.success {
-            background-color: var(--status-success-bg);
-            color: var(--status-success-color);
-            border-color: var(--status-success-border);
-        }
-
-        .status-message.error {
-            background-color: var(--status-error-bg);
-            color: var(--status-error-color);
-            border-color: var(--status-error-border);
-        }
-
-        .status-message.info {
-            background-color: var(--status-info-bg);
-            color: var(--status-info-color);
-            border-color: var(--status-info-border);
-        }
-
-
-        /* Modal Styles for Edit/Rename */
-         .modal {
-             display: none; /* Hidden by default */
-             position: fixed;
-             top: 50%;
-             left: 50%;
-             transform: translate(-50%, -50%);
-             background-color: var(--modal-bg);
-             padding: 2rem;
-             border-radius: 10px;
-             border: 1px solid var(--modal-border);
-             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-             z-index: 1001; /* Above overlay */
-             text-align: left;
-             text-transform: none; /* Prevent uppercase for readability */
-         }
-         .modal h3 {
-             font-size: 1.5rem;
-             margin-bottom: 1rem;
-             color: var(--modal-text);
-              text-transform: uppercase;
-         }
-         .modal input[type="text"] {
-             width: 100%;
-             padding: 0.8rem;
-             margin-bottom: 1.5rem;
-             border-radius: 5px;
-             border: 1px solid var(--secondary-border-color);
-             font-size: 1rem;
-             font-family: 'Outfit', sans-serif;
-             color: var(--modal-text);
-             background-color: var(--bg-color);
-             text-transform: none;
-         }
-         .modal .button-group {
-             display: flex;
-             justify-content: flex-end;
-             gap: 1rem;
-         }
-         .modal .btn {
-             padding: 0.6rem 1.2rem;
-             font-size: 0.9rem;
-         }
-         .modal .btn.cancel {
-             background-color: var(--hover-bg);
-             color: var(--text-color);
-             border-color: var(--hover-bg);
-         }
-         .modal .btn.save {
-             background-color: var(--primary-color);
-             color: var(--bg-color);
-             border-color: var(--primary-color);
-         }
-         .modal .btn.cancel:hover {
-             background-color: var(--secondary-border-color);
-              border-color: var(--accent-color);
-         }
-          .modal .btn.save:hover {
-              background-color: var(--hover-bg);
-              color: var(--text-color);
-              border-color: var(--hover-bg);
-          }
-
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: rgba(51, 51, 51, 0.6);
-            /* Slightly lighter dark color for footer text */
-            font-size: 14px;
-            background-color: var(--footer-bg);
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
             text-transform: uppercase;
-            width: 100%;
-             margin-top: auto; /* Push footer to the bottom */
         }
 
+        .close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #555;
+        }
 
-         /* Responsive adjustments */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+             color: var(--text-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--secondary-border-color);
+            border-radius: 4px;
+            font-size: 14px;
+             background-color: var(--bg-color);
+             color: var(--text-color);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .color-picker {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.2s ease;
+        }
+
+        .color-option.selected {
+            border: 2px solid var(--accent-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+             color: var(--text-color);
+             border: 1px solid var(--secondary-border-color);
+        }
+
+        .empty-state h2 {
+            margin-bottom: 15px;
+            color: var(--text-color);
+            text-transform: uppercase;
+             font-size: 1.5rem;
+        }
+
+        .empty-state p {
+            margin-bottom: 20px;
+            color: rgba(51, 51, 51, 0.8);
+            text-transform: none;
+            font-size: 1rem;
+        }
+
+         /* Status Message styles (copied from soundboard.html) */
+         .status-message {
+             display: none;
+             padding: 0.75rem 1.5rem;
+             /* Adjusted padding */
+             margin: 1rem auto;
+             border-radius: 5px;
+             /* Less rounded */
+             font-size: 0.9rem;
+             background-color: var(--navbar-bg);
+             /* Use a light theme background */
+             text-align: center;
+             max-width: 80%;
+             text-transform: none;
+             /* Prevent uppercase */
+             border: 1px solid transparent;
+             /* Add a subtle border */
+         }
+
+         .status-message.fade-in {
+             display: block;
+             animation: fadeInUp 0.3s ease forwards;
+         }
+
+         .status-message.fade-out {
+             display: block;
+             animation: fadeOutDown 0.3s ease forwards;
+         }
+
+         .status-message.success {
+             background-color: var(--status-success-bg);
+             color: var(--status-success-color);
+             border-color: var(--status-success-border);
+         }
+
+         .status-message.error {
+             background-color: var(--status-error-bg);
+             color: var(--status-error-color);
+             border-color: var(--status-error-border);
+         }
+
+         .status-message.info {
+             background-color: var(--status-info-bg);
+             color: var(--status-info-color);
+             border-color: var(--status-info-border);
+         }
+
+
+        /* Responsive adjustments */
         @media (max-width: 768px) {
-             .navbar {
+            .navbar {
                 flex-direction: column;
                 gap: 10px;
             }
@@ -957,168 +556,62 @@
                 gap: 10px;
             }
 
-             body {
-                 padding-top: 120px; /* Adjust padding for stacked navbar */
-                 padding-bottom: 80px; /* Adjust padding for footer */
+            main h1 {
+                font-size: 2rem;
             }
 
-            main {
-                 padding-top: 10px; /* Adjust space below stacked navbar */
+            .soundboard {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             }
-
-             main h1 {
-                 font-size: 1.8rem;
-             }
-
-             .upload-area {
-                 padding: 1rem;
-             }
-             .upload-area h3 {
-                 font-size: 1rem;
-             }
-             .upload-button-label {
-                 padding: 8px 15px;
-                 font-size: 12px;
-             }
-             .upload-area p {
-                 font-size: 0.8rem;
-             }
-
-
-            .soundButtonsContainer {
-                 gap: 10px;
-                 padding: 0.5rem 0;
-             }
 
             .sound-button {
-                 min-width: 80px;
-                 height: 80px;
-                 font-size: 0.75rem;
-                 padding: 0 1rem;
+                height: 100px;
                  border-radius: 15px;
             }
-             .sound-button.short-text {
-                  width: auto;
-                  height: 80px;
-                  border-radius: 15px;
-                  padding: 0 1rem;
-             }
-
-             .sound-action-btn {
-                 font-size: 0.9rem;
-             }
-
-             .options-content {
-                 min-width: 200px;
-             }
-
-             .modal h3 {
-                 font-size: 1.2rem;
-             }
-             .modal input[type="text"] {
-                 padding: 0.6rem;
-                 font-size: 0.9rem;
-             }
-              .modal .btn {
-                 padding: 0.5rem 1rem;
-                 font-size: 0.8rem;
-             }
         }
 
-         @media (max-width: 480px) {
+        @media (max-width: 480px) {
             .navbar {
-                 padding: 15px 10px;
-             }
-             .logo {
+                padding: 15px 10px;
+            }
+
+            .logo {
                 font-size: 20px;
-             }
+            }
 
             .nav-buttons {
-                 gap: 8px;
-             }
+                gap: 8px;
+            }
 
             .btn {
-                 padding: 8px 15px;
-                 font-size: 12px;
+                padding: 8px 15px;
+                font-size: 12px;
             }
 
-             body {
-                 padding-top: 150px; /* Adjust padding for stacked navbar */
-                 padding-bottom: 100px; /* Adjust padding for footer */
-             }
-
-             main h1 {
-                 font-size: 1.5rem;
-                 margin-bottom: 0.8rem;
-             }
-
-             .upload-area {
-                 padding: 0.8rem;
-                 margin-bottom: 1.5rem;
-             }
-             .upload-area h3 {
-                 font-size: 0.9rem;
-             }
-             .upload-button-label {
-                 padding: 6px 12px;
-                 font-size: 10px;
-             }
-             .upload-area p {
-                 font-size: 0.7rem;
-             }
-
-             .soundButtonsContainer {
-                 gap: 8px;
-                 padding: 0.3rem 0;
-             }
-
-             .sound-button {
-                 min-width: 70px;
-                 height: 70px;
-                 font-size: 0.7rem;
-                 padding: 0 0.5rem;
-                 border-radius: 10px;
+            main h1 {
+                font-size: 1.5rem;
+                margin-top: 10px;
+                margin-bottom: 5px;
             }
-             .sound-button.short-text {
-                 width: auto;
-                 height: 70px;
-                 border-radius: 10px;
-                 padding: 0 0.5rem;
-             }
 
-             .sound-action-btn {
-                 font-size: 0.8rem;
-             }
+            main p {
+                font-size: 0.9rem;
+                margin-bottom: 20px;
+            }
 
-             .options-content {
-                 min-width: 180px;
-                 padding: 0.8rem;
-             }
-             .options-content label {
-                 font-size: 0.8rem;
-             }
-             .options-content input[type="checkbox"] {
-                 width: 14px;
-                 height: 14px;
-             }
+            .soundboard {
+                gap: 10px;
+                padding: 0.5rem 0;
+                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
 
-              .modal h3 {
-                 font-size: 1rem;
-             }
-             .modal input[type="text"] {
-                 padding: 0.5rem;
-                 font-size: 0.8rem;
-             }
-              .modal .btn {
-                 padding: 0.4rem 0.8rem;
-                 font-size: 0.7rem;
-             }
+            .sound-button {
+                height: 80px;
+                font-size: 0.75rem;
+                padding: 0 0.5rem;
+                border-radius: 10px;
+            }
         }
-
-         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
-        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
-        /* function darken(color, percent) { ... } */
-
     </style>
 </head>
 
@@ -1126,892 +619,633 @@
     <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons">
-            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
-            <div class="options-dropdown">
-                <button class="btn secondary options-button">Options</button>
-                <div class="options-content" id="optionsMenu">
-                    <div class="options-section">
-                        <h3>Playback Options</h3>
-                        <label>
-                            <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
-                        </label>
-                        <label for="playbackSpeed" class="playback-speed-label">Playback Speed:
-                            <select id="playbackSpeed">
-                                <option value="0.25">0.25x</option>
-                                <option value="0.5">0.5x</option>
-                                <option value="0.75">0.75x</option>
-                                <option value="1" selected>1x (Normal)</option>
-                                <option value="1.25">1.25x</option>
-                                <option value="1.5">1.5x</option>
-                                <option value="1.75">1.75x</option>
-                                <option value="2">2x</option>
-                                <option value="2.25">2.25x</option>
-                                <option value="2.5">2.5x</option>
-                                <option value="2.75">2.75x</option>
-                                <option value="3">3x</option>
-                            </select>
-                        </label>
-                         <label>
-                            <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
-                        </label>
-                        <label id="autoClickDelayLabel" style="display: none;">
-                            Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" />
-                            <button id="applyDelayBtn">Apply</button>
-                        </label>
-                    </div>
-                    <div class="options-section">
-                         <h3>Management Options</h3>
-                          <label>
-                             <input type="checkbox" id="manageModeCheckbox" />Manage Sounds
-                          </label>
-                        <button id="clearAllSoundsBtn" class="btn secondary">
-                            Clear All Sounds
-                            <div class="ripple-container"></div>
-                        </button>
-                    </div>
-                    <div class="keyboard-shortcuts">
-                        <p><strong>Keyboard Shortcuts:</strong></p>
-                        <p>Shift + C: Mute & clear all sounds</p>
-                    </div>
-                </div>
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
             </div>
-            <button class="btn secondary" id="logoutBtn">Log Out</button>
-        </div>
     </nav>
 
     <main>
         <div class="container">
-            <h1>My Local Sounds</h1>
-            <p>UPLOAD AND PLAY YOUR OWN MP3 FILES.</p>
+            <h1>Local Soundboard</h1>
+            <p>Manage and play your local sounds.</p>
 
             <div class="status-message" id="statusMessage"></div>
 
-            <div class="upload-area">
-                 <h3>UPLOAD SOUNDS</h3>
-                 <input type="file" id="fileInput" accept=".mp3" multiple>
-                 <label for="fileInput" class="upload-button-label">CHOOSE MP3 FILES</label>
-                 <p>ACCEPTED FORMATS: .MP3</p>
+            <div class="top-bar">
+                <div class="controls">
+                    <button id="addSoundBtn" class="btn primary">Add Sound</button>
+                    <button id="editModeBtn" class="btn secondary">Edit Layout</button>
+                    <button id="exportBtn" class="btn secondary">Export</button>
+                    <button id="importBtn" class="btn secondary">Import</button>
+                </div>
             </div>
 
-            <div class="sound-section">
-                <h2>My Sounds</h2>
-                 <div id="localSoundsContainer" class="soundButtonsContainer">
-                    <p id="loadingMessage">LOADING LOCAL SOUNDS...</p>
-                 </div>
+            <div id="soundboard" class="soundboard"></div>
+            <div id="emptyState" class="empty-state">
+                <h2>Your soundboard is empty</h2>
+                <p>Add sounds to get started!</p>
+                <button id="emptyAddBtn" class="btn primary">Add Your First Sound</button>
             </div>
         </div>
     </main>
+
 
     <footer>
         <p>&copy; <span id="currentYear"></span> 4SP</p>
     </footer>
 
-    <div class="modal" id="renameModal">
-         <h3>RENAME SOUND</h3>
-         <input type="text" id="renameInput" placeholder="ENTER NEW NAME">
-         <div class="button-group">
-             <button class="btn secondary cancel" id="cancelRenameBtn">CANCEL</button>
-             <button class="btn primary save" id="saveRenameBtn">SAVE</button>
-         </div>
+    <div id="soundModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Sound</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="soundForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label for="buttonName">Button Name</label>
+                    <input type="text" id="buttonName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="soundFile">Sound File</label>
+                    <input type="file" id="soundFile" class="form-control" accept="audio/*">
+                    <small id="currentFile"></small>
+                </div>
+                <div class="form-group">
+                    <label>Button Color</label>
+                    <div class="color-picker" id="colorPicker">
+                        <div class="color-option selected" style="background-color: #3498db;" data-color="#3498db"></div>
+                        <div class="color-option" style="background-color: #e74c3c;" data-color="#e74c3c"></div>
+                        <div class="color-option" style="background-color: #2ecc71;" data-color="#2ecc71"></div>
+                        <div class="color-option" style="background-color: #f39c12;" data-color="#f39c12"></div>
+                        <div class="color-option" style="background-color: #9b59b6;" data-color="#9b59b6"></div>
+                        <div class="color-option" style="background-color: #1abc9c;" data-color="#1abc9c"></div>
+                        <div class="color-option" style="background-color: #e67e22;" data-color="#e67e22"></div>
+                        <div class="color-option" style="background-color: #34495e;" data-color="#34495e"></div>
+                        <div class="color-option" style="background-color: #d35400;" data-color="#d35400"></div>
+                        <div class="color-option" style="background-color: #16a085;" data-color="#16a085"></div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="cancelBtn" class="btn secondary">Cancel</button>
+                    <button type="submit" class="btn primary">Save</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="overlay" id="overlay"></div>
 
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Deletion</h2>
+                <span class="close">&times;</span>
+            </div>
+            <p>Are you sure you want to delete this sound button?</p>
+            <div class="form-actions">
+                <button id="cancelDeleteBtn" class="btn secondary">Cancel</button>
+                <button id="confirmDeleteBtn" class="btn danger">Delete</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Display current year in footer
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-        // IndexedDB setup
-        const dbName = 'localSoundsDB';
-        const dbVersion = 1;
-        const objectStoreName = 'sounds';
-        let db;
-
-        function openDb() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(dbName, dbVersion);
-
-                request.onupgradeneeded = function(event) {
-                    const db = event.target.result;
-                    if (!db.objectStoreNames.contains(objectStoreName)) {
-                        db.createObjectStore(objectStoreName, { keyPath: 'id' });
-                    }
-                };
-
-                request.onsuccess = function(event) {
-                    db = event.target.result;
-                    resolve(db);
-                };
-
-                request.onerror = function(event) {
-                    console.error("IndexedDB error:", event.target.errorCode);
-                    reject(event.target.errorCode);
-                };
-            });
-        }
-
-        function addSound(sound) {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction([objectStoreName], 'readwrite');
-                const store = transaction.objectStore(objectStoreName);
-                const request = store.add(sound);
-
-                request.onsuccess = function() {
-                    resolve(request.result);
-                };
-
-                request.onerror = function(event) {
-                    console.error("Add sound error:", event.target.errorCode);
-                    reject(event.target.errorCode);
-                };
-            });
-        }
-
-        function getSounds() {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction([objectStoreName], 'readonly');
-                const store = transaction.objectStore(objectStoreName);
-                const request = store.getAll();
-
-                request.onsuccess = function() {
-                    resolve(request.result);
-                };
-
-                request.onerror = function(event) {
-                    console.error("Get sounds error:", event.target.errorCode);
-                    reject(event.target.errorCode);
-                };
-            });
-        }
-
-         function getSound(id) {
-             return new Promise((resolve, reject) => {
-                 const transaction = db.transaction([objectStoreName], 'readonly');
-                 const store = transaction.objectStore(objectStoreName);
-                 const request = store.get(id);
-
-                 request.onsuccess = function() {
-                     resolve(request.result);
-                 };
-
-                 request.onerror = function(event) {
-                     console.error("Get sound error:", event.target.errorCode);
-                     reject(event.target.errorCode);
-                 };
-             });
-         }
-
-        function deleteSound(id) {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction([objectStoreName], 'readwrite');
-                const store = transaction.objectStore(objectStoreName);
-                const request = store.delete(id);
-
-                request.onsuccess = function() {
-                    resolve();
-                };
-
-                request.onerror = function(event) {
-                    console.error("Delete sound error:", event.target.errorCode);
-                    reject(event.target.errorCode);
-                };
-            });
-        }
-
-         function updateSoundName(id, newName) {
-             return new Promise((resolve, reject) => {
-                 const transaction = db.transaction([objectStoreName], 'readwrite');
-                 const store = transaction.objectStore(objectStoreName);
-                  // Get the existing sound data
-                 const getRequest = store.get(id);
-
-                 getRequest.onsuccess = function() {
-                     const sound = getRequest.result;
-                     if (sound) {
-                         sound.name = newName; // Update the name
-                         // Put the updated sound back into the store
-                         const updateRequest = store.put(sound);
-                         updateRequest.onsuccess = function() {
-                             resolve();
-                         };
-                         updateRequest.onerror = function(event) {
-                             console.error("Update sound name error:", event.target.errorCode);
-                             reject(event.target.errorCode);
-                         };
-                     } else {
-                         reject("Sound not found");
-                     }
-                 };
-
-                 getRequest.onerror = function(event) {
-                      console.error("Get sound for update error:", event.target.errorCode);
-                     reject(event.target.errorCode);
-                 };
-             });
-         }
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const soundboard = document.getElementById('soundboard');
+            const emptyState = document.getElementById('emptyState');
+            const addSoundBtn = document.getElementById('addSoundBtn');
+            const emptyAddBtn = document.getElementById('emptyAddBtn');
+            const editModeBtn = document.getElementById('editModeBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            const importBtn = document.getElementById('importBtn');
+            const soundModal = document.getElementById('soundModal');
+            const confirmModal = document.getElementById('confirmModal');
+            const modalClose = soundModal.querySelector('.close');
+            const confirmClose = confirmModal.querySelector('.close');
+            const soundForm = document.getElementById('soundForm');
+            const editIdInput = document.getElementById('editId');
+            const buttonNameInput = document.getElementById('buttonName');
+            const soundFileInput = document.getElementById('soundFile');
+            const currentFileLabel = document.getElementById('currentFile');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const modalTitle = document.getElementById('modalTitle');
+            const colorOptions = document.querySelectorAll('.color-option');
+             const statusMessage = document.getElementById('statusMessage');
 
 
-        function clearAllLocalSoundsDb() {
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction([objectStoreName], 'readwrite');
-                const store = transaction.objectStore(objectStoreName);
-                const request = store.clear();
-
-                request.onsuccess = function() {
-                    resolve();
-                };
-
-                request.onerror = function(event) {
-                    console.error("Clear all sounds error:", event.target.errorCode);
-                    reject(event.target.errorCode);
-                };
-            });
-        }
+            // Variables
+            let sounds = [];
+            let editMode = false;
+            let currentDeleteId = null;
+            let selectedColor = '#3498db';
+            let currentlyPlaying = null;
+            let draggedItem = null;
+            let draggedItemIndex = null;
+             let statusMessageTimeout = null;
 
 
-        document.addEventListener('DOMContentLoaded', async () => {
-             // Optional: Firebase Auth check (if this page requires login)
-             // Uncomment and adapt if auth is necessary before showing content
-             /*
-             const auth = firebase.auth();
-             auth.onAuthStateChanged(user => {
-                 if (!user) {
-                     window.location.href = 'login.html'; // Redirect to login if not authenticated
-                 } else {
-                     console.log("User authenticated:", user.email);
-                     // User is authenticated, proceed with IndexedDB and page setup
-                     initPage();
+            // Initialize the application
+            init();
+
+            function init() {
+                loadSounds();
+                renderSoundboard();
+                setupEventListeners();
+            }
+
+             function showStatus(message, type = 'info') {
+                 if (statusMessageTimeout) {
+                     clearTimeout(statusMessageTimeout);
+                     statusMessage.classList.remove('fade-in', 'fade-out');
                  }
-             });
-             */
+                 statusMessage.textContent = message.toUpperCase(); // Keep status messages uppercase
+                 statusMessage.className = 'status-message ' + type;
 
-             // If no auth check is needed, just initialize the page directly
-             initPage();
+                 // Simplified fade logic for status message
+                 statusMessage.style.display = 'block';
+                 statusMessage.classList.remove('fade-out'); // Ensure it's not stuck in fade-out
+                 statusMessage.classList.add('fade-in');
 
-
-             async function initPage() {
-                 try {
-                    await openDb(); // Open the database
-                    renderLocalSounds(); // Render sounds from the database
-
-                     // Set up event listeners after DB is open and sounds are loaded
-                    setupEventListeners();
-
-                 } catch (error) {
-                    console.error("Failed to initialize IndexedDB or load sounds:", error);
-                     const loadingMessage = document.getElementById('loadingMessage');
-                     if (loadingMessage) {
-                          loadingMessage.textContent = 'ERROR LOADING LOCAL SOUNDS.';
-                          loadingMessage.style.color = 'var(--error-color)';
-                     }
-                 }
+                 statusMessageTimeout = setTimeout(() => {
+                     statusMessage.classList.remove('fade-in');
+                     statusMessage.classList.add('fade-out');
+                     setTimeout(() => {
+                         statusMessage.style.display = 'none';
+                         statusMessage.classList.remove('fade-out');
+                     }, 300); // Match fadeOut animation duration
+                 }, 3000); // Message visible for 3 seconds
              }
 
 
-             function setupEventListeners() {
-                 const fileInput = document.getElementById('fileInput');
-                 const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
-                 const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
-                 const autoClickDelayInput = document.getElementById('autoClickDelay');
-                 const autoClickDelayLabel = document.getElementById('autoClickDelayLabel');
-                 const applyDelayBtn = document.getElementById('applyDelayBtn');
-                 const optionsButton = document.querySelector('.options-button');
-                 const optionsMenu = document.getElementById('optionsMenu');
-                 const statusMessage = document.getElementById('statusMessage');
-                 const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
-                 const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
-                 const playbackSpeedSelect = document.getElementById('playbackSpeed');
-                 const manageModeCheckbox = document.getElementById('manageModeCheckbox');
+            // Load sounds from localStorage
+            function loadSounds() {
+                const storedSounds = localStorage.getItem('localSoundboard');
+                sounds = storedSounds ? JSON.parse(storedSounds) : [];
+            }
 
-                 // Modal elements
-                 const renameModal = document.getElementById('renameModal');
-                 const renameInput = document.getElementById('renameInput');
-                 const cancelRenameBtn = document.getElementById('cancelRenameBtn');
-                 const saveRenameBtn = document.getElementById('saveRenameBtn');
-                 const overlay = document.getElementById('overlay'); // Re-using the overlay element
+            // Save sounds to localStorage
+            function saveSounds() {
+                localStorage.setItem('localSoundboard', JSON.stringify(sounds));
+                renderSoundboard();
+            }
 
+            // Render the soundboard
+            function renderSoundboard() {
+                soundboard.innerHTML = '';
 
-                // State variables
-                let playingAudios = [];
-                let autoClickInterval;
-                let requestAnimationFrameId = null;
-                let currentlyHoveredButton = null;
-                let statusMessageTimeout = null;
-                let menuIsOpen = false;
-                let isRippling = false;
-                let currentPlaybackSpeed = 1.0;
-                let manageModeActive = false;
-                 let soundIdToRename = null; // Store the ID of the sound being renamed
-
-
-                 // --- Utility Functions (adapted from soundboard.js) ---
-                function showStatus(message, type = 'info') {
-                    if (statusMessageTimeout) {
-                        clearTimeout(statusMessageTimeout);
-                        statusMessage.classList.remove('fade-in', 'fade-out');
-                    }
-                    statusMessage.textContent = message.toUpperCase();
-                    statusMessage.className = 'status-message ' + type;
-                    statusMessage.style.display = 'block';
-                    statusMessage.classList.remove('fade-out');
-                    statusMessage.classList.add('fade-in');
-                    statusMessageTimeout = setTimeout(() => {
-                        statusMessage.classList.remove('fade-in');
-                        statusMessage.classList.add('fade-out');
-                        setTimeout(() => {
-                            statusMessage.style.display = 'none';
-                            statusMessage.classList.remove('fade-out');
-                        }, 300);
-                    }, 3000);
+                if (sounds.length === 0) {
+                    emptyState.style.display = 'block';
+                    soundboard.style.display = 'none';
+                    return;
                 }
 
-                function openOptionsMenu() {
-                    if (menuIsOpen) return;
-                    menuIsOpen = true;
-                     overlay.classList.add('fade-in'); // Use fade-in class
-                     overlay.style.display = 'block'; // Show overlay
-                     optionsMenu.classList.add('fade-in'); // Use fade-in class
-                     optionsMenu.style.display = 'block'; // Show menu
-                }
+                emptyState.style.display = 'none';
+                soundboard.style.display = 'grid';
 
-                function closeOptionsMenu() {
-                    if (!menuIsOpen) return;
-                    menuIsOpen = false;
-                    overlay.classList.remove('fade-in');
-                     optionsMenu.classList.remove('fade-in');
-                     overlay.classList.add('fade-out');
-                     optionsMenu.classList.add('fade-out');
-                    setTimeout(() => {
-                        overlay.style.display = 'none';
-                        overlay.classList.remove('fade-out');
-                         optionsMenu.style.display = 'none';
-                         optionsMenu.classList.remove('fade-out');
-                    }, 300);
-                }
+                sounds.forEach((sound, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'sound-button';
+                    button.setAttribute('data-id', sound.id);
+                    button.style.backgroundColor = sound.color || '#3498db';
+                    button.innerText = sound.name;
 
-                 function createRipple(event) {
-                    if (isRippling) return;
-                    isRippling = true;
-                    // Use clearAllSoundsBtn for ripple effect position
-                    const rect = clearAllSoundsBtn.getBoundingClientRect();
-                    const x = event.clientX - rect.left;
-                    const y = event.clientY - rect.top;
-                    const ripple = document.createElement('span');
-                    ripple.classList.add('ripple');
-                    ripple.style.left = x + 'px';
-                    ripple.style.top = y + 'px';
-                    rippleContainer.innerHTML = ''; // Clear previous ripples
-                    rippleContainer.appendChild(ripple);
-                    setTimeout(() => {
-                        ripple.remove();
-                        isRippling = false;
-                    }, 600);
-                }
+                    // Button controls for edit mode
+                    const buttonControls = document.createElement('div');
+                    buttonControls.className = 'button-controls';
 
-
-                function muteAllSounds() {
-                    playingAudios.forEach(audio => {
-                         if (audio && typeof audio.volume !== 'undefined') { // Check if audio is valid
-                             audio.volume = 0;
-                         }
-                     });
-                }
-
-                function stopAllAudios(delay = 0) {
-                    if (playingAudios.length === 0) return;
-                    const audiosToStop = [...playingAudios]; // Copy array to avoid issues during iteration
-
-                    if (delay > 0) {
-                        muteAllSounds();
-                        setTimeout(() => {
-                            audiosToStop.forEach(audio => {
-                                if (audio && typeof audio.pause === 'function') { // Check if audio is valid
-                                     audio.pause();
-                                     audio.currentTime = 0;
-                                     // Revoke Object URL if it exists (for local files)
-                                     if (audio.src.startsWith('blob:')) {
-                                         URL.revokeObjectURL(audio.src);
-                                     }
-                                }
-                            });
-                            playingAudios = playingAudios.filter(audio => !audiosToStop.includes(audio)); // Remove stopped audios
-                        }, delay);
-                    } else {
-                        audiosToStop.forEach(audio => {
-                             if (audio && typeof audio.pause === 'function') { // Check if audio is valid
-                                 audio.pause();
-                                 audio.currentTime = 0;
-                                  // Revoke Object URL if it exists
-                                  if (audio.src.startsWith('blob:')) {
-                                      URL.revokeObjectURL(audio.src);
-                                  }
-                             }
-                        });
-                         playingAudios = playingAudios.filter(audio => !audiosToStop.includes(audio)); // Clear the list
-                    }
-                }
-
-
-                function clearAllSoundsLogic(instantMute = false) {
-                    const wasPlaying = playingAudios.length > 0;
-                    stopAllAudios(instantMute ? 100 : 0); // Stop currently playing sounds
-                    clearAllLocalSoundsDb().then(() => {
-                        renderLocalSounds(); // Re-render the empty list
-                        showStatus('ALL LOCAL SOUNDS CLEARED.', 'success');
-                    }).catch(error => {
-                        console.error("Error clearing IndexedDB:", error);
-                        showStatus('ERROR CLEARING LOCAL SOUNDS.', 'error');
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'button-control edit-btn';
+                    editBtn.innerHTML = '✏️';
+                    editBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openEditModal(sound.id);
                     });
-                     if (instantMute) closeOptionsMenu();
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'button-control delete-btn';
+                    deleteBtn.innerHTML = '🗑️';
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openDeleteConfirmation(sound.id);
+                    });
+
+                    buttonControls.appendChild(editBtn);
+                    buttonControls.appendChild(deleteBtn);
+                    button.appendChild(buttonControls);
+
+                    // Event listeners for drag and drop functionality
+                    button.setAttribute('draggable', editMode);
+                    button.addEventListener('dragstart', handleDragStart);
+                    button.addEventListener('dragover', handleDragOver);
+                    button.addEventListener('dragenter', handleDragEnter);
+                    button.addEventListener('dragleave', handleDragLeave);
+                    button.addEventListener('drop', handleDrop);
+                    button.addEventListener('dragend', handleDragEnd);
+
+                    // Play sound on click (but not in edit mode)
+                    button.addEventListener('click', () => {
+                        if (!editMode) {
+                            playSound(sound);
+                        }
+                    });
+
+                    soundboard.appendChild(button);
+                });
+
+                // Update draggable state based on edit mode
+                const buttons = document.querySelectorAll('.sound-button');
+                buttons.forEach(button => {
+                    button.setAttribute('draggable', editMode);
+                });
+
+                // Toggle edit mode class
+                if (editMode) {
+                    soundboard.classList.add('edit-mode');
+                    editModeBtn.textContent = 'Done Editing';
+                    editModeBtn.classList.add('primary'); // Use primary class for consistency
+                    editModeBtn.classList.remove('secondary'); // Use secondary class for consistency
+                } else {
+                    soundboard.classList.remove('edit-mode');
+                    editModeBtn.textContent = 'Edit Layout';
+                    editModeBtn.classList.add('secondary'); // Use secondary class for consistency
+                    editModeBtn.classList.remove('primary'); // Use primary class for consistency
                 }
+            }
+
+            // Setup event listeners
+            function setupEventListeners() {
+                addSoundBtn.addEventListener('click', () => openAddModal());
+                emptyAddBtn.addEventListener('click', () => openAddModal());
+                editModeBtn.addEventListener('click', toggleEditMode);
+                exportBtn.addEventListener('click', exportSoundboard);
+                importBtn.addEventListener('click', importSoundboard);
+
+                // Modal events
+                modalClose.addEventListener('click', closeModal);
+                confirmClose.addEventListener('click', closeConfirmModal);
+                cancelBtn.addEventListener('click', closeModal);
+                cancelDeleteBtn.addEventListener('click', closeConfirmModal);
+                confirmDeleteBtn.addEventListener('click', deleteSound);
+
+                // Form submission
+                soundForm.addEventListener('submit', handleFormSubmit);
+
+                // Color picker
+                colorOptions.forEach(option => {
+                    option.addEventListener('click', () => {
+                        // Remove selected class from all options
+                        colorOptions.forEach(opt => opt.classList.remove('selected'));
+                        // Add selected class to clicked option
+                        option.classList.add('selected');
+                        selectedColor = option.getAttribute('data-color');
+                    });
+                });
+            }
+
+            // Toggle edit mode
+            function toggleEditMode() {
+                editMode = !editMode;
+                renderSoundboard();
+                 showStatus(`EDIT MODE: ${editMode ? 'ON' : 'OFF'}`, 'info'); // Added status message
+            }
+
+            // Play a sound
+            function playSound(sound) {
+                if (!sound.audioData) return;
+
+                // Stop currently playing sound if exists and overlay is not checked (assuming a local overlay setting)
+                 // You might want to add an options menu and checkbox similar to soundboard.html
+                 const soundOverlayEnabled = false; // Placeholder for a setting
+                 if (!soundOverlayEnabled && currentlyPlaying) {
+                     currentlyPlaying.audio.pause();
+                     currentlyPlaying.audio.currentTime = 0;
+                     const playingButton = document.querySelector(`.sound-button[data-id="${currentlyPlaying.id}"]`);
+                     if (playingButton) playingButton.classList.remove('playing');
+                 }
 
 
-                 function fastClicker() {
-                    if (currentlyHoveredButton && autoClickerCheckbox.checked) {
-                         // Simulate click on the button wrapper, which contains the sound button
-                         const soundButton = currentlyHoveredButton.querySelector('.sound-button');
-                         if (soundButton) {
-                             soundButton.click();
-                         }
-                        requestAnimationFrameId = requestAnimationFrame(fastClicker);
-                    }
-                }
+                // Create audio from base64 data
+                const audio = new Audio(sound.audioData);
 
-                function startAutoClicker() {
-                    stopAutoClicker();
-                    const delay = parseInt(autoClickDelayInput.value, 10) || 0;
-                     // Check if manage mode is active - auto-clicker should not work in manage mode
-                     if (!currentlyHoveredButton || !autoClickerCheckbox.checked || manageModeActive) return;
+                // Add playing class to button
+                const button = document.querySelector(`.sound-button[data-id="${sound.id}"]`);
+                if (button) button.classList.add('playing');
+
+                // Set current playing sound if overlay is not enabled
+                 if (!soundOverlayEnabled) {
+                     currentlyPlaying = {
+                         id: sound.id,
+                         audio: audio
+                     };
+                 }
 
 
-                    if (delay === 0) {
-                        requestAnimationFrameId = requestAnimationFrame(fastClicker);
+                // Play the sound
+                audio.play()
+                 .catch(err => {
+                     console.error(`Error playing sound "${sound.name}":`, err);
+                     showStatus(`CANNOT PLAY: ${sound.name}`, 'error'); // Added status message
+                     if (!soundOverlayEnabled) currentlyPlaying = null;
+                     if (button) button.classList.remove('playing');
+                 });
+
+
+                // Remove playing class when sound ends
+                audio.addEventListener('ended', () => {
+                    if (button) button.classList.remove('playing');
+                     if (!soundOverlayEnabled && currentlyPlaying && currentlyPlaying.id === sound.id) {
+                         currentlyPlaying = null;
+                     }
+                });
+            }
+
+            // Open add sound modal
+            function openAddModal() {
+                modalTitle.textContent = 'Add New Sound';
+                editIdInput.value = '';
+                buttonNameInput.value = '';
+                soundFileInput.value = '';
+                currentFileLabel.textContent = '';
+                soundFileInput.required = true;
+
+                // Reset color selection
+                colorOptions.forEach(option => {
+                    if (option.getAttribute('data-color') === '#3498db') {
+                        option.classList.add('selected');
                     } else {
-                        autoClickInterval = setInterval(() => {
-                             if (currentlyHoveredButton && !manageModeActive) { // Check manage mode again
-                                 const soundButton = currentlyHoveredButton.querySelector('.sound-button');
-                                  if (soundButton) {
-                                      soundButton.click();
-                                  }
-                             } else {
-                                 stopAutoClicker();
-                             }
-                        }, delay);
+                        option.classList.remove('selected');
                     }
+                });
+                selectedColor = '#3498db';
+
+                soundModal.style.display = 'flex';
+                 soundModal.classList.remove('fade-out');
+                 soundModal.querySelector('.modal-content').classList.remove('fade-out');
+            }
+
+            // Open edit sound modal
+            function openEditModal(id) {
+                const sound = sounds.find(s => s.id === id);
+                if (!sound) return;
+
+                modalTitle.textContent = 'Edit Sound';
+                editIdInput.value = sound.id;
+                buttonNameInput.value = sound.name;
+                currentFileLabel.textContent = 'Current file will be kept unless you select a new one';
+                soundFileInput.required = false;
+
+                // Set color selection
+                colorOptions.forEach(option => {
+                    if (option.getAttribute('data-color') === sound.color) {
+                        option.classList.add('selected');
+                    } else {
+                        option.classList.remove('selected');
+                    }
+                });
+                selectedColor = sound.color;
+
+                soundModal.style.display = 'flex';
+                 soundModal.classList.remove('fade-out');
+                 soundModal.querySelector('.modal-content').classList.remove('fade-out');
+            }
+
+            // Close modal
+            function closeModal() {
+                 soundModal.classList.add('fade-out');
+                 soundModal.querySelector('.modal-content').classList.add('fade-out');
+                 setTimeout(() => {
+                     soundModal.style.display = 'none';
+                     soundForm.reset();
+                     soundModal.classList.remove('fade-out');
+                     soundModal.querySelector('.modal-content').classList.remove('fade-out');
+                 }, 300); // Match animation duration
+            }
+
+            // Open delete confirmation modal
+            function openDeleteConfirmation(id) {
+                currentDeleteId = id;
+                confirmModal.style.display = 'flex';
+                 confirmModal.classList.remove('fade-out');
+                 confirmModal.querySelector('.modal-content').classList.remove('fade-out');
+            }
+
+            // Close confirmation modal
+            function closeConfirmModal() {
+                 confirmModal.classList.add('fade-out');
+                 confirmModal.querySelector('.modal-content').classList.add('fade-out');
+                 setTimeout(() => {
+                     confirmModal.style.display = 'none';
+                     currentDeleteId = null;
+                     confirmModal.classList.remove('fade-out');
+                     confirmModal.querySelector('.modal-content').classList.remove('fade-out');
+                 }, 300); // Match animation duration
+            }
+
+            // Delete a sound
+            function deleteSound() {
+                if (currentDeleteId) {
+                    sounds = sounds.filter(sound => sound.id !== currentDeleteId);
+                    saveSounds();
+                    closeConfirmModal();
+                     showStatus('SOUND DELETED', 'success'); // Added status message
                 }
+            }
 
-                function stopAutoClicker() {
-                    if (autoClickInterval) {
-                        clearInterval(autoClickInterval);
-                        autoClickInterval = null;
-                    }
-                    if (requestAnimationFrameId) {
-                        cancelAnimationFrame(requestAnimationFrameId);
-                        requestAnimationFrameId = null;
-                    }
-                }
+            // Handle form submission (add/edit sound)
+            async function handleFormSubmit(e) {
+                e.preventDefault();
 
-                 function applyAutoClickerDelay() {
-                    const delay = parseInt(autoClickDelayInput.value, 10);
-                    if (isNaN(delay) || delay < 0) {
-                        autoClickDelayInput.value = 0;
-                    }
-                    localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
-                    if (autoClickerCheckbox.checked && currentlyHoveredButton && !manageModeActive) { // Check manage mode
-                        startAutoClicker();
-                    }
-                     showStatus(`AUTO CLICK DELAY SET TO ${autoClickDelayInput.value}MS`, 'info');
-                }
+                const id = editIdInput.value || generateId();
+                const name = buttonNameInput.value;
+                const file = soundFileInput.files[0];
 
-                function applyPlaybackSpeedToAudio(audioElement) {
-                    if (audioElement) {
-                        audioElement.playbackRate = currentPlaybackSpeed;
-                    }
-                }
+                // Find existing sound if editing
+                const existingSound = sounds.find(s => s.id === id);
 
-                // --- Render Local Sounds ---
-                async function renderLocalSounds() {
-                    const localSoundsContainer = document.getElementById('localSoundsContainer');
-                    if (!localSoundsContainer) return;
+                let audioData = existingSound ? existingSound.audioData : null;
 
-                     localSoundsContainer.innerHTML = '<p id="loadingMessage">LOADING LOCAL SOUNDS...</p>'; // Show loading message
-
+                // Process new file if provided
+                if (file) {
                     try {
-                        const sounds = await getSounds();
-                        localSoundsContainer.innerHTML = ''; // Clear loading message
-
-                        if (sounds.length === 0) {
-                            localSoundsContainer.innerHTML = '<p>NO LOCAL SOUNDS FOUND. UPLOAD SOME!</p>';
-                            return;
-                        }
-
-                        sounds.forEach(sound => {
-                             // Create a wrapper for the button and actions
-                             const wrapper = document.createElement('div');
-                             wrapper.classList.add('sound-button-wrapper');
-                             wrapper.dataset.soundId = sound.id; // Store sound ID on the wrapper
-
-                            const button = document.createElement('button');
-                            button.classList.add('sound-button');
-                            button.textContent = sound.name || `Sound ${sound.id}`;
-                            if ((sound.name || '').length < 10) button.classList.add('short-text');
-
-
-                             // Event listener for playing the sound
-                            button.addEventListener('click', () => {
-                                if (manageModeActive) return; // Do nothing if in manage mode
-                                if (!soundOverlayCheckbox.checked) {
-                                    stopAllAudios();
-                                }
-                                // Create Object URL from Blob and play
-                                 const audioBlob = new Blob([sound.data], { type: sound.type }); // Assuming sound.data is the Blob/ArrayBuffer
-                                 const audioUrl = URL.createObjectURL(audioBlob);
-
-                                try {
-                                    const audio = new Audio(audioUrl);
-                                    applyPlaybackSpeedToAudio(audio);
-                                    audio.addEventListener('ended', () => {
-                                        playingAudios = playingAudios.filter(a => a !== audio);
-                                         URL.revokeObjectURL(audioUrl); // Revoke the URL after playing
-                                    });
-                                    audio.addEventListener('error', (e) => {
-                                         console.error(`Error playing sound "${sound.name}":`, e);
-                                         showStatus(`CANNOT PLAY: ${sound.name}`, 'error');
-                                         playingAudios = playingAudios.filter(a => a !== audio);
-                                          URL.revokeObjectURL(audioUrl); // Revoke on error
-                                    });
-
-                                    playingAudios.push(audio);
-                                    audio.play()
-                                        .catch(err => {
-                                            console.error(`Error playing sound "${sound.name}":`, err);
-                                            showStatus(`CANNOT PLAY: ${sound.name}`, 'error');
-                                            playingAudios = playingAudios.filter(a => a !== audio);
-                                             URL.revokeObjectURL(audioUrl); // Revoke on play error
-                                        });
-                                } catch (e) {
-                                    console.error(`Error creating audio object for "${sound.name}":`, e);
-                                    showStatus(`ERROR LOADING: ${sound.name}`, 'error');
-                                    if (audioUrl) URL.revokeObjectURL(audioUrl); // Revoke if audio creation failed
-                                }
-                            });
-
-                             // Hover/Leave for Auto-clicker (on the wrapper)
-                            wrapper.addEventListener('mouseenter', () => {
-                                currentlyHoveredButton = wrapper; // Set the wrapper as currently hovered
-                                if (autoClickerCheckbox.checked && !manageModeActive) startAutoClicker();
-                            });
-                            wrapper.addEventListener('mouseleave', () => {
-                                if (currentlyHoveredButton === wrapper) {
-                                    currentlyHoveredButton = null;
-                                    stopAutoClicker();
-                                }
-                            });
-
-
-                            wrapper.appendChild(button); // Add button to wrapper
-
-
-                            // --- Action Buttons (Edit/Delete) ---
-                             const actionsDiv = document.createElement('div');
-                             actionsDiv.classList.add('sound-actions');
-
-                             const editButton = document.createElement('button');
-                             editButton.classList.add('sound-action-btn', 'edit-btn');
-                             editButton.innerHTML = '<i class="fas fa-edit"></i>'; // Edit icon
-                             editButton.title = 'Rename';
-                             editButton.addEventListener('click', () => openRenameModal(sound.id, sound.name));
-
-
-                             const deleteButton = document.createElement('button');
-                             deleteButton.classList.add('sound-action-btn', 'delete-btn');
-                             deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Delete icon
-                             deleteButton.title = 'Delete';
-                             deleteButton.addEventListener('click', () => deleteLocalSound(sound.id, sound.name));
-
-
-                             actionsDiv.appendChild(editButton);
-                             actionsDiv.appendChild(deleteButton);
-
-                             wrapper.appendChild(actionsDiv); // Add actions to wrapper
-
-                             localSoundsContainer.appendChild(wrapper); // Add wrapper to container
-
-                             // Add 'manage-mode' class to wrapper if manage mode is active
-                             if (manageModeActive) {
-                                 wrapper.classList.add('manage-mode');
-                             }
-                        });
+                         audioData = await readFileAsDataURL(file);
                     } catch (error) {
-                        console.error("Error fetching sounds from IndexedDB:", error);
-                         localSoundsContainer.innerHTML = '<p style="color: var(--error-color);">ERROR LOADING LOCAL SOUNDS.</p>';
+                         showStatus('ERROR READING FILE', 'error'); // Added status message
+                         console.error("Error reading file:", error);
+                         return; // Stop submission if file reading fails
                     }
                 }
 
+                // Validate if we have audio data
+                if (!audioData) {
+                    alert('Please select an audio file'); // Consider using the status message system
+                     showStatus('PLEASE SELECT AN AUDIO FILE', 'warning'); // Added status message
+                    return;
+                }
 
-                // --- File Upload Handling ---
-                fileInput.addEventListener('change', async (event) => {
-                    const files = event.target.files;
-                    if (files.length === 0) return;
+                const soundData = {
+                    id,
+                    name,
+                    audioData,
+                    color: selectedColor,
+                    timestamp: Date.now()
+                };
 
-                    const addedCount = 0;
-                    for (const file of files) {
-                        if (file.type !== 'audio/mpeg') { // Check for MP3 type
-                            showStatus(`SKIPPING NON-MP3 FILE: ${file.name}`, 'info');
-                            continue;
-                        }
+                // Update or add the sound
+                if (existingSound) {
+                    const index = sounds.findIndex(s => s.id === id);
+                    sounds[index] = soundData;
+                     showStatus('SOUND UPDATED', 'success'); // Added status message
+                } else {
+                    sounds.push(soundData);
+                     showStatus('SOUND ADDED', 'success'); // Added status message
+                }
 
-                        const reader = new FileReader();
-                        reader.onload = async (e) => {
-                            // Store the file data (e.target.result is ArrayBuffer) and metadata
-                            const soundData = {
-                                id: Date.now() + Math.random().toString(36).substring(2, 9), // Simple unique ID
-                                name: file.name.replace('.mp3', ''),
-                                data: e.target.result, // ArrayBuffer of the file
-                                type: file.type // Mime type (audio/mpeg)
-                            };
+                saveSounds();
+                closeModal();
+            }
 
-                            try {
-                                await addSound(soundData);
-                                showStatus(`ADDED SOUND: ${soundData.name}`, 'success');
-                                renderLocalSounds(); // Re-render the list after adding
-                            } catch (error) {
-                                console.error(`Error adding sound ${file.name} to IndexedDB:`, error);
-                                showStatus(`FAILED TO ADD SOUND: ${file.name}`, 'error');
+            // Generate a unique ID
+            function generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+            }
+
+            // Read file as data URL
+            function readFileAsDataURL(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Export soundboard
+            function exportSoundboard() {
+                const dataStr = JSON.stringify(sounds);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'localsoundboard_export.json';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                 showStatus('SOUNDBOARD EXPORTED', 'info'); // Added status message
+            }
+
+            // Import soundboard
+            function importSoundboard() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+
+                input.onchange = (event) => {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const importedSounds = JSON.parse(e.target.result);
+                            if (Array.isArray(importedSounds)) {
+                                if (confirm('This will replace your current soundboard. Continue?')) {
+                                    sounds = importedSounds;
+                                    saveSounds();
+                                     showStatus('SOUNDBOARD IMPORTED', 'success'); // Added status message
+                                } else {
+                                     showStatus('IMPORT CANCELLED', 'info'); // Added status message
+                                }
+                            } else {
+                                alert('Invalid soundboard file format'); // Consider using status message
+                                 showStatus('INVALID FILE FORMAT', 'error'); // Added status message
                             }
-                        };
-                         reader.onerror = (e) => {
-                              console.error(`Error reading file ${file.name}:`, e);
-                              showStatus(`ERROR READING FILE: ${file.name}`, 'error');
-                         };
+                        } catch (error) {
+                            alert('Error importing soundboard: ' + error.message); // Consider using status message
+                             showStatus('ERROR IMPORTING SOUNDBOARD', 'error'); // Added status message
+                            console.error("Error importing soundboard:", error);
+                        }
+                    };
+                    reader.readAsText(file);
+                };
 
-                        reader.readAsArrayBuffer(file); // Read file as ArrayBuffer for IndexedDB
-                    }
-                     // Reset the file input so the same file can be selected again if needed
-                     fileInput.value = '';
+                input.click();
+            }
+
+            // Drag and drop functionality
+            function handleDragStart(e) {
+                if (!editMode) return;
+
+                draggedItem = e.target;
+                draggedItemIndex = [...soundboard.children].indexOf(draggedItem);
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', draggedItem.innerHTML);
+
+                setTimeout(() => {
+                    draggedItem.style.opacity = '0.4';
+                }, 0);
+            }
+
+            function handleDragOver(e) {
+                if (!editMode) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                return false;
+            }
+
+            function handleDragEnter(e) {
+                if (!editMode) return;
+                this.classList.add('over');
+            }
+
+            function handleDragLeave(e) {
+                if (!editMode) return;
+                this.classList.remove('over');
+            }
+
+            function handleDrop(e) {
+                if (!editMode || !draggedItem) return;
+
+                e.stopPropagation();
+                e.preventDefault();
+
+                // Remove highlight
+                this.classList.remove('over');
+
+                // Get the target index
+                const targetIndex = [...soundboard.children].indexOf(this);
+
+                // Reorder sounds array
+                const [movedSound] = sounds.splice(draggedItemIndex, 1);
+                sounds.splice(targetIndex, 0, movedSound);
+
+                // Save and update UI
+                saveSounds();
+                 showStatus('LAYOUT UPDATED', 'info'); // Added status message
+
+
+                return false;
+            }
+
+            function handleDragEnd(e) {
+                if (!editMode) return;
+
+                // Clean up
+                this.style.opacity = '1';
+
+                document.querySelectorAll('.sound-button').forEach(button => {
+                    button.classList.remove('over');
                 });
 
-
-                // --- Delete Sound ---
-                 async function deleteLocalSound(id, name) {
-                     if (confirm(`ARE YOU SURE YOU WANT TO DELETE "${name}"?`)) {
-                         try {
-                             stopAllAudios(); // Stop any playing sounds before deleting
-                             await deleteSound(id);
-                             showStatus(`DELETED SOUND: ${name}`, 'success');
-                             renderLocalSounds(); // Re-render the list after deleting
-                         } catch (error) {
-                             console.error(`Error deleting sound ${name}:`, error);
-                             showStatus(`FAILED TO DELETE SOUND: ${name}`, 'error');
-                         }
-                     }
-                 }
-
-                 // --- Rename Sound Modal ---
-                 function openRenameModal(id, currentName) {
-                     soundIdToRename = id;
-                     renameInput.value = currentName;
-                     renameModal.style.display = 'block';
-                      overlay.classList.add('fade-in'); // Show overlay
-                     overlay.style.display = 'block';
-                 }
-
-                 function closeRenameModal() {
-                     soundIdToRename = null;
-                     renameInput.value = '';
-                     renameModal.style.display = 'none';
-                     overlay.classList.remove('fade-in'); // Hide overlay
-                      overlay.classList.add('fade-out');
-                       setTimeout(() => {
-                            overlay.style.display = 'none';
-                            overlay.classList.remove('fade-out');
-                        }, 300);
-                 }
-
-                 saveRenameBtn.addEventListener('click', async () => {
-                     const newName = renameInput.value.trim();
-                     if (soundIdToRename && newName) {
-                         try {
-                             await updateSoundName(soundIdToRename, newName);
-                             showStatus(`RENAMED SOUND TO "${newName}"`, 'success');
-                             renderLocalSounds(); // Re-render the list
-                             closeRenameModal();
-                         } catch (error) {
-                             console.error(`Error renaming sound ${soundIdToRename}:`, error);
-                             showStatus(`FAILED TO RENAME SOUND`, 'error');
-                             closeRenameModal();
-                         }
-                     } else {
-                         showStatus('NEW NAME CANNOT BE EMPTY.', 'info');
-                     }
-                 });
-
-                 cancelRenameBtn.addEventListener('click', closeRenameModal);
-
-                  // Close modal if overlay is clicked
-                  overlay.addEventListener('click', (event) => {
-                      // Check if the click target is the overlay itself, not the modal
-                       if (event.target === overlay) {
-                           // Only close rename modal if it's open
-                           if (renameModal.style.display === 'block') {
-                               closeRenameModal();
-                           }
-                            // Note: Options menu close is handled separately
-                       }
-                  });
-
-
-                 // --- Options Menu Functionality ---
-                 optionsButton.addEventListener('click', function(e) {
-                     e.stopPropagation(); // Prevent click from bubbling to document/overlay
-                     menuIsOpen ? closeOptionsMenu() : openOptionsMenu();
-                 });
-                 // Close menu if clicked outside (handled by overlay click listener above or separate document click)
-                  document.addEventListener('click', (event) => {
-                      if (menuIsOpen && !optionsMenu.contains(event.target) && event.target !== optionsButton) {
-                          closeOptionsMenu();
-                      }
-                  });
-
-
-                 // --- Playback and Auto-clicker Options ---
-                soundOverlayCheckbox.addEventListener('change', function() {
-                    if (!this.checked) stopAllAudios();
-                    localStorage.setItem('soundOverlay', this.checked);
-                    showStatus(`SOUND OVERLAY: ${this.checked ? 'ON' : 'OFF'}`, 'info');
-                });
-
-                autoClickerCheckbox.addEventListener('change', function() {
-                    autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
-                     // Start/stop auto-clicker based on checkbox state and manage mode
-                    if (this.checked && currentlyHoveredButton && !manageModeActive) {
-                        startAutoClicker();
-                    } else {
-                        stopAutoClicker();
-                    }
-                    localStorage.setItem('autoClicker', this.checked);
-                    showStatus(`AUTO CLICKER: ${this.checked ? 'ON' : 'OFF'}`, 'info');
-                });
-
-                autoClickDelayInput.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        applyAutoClickerDelay();
-                    }
-                });
-                applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
-
-                playbackSpeedSelect.addEventListener('change', function() {
-                    currentPlaybackSpeed = parseFloat(this.value);
-                    localStorage.setItem('playbackSpeed', currentPlaybackSpeed.toString());
-                    playingAudios.forEach(applyPlaybackSpeedToAudio);
-                    showStatus(`PLAYBACK SPEED SET TO ${currentPlaybackSpeed}X`, 'info');
-                });
-
-                 // --- Manage Mode Toggle ---
-                 manageModeCheckbox.addEventListener('change', function() {
-                     manageModeActive = this.checked;
-                     const localSoundsContainer = document.getElementById('localSoundsContainer');
-                     if (localSoundsContainer) {
-                         if (manageModeActive) {
-                              localSoundsContainer.classList.add('manage-mode');
-                              stopAutoClicker(); // Stop auto-clicker in manage mode
-                         } else {
-                              localSoundsContainer.classList.remove('manage-mode');
-                              // Restart auto-clicker if active and not in manage mode anymore
-                              if (autoClickerCheckbox.checked && currentlyHoveredButton) {
-                                 startAutoClicker();
-                              }
-                         }
-                          // Re-render to show/hide icons based on manage mode class
-                          renderLocalSounds(); // This will recreate buttons with/without action icons
-                     }
-                      showStatus(`MANAGE MODE: ${manageModeActive ? 'ON' : 'OFF'}`, 'info');
-                 });
-
-
-                 // --- Clear All Sounds Button ---
-                 clearAllSoundsBtn.addEventListener('click', function(e) {
-                    createRipple(e); // Ripple effect on the button
-                     // Remove the 'active' class animation as it clashes with the new style
-                     // this.classList.add('active');
-                     // setTimeout(() => this.classList.remove('active'), 400);
-
-                    clearAllSoundsLogic(false); // Clear sounds from DB and stop playing
-                 });
-
-                 // --- Keyboard Shortcut (Shift + C) ---
-                document.addEventListener('keydown', function(e) {
-                    if (e.shiftKey && (e.key.toLowerCase() === 'c' || e.code.toLowerCase() === 'keyc')) {
-                         // Ensure we are not in an input field or modal before triggering
-                         if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA' &&
-                              !renameModal.contains(document.activeElement) && !optionsMenu.contains(document.activeElement)
-                         ) {
-                              e.preventDefault(); // Prevent default browser actions
-                              stopAllAudios(true); // Mute and stop all playing sounds
-                              // No need to clear local sounds DB with this shortcut, only stops playback
-                              showStatus('ALL SOUNDS MUTED AND STOPPED.', 'success'); // Uppercase status
-                         }
-                    }
-                });
-
-
-                 // --- Load Preferences ---
-                 (function loadPreferences() {
-                     if (localStorage.getItem('soundOverlay') === 'true') soundOverlayCheckbox.checked = true;
-                     if (localStorage.getItem('autoClicker') === 'true') {
-                         autoClickerCheckbox.checked = true;
-                         autoClickDelayLabel.style.display = 'block';
-                     }
-                     const savedDelay = localStorage.getItem('autoClickDelay');
-                     if (savedDelay !== null) autoClickDelayInput.value = savedDelay;
-
-                     const savedPlaybackSpeed = localStorage.getItem('playbackSpeed');
-                     if (savedPlaybackSpeed !== null) {
-                         currentPlaybackSpeed = parseFloat(savedPlaybackSpeed);
-                         playbackSpeedSelect.value = currentPlaybackSpeed.toString();
-                     } else {
-                         playbackSpeedSelect.value = "1"; // Default to 1x if nothing saved
-                         currentPlaybackSpeed = 1.0;
-                     }
-
-                     // Load manage mode preference
-                     if (localStorage.getItem('manageMode') === 'true') {
-                         manageModeCheckbox.checked = true;
-                         manageModeActive = true;
-                     }
-
-                      // Apply initial playback speed to any potential audios (though none on load usually)
-                      playingAudios.forEach(applyPlaybackSpeedToAudio);
-
-                 })();
-
-                  // Save manage mode preference on change
-                 manageModeCheckbox.addEventListener('change', function() {
-                     localStorage.setItem('manageMode', this.checked);
-                 });
-
-
-                // --- Logout Functionality ---
-                const logoutButtonElement = document.getElementById('logoutBtn');
-                 if (logoutButtonElement && typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined') {
-                     logoutButtonElement.addEventListener('click', function() {
-                         firebase.auth().signOut().then(() => {
-                             console.log("User logged out.");
-                             window.location.href = 'index.html'; // Redirect to index after logout
-                         }).catch(error => {
-                             console.error("Logout Error:", error);
-                             alert("Error logging out. Please try again.");
-                         });
-                     });
-                 } else if (logoutButtonElement) {
-                     // Hide logout button if Firebase Auth is not available
-                     logoutButtonElement.classList.add('hidden');
-                 } else {
-                     console.error("Logout button element not found.");
-                 }
-             } // End of setupEventListeners
-        }); // End of DOMContentLoaded
+                draggedItem = null;
+                draggedItemIndex = null;
+            }
+        });
     </script>
 </body>
 
