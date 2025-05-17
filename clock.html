@@ -9,6 +9,9 @@
      <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
      <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
      <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
 
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -98,20 +101,17 @@
             padding-top: 80px; /* Default padding for fixed navbar */
             padding-bottom: 60px; /* Default padding for fixed footer */
 
-             /* Prevent scrolling when clock is fullscreened */
+             /* Allow scrolling vertically for content */
              overflow-y: auto;
         }
 
-         /* Styles for the body when clock is in simulated fullscreen */
-        body.fullscreen-clock-active {
-             overflow: hidden; /* Hide scrollbars */
-             padding-top: 0; /* Remove body padding */
-             padding-bottom: 0;
-             background-image: none; /* Remove grid background */
-        }
-         body.fullscreen-clock-active .navbar,
-         body.fullscreen-clock-active main,
-         body.fullscreen-clock-active footer {
+         /* Hide elements when clock display is in native fullscreen */
+         :fullscreen .navbar,
+         :-webkit-full-screen .navbar,
+         :fullscreen main .container:not(#clock-display),
+         :-webkit-full-screen main .container:not(#clock-display),
+         :fullscreen footer,
+         :-webkit-full-screen footer {
              display: none !important; /* Hide other elements */
          }
 
@@ -257,28 +257,25 @@
              box-shadow: 0 4px 12px var(--clock-shadow);
              /* Add transitions for properties that change in fullscreen */
              transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease,
-                         position 0.5s ease, top 0.5s ease, left 0.5s ease, width 0.5s ease, height 0.5s ease,
+                         width 0.5s ease, height 0.5s ease,
                          font-size 0.5s ease, padding 0.5s ease, border-radius 0.5s ease;
              display: flex;
              flex-direction: column;
              gap: 0.5rem; /* Space between date and time */
              z-index: 50; /* Default z-index */
              position: relative; /* Needed for z-index to work relative to siblings */
-             transform: translate(0, 0); /* Base transform for animation */
+             /* Remove transform/top/left as native fullscreen handles positioning */
         }
          /* Text Alignment Classes */
          #clock-display.align-left { text-align: left; }
          #clock-display.align-center { text-align: center; }
          #clock-display.align-right { text-align: right; }
 
-         /* Styles for clock display when in simulated fullscreen */
-        body.fullscreen-clock-active #clock-display {
-             position: fixed; /* Take over the viewport */
-             top: 0;
-             left: 0;
-             width: 100vw;
-             height: 100vh;
-             z-index: 9999; /* Ensure it's on top */
+         /* Styles for clock display when in native fullscreen */
+        #clock-display:fullscreen,
+        #clock-display:-webkit-full-screen {
+             width: 100vw; /* Fill viewport width */
+             height: 100vh; /* Fill viewport height */
              margin: 0; /* Remove margin */
              border-radius: 0; /* Fullscreen should have no border-radius */
              padding: 20px; /* Add some padding in fullscreen */
@@ -289,13 +286,19 @@
              text-align: center !important; /* Force center alignment in fullscreen */
              box-shadow: none; /* Remove shadow in fullscreen */
              gap: 20px; /* Larger gap in fullscreen */
+             /* Inherit theme colors */
+             background-color: var(--clock-bg);
+             color: var(--clock-text);
+             border: none; /* Remove border in fullscreen */
         }
 
          /* Adjust font sizes in fullscreen */
-        body.fullscreen-clock-active #clock-display #clock-date {
+        #clock-display:fullscreen #clock-date,
+        #clock-display:-webkit-full-screen #clock-date {
              font-size: 3rem; /* Larger date font in fullscreen */
         }
-        body.fullscreen-clock-active #clock-display #clock-time {
+        #clock-display:fullscreen #clock-time,
+        #clock-display:-webkit-full-screen #clock-time {
              font-size: 12rem; /* Much larger time font in fullscreen */
         }
 
@@ -496,12 +499,6 @@
                  padding-bottom: 80px; /* Adjust padding for footer */
                  overflow-y: auto; /* Re-enable scroll for responsive layout */
             }
-             body.fullscreen-clock-active {
-                  padding-top: 0;
-                  padding-bottom: 0;
-                   overflow: hidden; /* Hide scrollbars when fullscreen */
-             }
-
 
              main {
                  padding: 1.5rem 10px;
@@ -527,14 +524,17 @@
               }
 
                /* Adjust font sizes in fullscreen (responsive) */
-              body.fullscreen-clock-active #clock-display {
+              #clock-display:fullscreen,
+              #clock-display:-webkit-full-screen {
                    padding: 15px; /* Adjust padding in fullscreen */
                    gap: 15px; /* Adjust gap */
               }
-             body.fullscreen-clock-active #clock-display #clock-date {
+             #clock-display:fullscreen #clock-date,
+             #clock-display:-webkit-full-screen #clock-date {
                  font-size: 2rem; /* Responsive larger date */
              }
-             body.fullscreen-clock-active #clock-display #clock-time {
+             #clock-display:fullscreen #clock-time,
+             #clock-display:-webkit-full-screen #clock-time {
                  font-size: 8rem; /* Responsive larger time */
              }
 
@@ -611,12 +611,6 @@
                  padding-bottom: 100px; /* Adjust padding for footer */
                   overflow-y: auto; /* Re-enable scroll */
              }
-              body.fullscreen-clock-active {
-                   padding-top: 0;
-                   padding-bottom: 0;
-                   overflow: hidden; /* Hide scrollbars when fullscreen */
-              }
-
 
              main {
                  padding: 1rem 8px;
@@ -640,14 +634,17 @@
               }
 
                /* Adjust font sizes in fullscreen (responsive) */
-              body.fullscreen-clock-active #clock-display {
+              #clock-display:fullscreen,
+              #clock-display:-webkit-full-screen {
                   padding: 10px; /* Adjust padding in fullscreen */
                    gap: 10px; /* Adjust gap */
               }
-             body.fullscreen-clock-active #clock-display #clock-date {
+             #clock-display:fullscreen #clock-date,
+             #clock-display:-webkit-full-screen #clock-date {
                  font-size: 1.5rem; /* Responsive larger date */
              }
-             body.fullscreen-clock-active #clock-display #clock-time {
+             #clock-display:fullscreen #clock-time,
+             #clock-display:-webkit-full-screen #clock-time {
                  font-size: 6rem; /* Responsive larger time */
              }
 
@@ -727,6 +724,9 @@
                         <option value="Space Mono">Space Mono</option>
                         <option value="Share Tech Mono">Share Tech Mono</option>
                          <option value="Press Start 2P">Press Start 2P</option>
+                         <option value="Bebas Neue">Bebas Neue</option>
+                         <option value="Oswald">Oswald</option>
+                         <option value="Lato">Lato</option>
                         </select>
                 </div>
 
@@ -849,6 +849,8 @@
         let db; // Firestore instance
         let currentUser = null; // Current authenticated user
         const bodyEl = document.body; // Get body element once
+        const mainContentContainer = document.querySelector('main .container'); // Get the main container
+
 
         document.addEventListener('DOMContentLoaded', () => {
              // Initially hide logout button until user is confirmed authenticated
@@ -925,7 +927,7 @@
                  'monokai': {
                      bg: getComputedStyle(document.documentElement).getPropertyValue('--theme-monokai-bg').trim() || '#272822',
                      text: getComputedStyle(document.documentElement).getPropertyValue('--theme-monokai-text').trim() || '#f8f8f2',
-                     border: getComputedStyle(document.documentElement).getPropertyValue('--theme-monokai-border').trim() || '#f92672',
+                     border: getComputedStyle(document.documentElement).getPropertyValue('--theme-monokai-border').trim() || '#f92672', /* Pink accent */
                       shadow: 'rgba(249, 38, 114, 0.4)'
                  }
                  // Add more preset themes here
@@ -1044,7 +1046,7 @@
                           // Ensure old 'theme' property is handled if loading from older data
                            // This might be necessary if the structure changed
                          if (savedSettings.theme && !savedSettings.themeMode) {
-                             currentSettings.themeMode = savedSettings.theme === 'custom' ? 'custom' : 'preset';
+                             currentSettings.themeMode = savedSettings.theme === 'custom' ? 'custom' ? 'preset'; // Map old 'default' to new 'preset'
                              if (currentSettings.themeMode === 'preset' && !currentSettings.presetTheme) {
                                  currentSettings.presetTheme = 'default-light'; // Default preset if none saved with old theme
                              }
@@ -1131,7 +1133,7 @@
                      if (customBgColorInput) customBgColorInput.value = settings.customColors.bg;
                      if (customTextColorInput) customTextColorInput.value = settings.customColors.text;
                      if (customBorderColorInput) customBorderColorInput.value = settings.customColors.border;
-                     if (customShadowColorInput) customShadowColorInput.value = settings.customColors.shadow || '#000000'; // Default to black if missing
+                     if (customShadowColorInput) customShadowColorInput.value = settings.customColors.shadow ? rgbToHex(settings.customColors.shadow) : '#000000'; // Default to black if missing
 
                  } else { // themeMode is 'preset'
                       // Find the colors for the selected preset
@@ -1143,7 +1145,7 @@
                       if (customBgColorInput) customBgColorInput.value = presetColors.bg;
                       if (customTextColorInput) customTextColorInput.value = presetColors.text;
                       if (customBorderColorInput) customBorderColorInput.value = presetColors.border;
-                       if (customShadowColorInput) customShadowColorInput.value = presetColors.shadow ? rgbToHex(presetColors.shadow) : '#000000'; // Convert rgba to hex if necessary and update
+                       if (customShadowColorInput) customShadowColorInput.value = presetColors.shadow ? rgbToHex(presetColors.shadow) : '#000000'; // Convert rgba/rgb to hex if necessary and update
                  }
 
 
@@ -1160,7 +1162,7 @@
                       // Handle shadow separately as it's a box-shadow property
                       const shadowColor = colors.shadow || 'rgba(0, 0, 0, 0.08)'; // Fallback shadow
                       // If the shadow color is hex, ensure it includes alpha if needed for effect
-                      // For simplicity with color picker, let's just apply the hex color directly
+                      // For simplicity with color picker, let's just apply the color directly
                       clockDisplayEl.style.boxShadow = `0 4px 12px ${shadowColor}`;
                   } else { console.warn("Clock display element not found for applying colors."); }
              }
@@ -1385,34 +1387,63 @@
 
 
             // --- Fullscreen Button Listener ---
-             if (fullscreenBtn && bodyEl && clockDisplayEl) {
+             if (fullscreenBtn && clockDisplayEl) {
                  fullscreenBtn.addEventListener('click', () => {
-                     // Toggle the class on the body to activate/deactivate simulated fullscreen CSS
-                     bodyEl.classList.toggle('fullscreen-clock-active');
-
-                     // Update button text/icon
-                      if (bodyEl.classList.contains('fullscreen-clock-active')) {
-                         fullscreenBtn.textContent = 'Exit Fullscreen';
-                         fullscreenBtn.classList.add('exit-fullscreen'); // Add class for exit icon/style
-                         fullscreenBtn.classList.remove('btn-with-arrow'); // Remove arrow
-
-                      } else {
-                         fullscreenBtn.textContent = 'Fullscreen';
-                         fullscreenBtn.classList.remove('exit-fullscreen'); // Remove exit class
-                         fullscreenBtn.classList.add('btn-with-arrow'); // Add arrow back
-                      }
-
-                      // Reapply font sizes after the transition is complete,
-                      // or if the class changes immediately, the CSS transitions handle it.
-                      // If needed, you could listen for transitionend event on clockDisplayEl
-                      // to perform actions *after* the animation finishes.
-                      // For now, relying on CSS transitions.
+                     if (!document.fullscreenElement) {
+                         // Request fullscreen on the clock display element
+                          clockDisplayEl.requestFullscreen().catch(err => {
+                             console.error("Error attempting to enable fullscreen on clock element:", err);
+                             alert(`Error attempting to enable fullscreen: ${err.message} (Is it allowed by your browser/settings?)`);
+                         });
+                     } else {
+                         // Exit fullscreen from the document
+                         document.exitFullscreen();
+                     }
                  });
 
-                 // Note: The native Fullscreen API is not used for the clock element itself
-                 // with this animated simulated approach. The button only toggles the CSS class.
+                 // Listen for fullscreen changes on the document
+                 document.addEventListener('fullscreenchange', () => {
+                     if (document.fullscreenElement === clockDisplayEl) {
+                         // Clock display is now in fullscreen
+                          fullscreenBtn.textContent = 'Exit Fullscreen';
+                          fullscreenBtn.classList.add('exit-fullscreen'); // Add class for exit icon/style
+                          fullscreenBtn.classList.remove('btn-with-arrow'); // Remove arrow
 
-             } else { console.warn("Fullscreen button, body, or clock display element not found."); }
+                          // Hide other page elements
+                          if (document.querySelector('.navbar')) document.querySelector('.navbar').style.display = 'none';
+                          if (mainContentContainer) mainContentContainer.style.display = 'none'; // Hide the main container EXCEPT the clock
+                          if (document.querySelector('footer')) document.querySelector('footer').style.display = 'none';
+
+                          // Optionally, change body background in fullscreen
+                           bodyEl.style.backgroundColor = getComputedStyle(clockDisplayEl).getPropertyValue('--clock-bg');
+                           bodyEl.style.backgroundImage = 'none'; // Remove grid background
+                           bodyEl.style.overflowY = 'hidden'; // Hide body scroll
+
+                     } else {
+                         // Exiting fullscreen from the clock display
+                          fullscreenBtn.textContent = 'Fullscreen';
+                          fullscreenBtn.classList.remove('exit-fullscreen'); // Remove exit class
+                          fullscreenBtn.classList.add('btn-with-arrow'); // Add arrow back
+
+                           // Show other page elements again
+                          if (document.querySelector('.navbar')) document.querySelector('.navbar').style.display = ''; // Revert to default display (flex)
+                          if (mainContentContainer) mainContentContainer.style.display = 'flex'; // Revert to flex display
+                          if (document.querySelector('footer')) document.querySelector('footer').style.display = ''; // Revert to default display (block/flex)
+
+                          // Revert body background and overflow
+                           bodyEl.style.backgroundColor = ''; // Revert to CSS var
+                           bodyEl.style.backgroundImage = ''; // Revert to CSS var (grid)
+                           bodyEl.style.overflowY = 'auto'; // Re-enable body scroll
+
+
+                          // Reapply button styles as class changes might override
+                           fullscreenBtn.className = 'btn secondary'; // Reset classes
+                           fullscreenBtn.classList.add('btn-with-arrow'); // Add arrow back
+                           // The icon color transition should handle the color change automatically
+                     }
+                 });
+
+             } else { console.warn("Fullscreen button or clock display element not found."); }
 
 
             // --- Setup Logout Button Listener ---
