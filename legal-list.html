@@ -376,14 +376,12 @@
         <div class="nav-buttons">
             <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
             <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
-            <button id="logoutBtn" class="btn secondary hidden">Log Out</button>
         </div>
     </nav>
 
     <main class="container">
         <h1 class="page-title">Legal List</h1>
-        <h1 class="hidden" id="authNotice">PLEASE LOGIN TO ACCESS THE LEGAL DOCUMENTARY.</h1>
-
+        
         <div class="dashboard-grid" id="dashboardGrid">
             <a href="privacy.html" class="dashboard-tile">
                 <div class="tile-content">
@@ -409,41 +407,6 @@
     <script>
         // Display current year in footer
         document.getElementById('currentYear').textContent = new Date().getFullYear();
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Only hook up Log Out if Firebase Auth is present
-            if (window.firebase && firebase.auth) {
-                const auth = firebase.auth();
-                const logoutButton = document.getElementById('logoutBtn'); // Renamed to avoid conflict if other 'logoutBtn' exists
-                if (logoutButton) {
-                    // Remove any existing listeners before adding a new one
-                     const newLogoutButton = logoutButton.cloneNode(true);
-                     logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
-
-                     newLogoutButton.classList.remove('hidden'); // Show the logout button
-
-                    newLogoutButton.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        auth.signOut()
-                            .then(() => {
-                                console.log("User logged out.");
-                                window.location.href = 'index.html';
-                            })
-                            .catch(err => console.error('Logout error:', err));
-                    });
-                } else {
-                    console.error("Logout button element not found.");
-                }
-            } else {
-                console.warn("Firebase SDK or Auth not available. Logout button hidden.");
-                // Firebase not loaded — hide the Log Out button (already handled by initial HTML structure hidden class)
-                // const logoutBtn = document.getElementById('logoutBtn');
-                // if (logoutBtn) logoutBtn.classList.add('hidden');
-            }
-
-            // **No onAuthStateChanged listener, and no redirects on error.**
-            // The page will remain visible regardless of login state, as per the original code's intent.
-        });
     </script>
 </body>
 </html>
