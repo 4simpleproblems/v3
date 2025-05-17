@@ -451,10 +451,12 @@
             color: var(--text-color);
         }
 
-         .form-control[type="color"] {
-             padding: 5px; /* Smaller padding for color picker */
-             height: 40px; /* Consistent height */
-         }
+        .form-control[type="color"] {
+            padding: 5px;
+            /* Smaller padding for color picker */
+            height: 40px;
+            /* Consistent height */
+        }
 
 
         .form-actions {
@@ -466,10 +468,12 @@
 
         .color-picker {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)); /* Adjusted for flexibility */
+            grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+            /* Adjusted for flexibility */
             gap: 8px;
             margin-top: 8px;
-             max-width: 300px; /* Limit width */
+            max-width: 300px;
+            /* Limit width */
         }
 
         .color-option {
@@ -485,16 +489,19 @@
             border: 2px solid var(--accent-color);
         }
 
-         .text-color-options {
-             display: flex;
-             align-items: center;
-             gap: 15px; /* Space between options */
-         }
+        .text-color-options {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            /* Space between options */
+        }
 
-         .text-color-options label {
-             margin-bottom: 0; /* Remove bottom margin from label in flex container */
-             font-weight: normal; /* Less bold for individual options */
-         }
+        .text-color-options label {
+            margin-bottom: 0;
+            /* Remove bottom margin from label in flex container */
+            font-weight: normal;
+            /* Less bold for individual options */
+        }
 
         .empty-state {
             text-align: center;
@@ -946,6 +953,7 @@
 
         .overlay {
             display: none;
+            /* Ensure hidden by default */
             position: fixed;
             top: 0;
             left: 0;
@@ -971,7 +979,8 @@
             background-color: var(--footer-bg);
             text-transform: uppercase;
             width: 100%;
-             margin-top: auto; /* Push footer to the bottom */
+            margin-top: auto;
+            /* Push footer to the bottom */
         }
 
 
@@ -1184,22 +1193,22 @@
                     </div>
                 </div>
                 <div class="form-group">
-                     <label>Text Color</label>
-                     <div class="text-color-options">
-                         <label>
-                             <input type="radio" name="textColorOption" value="default" checked> Default
-                         </label>
-                         <label>
-                             <input type="radio" name="textColorOption" value="black"> Black
-                         </label>
-                         <label>
-                             <input type="radio" name="textColorOption" value="white"> White
-                         </label>
-                         <label>
-                              <input type="radio" name="textColorOption" value="custom"> Custom:
-                         </label>
-                         <input type="color" id="customTextColor" class="form-control" value="#333333">
-                     </div>
+                    <label>Text Color</label>
+                    <div class="text-color-options">
+                        <label>
+                            <input type="radio" name="textColorOption" value="default" checked> Default
+                        </label>
+                        <label>
+                            <input type="radio" name="textColorOption" value="black"> Black
+                        </label>
+                        <label>
+                            <input type="radio" name="textColorOption" value="white"> White
+                        </label>
+                        <label>
+                            <input type="radio" name="textColorOption" value="custom"> Custom:
+                        </label>
+                        <input type="color" id="customTextColor" class="form-control" value="#333333">
+                    </div>
                 </div>
 
                 <div class="form-actions">
@@ -1350,8 +1359,8 @@
                     button.setAttribute('data-id', sound.id);
                     button.style.backgroundColor = sound.color || '#3498db';
                     button.innerText = sound.name;
-                     // Apply text color
-                     button.style.color = sound.textColor || var(--sound-button-text);
+                    // Apply text color - use var(--sound-button-text) as default if not set
+                    button.style.color = sound.textColor || 'var(--sound-button-text)';
 
 
                     // Button controls for edit mode
@@ -1448,12 +1457,12 @@
 
                 // Text Color Options Listener
                 textColorOptions.forEach(option => {
-                     option.addEventListener('change', handleTextColorOptionChange);
+                    option.addEventListener('change', handleTextColorOptionChange);
                 });
-                 customTextColorInput.addEventListener('input', function() {
-                     // Automatically select custom option when color is picked
-                     document.querySelector('input[name="textColorOption"][value="custom"]').checked = true;
-                 });
+                customTextColorInput.addEventListener('input', function() {
+                    // Automatically select custom option when color is picked
+                    document.querySelector('input[name="textColorOption"][value="custom"]').checked = true;
+                });
 
 
                 // Options Menu Event Listeners
@@ -1501,17 +1510,17 @@
             }
 
             // Handle change in text color radio options
-             function handleTextColorOptionChange() {
-                 const selectedValue = document.querySelector('input[name="textColorOption"]:checked').value;
-                 if (selectedValue === 'default') {
-                     // Default color is handled in CSS by not setting an inline style
-                     customTextColorInput.style.display = 'none';
-                 } else if (selectedValue === 'custom') {
-                     customTextColorInput.style.display = 'inline-block';
-                 } else {
-                     customTextColorInput.style.display = 'none';
-                 }
-             }
+            function handleTextColorOptionChange() {
+                const selectedValue = document.querySelector('input[name="textColorOption"]:checked').value;
+                if (selectedValue === 'default') {
+                    // Default color is handled in CSS by not setting an inline style
+                    customTextColorInput.style.display = 'none';
+                } else if (selectedValue === 'custom') {
+                    customTextColorInput.style.display = 'inline-block';
+                } else {
+                    customTextColorInput.style.display = 'none';
+                }
+            }
 
 
             // Toggle edit mode
@@ -1643,10 +1652,10 @@
                 });
                 selectedButtonColor = '#3498db';
 
-                 // Reset text color selection to default
-                 document.querySelector('input[name="textColorOption"][value="default"]').checked = true;
-                 customTextColorInput.value = '#333333'; // Reset custom color picker value
-                 customTextColorInput.style.display = 'none'; // Hide custom color picker
+                // Reset text color selection to default
+                document.querySelector('input[name="textColorOption"][value="default"]').checked = true;
+                customTextColorInput.value = '#333333'; // Reset custom color picker value
+                customTextColorInput.style.display = 'none'; // Hide custom color picker
 
                 soundModal.style.display = 'flex';
                 soundModal.classList.remove('fade-out');
@@ -1675,21 +1684,21 @@
                 selectedButtonColor = sound.color;
 
                 // Set text color selection
-                 if (sound.textColor === 'black') {
-                     document.querySelector('input[name="textColorOption"][value="black"]').checked = true;
-                     customTextColorInput.style.display = 'none';
-                 } else if (sound.textColor === 'white') {
-                     document.querySelector('input[name="textColorOption"][value="white"]').checked = true;
-                     customTextColorInput.style.display = 'none';
-                 } else if (sound.textColor) { // Custom color
-                     document.querySelector('input[name="textColorOption"][value="custom"]').checked = true;
-                     customTextColorInput.value = sound.textColor;
-                     customTextColorInput.style.display = 'inline-block';
-                 } else { // Default
-                      document.querySelector('input[name="textColorOption"][value="default"]').checked = true;
-                     customTextColorInput.value = '#333333'; // Default custom color picker value
-                     customTextColorInput.style.display = 'none';
-                 }
+                if (sound.textColor === 'black') {
+                    document.querySelector('input[name="textColorOption"][value="black"]').checked = true;
+                    customTextColorInput.style.display = 'none';
+                } else if (sound.textColor === 'white') {
+                    document.querySelector('input[name="textColorOption"][value="white"]').checked = true;
+                    customTextColorInput.style.display = 'none';
+                } else if (sound.textColor) { // Custom color
+                    document.querySelector('input[name="textColorOption"][value="custom"]').checked = true;
+                    customTextColorInput.value = sound.textColor;
+                    customTextColorInput.style.display = 'inline-block';
+                } else { // Default
+                    document.querySelector('input[name="textColorOption"][value="default"]').checked = true;
+                    customTextColorInput.value = '#333333'; // Default custom color picker value
+                    customTextColorInput.style.display = 'none';
+                }
 
 
                 soundModal.style.display = 'flex';
@@ -1748,15 +1757,15 @@
                 const file = soundFileInput.files[0];
 
                 // Get selected text color
-                 let selectedTextColor = '';
-                 const textColorOption = document.querySelector('input[name="textColorOption"]:checked').value;
-                 if (textColorOption === 'black') {
-                     selectedTextColor = 'black';
-                 } else if (textColorOption === 'white') {
-                     selectedTextColor = 'white';
-                 } else if (textColorOption === 'custom') {
-                     selectedTextColor = customTextColorInput.value;
-                 } // 'default' case leaves selectedTextColor as '' or undefined, handled in render
+                let selectedTextColor = '';
+                const textColorOption = document.querySelector('input[name="textColorOption"]:checked').value;
+                if (textColorOption === 'black') {
+                    selectedTextColor = 'black';
+                } else if (textColorOption === 'white') {
+                    selectedTextColor = 'white';
+                } else if (textColorOption === 'custom') {
+                    selectedTextColor = customTextColorInput.value;
+                } // 'default' case leaves selectedTextColor as '' or undefined, handled in render
 
 
                 // Find existing sound if editing
@@ -1787,7 +1796,7 @@
                     name,
                     audioData,
                     color: selectedButtonColor, // Use renamed variable
-                     textColor: selectedTextColor, // Save text color
+                    textColor: selectedTextColor, // Save text color
                     timestamp: Date.now()
                 };
 
