@@ -1,168 +1,648 @@
-<!-- playlist.html -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4SP | Your Playlists</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-  <style>
-    * { font-family: 'Roboto Mono', monospace; box-sizing: border-box; }
-    :root {
-      --light-gray: #e0e0e0;
-      --dark-bg: #0d0d0d;
-      --light-text: #f0f0f0;
-      --pill-radius: 50px;
-      --card-radius: 16px;
-    }
-    body { background: var(--light-gray); margin: 0; color: var(--dark-bg); }
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background: var(--dark-bg);
-      color: var(--light-text);
-    }
-    .logo { font-size: 1.5rem; font-weight: 700; }
-    .nav-buttons { display: flex; gap: 1rem; }
-    .btn {
-      padding: .75rem 1.5rem;
-      border-radius: var(--pill-radius);
-      background: transparent;
-      border: 2px solid var(--light-text);
-      color: var(--light-text);
-      cursor: pointer;
-      font-weight: 500;
-      transition: background 0.2s, color 0.2s;
-    }
-    .btn:hover { background: var(--light-text); color: var(--dark-bg); }
-    .btn.big {
-      padding: 1rem 2rem;
-      font-size: 1.1rem;
-    }
-    .container {
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-    h1 { margin-bottom: 1.5rem; }
-    .playlists-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1rem;
-    }
-    .playlist-card {
-      background: #fff;
-      padding: 1rem;
-      border-radius: var(--card-radius);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      height: 120px;
-      overflow: hidden;
-      transition: transform 0.2s;
-    }
-    .playlist-card:hover { transform: translateY(-4px); }
-    .playlist-card h3 {
-      margin: 0 0 0.5rem;
-      font-size: 1.1rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .playlist-card p {
-      margin: 0;
-      font-size: .9rem;
-      color: #555;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    #createTile {
-      font-size: 3rem;
-      color: #888;
-      justify-content: center;
-      align-items: center;
-      display: flex;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4SP | YOUR PLAYLISTS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        * {
+            /* Removed font-family !important */
+            font-family: 'Outfit', sans-serif;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-color: #ffffff;
+            /* Light background */
+            --text-color: #333333;
+            /* Dark text */
+            --primary-color: #333333;
+            /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc;
+            /* Medium gray border */
+            --navbar-bg: #f0f0f0;
+            /* Light gray for navbar */
+            --footer-bg: #f0f0f0;
+            /* Light gray for footer */
+            --hover-bg: #e0e0e0;
+            /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0;
+            /* Light gray grid lines */
+            --accent-color: #333333;
+            /* Dark accent color */
+
+            /* Card colors (adapted for light theme) */
+            --card-bg: #ffffff;
+            --card-border: #cccccc;
+            --card-shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            background: var(--bg-color);
+            /* Light background */
+            margin: 0;
+            color: var(--text-color);
+            /* Dark text */
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-align: center;
+            /* Center all text by default */
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px;
+            /* Size of each grid cell */
+        }
+
+        /* Remove triangular gradients */
+        body::before,
+        body::after {
+            content: none;
+        }
+
+        a {
+            /* Inherit color or set theme color, text decoration handled by specific classes */
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        /* Navbar - consistent with other pages */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 20px;
+            /* Adjusted padding */
+            background-color: var(--navbar-bg);
+            /* Light gray */
+            color: var(--text-color);
+            /* Dark text */
+            text-align: left;
+            /* Override center for navbar layout */
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-color);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            /* Adjusted gap */
+            align-items: center;
+            text-align: left;
+            /* Ensure text in buttons is not affected by body center */
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px;
+            /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+            /* Removed .btn.big override */
+        }
+
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            /* White text on dark primary */
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--text-color);
+            /* Dark text on light secondary */
+            border: 1px solid var(--secondary-border-color);
+        }
+
+        .btn.primary:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-color);
+            /* Dark text on light hover */
+            border-color: var(--hover-bg);
+        }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+            border-color: var(--hover-bg);
+        }
+
+        /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192';
+            /* Right arrow character */
+            margin-right: 8px;
+            /* Space between arrow and text */
+            font-weight: bold;
+            /* Make arrow slightly bolder */
+            color: var(--accent-color);
+            /* Dark accent color for arrow */
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 20px;
+            /* Adjusted padding */
+             flex: 1; /* Allow container to grow */
+             text-align: left; /* Align content within container left */
+        }
+
+        h1 {
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem; /* Consistent heading size */
+            color: var(--text-color);
+            font-weight: 900;
+             text-align: center;
+        }
+
+        .playlists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Kept original minmax for now */
+            gap: 15px; /* Adjusted gap */
+        }
+
+        .playlist-card {
+            background: var(--card-bg);
+            /* White background */
+            padding: 1rem;
+            border-radius: 10px;
+            /* Less rounded */
+            box-shadow: 0 4px 12px var(--card-shadow);
+            /* Subtle shadow */
+            border: 1px solid var(--card-border);
+            /* Subtle border */
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 120px;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            text-align: left; /* Align card content left */
+        }
+
+        .playlist-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            border-color: var(--accent-color); /* Accent border on hover */
+        }
+
+        .playlist-card h3 {
+            margin: 0 0 0.5rem;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-color);
+             text-transform: uppercase; /* All caps */
+             font-weight: 600;
+        }
+
+        .playlist-card p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: rgba(51, 51, 51, 0.8);
+            /* Slightly lighter dark */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+             text-transform: uppercase; /* All caps */
+             opacity: 1; /* Remove opacity */
+        }
+
+        #createTile {
+            font-size: 3rem;
+            color: rgba(51, 51, 51, 0.5); /* Lighter dark color for plus */
+            justify-content: center;
+            align-items: center;
+            display: flex;
+             /* Inherit playlist-card styles */
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px var(--card-shadow);
+            border: 1px solid var(--card-border);
+            cursor: pointer;
+            height: 120px;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+         #createTile:hover {
+             transform: translateY(-4px);
+             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+             border-color: var(--accent-color); /* Accent border on hover */
+             color: var(--accent-color); /* Accent color on hover for plus */
+         }
+
+
+         /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6); /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+             margin-top: auto; /* Push footer to the bottom */
+        }
+
+
+         /* Responsive adjustments */
+        @media (max-width: 768px) {
+             .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+             .container {
+                 padding: 0 10px;
+                 margin: 1.5rem auto;
+             }
+
+             h1 {
+                 font-size: 2rem;
+                 margin-bottom: 1rem;
+             }
+
+             .playlists-grid {
+                 gap: 10px;
+                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust minmax */
+             }
+
+             .playlist-card {
+                 height: 100px; /* Adjust height */
+                 padding: 0.8rem;
+                 border-radius: 8px;
+             }
+             .playlist-card h3 {
+                 font-size: 1rem;
+             }
+             .playlist-card p {
+                 font-size: 0.8rem;
+             }
+
+             #createTile {
+                 height: 100px; /* Adjust height */
+                 padding: 0.8rem;
+                 font-size: 2.5rem;
+                 border-radius: 8px;
+             }
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                 padding: 15px 10px;
+             }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             .container {
+                 padding: 0 8px;
+                 margin: 1rem auto;
+             }
+
+             h1 {
+                 font-size: 1.5rem;
+                 margin-bottom: 0.8rem;
+             }
+
+             .playlists-grid {
+                 gap: 8px;
+                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Adjust minmax */
+             }
+
+             .playlist-card {
+                 height: 80px; /* Adjust height */
+                 padding: 0.6rem;
+                 border-radius: 6px;
+             }
+             .playlist-card h3 {
+                 font-size: 0.9rem;
+             }
+             .playlist-card p {
+                 font-size: 0.7rem;
+             }
+
+             #createTile {
+                 height: 80px; /* Adjust height */
+                 padding: 0.6rem;
+                 font-size: 2rem;
+                 border-radius: 6px;
+             }
+        }
+
+         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
+        /* function darken(color, percent) { ... } */
+    </style>
 </head>
+
 <body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <button id="dashboardBtn" class="btn big">Dashboard</button>
-      <button id="logoutBtn" class="btn big">Log Out</button>
-    </div>
-  </nav>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+             <a href="playlist-create.html" class="btn secondary btn-with-arrow">Create Playlist</a>
+            <button id="logoutBtn" class="btn secondary">Log Out</button>
+        </div>
+    </nav>
 
-  <main class="container">
-    <h1>Your Playlists</h1>
-    <div class="playlists-grid" id="playlistsGrid">
-      <div id="createTile" class="playlist-card">+</div>
-    </div>
-  </main>
+    <main>
+        <div class="container">
+            <h1>Your Playlists</h1>
+            <div class="playlists-grid" id="playlistsGrid">
+                <div id="createTile" class="playlist-card">+</div>
+                <p id="loadingMessage" style="color: var(--text-color); text-align: center; grid-column: 1 / -1;">LOADING PLAYLISTS...</p>
+            </div>
+        </div>
+    </main>
 
-  <script>
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const grid = document.getElementById('playlistsGrid');
-    const createTile = document.getElementById('createTile');
-    const dashBtn = document.getElementById('dashboardBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
+     <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
 
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        window.location.href = 'index.html';
-        return;
-      }
-      loadPlaylists(user.uid);
-    });
+    <script>
+         // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-    dashBtn.addEventListener('click', () => {
-      window.location.href = 'dashboard.html';
-    });
 
-    async function loadPlaylists(uid) {
-      const normalSnap = await db.collection('playlists')
-        .where('owner', '==', uid)
-        .where('type', '==', 'normal')
-        .orderBy('createdAt', 'desc')
-        .limit(10)
-        .get();
-      normalSnap.forEach(doc => addCard(doc.id, doc.data()));
+        // --- Firebase initialization & Auth guard ---
+         let auth, db;
+         // Check if firebaseConfig is defined and firebase is not already initialized
+         if (typeof firebaseConfig !== 'undefined' && firebase.apps.length === 0) {
+             firebase.initializeApp(firebaseConfig);
+         }
+         // Ensure auth and db are initialized regardless of previous check if firebase is available
+         if (typeof firebase !== 'undefined') {
+              if (typeof firebase.auth !== 'undefined') auth = firebase.auth();
+              if (typeof firebase.firestore !== 'undefined') db = firebase.firestore();
+              initAuthAndLoadPlaylists(); // Initialize auth flow and load playlists
+         } else {
+             console.warn("Firebase SDK not available. Auth and Firestore features will be disabled.");
+             // Display error or handle lack of features gracefully
+             const grid = document.getElementById('playlistsGrid');
+             if(grid) grid.innerHTML = '<p style="color: var(--error-color); text-align: center; grid-column: 1 / -1;">FIREBASE SERVICES NOT AVAILABLE. CANNOT LOAD PLAYLISTS.</p>';
+             // Hide auth/firestore dependent elements
+             const logoutBtn = document.getElementById('logoutBtn');
+             if(logoutBtn) logoutBtn.classList.add('hidden');
+             const createPlaylistBtn = document.querySelector('a[href="playlist-create.html"]');
+             if(createPlaylistBtn) createPlaylistBtn.classList.add('hidden');
+              const loadingMessage = document.getElementById('loadingMessage');
+             if (loadingMessage) loadingMessage.classList.add('hidden'); // Hide loading message
+         }
 
-      const local = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-      local.slice(0, 3).forEach(pl => addCard(pl.id, pl, true));
-    }
 
-    function addCard(id, data, isLocal = false) {
-      const div = document.createElement('div');
-      div.className = 'playlist-card';
-      div.innerHTML = `<h3>${data.name}</h3><p>${data.description}</p>`;
-      div.addEventListener('click', () => {
-        const url = `playlist-detail.html?id=${encodeURIComponent(id)}&local=${isLocal}`;
-        window.location.href = url;
-      });
-      grid.insertBefore(div, createTile);
-    }
+         async function initAuthAndLoadPlaylists() {
+            if (!auth) {
+                 console.error("Firebase Auth not initialized.");
+                 // Redirect or handle error
+                 window.location.href = 'index.html';
+                 return;
+             }
 
-    createTile.addEventListener('click', () => {
-      window.location.href = 'playlist-create.html';
-    });
+            auth.onAuthStateChanged(async user => {
+                if (!user) {
+                    console.log("No user logged in. Redirecting to index.html");
+                    window.location.href = 'index.html';
+                    return;
+                }
+                 console.log("User authenticated:", user.email);
 
-    logoutBtn.addEventListener('click', () => {
-      auth.signOut().then(() => {
-        window.location.href = 'index.html';
-      });
-    });
-  </script>
-</body>
+                // User is logged in, proceed to load playlists and setup listeners
+                 loadPlaylists(user.uid);
+                 setupEventListeners(); // Setup listeners that don't require playlist data immediately
+            });
+        }
+
+
+        function setupEventListeners() {
+             // DOM Elements (get them here after DOM is ready)
+             const createTile = document.getElementById('createTile');
+             const logoutButton = document.getElementById('logoutBtn'); // Renamed to avoid conflict
+             const dashboardBtn = document.querySelector('a[href="dashboard.html"]'); // Use selector for consistency
+             const createPlaylistBtn = document.querySelector('a[href="playlist-create.html"]');
+
+             // Navigation button listeners
+             if (dashboardBtn) {
+                 dashboardBtn.addEventListener('click', (e) => {
+                      // Prevent default anchor behavior if needed, but likely not for navigation links
+                      // e.preventDefault();
+                      // window.location.href = 'dashboard.html';
+                 });
+             } else {
+                  console.error("Dashboard button not found in setupEventListeners.");
+             }
+
+              // Listeners for the Create Playlist tile
+             if (createTile) {
+                 createTile.addEventListener('click', () => {
+                     window.location.href = 'playlist-create.html'; // Navigate to create page
+                 });
+             } else {
+                  console.error("Create playlist tile not found.");
+             }
+
+             // Listener for the 'Create Playlist' button in navbar (if it exists)
+              if (createPlaylistBtn) {
+                  createPlaylistBtn.addEventListener('click', (e) => {
+                       // Prevent default anchor behavior if needed
+                       // e.preventDefault();
+                       // window.location.href = 'playlist-create.html';
+                  });
+              }
+
+
+             // Logout button listener
+             if (logoutButton) {
+                 logoutButton.addEventListener('click', () => {
+                     if(auth) { // Ensure auth is available
+                         auth.signOut().then(() => {
+                             console.log("User signed out.");
+                             window.location.href = 'index.html'; // Redirect to index after logout
+                         }).catch(error => {
+                             console.error("Logout Error:", error);
+                             alert("Error logging out. Please try again.");
+                         });
+                     } else {
+                          console.error("Firebase Auth not available for logout in setupEventListeners.");
+                          alert("Logout failed. Firebase services not available.");
+                     }
+                 });
+             } else {
+                  console.error("Logout button not found in setupEventListeners.");
+             }
+
+        } // End of setupEventListeners
+
+
+        // Function to load playlists from Firebase and Local Storage
+        async function loadPlaylists(uid) {
+            const grid = document.getElementById('playlistsGrid');
+            const createTile = document.getElementById('createTile'); // Get the create tile again
+             const loadingMessage = document.getElementById('loadingMessage');
+
+
+             // Remove existing cards and loading message (except the create tile)
+             const existingCards = grid ? grid.querySelectorAll('.playlist-card:not(#createTile)') : [];
+             existingCards.forEach(card => card.remove());
+              if (loadingMessage) loadingMessage.remove(); // Remove the initial loading message
+
+
+            if (!grid || !createTile) {
+                 console.error("Playlists grid or create tile element not found.");
+                 // Display an error message in the container if elements are missing
+                  if (grid) grid.innerHTML = '<p style="color: var(--error-color); text-align: center; grid-column: 1 / -1;">REQUIRED PAGE ELEMENTS MISSING.</p>';
+                 return; // Stop execution
+            }
+
+
+            try {
+                // Load Firebase (Normal) Playlists
+                 if (db) {
+                     const normalSnap = await db.collection('playlists')
+                        .where('owner', '==', uid)
+                        .where('type', '==', 'normal')
+                        .orderBy('createdAt', 'desc') // Order by creation date, latest first
+                        .limit(10) // Limit to 10 normal playlists
+                        .get();
+
+                     normalSnap.forEach(doc => addCard(doc.id, doc.data()));
+                     console.log(`Loaded ${normalSnap.size} Firebase playlists.`);
+                 } else {
+                     console.warn("Firestore not available. Cannot load Firebase playlists.");
+                     // Optionally display a message indicating Firebase playlists could not be loaded
+                 }
+
+
+                // Load Local Storage Playlists
+                const local = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
+                local.slice(0, 3).forEach(pl => addCard(pl.id, pl, true)); // Limit to 3 local playlists
+                 console.log(`Loaded ${local.slice(0, 3).length} local playlists.`);
+
+
+                // If no playlists were loaded (Firebase or local), display a message
+                const loadedCards = grid.querySelectorAll('.playlist-card:not(#createTile)');
+                if (loadedCards.length === 0) {
+                    // Add a message if only the create tile is present
+                     if (grid.childElementCount === 1 && grid.firstElementChild === createTile) {
+                         const noPlaylistsMessage = document.createElement('p');
+                         noPlaylistsMessage.textContent = 'NO PLAYLISTS FOUND. CREATE ONE TO GET STARTED!'; // Uppercase status
+                         noPlaylistsMessage.style.color = 'var(--text-color)';
+                         noPlaylistsMessage.style.textAlign = 'center';
+                         noPlaylistsMessage.style.gridColumn = '1 / -1'; // Span across grid columns
+                         grid.appendChild(noPlaylistsMessage);
+                         console.log("Displayed 'No playlists found' message.");
+                     }
+                }
+
+            } catch (error) {
+                console.error("Error loading playlists:", error);
+                 // Display an error message in the grid
+                 grid.innerHTML = '<p style="color: var(--error-color); text-align: center; grid-column: 1 / -1;">ERROR LOADING PLAYLISTS.</p>'; // Uppercase status
+                  // Re-append the create tile if it was cleared by setting innerHTML
+                 if (!grid.querySelector('#createTile') && createTile) {
+                      grid.appendChild(createTile);
+                 }
+            }
+        }
+
+        // Function to add a playlist card to the grid
+        function addCard(id, data, isLocal = false) {
+            const div = document.createElement('div');
+            div.className = 'playlist-card';
+
+            // Ensure name and description are not null or undefined
+            const playlistName = data.name || 'Unnamed Playlist';
+            const playlistDesc = data.description || 'No description provided';
+
+            div.innerHTML = `
+                 <h3>${playlistName.toUpperCase()}</h3> <p>${playlistDesc.toUpperCase()}</p> `;
+
+            div.addEventListener('click', () => {
+                // Navigate to playlist detail page with ID and local flag
+                const url = `playlist-detail.html?id=${encodeURIComponent(id)}&local=${isLocal}`;
+                window.location.href = url;
+            });
+
+            const grid = document.getElementById('playlistsGrid');
+            const createTile = document.getElementById('createTile'); // Get create tile to insert before it
+
+            if (grid && createTile) {
+                grid.insertBefore(div, createTile); // Insert new card before the create tile
+            } else {
+                 console.error("Playlists grid or create tile not found when trying to add card.");
+                 // Optionally append to grid if createTile is missing, but order will be wrong
+                 // if (grid) grid.appendChild(div);
+            }
+        }
+
+        // Initial loading message while auth check and data fetch happen
+         document.addEventListener('DOMContentLoaded', () => {
+             const grid = document.getElementById('playlistsGrid');
+             if (grid && !grid.querySelector('#loadingMessage')) {
+                 const loadingMessage = document.createElement('p');
+                  loadingMessage.id = 'loadingMessage';
+                  loadingMessage.textContent = 'LOADING PLAYLISTS...'; // Uppercase status
+                  loadingMessage.style.color = 'var(--text-color)';
+                  loadingMessage.style.textAlign = 'center';
+                  loadingMessage.style.gridColumn = '1 / -1';
+                 grid.appendChild(loadingMessage);
+             }
+         });
+
+
+    </script>
+    </body>
+
 </html>
