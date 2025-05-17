@@ -1,337 +1,708 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4SP | Vern Pro</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap"
-    rel="stylesheet"
-  />
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <!-- Firebase Configuration -->
-  <script src="firebase-config.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4SP | VERN PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
 
-  <style>
-    :root {
-      --dark-bg: #0a0a0a;
-      --darker-bg: #070707;
-      --light-text: #f0f0f0;
-      --accent-color: #f0f0f0;
-    }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Roboto Mono', monospace;
-      font-weight: bold;
-    }
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-      overflow: hidden;
-    }
-    .navbar-container {
-      position: relative;
-      overflow: visible;
-      height: auto;
-      z-index: 100;
-      flex-shrink: 0;
-    }
-    .navbar {
-      background-color: var(--darker-bg);
-      color: var(--light-text);
-      padding: 0.75rem 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid var(--accent-color);
-      width: 100%;
-    }
-    .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-    .nav-buttons {
-      display: flex;
-      gap: 1rem;
-    }
-    .btn {
-      padding: 0.5rem 0.5rem;
-      border-radius: 50px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .btn.secondary {
-      background-color: transparent;
-      color: var(--light-text);
-      border: 2px solid var(--light-text);
-    }
-    .btn.secondary:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
 
-    /* Hide logout button until we know user is logged in */
-    #logoutBtn {
-      display: none;
-    }
+    <style>
+        :root {
+            --bg-color: #ffffff; /* Light background */
+            --text-color: #333333; /* Dark text */
+            --primary-color: #333333; /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc; /* Medium gray border */
+            --navbar-bg: #f0f0f0; /* Light gray for navbar */
+            --footer-bg: #f0f0f0; /* Light gray for footer */
+            --hover-bg: #e0e0e0; /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0; /* Light gray grid lines */
+            --accent-color: #333333; /* Dark accent color */
 
-    .iframe-container {
-      flex: 1;
-      width: 100%;
-      position: relative;
-    }
-    .iframe-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      border: none;
-    }
-    .status-message {
-      display: none;
-      padding: 0.3rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      background-color: rgba(0, 0, 0, 0.6);
-      text-align: center;
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 200;
-      color: var(--light-text);
-      pointer-events: none;
-    }
-    .status-message.shown {
-      display: block;
-      animation: fadeInOut 2s ease forwards;
-    }
-    @keyframes fadeInOut {
-      0% { opacity: 0; }
-      20% { opacity: 1; }
-      80% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-    
-    #access-denied {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 50;
-      display: none;
-    }
-    
-    #access-denied h2 {
-      margin-bottom: 20px;
-    }
-  </style>
+            /* Access Denied/Status Colors (adapted for light theme) */
+             --denied-bg: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+             --denied-text: var(--text-color); /* Dark text */
+             --status-bg: rgba(0, 0, 0, 0.6); /* Semi-transparent dark for status */
+             --status-text: var(--bg-color); /* White text */
+             --status-error-color: #dc3545; /* Red for error status */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+             /* Removed default font-weight: bold; */
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            text-transform: uppercase; /* Apply uppercase to body text */
+            text-align: center; /* Center content by default */
+            position: relative;
+            /* overflow: hidden; /* Keep overflow hidden for iframe view */
+             overflow-x: hidden; /* Allow vertical scrolling if needed */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensure body takes at least viewport height */
+
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px; /* Size of each grid cell */
+
+            /* Add padding to account for fixed navbar and footer */
+            padding-top: 80px; /* Default padding for fixed navbar */
+            padding-bottom: 60px; /* Default padding for fixed footer */
+        }
+
+         /* Remove triangular gradients */
+        body::before, body::after {
+            content: none;
+        }
+
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        /* Navbar - consistent with other pages */
+        .navbar {
+            display: flex;
+            justify-content: space-between; /* Pushes logo to left, buttons to right */
+            align-items: center; /* Vertically centers items in navbar */
+            padding: 20px 20px;
+            /* Adjusted padding */
+            background-color: var(--navbar-bg);
+            /* Light gray */
+            color: var(--text-color);
+            /* Dark text */
+             text-align: left; /* Override center for navbar layout */
+            width: 100%;
+            position: fixed; /* Ensure navbar is fixed */
+            top: 0;
+            left: 0; /* Ensure it starts from the left edge */
+            z-index: 100; /* Ensure it's above other content */
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+             color: var(--text-color);
+             /* Removed specific letter-spacing */
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            /* Adjusted gap */
+            align-items: center; /* Vertically centers buttons within nav-buttons */
+             text-align: left; /* Ensure text in buttons is not affected by body center */
+             margin-left: auto; /* Pushes the nav-buttons group to the right */
+        }
+
+        /* Buttons (Base Styles) */
+        .btn {
+            display: inline-flex; /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px; /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px; /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none; /* Removed default transparent border */
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--bg-color); /* White text on dark primary */
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--text-color); /* Dark text on light secondary */
+            border: 1px solid var(--secondary-border-color);
+        }
+
+        .btn.primary:hover {
+            background-color: var(--hover-bg);
+             color: var(--text-color);
+             border-color: var(--hover-bg);
+         }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+             border-color: var(--hover-bg);
+        }
+
+         /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192'; /* Right arrow character */
+            margin-right: 8px; /* Space between arrow and text */
+            font-weight: bold; /* Make arrow slightly bolder */
+             color: var(--accent-color); /* Dark accent color for arrow */
+        }
+
+
+        /* Main content area containing the iframe */
+        main {
+            flex: 1; /* Allow main content area to grow and fill vertical space */
+            width: 100%; /* Ensure main takes full width */
+            display: flex; /* Use flex to manage iframe within it */
+            flex-direction: column; /* Stack items in main (only iframe) */
+        }
+
+        /* Iframe Container */
+        .iframe-container {
+            flex-grow: 1; /* Allow iframe container to grow and fill vertical space */
+            width: 100%; /* Ensure container takes full width */
+             /* Removed original positioning styles */
+        }
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%; /* Iframe fills its parent (.iframe-container) */
+            border: none;
+            display: block; /* Ensure iframe is block-level */
+        }
+
+
+        /* Footer - consistent */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6);
+            /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        /* Access Denied Message */
+        #access-denied {
+            position: fixed; /* Fixed position to overlay content */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--denied-bg); /* Semi-transparent light background */
+            color: var(--denied-text); /* Dark text */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 150; /* Above navbar/footer if needed, below modals */
+            display: none; /* Hidden by default */
+             text-transform: uppercase; /* Apply uppercase */
+             padding-top: 80px; /* Add padding for fixed navbar */
+             padding-bottom: 60px; /* Add padding for fixed footer */
+        }
+
+        #access-denied h2 {
+            margin-bottom: 20px;
+             font-size: 2.5rem; /* Consistent heading size */
+             font-weight: 900;
+             text-transform: uppercase; /* All caps */
+             color: var(--status-error-color); /* Red for denied heading */
+        }
+         #access-denied p {
+             font-size: 1.2rem; /* Larger paragraph text */
+             text-transform: none; /* Mixed case for readability */
+             margin-bottom: 10px;
+             color: var(--denied-text);
+             opacity: 0.9;
+         }
+          #access-denied p:last-child {
+              margin-bottom: 0;
+              font-size: 1rem; /* Slightly smaller for redirect message */
+               opacity: 0.7;
+          }
+
+
+        /* Status Message */
+        .status-message {
+            display: none; /* Hidden by default */
+            padding: 10px 20px; /* Adjusted padding */
+            border-radius: 5px; /* Less rounded */
+            font-size: 0.9rem; /* Adjusted font size */
+            background-color: var(--status-bg); /* Semi-transparent dark background */
+            color: var(--status-text); /* White text */
+            text-align: center;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200; /* Above access denied message */
+            pointer-events: none; /* Allow clicks to pass through */
+            text-transform: uppercase; /* All caps */
+             font-weight: 600; /* Bolder */
+        }
+        .status-message.shown {
+             display: block;
+             animation: fadeInOut 2s ease forwards; /* Keep animation */
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+
+         /* Hide logout button until user is confirmed authenticated */
+         #logoutBtn {
+            display: none;
+         }
+
+
+         /* Responsive adjustments */
+        @media (max-width: 768px) {
+             .navbar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+                 margin-left: 0;
+                 width: 100%;
+            }
+
+            body {
+                 padding-top: 120px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 80px; /* Adjust padding for footer */
+            }
+
+            #access-denied {
+                 padding-top: 120px;
+                 padding-bottom: 80px;
+             }
+             #access-denied h2 {
+                 font-size: 2rem;
+                 margin-bottom: 15px;
+             }
+             #access-denied p {
+                 font-size: 1rem;
+                 margin-bottom: 8px;
+             }
+              #access-denied p:last-child {
+                   font-size: 0.9rem;
+               }
+
+              .status-message {
+                 padding: 8px 15px;
+                 font-size: 0.8rem;
+                 bottom: 15px;
+             }
+
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                 padding: 15px 10px;
+             }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             body {
+                 padding-top: 150px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 100px; /* Adjust padding for footer */
+             }
+
+              #access-denied {
+                 padding-top: 150px;
+                 padding-bottom: 100px;
+             }
+             #access-denied h2 {
+                 font-size: 1.5rem;
+                 margin-bottom: 10px;
+             }
+             #access-denied p {
+                 font-size: 0.9rem;
+                 margin-bottom: 6px;
+             }
+              #access-denied p:last-child {
+                   font-size: 0.8rem;
+               }
+
+             .status-message {
+                 padding: 6px 12px;
+                 font-size: 0.7rem;
+                 bottom: 10px;
+             }
+        }
+
+         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
+        /* function darken(color, percent) { ... } */
+
+    </style>
 </head>
 <body>
-  <div class="navbar-container" id="navbarContainer">
     <nav class="navbar">
-      <div class="logo">4SP</div>
-      <div class="nav-buttons">
-        <a href="dashboard.html" class="btn secondary">Dashboard</a>
-        <button class="btn secondary" id="logoutBtn">Logout</button>
-      </div>
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+             <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+            <a href="collections.html" class="btn secondary btn-with-arrow">Collections</a>
+             <button id="logoutBtn" class="btn secondary">Log Out</button>
+        </div>
     </nav>
-  </div>
 
-  <div class="status-message" id="statusMessage"></div>
-  
-  <div id="access-denied">
-    <h2>Access Denied</h2>
-    <p>You do not have permission to access this page.</p>
-    <p>Redirecting to home page...</p>
-  </div>
+    <div id="access-denied">
+        <h2>Access Denied</h2>
+        <p>YOU DO NOT HAVE PERMISSION TO ACCESS THIS PAGE.</p>
+        <p>REDIRECTING TO HOME PAGE...</p>
+    </div>
 
-  <div class="iframe-container" id="iframeContainer">
-    <!-- Updated src to point to your local verndisplay.html -->
-    <iframe
-      src="vernpro.html"
-      allowfullscreen
-      id="mainIframe"
-      tabindex="0"
-      title="Admin Prox Display"
-    ></iframe>
-  </div>
+    <main>
+        <div class="iframe-container">
+            <iframe
+              src="vernpro.html"
+              allowfullscreen
+              id="mainIframe"
+              tabindex="0"
+              title="Vern Pro Display"
+              loading="lazy" ></iframe>
+        </div>
+    </main>
 
-  <script>
-    // --- Firebase initialization ---
-    try {
-      if (typeof firebaseConfig !== 'undefined') {
-        firebase.initializeApp(firebaseConfig);
-      } else {
-        console.error("Firebase configuration not found. Make sure firebase-config.js is properly set up.");
-      }
-    } catch (error) {
-      console.error("Error initializing Firebase:", error);
-    }
+    <div class="status-message" id="statusMessage"></div>
 
-    // --- Define authorized admin emails ---
-    const AUTHORIZED_EMAILS = [
-      "4simpleproblems@gmail.com",
-      "belkwy30@minerva.sparcc.org",
-      "belkja27@minerva.sparcc.org",
-      "alleda30@minerva.sparcc.org",
-      "otweno30@minerva.sparcc.org",
-      "ludwza30@minerva.sparcc.org",
-      "roseza30@minerva.sparcc.org"
-    ];
 
-    // --- Auth guard: redirect unauthorized users ---
-    function handleAuthState(user) {
-      const logoutBtn = document.getElementById('logoutBtn');
-      const accessDenied = document.getElementById('access-denied');
-      const iframeContainer = document.getElementById('iframeContainer');
-      
-      if (user) {
-        // User is signed in
-        logoutBtn.style.display = 'inline-flex';
-        
-        // Check if the user's email is in the authorized list
-        if (AUTHORIZED_EMAILS.includes(user.email)) {
-          // User is authorized - show content
-          iframeContainer.style.display = 'block';
-          accessDenied.style.display = 'none';
-          showStatus('Welcome, admin user');
-        } else {
-          // User is not authorized - show access denied
-          iframeContainer.style.display = 'none';
-          accessDenied.style.display = 'flex';
-          
-          // Redirect to index.html after a short delay
-          setTimeout(() => {
-            window.location.href = 'index.html';
-          }, 3000);
-          
-          showStatus('Access denied - unauthorized user');
-          console.log('Unauthorized access attempt by:', user.email);
-        }
-      } else {
-        // Not authenticated → back to login
-        window.location.href = 'login.html';
-      }
-    }
-    
-    function initAuthGuard() {
-      const auth = firebase.auth();
-      auth.onAuthStateChanged(handleAuthState);
-    }
+    <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
 
-    document.addEventListener('DOMContentLoaded', () => {
-      // Start auth guard
-      if (window.firebase && firebase.auth) {
-        initAuthGuard();
-      } else {
-        console.error("Firebase Auth SDK not loaded.");
-        // Force redirect if auth unavailable
-        window.location.href = 'login.html';
-      }
 
-      const statusMessage = document.getElementById('statusMessage');
-      const iframe = document.getElementById('mainIframe');
-      const logoutBtn = document.getElementById('logoutBtn');
+    <script>
+        // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-      function showStatus(message) {
-        statusMessage.textContent = message;
-        statusMessage.classList.add('shown');
-        setTimeout(() => {
-          statusMessage.classList.remove('shown');
-        }, 2000);
-      }
 
-      // Handle logout button click
-      logoutBtn.addEventListener('click', () => {
-        firebase.auth().signOut()
-          .then(() => {
-            showStatus('Logged out successfully');
-            setTimeout(() => {
-              window.location.href = 'login.html';
-            }, 1000);
-          })
-          .catch((error) => {
-            showStatus('Error logging out: ' + error.message);
-            console.error('Logout error:', error);
-          });
-      });
+        // --- Firebase initialization ---
+        let auth; // Declare auth variable
+        let db; // Declare db variable (though Firestore not directly used here)
 
-      // Keyboard shortcuts & iframe messaging...
-      document.addEventListener('keydown', e => {
-        const k = e.key.toLowerCase();
-        if (e.ctrlKey && e.shiftKey) {
-          if (k === 'x') window.location = 'dashboard.html';
-          if (k === 'i') { iframe.focus(); showStatus('Iframe focused! Press Enter to interact.'); e.preventDefault(); }
-          if (k === 'm') { 
-            iframe.contentWindow.postMessage('Hello from parent!', '*'); 
-            showStatus('Message sent to iframe!'); 
-            e.preventDefault(); 
-          }
-        }
-        if (e.key === 'Enter' && document.activeElement !== iframe) {
-          showStatus('Press Ctrl+Shift+I to focus the iframe first!');
-        }
-        if (e.key === 'Escape' && document.activeElement === iframe) {
-          iframe.blur(); window.focus(); showStatus('Focus returned to parent page.');
-        }
-      });
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initially hide logout button until user is confirmed authenticated
+            const logoutButton = document.getElementById('logoutBtn');
+            if (logoutButton) logoutButton.classList.add('hidden');
 
-      iframe.addEventListener('focus', () => showStatus('You are now inside the iframe. Press Esc to return.'));
-      iframe.addEventListener('blur',  () => showStatus('You left the iframe.'));
 
-      iframe.addEventListener('load', () => {
-        try {
-          iframe.contentWindow.eval(`
-            (function(){
-              const realAlert = window.alert;
-              window.alert = function(msg){
-                window.parent.postMessage({ type: 'relayAlert', message: msg }, '*');
-              };
-              window.addEventListener('message', ev => {
-                if (ev.data && ev.data.type === 'relayAlertResponse') {
-                  console.log('User chose:', ev.data.accepted);
+            // Check if Firebase SDK is available and initialized
+            if (typeof firebase !== 'undefined') {
+                // Initialize Firebase app if not already initialized
+                if (firebase.apps.length === 0 && typeof firebaseConfig !== 'undefined') {
+                    try {
+                         firebase.initializeApp(firebaseConfig);
+                    } catch (error) {
+                        console.error("Firebase initialization error:", error);
+                         // Handle initialization error - show access denied message
+                         showAccessDenied();
+                         // Disable buttons or hide sections that rely on Firebase
+                         if(logoutButton) logoutButton.disabled = true; // Disable logout button
+                         return; // Stop script execution if Firebase fails to initialize
+                    }
                 }
-              });
-            })();
-          `);
-        } catch (err) {
-          console.warn('Could not inject alert-override into iframe:', err);
-        }
-      });
+                 // Assign auth instance
+                 auth = firebase.auth();
 
-      window.addEventListener('message', ev => {
-        const d = ev.data;
-        if (d && d.type === 'relayAlert') {
-          const ok = confirm(d.message);
-          ev.source.postMessage({ type: 'relayAlertResponse', accepted: ok }, '*');
-          showStatus('Popup handled: ' + (ok ? 'OK' : 'Cancel'));
+                  // Assuming Firestore might be used later, initialize it
+                 if (typeof firebase.firestore !== 'undefined') {
+                      db = firebase.firestore();
+                 } else {
+                      console.warn("Firestore SDK not available.");
+                 }
+
+
+                 // Set up auth state change listener
+                 auth.onAuthStateChanged(user => handleAuthState(user));
+
+
+            } else {
+                console.error("Firebase SDK not available.");
+                 // Handle case where Firebase script failed to load - show access denied message
+                 showAccessDenied();
+                 if(logoutButton) logoutButton.disabled = true; // Disable logout button
+            }
+        });
+
+
+        // --- Define authorized admin emails ---
+        const AUTHORIZED_EMAILS = [
+            "4simpleproblems@gmail.com",
+            "belkwy30@minerva.sparcc.org",
+            "belkja27@minerva.sparcc.org",
+            "alleda30@minerva.sparcc.org",
+            "otweno30@minerva.sparcc.org",
+            "ludwza30@minerva.sparcc.org",
+            "roseza30@minerva.sparcc.org"
+        ];
+
+        // --- Auth guard: redirect unauthorized users ---
+        function handleAuthState(user) {
+            const logoutButton = document.getElementById('logoutBtn');
+            const accessDenied = document.getElementById('access-denied');
+            const iframeContainer = document.getElementById('iframeContainer');
+            const mainIframe = document.getElementById('mainIframe'); // Get the iframe element
+
+            if (user) {
+                // User is signed in
+                // Show logout button if authenticated
+                if (logoutButton) {
+                    logoutButton.classList.remove('hidden');
+                    setupLogoutListener(); // Setup listener after button is visible/auth'd
+                }
+
+                // Check if the user's email is in the authorized list
+                if (AUTHORIZED_EMAILS.includes(user.email)) {
+                    // User is authorized - show content
+                    if (iframeContainer) iframeContainer.style.display = 'block';
+                    if (accessDenied) accessDenied.style.display = 'none';
+                    showStatus('WELCOME, ADMIN USER'); // Uppercase status
+
+                } else {
+                    // User is not authorized - show access denied
+                    if (iframeContainer) iframeContainer.style.display = 'none';
+                    if (mainIframe) mainIframe.src = 'about:blank'; // Prevent unauthorized iframe loading
+                    showAccessDenied(); // Call function to handle display and redirect
+                    showStatus('ACCESS DENIED - UNAUTHORIZED USER'); // Uppercase status
+                    console.log('Unauthorized access attempt by:', user.email);
+                }
+            } else {
+                // Not authenticated → show access denied and redirect
+                 showAccessDenied(); // Show denied message immediately
+                showStatus('ACCESS DENIED - NOT AUTHENTICATED'); // Uppercase status
+                console.log("User not authenticated. Redirecting to index.html");
+
+                // Redirect to index.html after a short delay if not authenticated
+                 setTimeout(() => {
+                     window.location.href = 'index.html';
+                 }, 3000); // Redirect after 3 seconds
+
+            }
         }
-        if (typeof d === 'string') {
-          showStatus('Received from iframe: ' + d);
+
+         // Function to show access denied message and redirect
+         function showAccessDenied() {
+             const accessDenied = document.getElementById('access-denied');
+             const iframeContainer = document.getElementById('iframeContainer');
+              const mainIframe = document.getElementById('mainIframe');
+
+             if (accessDenied) accessDenied.style.display = 'flex'; // Use flex to center content
+             if (iframeContainer) iframeContainer.style.display = 'none'; // Hide iframe container
+              if (mainIframe) mainIframe.src = 'about:blank'; // Stop/prevent iframe content loading
+         }
+
+
+        // Setup logout button listener
+        function setupLogoutListener() {
+            const logoutButton = document.getElementById('logoutBtn');
+            // Add listener only if button exists and auth is initialized
+            if (logoutButton && auth) {
+                // Remove any existing listener to prevent duplicates
+                const newLogoutButton = logoutButton.cloneNode(true);
+                logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
+                const currentLogoutButton = newLogoutButton; // Use the new button instance
+
+                currentLogoutButton.addEventListener('click', () => {
+                    auth.signOut().then(() => {
+                        console.log("User signed out.");
+                        showStatus('LOGGED OUT SUCCESSFULLY'); // Uppercase status
+                        // Redirect to index.html after a short delay
+                        setTimeout(() => {
+                           window.location.href = 'index.html';
+                        }, 1000); // Redirect after 1 second
+                    }).catch(error => {
+                        console.error("Logout Error:", error);
+                        showStatus('ERROR LOGGING OUT: ' + error.message.toUpperCase()); // Uppercase status and message
+                    });
+                });
+            } else {
+                console.warn("Logout button or Firebase Auth not available for listener setup.");
+            }
         }
-      });
-    });
-  </script>
+
+
+        // --- Status Message Function ---
+        function showStatus(message) {
+            const statusMessageEl = document.getElementById('statusMessage');
+            if (statusMessageEl) {
+                 // Clear previous animation classes and text
+                statusMessageEl.classList.remove('shown');
+                statusMessageEl.textContent = message;
+                 // Force reflow to restart animation
+                 void statusMessageEl.offsetWidth;
+                statusMessageEl.classList.add('shown');
+                // The animation handles hiding the message after a delay
+            } else {
+                 console.warn("Status message element not found.");
+                 alert(message); // Fallback to alert
+            }
+        }
+
+
+        // --- Keyboard shortcuts & iframe messaging ---
+        document.addEventListener('keydown', e => {
+            const k = e.key.toLowerCase();
+            const iframe = document.getElementById('mainIframe'); // Get iframe element
+             if (!iframe) return; // Exit if iframe not found
+
+            if (e.ctrlKey && e.shiftKey) {
+                if (k === 'x') {
+                     window.location = 'dashboard.html'; // Shortcut to Dashboard
+                     e.preventDefault(); // Prevent default if needed
+                }
+                if (k === 'i') {
+                     iframe.focus();
+                     showStatus('IFRAME FOCUSED! PRESS ENTER TO INTERACT.'); // Uppercase status
+                     e.preventDefault(); // Prevent default focus behavior if any
+                 }
+                 // Removed the 'm' key message sending example, as its purpose is unclear
+                 // if (k === 'm') {
+                 //     iframe.contentWindow.postMessage('Hello from parent!', '*');
+                 //     showStatus('MESSAGE SENT TO IFRAME!');
+                 //     e.preventDefault();
+                 // }
+            }
+            // Removed the Enter key logic unless it's tied to a specific action
+            // if (e.key === 'Enter' && document.activeElement !== iframe) {
+            //     showStatus('Press Ctrl+Shift+I to focus the iframe first!');
+            // }
+            if (e.key === 'Escape' && document.activeElement === iframe) {
+                 iframe.blur();
+                 window.focus();
+                 showStatus('FOCUS RETURNED TO PARENT PAGE.'); // Uppercase status
+                 e.preventDefault(); // Prevent default Escape behavior
+            }
+        });
+
+        // Iframe focus/blur status messages
+        const mainIframe = document.getElementById('mainIframe');
+        if(mainIframe) {
+             mainIframe.addEventListener('focus', () => showStatus('YOU ARE NOW INSIDE THE IFRAME. PRESS ESC TO RETURN.')); // Uppercase status
+             mainIframe.addEventListener('blur', () => showStatus('YOU LEFT THE IFRAME.')); // Uppercase status
+
+              // Optional: Adjust focus outline for accessibility if default is not visible enough
+               mainIframe.style.outline = '2px solid transparent'; // Default transparent outline
+              mainIframe.addEventListener('focus', () => {
+                  mainIframe.style.outlineColor = 'var(--accent-color)'; // Show accent color outline on focus
+              });
+              mainIframe.addEventListener('blur', () => {
+                  mainIframe.style.outlineColor = 'transparent'; // Hide outline on blur
+              });
+        } else {
+             console.warn("Main iframe element not found for focus/blur listeners.");
+        }
+
+
+        // Iframe messaging handlers
+        if(mainIframe) {
+             mainIframe.addEventListener('load', () => {
+                  console.log("Iframe loaded.");
+                 // Optional: Inject script to handle iframe alerts, if needed and safe
+                 // Note: Injecting scripts into cross-origin iframes is blocked by browser security.
+                 // This would only work if vernpro.html is on the same origin.
+                 try {
+                     // Check if iframe contentDocument is accessible (same origin)
+                     if (mainIframe.contentDocument && mainIframe.contentWindow) {
+                         // --- Alert Override Injection (Same Origin Only) ---
+                         mainIframe.contentWindow.eval(`
+                             (function(){
+                                 const realAlert = window.alert;
+                                 window.alert = function(msg){
+                                     // Post message to parent window instead of showing alert
+                                     window.parent.postMessage({ type: 'relayAlert', message: msg }, '*');
+                                     // Prevent the default alert pop-up
+                                     return true; // Return true like a user confirming a prompt
+                                 };
+                                 console.log("Injected alert override into iframe.");
+
+                                  // --- Handle messages from parent ---
+                                  window.addEventListener('message', ev => {
+                                      // You can listen for specific messages from the parent
+                                      if (ev.data && ev.data.type === 'relayAlertResponse') {
+                                          // Handle response to the relayed alert if needed
+                                          console.log('Iframe received alert response:', ev.data.accepted);
+                                          // You might trigger behavior in the iframe based on the response
+                                      }
+                                       // Example: Receive a message to execute a function in the iframe
+                                      if (ev.data && ev.data.type === 'executeFunction' && typeof window[ev.data.functionName] === 'function') {
+                                          window[ev.data.functionName](...ev.data.args);
+                                          console.log('Iframe executed function:', ev.data.functionName);
+                                      }
+                                  }, false); // Use capture phase if needed for early interception
+                             })();
+                         `);
+                     } else {
+                         console.warn("Iframe contentDocument not accessible for script injection (might be cross-origin).");
+                     }
+                 } catch (err) {
+                     console.warn('Could not inject alert-override into iframe:', err);
+                 }
+             });
+
+             // Listen for messages *from* the iframe *to* the parent window
+             window.addEventListener('message', ev => {
+                 const d = ev.data;
+                 // Optional: Check event.origin for security if iframe is cross-origin
+                 // if (ev.origin !== "https://your-iframe-origin.com") return;
+
+                 if (d && d.type === 'relayAlert') {
+                     // Handle the relayed alert message from the iframe
+                     const ok = confirm(d.message); // Show a confirm dialog in the parent
+                     // Post the user's response back to the iframe
+                     if (ev.source) { // Ensure there is a source window to reply to
+                         ev.source.postMessage({ type: 'relayAlertResponse', accepted: ok }, ev.origin || '*'); // Send response back
+                         showStatus('POPUP HANDLED: ' + (ok ? 'OK' : 'CANCEL')); // Uppercase status
+                     } else {
+                         console.warn("Received relayAlert message but ev.source is null.");
+                         showStatus('POPUP HANDLED.'); // Show status without OK/Cancel detail
+                     }
+                 }
+                  // Handle other potential string messages from the iframe
+                  // This might catch general messages posted from the iframe
+                 if (typeof d === 'string') {
+                      showStatus('RECEIVED FROM IFRAME: ' + d.toUpperCase()); // Uppercase status
+                 }
+             }, false); // Use capture phase if needed for early interception
+        } else {
+             console.warn("Main iframe element not found for message listeners.");
+        }
+
+    </script>
 </body>
+
 </html>
