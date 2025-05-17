@@ -1112,10 +1112,18 @@
                                 <option value="3">3x</option>
                             </select>
                         </label>
-                        </div>
+                        <label>
+                            <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
+                        </label>
+                        <label id="autoClickDelayLabel" style="display: none;">
+                            Delay (ms): <input type="number" id="autoClickDelay" class="form-control" value="1000" min="0" />
+                            <button id="applyDelayBtn" class="btn secondary">Apply</button>
+                        </label>
+
+                    </div>
                     <div class="options-section">
                         <h3>Management</h3>
-                        <button id="clearAllSoundsBtn" class="btn secondary">
+                        <button id="clearAllSoundsBtn" class="btn danger">
                             Clear All Sounds
                             <div class="ripple-container"></div>
                         </button>
@@ -1179,7 +1187,7 @@
                 </div>
                 <div class="form-group">
                     <label>Button Color</label>
-                    <div class="color-picker" id="colorPicker">
+                    <div class="color-picker" id="buttonColorPicker">
                         <div class="color-option selected" style="background-color: #3498db;" data-color="#3498db"></div>
                         <div class="color-option" style="background-color: #e74c3c;" data-color="#e74c3c"></div>
                         <div class="color-option" style="background-color: #2ecc71;" data-color="#2ecc71"></div>
@@ -1191,7 +1199,9 @@
                         <div class="color-option" style="background-color: #d35400;" data-color="#d35400"></div>
                         <div class="color-option" style="background-color: #16a085;" data-color="#16a085"></div>
                     </div>
+                     <input type="color" id="customButtonColor" class="form-control" value="#3498db">
                 </div>
+
                 <div class="form-group">
                     <label>Text Color</label>
                     <div class="text-color-options">
@@ -1262,10 +1272,14 @@
             const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
             const modalTitle = document.getElementById('modalTitle');
-            const colorOptions = document.querySelectorAll('.color-option');
+            const buttonColorPicker = document.getElementById('buttonColorPicker'); // Renamed ID
+            const colorOptions = buttonColorPicker.querySelectorAll('.color-option');
+             const customButtonColorInput = document.getElementById('customButtonColor'); // New custom color input
+
+
             const statusMessage = document.getElementById('statusMessage');
 
-            // New Text Color Elements
+            // Text Color Elements
             const textColorOptions = document.querySelectorAll('input[name="textColorOption"]');
             const customTextColorInput = document.getElementById('customTextColor');
 
@@ -1274,6 +1288,11 @@
             const optionsMenu = document.getElementById('optionsMenu');
             const overlay = document.getElementById('overlay');
             const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
+            const autoClickerCheckbox = document.getElementById('autoClickerCheckbox'); // Auto-clicker checkbox
+            const autoClickDelayInput = document.getElementById('autoClickDelay'); // Auto-clicker delay input
+            const autoClickDelayLabel = document.getElementById('autoClickDelayLabel'); // Auto-clicker delay label
+            const applyDelayBtn = document.getElementById('applyDelayBtn'); // Auto-clicker apply button
+
             const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
             const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
             const playbackSpeedSelect = document.getElementById('playbackSpeed');
@@ -1292,6 +1311,7 @@
             let menuIsOpen = false;
             let isRippling = false;
             let currentPlaybackSpeed = 1.0;
+             let autoClickerInterval = null; // Variable to hold the auto-clicker interval
 
 
             // Initialize the application
@@ -1357,7 +1377,9 @@
                     const button = document.createElement('button');
                     button.className = 'sound-button';
                     button.setAttribute('data-id', sound.id);
-                    button.style.backgroundColor = sound.color || '#3498db';
+                    // Apply button background color - prioritize custom color input if used, then selected color option, then default
+                    button.style.backgroundColor = sound.color || '#3498db'; // Use saved color or default
+
                     button.innerText = sound.name;
                     // Apply text color - use var(--sound-button-text) as default if not set
                     button.style.color = sound.textColor || 'var(--sound-button-text)';
@@ -1452,8 +1474,16 @@
                         // Add selected class to clicked option
                         option.classList.add('selected');
                         selectedButtonColor = option.getAttribute('data-color'); // Renamed variable
+                         customButtonColorInput.value = selectedButtonColor; // Update custom color picker
                     });
                 });
+                 // Listen for changes on the custom color input as well
+                 customButtonColorInput.addEventListener('input', function() {
+                     // Deselect any predefined color options
+                     colorOptions.forEach(opt => opt.classList.remove('selected'));
+                     selectedButtonColor = this.value; // Set selected color to custom value
+                 });
+
 
                 // Text Color Options Listener
                 textColorOptions.forEach(option => {
@@ -1491,6 +1521,28 @@
                     showStatus(`SOUND OVERLAY: ${this.checked ? 'ON' : 'OFF'}`, 'info');
                 });
 
+                 // Auto-clicker checkbox listener
+                 autoClickerCheckbox.addEventListener('change', function() {
+                     autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
+                     localStorage.setItem('autoClicker', this.checked);
+                     showStatus(`AUTO CLICKER: ${this.checked ? 'ON' : 'OFF'}`, 'info');
+
+                     // Start or stop auto-clicker
+                     if (this.checked) {
+                          startAutoClicker();
+                     } else {
+                          stopAutoClicker();
+                     }
+                 });
+
+                 // Auto-clicker delay input and apply button listeners
+                 autoClickDelayInput.addEventListener('input', function() {
+                     // You might want to add input validation here (e.g., ensure it's a positive number)
+                 });
+
+                 applyDelayBtn.addEventListener('click', applyAutoClickerDelay);
+
+
                 playbackSpeedSelect.addEventListener('change', function() {
                     currentPlaybackSpeed = parseFloat(this.value);
                     localStorage.setItem('playbackSpeed', currentPlaybackSpeed.toString());
@@ -1498,7 +1550,7 @@
                     showStatus(`PLAYBACK SPEED SET TO ${currentPlaybackSpeed}X`, 'info');
                 });
 
-                // Keyboard Shortcut Listener (from soundboard.html)
+                // Keyboard Shortcut Listener (Shift + C)
                 document.addEventListener('keydown', function(e) {
                     if (e.shiftKey && (e.key.toLowerCase() === 'c' || e.code.toLowerCase() === 'keyc')) {
                         e.preventDefault(); // Prevent default browser behavior
@@ -1632,6 +1684,45 @@
                 }
             }
 
+             // Auto-clicker functions
+             function startAutoClicker() {
+                  stopAutoClicker(); // Ensure no existing interval
+                  const delay = parseInt(autoClickDelayInput.value, 10);
+                  if (isNaN(delay) || delay <= 0) {
+                       showStatus('INVALID AUTO CLICKER DELAY', 'warning');
+                       return;
+                  }
+
+                  showStatus(`AUTO CLICKER STARTED WITH ${delay}MS DELAY`, 'success');
+
+                 // --- AUTO-CLICKER SOUND PLAYBACK LOGIC GOES HERE ---
+                 // This part needs to be implemented based on which sound you want to auto-click.
+                 // Example: Play the first sound in the list, or the last played sound.
+                 // For now, this only starts the interval but doesn't play a sound.
+                  autoClickerInterval = setInterval(() => {
+                     // Find the sound to play (e.g., sounds[0] for the first sound)
+                     // If sounds.length > 0, playSound(sounds[0]);
+                     // Add your logic here to select and play a sound
+                      console.log(`Auto-clicking... (Sound playback not implemented yet)`);
+                  }, delay);
+                 // -----------------------------------------------------
+             }
+
+             function stopAutoClicker() {
+                  if (autoClickerInterval) {
+                       clearInterval(autoClickerInterval);
+                       autoClickerInterval = null;
+                       showStatus('AUTO CLICKER STOPPED', 'info');
+                  }
+             }
+
+             function applyAutoClickerDelay() {
+                 if (autoClickerCheckbox.checked) {
+                     startAutoClicker(); // Restart auto-clicker with the new delay
+                 }
+                  showStatus('AUTO CLICKER DELAY APPLIED', 'success');
+             }
+
 
             // Open add sound modal
             function openAddModal() {
@@ -1651,6 +1742,8 @@
                     }
                 });
                 selectedButtonColor = '#3498db';
+                 customButtonColorInput.value = selectedButtonColor; // Update custom color picker
+
 
                 // Reset text color selection to default
                 document.querySelector('input[name="textColorOption"][value="default"]').checked = true;
@@ -1682,6 +1775,8 @@
                     }
                 });
                 selectedButtonColor = sound.color;
+                 customButtonColorInput.value = sound.color || '#3498db'; // Set custom color picker
+
 
                 // Set text color selection
                 if (sound.textColor === 'black') {
@@ -1837,7 +1932,7 @@
 
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = '4sp-localsoundboard.json';
+                link.download = 'localsoundboard_export.json';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -2002,6 +2097,16 @@
             function loadPreferences() {
                 if (localStorage.getItem('soundOverlay') === 'true') soundOverlayCheckbox.checked = true;
 
+                 if (localStorage.getItem('autoClicker') === 'true') {
+                     autoClickerCheckbox.checked = true;
+                     autoClickDelayLabel.style.display = 'block';
+                     // Note: auto-clicker needs to be started after sounds are loaded, if they are.
+                     // This might require adjusting init() or adding a check after sounds load.
+                 }
+                 const savedDelay = localStorage.getItem('autoClickDelay');
+                 if (savedDelay !== null) autoClickDelayInput.value = savedDelay;
+
+
                 const savedPlaybackSpeed = localStorage.getItem('playbackSpeed');
                 if (savedPlaybackSpeed !== null) {
                     currentPlaybackSpeed = parseFloat(savedPlaybackSpeed);
@@ -2013,6 +2118,11 @@
                 // Apply loaded playback speed to any sounds that might start playing soon after load
                 allPlayingAudios.forEach(applyPlaybackSpeedToAudio);
                 if (currentlyPlaying) applyPlaybackSpeedToAudio(currentlyPlaying.audio);
+
+                 // Start auto-clicker on load if enabled
+                 if (autoClickerCheckbox.checked) {
+                     startAutoClicker();
+                 }
 
             }
 
