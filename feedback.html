@@ -1,113 +1,498 @@
-<!-- feedback.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4SP | Submit Feedback</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>4SP | SUBMIT FEEDBACK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
+
     <style>
-        * { font-family: 'Roboto Mono', monospace !important; text-decoration: none !important; box-sizing: border-box; }
-        :root { --black: #000; --white: #fff; --light-gray: #f0f0f0; --dark-gray: #333; --pill-radius: 50px; --card-radius: 24px; }
-        body { background-color: var(--light-gray); margin: 0; padding: 0; min-height: 100vh; color: var(--black); }
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 3rem; background-color: var(--black); color: var(--white); border-bottom: 1px solid var(--dark-gray); }
-        .logo { font-size: 1.8rem; font-weight: 700; letter-spacing: -1.5px; }
-        .nav-buttons { display: flex; gap: 1.5rem; align-items: center; }
-        .btn { display: inline-block; padding: 1rem 2rem; border-radius: var(--pill-radius); font-size: 1rem; cursor: pointer; text-align: center; font-weight: 500; transition: all 0.3s ease; }
-        .btn.primary { background-color: var(--black); color: var(--white); border: 2px solid var(--black); }
-        .btn.secondary { background-color: transparent; color: var(--white); border: 2px solid var(--white); }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .form-container { max-width: 700px; margin: 2rem auto; padding: 2rem; background: var(--white); border-radius: var(--card-radius); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 1.5rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        input[type="text"], textarea, select { width: 100%; padding: 1rem; border: 1px solid var(--dark-gray); border-radius: var(--pill-radius); font-size: 1rem; background-color: var(--white); }
-        select { cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; }
-        textarea { min-height: 120px; resize: vertical; }
-        .submit-btn { width: 100%; padding: 1rem; background-color: var(--black); color: var(--white); border: none; border-radius: var(--pill-radius); font-size: 1rem; cursor: pointer; transition: all 0.3s ease; }
-        .submit-btn:hover { background-color: var(--dark-gray); }
-        .message { padding: 1rem; margin-top: 1rem; border-radius: var(--pill-radius); text-align: center; display: none; }
-        .message.success { background-color: rgba(0,0,0,0.1); color: var(--black); border: 1px solid var(--dark-gray); }
-        .message.error { background-color: rgba(0,0,0,0.1); color: var(--black); border: 1px solid var(--dark-gray); }
+        :root {
+            --bg-color: #ffffff; /* Light background */
+            --text-color: #333333; /* Dark text */
+            --primary-color: #333333; /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc; /* Medium gray border */
+            --navbar-bg: #f0f0f0; /* Light gray for navbar */
+            --footer-bg: #f0f0f0; /* Light gray for footer */
+            --hover-bg: #e0e0e0; /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0; /* Light gray grid lines */
+            --accent-color: #333333; /* Dark accent color */
+
+            /* Message box colors for light theme */
+            --success-bg: #d4edda;
+            --success-color: #155724;
+            --error-bg: #f8d7da;
+            --error-color: #721c24;
+            --warning-bg: #fff3cd;
+            --warning-color: #856404;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+             /* Removed !important overrides */
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-align: center; /* Center all text by default */
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px; /* Size of each grid cell */
+        }
+
+         /* Remove triangular gradients */
+        body::before, body::after {
+            content: none;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 20px; /* Adjusted padding */
+            background-color: var(--navbar-bg); /* Light gray */
+            color: var(--text-color); /* Dark text */
+             /* Removed border-bottom */
+             text-align: left; /* Override center for navbar layout */
+             width: 100%;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-color);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px; /* Adjusted gap */
+            align-items: center;
+             text-align: left; /* Ensure text in buttons is not affected by body center */
+        }
+
+        /* Buttons (Base Styles) */
+        .btn {
+            display: inline-flex; /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px; /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px; /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase; /* All caps */
+            font-size: 14px;
+            text-align: center;
+             /* Removed transform and box-shadow on hover from base .btn */
+        }
+
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--bg-color); /* White text on dark primary */
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--text-color); /* Dark text on light secondary */
+            border: 1px solid var(--secondary-border-color);
+        }
+
+         .btn.primary:hover {
+            background-color: var(--hover-bg);
+             color: var(--text-color);
+             border-color: var(--hover-bg);
+         }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+             border-color: var(--hover-bg);
+        }
+
+         /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192'; /* Right arrow character */
+            margin-right: 8px; /* Space between arrow and text */
+            font-weight: bold; /* Make arrow slightly bolder */
+             color: var(--accent-color); /* Dark accent color for arrow */
+        }
+
+
+        /* Feedback Form Specific Styles */
+        .form-container {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--navbar-bg); /* Light gray background */
+            border-radius: 10px; /* Less rounded */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+             border: 1px solid var(--secondary-border-color); /* Subtle border */
+             text-align: left; /* Align form content left */
+             flex-grow: 1; /* Allow container to grow */
+        }
+
+         .form-container h1 {
+             font-size: 2.5rem; /* Adjusted heading size */
+             margin-bottom: 2rem;
+             color: var(--text-color); /* Dark text */
+             text-transform: uppercase; /* All caps */
+             text-align: center; /* Center the heading */
+         }
+
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600; /* Bolder */
+            color: var(--text-color); /* Dark text */
+             text-transform: uppercase; /* All caps */
+             font-size: 0.9rem; /* Smaller label size */
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--secondary-border-color); /* Medium gray border */
+            border-radius: 5px; /* Less rounded */
+            font-size: 1rem;
+            background-color: var(--bg-color); /* White background */
+            color: var(--text-color); /* Dark text */
+             font-family: 'Outfit', sans-serif; /* Use Outfit font */
+             text-transform: none; /* Prevent uppercase for readability */
+             outline: none;
+             transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+         input[type="text"]:focus, textarea:focus, select:focus {
+             border-color: var(--accent-color);
+             box-shadow: 0 0 5px rgba(51, 51, 51, 0.2);
+         }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+             /* Custom arrow icon (using dark accent color) */
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            /* Adopt .btn.primary styles */
+            width: 100%;
+            padding: 10px 20px; /* Matches .btn padding */
+            min-height: 40px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            background-color: var(--primary-color); /* Dark primary */
+            color: var(--bg-color); /* White text */
+            border: 1px solid var(--primary-color);
+        }
+         .submit-btn:hover {
+            background-color: var(--hover-bg); /* Light gray hover */
+            color: var(--text-color); /* Dark text */
+             border-color: var(--hover-bg);
+         }
+
+
+        .message {
+            padding: 1rem;
+            margin-top: 1.5rem; /* Adjusted margin */
+            border-radius: 5px; /* Less rounded */
+            text-align: center;
+            display: none;
+             font-size: 0.9rem;
+             text-transform: none; /* Prevent uppercase for readability */
+             border: 1px solid transparent; /* Add a subtle border */
+        }
+         .message.success {
+            background-color: var(--success-bg);
+            color: var(--success-color);
+             border-color: var(--success-color);
+        }
+        .message.error {
+            background-color: var(--error-bg);
+            color: var(--error-color);
+             border-color: var(--error-color);
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6); /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+             margin-top: auto; /* Push footer to the bottom */
+        }
+
+
+         /* Hide elements utility */
+        .hidden {
+            display: none !important;
+        }
+
+
+         /* Responsive adjustments */
+        @media (max-width: 768px) {
+             .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+             .form-container {
+                 padding: 1.5rem;
+                 margin: 1.5rem auto;
+             }
+             .form-container h1 {
+                 font-size: 1.8rem;
+                 margin-bottom: 1.5rem;
+             }
+             label {
+                 font-size: 0.85rem;
+             }
+             input[type="text"], textarea, select {
+                 padding: 0.8rem;
+                 font-size: 0.9rem;
+             }
+
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                 padding: 15px 10px;
+             }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             .form-container {
+                 padding: 1rem;
+                 margin: 1rem auto;
+             }
+              .form-container h1 {
+                 font-size: 1.5rem;
+                 margin-bottom: 1rem;
+             }
+
+             label {
+                 font-size: 0.8rem;
+                 margin-bottom: 0.3rem;
+             }
+             input[type="text"], textarea, select {
+                 padding: 0.6rem;
+                 font-size: 0.8rem;
+             }
+             textarea {
+                 min-height: 100px;
+             }
+
+             .submit-btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+             }
+             .message {
+                 padding: 0.8rem;
+                 margin-top: 1rem;
+                 font-size: 0.8rem;
+             }
+        }
+
+
+         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
+        /* For simplicity, manual adjustment is used in the variables above */
+        /* function darken(color, percent) { ... } */
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons">
-            <a href="index.html" class="btn secondary">Home</a>
-            <a href="dashboard.html" class="btn secondary">Dashboard</a>
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
             <a href="feedback-collections.html" id="collectionsLink" class="btn primary" style="display: none;">Collections</a>
             <button id="logoutBtn" class="btn secondary">Log Out</button>
         </div>
     </nav>
 
-    <main class="form-container">
-        <h1>Submit Feedback</h1>
-        <form id="feedbackForm">
-            <div class="form-group">
-                <label for="category">Category</label>
-                <select id="category" required>
-                    <option value="feedback">Feedback</option>
-                    <option value="feature">Feature Request</option>
-                    <option value="proxy">Proxy Report</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" id="title" required maxlength="50">
-            </div>
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" required maxlength="200"></textarea>
-            </div>
-            <button type="submit" class="submit-btn">Submit</button>
-            <div id="message" class="message"></div>
-        </form>
+    <main>
+        <div class="form-container">
+            <h1>Submit Feedback</h1>
+            <form id="feedbackForm">
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="feedback">Feedback</option>
+                        <option value="feature">Feature Request</option>
+                        <option value="proxy">Proxy Report</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" required maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" required maxlength="200"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Submit</button>
+                <div id="message" class="message"></div>
+            </form>
+        </div>
     </main>
 
+    <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
+
     <script>
+        // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
         document.addEventListener('DOMContentLoaded', () => {
             const db = firebase.firestore();
             const auth = firebase.auth();
             const feedbackForm = document.getElementById('feedbackForm');
             const messageDiv = document.getElementById('message');
-            const logoutBtn = document.getElementById('logoutBtn');
+            const logoutButton = document.getElementById('logoutBtn'); // Renamed to avoid conflict
             const collectionsLink = document.getElementById('collectionsLink');
             const adminEmail = '4simpleproblems@gmail.com';
 
             auth.onAuthStateChanged(user => {
-                if (!user) return window.location.href = 'index.html';
-                if (user.email === adminEmail) collectionsLink.style.display = 'inline-block';
+                if (!user) {
+                     console.log("No user logged in, redirecting to index.html");
+                     return window.location.href = 'index.html';
+                }
+                 // Show/hide collections link based on admin status
+                if (user.email === adminEmail) {
+                     if(collectionsLink) collectionsLink.style.display = 'inline-flex'; // Use inline-flex for btn
+                } else {
+                     if(collectionsLink) collectionsLink.style.display = 'none';
+                }
+                 console.log(`User ${user.email} is logged in.`);
             });
 
             feedbackForm.addEventListener('submit', async e => {
                 e.preventDefault();
+
+                 const user = auth.currentUser;
+                 if (!user) {
+                     showMessage('YOU MUST BE LOGGED IN TO SUBMIT FEEDBACK.', 'error'); // Uppercase status
+                     return;
+                 }
+
                 const category = document.getElementById('category').value;
                 const title = document.getElementById('title').value.trim();
                 const description = document.getElementById('description').value.trim();
-                const userEmail = auth.currentUser.email;
+                const userEmail = user.email; // Get email from authenticated user
+
+
+                 if (!title || !description) {
+                     showMessage('TITLE AND DESCRIPTION ARE REQUIRED.', 'error'); // Uppercase status
+                     return;
+                 }
+
                 try {
-                    await db.collection('feedback').add({ 
-                        category,
-                        title, 
-                        description, 
-                        submittedBy: userEmail, 
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+                    await db.collection('feedback').add({
+                        category: category,
+                        title: title,
+                        description: description,
+                        submittedBy: userEmail,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    showMessage('Submission successful!', 'success');
+                    showMessage('SUBMISSION SUCCESSFUL!', 'success'); // Uppercase status
                     feedbackForm.reset();
                 } catch (err) {
-                    showMessage('Error: ' + err.message, 'error');
+                    console.error("Feedback submission error:", err);
+                    showMessage('ERROR: ' + err.message.toUpperCase(), 'error'); // Uppercase status
                 }
             });
 
-            logoutBtn.addEventListener('click', () => auth.signOut().then(() => window.location.href = 'index.html'));
-            function showMessage(text, type) { messageDiv.textContent = text; messageDiv.className = 'message ' + type; messageDiv.style.display = 'block'; setTimeout(() => messageDiv.style.display = 'none', 5000); }
+            // Logout button functionality
+            if (logoutButton) {
+                 logoutButton.addEventListener('click', () => {
+                     auth.signOut().then(() => {
+                         console.log("User logged out.");
+                         window.location.href = 'index.html';
+                     }).catch(error => {
+                         console.error("Logout Error:", error);
+                         // Handle logout error if necessary
+                     });
+                 });
+            } else {
+                 console.error("Logout button not found.");
+            }
+
+            function showMessage(text, type) {
+                 messageDiv.textContent = text.toUpperCase(); // Ensure message text is uppercase
+                 messageDiv.className = 'message ' + type;
+                 messageDiv.style.display = 'block';
+                 setTimeout(() => messageDiv.style.display = 'none', 5000); // Message disappears after 5 seconds
+             }
         });
     </script>
-    </body>
+     </body>
 </html>
