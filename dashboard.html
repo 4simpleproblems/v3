@@ -1,489 +1,657 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>4SP | Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>4SP | DASHBOARD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet"/>
 
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
 
-  <style>
-   /* Base styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-body {
-  font-family: 'Roboto Mono', monospace;
-  background-color: #f5f5f5;
-  color: #333;
-  line-height: 1.6;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-.container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  flex: 1;
-}
 
-/* Navbar */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  background-color: #111;
-  color: #fff;
-}
-.logo {
-  font-size: 24px;
-  font-weight: 700;
-}
-.nav-buttons {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
+    <style>
+        :root {
+            --bg-color: #ffffff; /* Light background */
+            --text-color: #333333; /* Dark text */
+            --primary-color: #333333; /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc; /* Medium gray border */
+            --navbar-bg: #f0f0f0; /* Light gray for navbar */
+            --footer-bg: #f0f0f0; /* Light gray for footer */
+            --hover-bg: #e0e0e0; /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0; /* Light gray grid lines */
+            --accent-color: #333333; /* Dark accent color */
 
-/* Buttons */
-.btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 16px;
-  min-height: 40px;               /* Ensure consistent height */
-  border-radius: 30px;
-  text-decoration: none;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-  font-family: 'Roboto Mono', monospace;
-  text-align: center;
-  background-color: transparent;
-  color: #fff;
-  border: 1px solid currentColor;
-  line-height: 1.2;
-}
-.btn.primary {
-  background-color: #4285F4;
-  color: #fff;
-}
-.btn.secondary {
-  background-color: transparent;
-  color: #fff;
-}
-.btn.primary:hover {
-  background-color: #3367d6;
-}
-.btn.secondary:hover {
-  background-color: rgba(255,255,255,0.1);
-}
+            /* Section Header Colors (adapted for light theme) */
+            --header-media: #007bff; /* Blue */
+            --header-web: #fd7e14;   /* Orange */
+            --header-user-int: #dc3545; /* Red */
+            --header-settings: #6f42c1; /* Purple */
+            --header-others: #20c997; /* Teal */
+            --header-admin: #FFD000; /* Yellow */
+            --header-sub-admin: #FF9500; /* Darker Orange */
+        }
 
-/* Logout button inherits .btn styles—no extra overrides needed */
-#logoutBtn {
-  /* Inherits padding, min-height, display flex, etc. */
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* Hidden helper */
-.hidden {
-  display: none !important;
-}
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-align: center; /* Center all text by default */
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
 
-/* Dashboard Content Card – full width */
-.dashboard-content-card {
-  width: 100%;
-  max-width: none;
-  margin: 40px 0;
-  background-color: #fff;
-  border-radius: 50px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  overflow: hidden;
-  padding: 40px 30px;
-}
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px; /* Size of each grid cell */
+        }
 
-/* Section headers – thicker bottom border */
-.section-header {
-  margin: 3rem 0 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 4px solid;
-  color: #333;
-  font-weight: 700;
-  font-size: 1.5rem;
-}
-.section-header:first-of-type {
-  margin-top: 1rem;
-}
-.media-entertainment-header { border-color: #4285f4; }
-.web-access-header            { border-color: #fd7e14; }
-.user-interaction-header      { border-color: #dc3545; }
-.user-settings-header         { border-color: #6f42c1; }
-.others-header                { border-color: #20c997; }
-.admin-controls-header        { border-color: #FFD000; }
-.sub-admin-controls-header    { border-color: #FF9500; }
+         /* Remove triangular gradients */
+        body::before, body::after {
+            content: none;
+        }
 
-/* Grid – tiles expand to fill the row */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin: 2rem 0;
-}
-.dashboard-grid:has(:nth-child(2):last-child) {
-  grid-template-columns: repeat(2, 1fr);
-}
-@media (min-width: 992px) {
-  .dashboard-grid:has(:first-child:last-child) {
-    grid-template-columns: 1fr;
-  }
-  .dashboard-grid:has(:nth-child(2):last-child) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (max-width: 991px) and (min-width: 768px) {
-  .dashboard-grid:has(:first-child:last-child) {
-    grid-template-columns: 1fr;
-  }
-  .dashboard-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (max-width: 767px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-}
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px; /* Adjusted padding */
+             flex: 1; /* Allow container to grow */
+        }
 
-/* Tiles – slightly taller, thicker borders */
-.dashboard-tile {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background: white;
-  border-radius: 30px;
-  padding: 2.5rem;
-  text-decoration: none;
-  color: #333;
-  overflow: hidden;
-  height: 200px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 2px solid #e0e0e0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  width: 100%;
-}
-.dashboard-tile .tile-content {
-  position: relative;
-  z-index: 2;
-}
-.dashboard-tile h3 {
-  font-size: 1.6rem;
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-.dashboard-tile p {
-  font-size: 1rem;
-  line-height: 1.6;
-}
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 20px;
+            background-color: var(--navbar-bg);
+            text-align: left; /* Override center for navbar layout */
+            width: 100%;
+        }
 
-/* Inner frame – increased to 4px */
-.dashboard-tile .tile-frame {
-  position: absolute;
-  inset: 0;
-  border: 4px solid rgba(0, 0, 0, 0.08);
-  border-radius: 28px;
-  z-index: 1;
-  transition: border-color 0.3s ease;
-}
-.dashboard-tile:hover {
-  transform: translateY(-5px) scale(1.03);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-}
-.dashboard-tile:hover .tile-frame {
-  border-color: #333;
-}
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-color);
+        }
 
-.games-tile {
-  background-color: white;
-  border-color: #e0e0e0;
-}
+        .nav-buttons {
+            display: flex;
+            gap: 15px; /* Adjusted gap */
+            align-items: center;
+            text-align: left; /* Ensure text in buttons is not affected by body center */
+        }
 
-/* Footer */
-footer {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-  font-size: 14px;
-}
-  </style>
+        /* Buttons */
+        .btn {
+            display: inline-flex; /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px; /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px; /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+        }
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--bg-color); /* White text on dark primary */
+            border: 1px solid var(--primary-color);
+        }
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--text-color); /* Dark text on light secondary */
+            border: 1px solid var(--secondary-border-color);
+        }
+        .btn.primary:hover {
+            background-color: var(--hover-bg);
+             color: var(--text-color);
+             border-color: var(--hover-bg);
+        }
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+             border-color: var(--hover-bg);
+        }
+
+        /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192'; /* Right arrow character */
+            margin-right: 8px; /* Space between arrow and text */
+            font-weight: bold; /* Make arrow slightly bolder */
+             color: var(--accent-color); /* Dark accent color for arrow */
+        }
+
+
+        /* Dashboard Content Card – full width */
+        .dashboard-content-card {
+            width: 100%;
+            max-width: none; /* Full width */
+            margin: 40px auto; /* Center the card */
+            background-color: var(--bg-color); /* White background */
+            border-radius: 10px; /* Less rounded */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); /* Subtle shadow */
+            overflow: hidden;
+            padding: 40px 30px;
+             text-align: left; /* Align content within the card to the left */
+        }
+
+        /* Section headers – thicker bottom border */
+        .section-header {
+            margin: 3rem 0 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 4px solid;
+            color: var(--text-color); /* Dark text color */
+            font-weight: 700;
+            font-size: 1.8rem; /* Slightly larger font size */
+             text-transform: uppercase; /* All caps */
+        }
+        .section-header:first-of-type {
+            margin-top: 1rem;
+        }
+        .media-entertainment-header { border-color: var(--header-media); }
+        .web-access-header            { border-color: var(--header-web); }
+        .user-interaction-header      { border-color: var(--header-user-int); }
+        .user-settings-header         { border-color: var(--header-settings); }
+        .others-header                { border-color: var(--header-others); }
+        .admin-controls-header        { border-color: var(--header-admin); }
+        .sub-admin-controls-header    { border-color: var(--header-sub-admin); }
+
+        /* Grid – tiles expand to fill the row */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+             text-align: center; /* Center grid items within the grid container */
+        }
+        .dashboard-grid:has(:nth-child(2):last-child) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        @media (min-width: 992px) {
+            .dashboard-grid:has(:first-child:last-child) {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-grid:has(:nth-child(2):last-child) {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 991px) and (min-width: 768px) {
+            .dashboard-grid:has(:first-child:last-child) {
+                grid-template-columns: 1fr;
+            }
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 767px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Tiles – slightly taller, thicker borders */
+        .dashboard-tile {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: var(--navbar-bg); /* Light gray background for tiles */
+            border-radius: 10px; /* Less rounded */
+            padding: 2.5rem;
+            text-decoration: none;
+            color: var(--text-color); /* Dark text color */
+            overflow: hidden;
+            height: 220px; /* Slightly taller */
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            border: 2px solid var(--secondary-border-color); /* Light theme border */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Subtle shadow */
+            width: 100%;
+             text-align: left; /* Align tile content to the left */
+        }
+        .dashboard-tile .tile-content {
+            position: relative;
+            z-index: 2;
+        }
+        .dashboard-tile h3 {
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            font-weight: 700; /* Bolder weight for headings */
+             color: var(--text-color); /* Dark text color */
+             text-transform: uppercase; /* All caps */
+        }
+        .dashboard-tile p {
+            font-size: 1rem;
+            line-height: 1.6;
+             color: rgba(51, 51, 51, 0.8); /* Slightly lighter dark for description */
+             text-transform: uppercase; /* All caps */
+        }
+
+        /* Inner frame – increased to 4px */
+        .dashboard-tile .tile-frame {
+            position: absolute;
+            inset: 0;
+            border: 4px solid rgba(0, 0, 0, 0.08); /* Subtle inner border */
+            border-radius: 8px; /* Matches tile border-radius */
+            z-index: 1;
+            transition: border-color 0.3s ease;
+        }
+        .dashboard-tile:hover {
+            transform: translateY(-5px) scale(1.02); /* Subtle scale on hover */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* More prominent shadow on hover */
+             border-color: var(--accent-color); /* Accent border on hover */
+        }
+        .dashboard-tile:hover .tile-frame {
+            border-color: rgba(51, 51, 51, 0.2); /* Inner border darker on hover */
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6); /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+        }
+
+        /* Hidden helper */
+        .hidden {
+            display: none !important;
+        }
+
+         /* Ensure main content is centered horizontally */
+         main {
+             display: flex;
+             justify-content: center;
+             width: 100%;
+         }
+
+
+         /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .section-header {
+                font-size: 1.5rem;
+            }
+
+             .dashboard-tile {
+                 height: 200px; /* Adjust tile height */
+                 padding: 2rem; /* Adjust padding */
+             }
+
+             .dashboard-tile h3 {
+                 font-size: 1.4rem; /* Adjust heading size */
+             }
+
+             .dashboard-tile p {
+                 font-size: 0.9rem; /* Adjust paragraph size */
+             }
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                padding: 15px 10px;
+            }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             .dashboard-content-card {
+                 padding: 20px 15px;
+                 margin: 20px auto;
+             }
+
+             .section-header {
+                 font-size: 1.3rem;
+                 margin: 2rem 0 1rem;
+             }
+
+             .dashboard-grid {
+                 gap: 1rem;
+                 margin: 1rem 0;
+             }
+
+             .dashboard-tile {
+                 height: 180px;
+                 padding: 1.5rem;
+             }
+
+             .dashboard-tile h3 {
+                 font-size: 1.2rem;
+             }
+
+             .dashboard-tile p {
+                 font-size: 0.8rem;
+             }
+        }
+
+    </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="legal-list.html" class="btn secondary">Legal</a>
-      <a href="index.html" class="btn secondary">Home</a>
-      <button class="btn secondary" id="logoutBtn">Log Out</button>
-    </div>
-  </nav>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="legal-list.html" class="btn secondary btn-with-arrow">Legal</a>
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+            <button class="btn secondary" id="logoutBtn">Log Out</button>
+        </div>
+    </nav>
 
-  <main class="container">
-    <div class="dashboard-content-card">
-      <h1 class="hidden" id="authNotice">Please login to access your dashboard</h1>
+    <main>
+        <div class="container">
+            <div class="dashboard-content-card">
+                <h1 class="hidden" id="authNotice">PLEASE LOGIN TO ACCESS YOUR DASHBOARD</h1>
 
-      <h2 class="section-header media-entertainment-header">Media &amp; Entertainment</h2>
-      <div class="dashboard-grid">
-        <a href="soundboard.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Soundboard</h3>
-            <p>Access all available sound clips and categories. Play, hear, and admire these amazing sounds.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="mobilesoundboard.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Mobile Soundboard</h3>
-            <p>Access all available sound clips and categories on mobile. Play, hear, and admire these amazing sounds.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="playlist.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Playlists (Beta)</h3>
-            <p>Access and store sounds you like.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="localsounds.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Local Sounds</h3>
-            <p>Upload and play your own local MP3 files.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="slotz.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Slotz</h3>
-            <p>Fill your gambling addiction!</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="https://4simpleproblems.github.io/game/" target="_blank" rel="noopener" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Retro Games</h3>
-            <p>Play a variety of retro games from somebody else's curated collection.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
+                <h2 class="section-header media-entertainment-header">Media &amp; Entertainment</h2>
+                <div class="dashboard-grid">
+                    <a href="soundboard.html" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Soundboard</h3>
+                            <p>Access all available sound clips and categories. Play, hear, and admire these amazing sounds.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                    <a href="mobilesoundboard.html" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Mobile Soundboard</h3>
+                            <p>Access all available sound clips and categories on mobile. Play, hear, and admire these amazing sounds.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                    <a href="playlist.html" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Playlists (Beta)</h3>
+                            <p>Access and store sounds you like.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                    <a href="localsounds.html" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Local Sounds</h3>
+                            <p>Upload and play your own local MP3 files.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                    <a href="slotz.html" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Slotz</h3>
+                            <p>Fill your gambling addiction!</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                    <a href="https://4simpleproblems.github.io/game/" target="_blank" rel="noopener" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Retro Games</h3>
+                            <p>Play a variety of retro games from somebody else's curated collection.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                </div>
 
-      <h2 class="section-header web-access-header">Web Access</h2>
-      <div class="dashboard-grid">
-        <a href="vern.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Vern</h3>
-            <p>The official proxy for 4SP.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="links.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Links</h3>
-            <p>Uploaded links by 4SP, including Eaglercraft, and other crap.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
+                <h2 class="section-header web-access-header">Web Access</h2>
+                <div class="dashboard-grid">
+                    <a href="vern.html" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Vern</h3>
+                            <p>The official proxy for 4SP.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                    <a href="links.html" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Links</h3>
+                            <p>Uploaded links by 4SP, including Eaglercraft, and other crap.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                </div>
 
-      <h2 class="section-header user-interaction-header">User Interaction</h2>
-      <div class="dashboard-grid">
-        <a href="requests.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Request a Sound</h3>
-            <p>Submit requests for new sounds to be added to the collection. Sounds may be approved or denied.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="collections.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Sound Request Collection</h3>
-            <p>View sound requests organized by category.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="feedback.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Feedback</h3>
-            <p>Suggest user feedback, new features, or proxy reports to 4SP for improvement in the website.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
+                <h2 class="section-header user-interaction-header">User Interaction</h2>
+                <div class="dashboard-grid">
+                    <a href="requests.html" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Request a Sound</h3>
+                            <p>Submit requests for new sounds to be added to the collection. Sounds may be approved or denied.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                    <a href="collections.html" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Sound Request Collection</h3>
+                            <p>View sound requests organized by category.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                    <a href="feedback.html" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Feedback</h3>
+                            <p>Suggest user feedback, new features, or proxy reports to 4SP for improvement in the website.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                </div>
 
-      <h2 class="section-header user-settings-header">User Settings</h2>
-      <div class="dashboard-grid">
-        <a href="settings.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Settings</h3>
-            <p>Manage and view your settings and preferences. Updating your entire profile with usernames is in beta.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="legal-list.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Legal &amp; Policies</h3>
-            <p>Legal center for our website, including privacy policy and our terms of service.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
+                <h2 class="section-header user-settings-header">User Settings</h2>
+                <div class="dashboard-grid">
+                    <a href="settings.html" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Settings</h3>
+                            <p>Manage and view your settings and preferences. Updating your entire profile with usernames is in beta.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                    <a href="legal-list.html" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Legal &amp; Policies</h3>
+                            <p>Legal center for our website, including privacy policy and our terms of service.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                </div>
 
-      <h2 class="section-header others-header">Others</h2>
-      <div class="dashboard-grid">
-        <a href="schedule.html" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Working Schedule</h3>
-            <p>A working schedule from which websites will be updated.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="https://optana-web.github.io/" target="_blank" rel="noopener" class="dashboard-tile">
-          <div class="tile-content">
-            <h3>Optana Website</h3>
-            <p>A website I created based around wishlists. I would be able to make wishlists, and edit them so people know what I want. This is currently in alpha.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
+                <h2 class="section-header others-header">Others</h2>
+                <div class="dashboard-grid">
+                    <a href="schedule.html" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Working Schedule</h3>
+                            <p>A working schedule from which websites will be updated.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                    <a href="https://optana-web.github.io/" target="_blank" rel="noopener" class="dashboard-tile">
+                        <div class="tile-content">
+                            <h3>Optana Website</h3>
+                            <p>A website I created based around wishlists. I would be able to make wishlists, and edit them so people know what I want. This is currently in alpha.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                </div>
 
-      <!-- Full Admin Section -->
-      <h2 class="section-header admin-controls-header hidden" id="adminSectionHeader">
-        Admin Powers (Private)
-      </h2>
-      <div class="dashboard-grid hidden" id="adminSection">
-        <a href="feedback-collections.html" class="dashboard-tile admin-tile">
-          <div class="tile-content">
-            <h3>Feedback Collection</h3>
-            <p>Access user feedback and suggestions.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-        <a href="vernproview.html" class="dashboard-tile admin-tile">
-          <div class="tile-content">
-            <h3>Vern Pro</h3>
-            <p>Access the internet with a private proxy, away from the public.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
+                <h2 class="section-header admin-controls-header hidden" id="adminSectionHeader">
+                    Admin Powers (Private)
+                </h2>
+                <div class="dashboard-grid hidden" id="adminSection">
+                    <a href="feedback-collections.html" class="dashboard-tile admin-tile">
+                        <div class="tile-content">
+                            <h3>Feedback Collection</h3>
+                            <p>Access user feedback and suggestions.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                    <a href="vernproview.html" class="dashboard-tile admin-tile">
+                        <div class="tile-content">
+                            <h3>Vern Pro</h3>
+                            <p>Access the internet with a private proxy, away from the public.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                </div>
 
-      <!-- Sub‑Admin Section (Vern Pro Only) -->
-      <h2 class="section-header sub-admin-controls-header hidden" id="subAdminSectionHeader">
-        Sub‑Admin Powers (Vern Pro Only)
-      </h2>
-      <div class="dashboard-grid hidden" id="subAdminSection">
-        <a href="vernproview.html" class="dashboard-tile admin-tile">
-          <div class="tile-content">
-            <h3>Vern Pro</h3>
-            <p>Access the internet with a private proxy, away from the public.</p>
-          </div>
-          <div class="tile-frame"></div>
-        </a>
-      </div>
-    </div>
-  </main>
+                <h2 class="section-header sub-admin-controls-header hidden" id="subAdminSectionHeader">
+                    Sub‑Admin Powers (Vern Pro Only)
+                </h2>
+                <div class="dashboard-grid hidden" id="subAdminSection">
+                    <a href="vernproview.html" class="dashboard-tile admin-tile">
+                        <div class="tile-content">
+                            <h3>Vern Pro</h3>
+                            <p>Access the internet with a private proxy, away from the public.</p>
+                        </div>
+                        <div class="tile-frame"></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
 
-  <footer><p>© 2025 4SP</p></footer>
+    <footer><p>&copy; <span id="currentYear"></span> 4SP</p></footer>
 
-  <script>
-    // Authentication state management
-    function handleAuthState(user) {
-      const authNotice      = document.getElementById('authNotice');
-      const dashboardCard   = document.querySelector('.dashboard-content-card');
-      const logoutBtn       = document.getElementById('logoutBtn');
-      const adminHeader     = document.getElementById('adminSectionHeader');
-      const adminSection    = document.getElementById('adminSection');
-      const subAdminHeader  = document.getElementById('subAdminSectionHeader');
-      const subAdminSection = document.getElementById('subAdminSection');
+    <script>
+        // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-      // Full‑admin emails
-      const adminEmails = [
-        '4simpleproblems@gmail.com',
-        'belkwy30@minerva.sparcc.org'
-      ];
+        // Authentication state management
+        function handleAuthState(user) {
+            const authNotice      = document.getElementById('authNotice');
+            const dashboardCard   = document.querySelector('.dashboard-content-card');
+            const logoutBtn       = document.getElementById('logoutBtn');
+            const adminHeader     = document.getElementById('adminSectionHeader');
+            const adminSection    = document.getElementById('adminSection');
+            const subAdminHeader  = document.getElementById('subAdminSectionHeader');
+            const subAdminSection = document.getElementById('subAdminSection');
 
-      // Sub‑admin emails (vern pro only)
-      const subAdminEmails = [
-        '4simpleproblems@gmail.com',
-        'alleda30@minerva.sparcc.org',
-        'bellja27@minerva.sparcc.org',
-        'belkwy30@minerva.sparcc.org',
-        'otweno30@minerva.sparcc.org',
-        'ludwza30@minerva.sparcc.org',
-        'roseza30@minerva.sparcc.org',
-      ];
+            // Full‑admin emails
+            const adminEmails = [
+                '4simpleproblems@gmail.com',
+                'belkwy30@minerva.sparcc.org'
+            ];
 
-      if (user) {
-        authNotice.classList.add('hidden');
-        dashboardCard.classList.remove('hidden');
-        logoutBtn.classList.remove('hidden');
+            // Sub‑admin emails (vern pro only)
+            const subAdminEmails = [
+                '4simpleproblems@gmail.com',
+                'alleda30@minerva.sparcc.org',
+                'bellja27@minerva.sparcc.org',
+                'belkwy30@minerva.sparcc.org',
+                'otweno30@minerva.sparcc.org',
+                'ludwza30@minerva.sparcc.org',
+                'roseza30@minerva.sparcc.org',
+            ];
 
-        // Toggle full admin
-        if (adminEmails.includes(user.email)) {
-          adminHeader.classList.remove('hidden');
-          adminSection.classList.remove('hidden');
-        } else {
-          adminHeader.classList.add('hidden');
-          adminSection.classList.add('hidden');
+            if (user) {
+                authNotice.classList.add('hidden');
+                dashboardCard.classList.remove('hidden');
+                logoutBtn.classList.remove('hidden');
+
+                // Toggle full admin
+                if (adminEmails.includes(user.email)) {
+                    adminHeader.classList.remove('hidden');
+                    adminSection.classList.remove('hidden');
+                } else {
+                    adminHeader.classList.add('hidden');
+                    adminSection.classList.add('hidden');
+                }
+
+                // Toggle sub‑admin
+                if (subAdminEmails.includes(user.email)) {
+                    subAdminHeader.classList.remove('hidden');
+                    subAdminSection.classList.remove('hidden');
+                } else {
+                    subAdminHeader.classList.add('hidden');
+                    subAdminSection.classList.add('hidden');
+                }
+
+            } else {
+                // if not logged in, send back to sign‑in
+                window.location.href = 'index.html';
+            }
         }
 
-        // Toggle sub‑admin
-        if (subAdminEmails.includes(user.email)) {
-          subAdminHeader.classList.remove('hidden');
-          subAdminSection.classList.remove('hidden');
-        } else {
-          subAdminHeader.classList.add('hidden');
-          subAdminSection.classList.add('hidden');
+        // Initialize Firebase authentication and set up logout
+        function initAuth() {
+            const auth = firebase.auth();
+            const logoutButton = document.getElementById('logoutBtn');
+
+            // Ensure the element exists before adding a listener
+            if (logoutButton) {
+                 // Remove any existing listeners before adding a new one to prevent duplicates
+                const newLogoutButton = logoutButton.cloneNode(true);
+                logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
+
+                newLogoutButton.addEventListener('click', e => {
+                    e.preventDefault();
+                    auth.signOut().then(() => {
+                        window.location.href = 'index.html';
+                    }).catch(console.error);
+                });
+            }
+
+
+            auth.onAuthStateChanged(handleAuthState);
         }
 
-      } else {
-        // if not logged in, send back to sign‑in
-        window.location.href = 'index.html';
-      }
-    }
+        document.addEventListener('DOMContentLoaded', () => {
+             // Check if firebase and auth are available after scripts are loaded
+            if (typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined') {
+                initAuth();
+            } else {
+                console.error("Firebase SDK or Auth not loaded.");
+                const notice = document.getElementById('authNotice');
+                 // Ensure notice and dashboard card elements exist before trying to modify them
+                 const dashboardCard = document.querySelector('.dashboard-content-card');
 
-    // Initialize Firebase authentication and set up logout
-    function initAuth() {
-      const auth = firebase.auth();
-      document.getElementById('logoutBtn')
-        .addEventListener('click', e => {
-          e.preventDefault();
-          auth.signOut().then(() => {
-            window.location.href = 'index.html';
-          }).catch(console.error);
+                if (notice) {
+                     notice.textContent = 'ERROR LOADING APPLICATION COMPONENTS. PLEASE TRY AGAIN LATER.';
+                     notice.classList.remove('hidden');
+                } else {
+                     console.error("Auth notice element not found.");
+                }
+
+                if (dashboardCard) {
+                     dashboardCard.classList.add('hidden');
+                } else {
+                     console.error("Dashboard content card element not found.");
+                }
+            }
         });
-      auth.onAuthStateChanged(handleAuthState);
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      if (firebase && firebase.auth) {
-        initAuth();
-      } else {
-        console.error("Firebase SDK not loaded.");
-        const notice = document.getElementById('authNotice');
-        notice.textContent = 'Error loading application components. Please try again later.';
-        notice.classList.remove('hidden');
-        document.querySelector('.dashboard-content-card').classList.add('hidden');
-      }
-    });
-  </script>
-</body>
+    </script>
+    </body>
 </html>
