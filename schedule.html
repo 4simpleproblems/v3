@@ -1,135 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>4SP | Schedule</title>
-  <link rel="stylesheet" href="styles.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>4SP | SCHEDULE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
 
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="firebase-config.js"></script>
+    <style>
+        * {
+            /* Removed !important overrides */
+            font-family: 'Outfit', sans-serif;
+            box-sizing: border-box;
+        }
 
-  <style>
-    :root {
-      --dark-bg: #1a1a1a;
-      --darker-bg: #0d0d0d;
-      --light-text: #f0f0f0;
-      --light-gray: #e0e0e0;
-      --tile-height: 280px;
-      --section-color: #3498db;
-    }
+        :root {
+            --bg-color: #ffffff; /* Light background */
+            --text-color: #333333; /* Dark text */
+            --primary-color: #333333; /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc; /* Medium gray border */
+            --navbar-bg: #f0f0f0; /* Light gray for navbar */
+            --footer-bg: #f0f0f0; /* Light gray for footer */
+            --hover-bg: #e0e0e0; /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0; /* Light gray grid lines */
+            --accent-color: #333333; /* Dark accent color */
 
-    body {
-      background-color: var(--light-gray);
-      color: var(--dark-bg);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      margin: 0;
-      font-family: 'Roboto Mono', monospace;
-    }
+            /* Removed specific variables like --tile-height, --section-color as they are not used */
+        }
 
-    main.container {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 0 2rem;
-      flex: 1;
-      /* center content */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+        body {
+            background-color: var(--bg-color); /* Light background */
+            color: var(--text-color); /* Dark text */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0; /* Removed margin */
+            font-family: 'Outfit', sans-serif;
+             line-height: 1.6;
+             text-transform: uppercase;
+             text-align: center; /* Center content by default */
+             position: relative;
+             overflow-x: hidden;
 
-    footer {
-      text-align: center;
-      padding: 1rem 0;
-      color: #333333;
-    }
+             /* Add padding to account for fixed navbar and footer */
+             /* Adjusted padding-top slightly for better spacing with fixed navbar */
+             padding-top: 80px; /* Default padding for fixed navbar */
+             padding-bottom: 60px; /* Default padding for fixed footer */
 
-    /* Navbar */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.5rem 3rem;
-      background-color: var(--darker-bg);
-      color: var(--light-text);
-      border-bottom: 1px solid var(--darker-bg);
-    }
-    .logo {
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: -1.5px;
-    }
-    .nav-buttons {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
+             /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px; /* Size of each grid cell */
+        }
 
-    .btn {
-      display: inline-block;
-      padding: 1rem 2rem;
-      border-radius: 50px;
-      font-size: 1rem;
-      line-height: normal;
-      cursor: pointer;
-      text-align: center;
-      border: 2px solid transparent;
-      font-weight: 500;
-      transition: none !important;
-    }
-    .btn.secondary {
-      background-color: transparent;
-      color: var(--light-text);
-      border-color: var(--light-text);
-    }
+         /* Remove triangular gradients */
+        body::before, body::after {
+            content: none;
+        }
 
-    .hidden {
-      display: none !important;
-    }
-  </style>
+         a {
+              /* Inherit color or set theme color, text decoration handled by specific classes */
+             color: var(--text-color);
+             text-decoration: none;
+         }
+
+        /* Navbar - consistent with other pages */
+        .navbar {
+            display: flex;
+            justify-content: space-between; /* Pushes logo to left, buttons to right */
+            align-items: center; /* Vertically centers items in navbar */
+            padding: 20px 20px;
+            /* Adjusted padding */
+            background-color: var(--navbar-bg);
+            /* Light gray */
+            color: var(--text-color);
+            /* Dark text */
+             text-align: left; /* Override center for navbar layout */
+            width: 100%;
+            position: fixed; /* Ensure navbar is fixed */
+            top: 0;
+            left: 0; /* Ensure it starts from the left edge */
+            z-index: 100; /* Ensure it's above other content */
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+             color: var(--text-color);
+             /* Removed specific letter-spacing */
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            /* Adjusted gap */
+            align-items: center; /* Vertically centers buttons within nav-buttons */
+             text-align: left; /* Ensure text in buttons is not affected by body center */
+             margin-left: auto; /* Pushes the nav-buttons group to the right */
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex; /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px; /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px; /* Less rounded */
+            text-decoration: none; /* Removed !important */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease; /* Applied transition here */
+            border: none; /* Removed default transparent border */
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase; /* All caps */
+            font-size: 14px;
+            text-align: center;
+             /* Removed !important transition override */
+             /* Removed specific line-height */
+        }
+
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--bg-color); /* White text on dark primary */
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--text-color); /* Dark text on light secondary */
+            border: 1px solid var(--secondary-border-color);
+        }
+
+        .btn.primary:hover {
+            background-color: var(--hover-bg);
+             color: var(--text-color);
+             border-color: var(--hover-bg);
+         }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+             border-color: var(--hover-bg);
+        }
+
+         /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192'; /* Right arrow character */
+            margin-right: 8px; /* Space between arrow and text */
+            font-weight: bold; /* Make arrow slightly bolder */
+             color: var(--accent-color); /* Dark accent color for arrow */
+        }
+
+
+        main.container {
+            max-width: 1200px; /* Kept max-width */
+            margin: 2rem auto; /* Adjusted margin */
+            padding: 0 20px; /* Adjusted padding */
+            flex: 1;
+            /* Center content vertically and horizontally in the available space */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .center-message {
+            /* Optional: Add styling for the message container if needed */
+             text-align: center; /* Ensure message content is centered */
+        }
+
+        .center-message h1 {
+            font-size: 3rem; /* Adjusted font size */
+             color: var(--text-color); /* Dark text */
+             font-weight: 900;
+             text-transform: uppercase;
+             text-align: center; /* Ensure title is centered */
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6);
+            /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+            /* Make the footer fixed at the bottom */
+             position: fixed;
+             bottom: 0;
+             left: 0; /* Ensure it starts from the left edge */
+             z-index: 100; /* Ensure it's above other content */
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+
+         /* Responsive adjustments */
+        @media (max-width: 768px) {
+             .navbar {
+                flex-direction: column; /* Stack items vertically */
+                gap: 10px;
+                 align-items: flex-start; /* Align stacked items to the left */
+            }
+
+            .nav-buttons {
+                flex-direction: column; /* Stack buttons vertically */
+                gap: 10px;
+                 align-items: flex-start; /* Align stacked buttons to the left */
+                 margin-left: 0; /* Remove auto margin in column layout */
+                 width: 100%; /* Allow buttons to take full width if needed */
+            }
+
+            body {
+                 padding-top: 120px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 80px; /* Adjust padding for footer */
+            }
+
+             main.container {
+                 padding: 0 10px;
+                 margin: 1.5rem auto;
+             }
+
+             .center-message h1 {
+                 font-size: 2.5rem;
+             }
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                 padding: 15px 10px;
+             }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             body {
+                 padding-top: 150px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 100px; /* Adjust padding for footer */
+             }
+
+             main.container {
+                 padding: 0 8px;
+                 margin: 1rem auto;
+             }
+
+             .center-message h1 {
+                 font-size: 1.8rem;
+             }
+        }
+
+         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
+        /* function darken(color, percent) { ... } */
+    </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="dashboard.html" class="btn secondary" id="dashboardBtn">Dashboard</a>
-      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
-    </div>
-  </nav>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+             <a href="dashboard.html" class="btn secondary btn-with-arrow" id="dashboardBtn">Dashboard</a>
+             <a href="collections.html" class="btn secondary btn-with-arrow">Collections</a>
+            <button id="logoutBtn" class="btn secondary">Log Out</button>
+        </div>
+    </nav>
 
-  <main class="container">
-    <div class="center-message">
-      <h1>I'll do what I want!!!</h1>
-    </div>
-  </main>
+    <main class="container">
+        <div class="center-message">
+            <h1>I'll do what I want!!!</h1>
+        </div>
+    </main>
 
-  <footer><p>© 2025 4SP</p></footer>
+    <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
 
-  <script>
-    // Authentication redirection: if not authenticated, go back to index
-    function handleAuthState(user) {
-      if (!user) {
-        window.location.href = 'index.html';
-      }
-    }
+    <script>
+         // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-    function initAuth() {
-      try {
-        const auth = firebase.auth();
-        auth.onAuthStateChanged(user => handleAuthState(user));
-      } catch (error) {
-        console.error('Auth init error:', error);
-        window.location.href = 'index.html';
-      }
-    }
+         // --- Firebase initialization & Auth status handling ---
+         let auth; // Declare auth variable
 
-    document.addEventListener('DOMContentLoaded', () => {
-      if (typeof firebase !== 'undefined') initAuth();
-    });
-  </script>
-</body>
+         document.addEventListener('DOMContentLoaded', () => {
+             // Initially hide logout button until user is confirmed authenticated
+             const logoutButton = document.getElementById('logoutBtn');
+             if(logoutButton) logoutButton.classList.add('hidden');
+
+             // Check if Firebase SDK and Auth are available on DOM load
+             if (typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined') {
+                 // Initialize Auth
+                 try {
+                      // Initialize Firebase app if not already initialized
+                      if (firebase.apps.length === 0 && typeof firebaseConfig !== 'undefined') {
+                          firebase.initializeApp(firebaseConfig);
+                      }
+                      auth = firebase.auth(); // Assign auth instance
+
+                     // Set up the authentication state change listener
+                     auth.onAuthStateChanged(user => handleAuthState(user));
+
+                 } catch (error) {
+                     console.error('Firebase initialization or Auth init error:', error);
+                     // Handle Firebase initialization error, maybe show message
+                     const mainContainer = document.querySelector('main.container');
+                     if (mainContainer) {
+                         mainContainer.innerHTML = '<div class="center-message"><h1 style="color: var(--status-error-color); font-size: 1.5rem;">ERROR LOADING FIREBASE SERVICES. PLEASE CHECK YOUR CONNECTION.</h1></div>';
+                     }
+                      if(logoutButton) logoutButton.classList.add('hidden'); // Ensure logout is hidden
+                 }
+
+            } else {
+                 console.error("Firebase SDK or Auth not available on DOM load. Authentication features disabled.");
+                 // Handle cases where Firebase is not loaded (e.g., network issues)
+                  const mainContainer = document.querySelector('main.container');
+                  if (mainContainer) {
+                      mainContainer.innerHTML = '<div class="center-message"><h1 style="color: var(--status-error-color); font-size: 1.5rem;">ERROR LOADING FIREBASE. PLEASE CHECK YOUR CONNECTION.</h1></div>';
+                  }
+                  if(logoutButton) logoutButton.classList.add('hidden'); // Ensure logout is hidden
+            }
+         });
+
+
+        // Function to handle authentication state changes
+        function handleAuthState(user) {
+            const logoutButton = document.getElementById('logoutBtn');
+
+            if (user) {
+                console.log("User is logged in:", user.email);
+                // User is logged in, show logout button
+                if(logoutButton) logoutButton.classList.remove('hidden');
+                 setupNavListeners(); // Setup navigation listeners only if authenticated
+            } else {
+                console.log("No user logged in.");
+                // No user logged in, hide logout button
+                if(logoutButton) logoutButton.classList.add('hidden');
+                 // Navigation listeners are not set up in this case, or handle non-authenticated navigation
+                 // The anchor tags will work for basic navigation regardless of JS listeners.
+                 setupNavListeners(false); // Pass false to indicate not authenticated
+            }
+        }
+
+
+         function setupNavListeners(isAuthenticated = true) {
+             // DOM Elements (get them here after user is authenticated and DOM is ready)
+              const logoutButton = document.getElementById('logoutBtn'); // Renamed to avoid conflict
+
+              // Add/Remove listener based on authentication status
+              if (logoutButton) {
+                  // Remove any existing listener to prevent duplicates
+                  const newLogoutButton = logoutButton.cloneNode(true);
+                  logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
+                  const currentLogoutButton = newLogoutButton; // Use the new button instance
+
+                  if (isAuthenticated) {
+                       currentLogoutButton.addEventListener('click', () => {
+                           // Ensure auth is available
+                           if(auth) { // Use the auth variable assigned in handleAuthState
+                               auth.signOut().then(() => {
+                                    console.log("User signed out.");
+                                    window.location.href = 'index.html'; // Redirect to index after logout
+                               }).catch(error => {
+                                    console.error("Logout Error:", error);
+                                    alert("Error logging out. Please try again.");
+                               });
+                           } else {
+                               console.error("Firebase Auth not available for logout.");
+                               alert("Logout failed. Firebase services not available.");
+                           }
+                       });
+                  }
+                  /* If not authenticated, no logout listener is added, keeping the button non-interactive.
+                     The button is hidden by CSS (.hidden class applied in handleAuthState).
+                     Anchor tags for Home, Dashboard, Collections will work via their hrefs regardless.
+                  */
+              } else {
+                   console.error("Logout button not found in setupNavListeners.");
+              }
+
+             // Navigation links already have hrefs, no extra JS listeners needed for basic navigation
+              // If you wanted advanced navigation (e.g., single page app routing), you'd add them here.
+         }
+
+
+    </script>
+     </body>
 </html>
