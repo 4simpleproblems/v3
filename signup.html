@@ -1,666 +1,385 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>4SP | Sign Up</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-  
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SOGA | Sign Up</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
   <style>
-    /* Base styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root {
+      --primary-color: #0f0f0f;
+      --text-color: #101827;
+      --bg-color: #f5f3ef;
+      --secondary-bg: #e9e5dc;
+      --accent-color: #ff7500;
+      --button-bg: #1a1a1a;
+      --orange-accent: #ff7500;
     }
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      font-family: 'Roboto Mono', monospace;
-      background-color: #f5f5f5;
-      color: #333;
-      line-height: 1.6;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-color);
+      background-color: var(--bg-color);
+      line-height:1.6;
+      background-image: url("data:image/svg+xml,%3Csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='grid' width='100' height='100' patternUnits='userSpaceOnUse'%3E%3Cpath d='M100 0 L0 0 0 100' fill='none' stroke='%23e0dcd4' stroke-width='0.5'/ %3E%3C/pattern%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='url(%23grid)'/%3E%3C/svg%3E");
+      background-attachment:fixed;
     }
-    .container {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
+    .container { max-width:1200px; margin:0 auto; padding:0 2rem; }
+    header { padding:1.5rem 0; background-color:var(--bg-color); }
+    nav { display:flex; justify-content:space-between; align-items:center; }
+    .logo { display:flex; align-items:center; }
+    .logo img { height:30px; }
+    .logo-text { font-weight:800; font-size:1.5rem; letter-spacing:-0.01em; margin-left:0.5rem; }
+    .nav-links { display:flex; gap:2rem; }
+    .nav-links a {
+      text-decoration:none; color:var(--text-color); font-weight:500;
+      font-size:0.9rem; letter-spacing:0.5px; text-transform:uppercase;
+      padding:8px 12px; border-radius:6px; transition:all .3s ease;
     }
+    .nav-links a:hover {
+      background-color:rgba(255,117,0,0.1);
+      color:var(--orange-accent);
+      transform:translateY(-2px);
+    }
+    .auth-buttons { display:flex; gap:1rem; }
+    .button {
+      display:inline-flex; align-items:center; justify-content:center;
+      background-color:var(--button-bg); color:white; 
+      padding:.6rem 1.2rem; border-radius:8px; font-weight:600;
+      text-decoration:none; transition:all .3s ease; font-size:.85rem; letter-spacing:.5px;
+    }
+    .button.login { background:transparent; color:var(--button-bg); border:1px solid transparent; }
+    .button.signup { background-color:var(--button-bg); }
+    .button:hover {
+      transform:translateY(-2px); box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    }
+    .arrow { margin:0 .5rem; display:inline-block; transition:transform .3s ease; }
+    .button:hover .arrow:first-child { transform:translateX(-3px); }
+    .button:hover .arrow:last-child  { transform:translateX(3px); }
 
-    /* Navbar */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px;
-      background-color: #111;
-      color: #fff;
+    .hero {
+      padding:8rem 0 6rem; text-align:center; position:relative;
     }
-    .logo {
-      font-size: 24px;
-      font-weight: 700;
+    .background-globe {
+      position:absolute; width:100%; height:100%; top:0; left:0;
+      z-index:-1; opacity:0.3; pointer-events:none;
     }
-    .nav-buttons {
-      display: flex;
-      gap: 10px;
+    .globe-circle {
+      position:absolute; border:1px solid #e0dcd4; border-radius:50%;
     }
-    .btn {
-      padding: 8px 16px;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: none;
-      font-family: 'Roboto Mono', monospace;
-    }
-    .btn.primary {
-      background-color: #4285F4;
-      color: white;
-    }
-    .btn.secondary {
-      background-color: transparent;
-      color: white;
-      border: 1px solid white;
-    }
-    .btn.primary:hover {
-      background-color: #3367d6;
-    }
-    .btn.secondary:hover {
-      background-color: rgba(255,255,255,0.1);
-    }
-    .btn.full-width {
-      width: 100%;
-      margin-top: 15px;
-    }
+    .globe-circle:nth-child(1){width:700px;height:700px;top:50%;left:50%;transform:translate(-50%,-50%);}
+    .globe-circle:nth-child(2){width:900px;height:900px;top:50%;left:50%;transform:translate(-50%,-50%);}
+    .globe-circle:nth-child(3){width:1100px;height:1100px;top:50%;left:50%;transform:translate(-50%,-50%);}
+    .globe-line { position:absolute; height:1px; width:100%; background-color:#e0dcd4; top:50%; transform-origin:center; }
+    .globe-line:nth-child(4){transform:rotate(30deg);} .globe-line:nth-child(5){transform:rotate(60deg);}
+    .globe-line:nth-child(6){transform:rotate(90deg);} .globe-line:nth-child(7){transform:rotate(120deg);}
+    .globe-line:nth-child(8){transform:rotate(150deg);}
 
-    /* Sign Up page */
-    .login-title {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 40px;
-      color: #333;
-    }
     .auth-container {
-      width: 100%;
-      max-width: 900px;
-      margin: 40px auto;
-      background-color: #fff;
-      border-radius: 30px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      overflow: hidden;
+      background:var(--secondary-bg); border-radius:12px; overflow:hidden;
+      box-shadow:0 5px 15px rgba(0,0,0,0.05); max-width:900px; margin:40px auto;
     }
-    #authMessage {
-      display: none;
-      padding: 30px;
-    }
-
-    .split-layout {
-      display: flex;
-      min-height: 500px;
-    }
-    .auth-section {
-      padding: 30px;
-    }
-    .email-section {
-      flex: 1;
-      border-right: 1px solid #eee;
-    }
+    .split-layout { display:flex; min-height:500px; }
+    .auth-section { flex:1; padding:2.5rem; }
+    .email-section { border-right:1px solid #ccc; background:var(--secondary-bg); }
     .social-section {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      background-color: #f9f9f9;
-    }
-    .auth-form {
-      margin-top: 20px;
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    .form-group input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 30px;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 14px;
+      background:var(--secondary-bg); display:flex; flex-direction:column;
+      justify-content:center; align-items:center; text-align:center;
     }
     .auth-heading {
-      font-size: 20px;
-      margin-bottom: 15px;
+      font-size:2rem; font-weight:900; text-transform:uppercase;
+      letter-spacing:-0.025em; margin-bottom:1rem; color:var(--text-color);
+      text-align:center;
     }
     .auth-subheading {
-      color: #666;
-      margin-bottom: 25px;
+      color:#4b5563; margin-bottom:2rem; text-align:center;
     }
+    .auth-form .form-group { margin-bottom:1.5rem; }
+    .auth-form input {
+      width:100%; padding:.8rem; border:1px solid #ccc;
+      border-radius:6px; font-size:.95rem; font-family:'Roboto Mono',monospace;
+    }
+    .btn-primary {
+      width:100%; padding:.8rem; background-color:var(--button-bg);
+      color:white; border:none; border-radius:8px; font-weight:600;
+      cursor:pointer; transition:all .3s ease; font-size:.9rem;
+    }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 5px 15px rgba(0,0,0,0.15); }
     .google-auth {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 20px;
-      background-color: white;
-      border: 1px solid #ddd;
-      border-radius: 30px;
-      font-family: 'Roboto Mono', monospace;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      width: 80%;
-      max-width: 250px;
-      margin-bottom: 15px;
+      display:inline-flex; align-items:center; justify-content:center;
+      background:#ffffff; border:1px solid rgba(255,255,255,0.8);
+      color:var(--primary-color); padding:.8rem 1.2rem; border-radius:8px;
+      font-weight:700; text-transform:uppercase; letter-spacing:-0.02em;
+      cursor:pointer; transition:all .3s ease; font-size:1rem; margin-bottom:1rem;
     }
-    .google-auth:hover {
-      background-color: #f5f5f5;
+    .social-description { font-size:.85rem; color:#6b7280; max-width:80%; }
+    .auth-footer { text-align:center; margin-top:1rem; font-size:.9rem; }
+    .auth-footer a { color:var(--accent-color); text-decoration:none; }
+    .message { padding:1rem; border-radius:8px; margin-bottom:1rem; }
+    .message.success { background:#d4edda; color:#155724; }
+    .message.error   { background:#f8d7da; color:#721c24; }
+    #authMessage { display:none; padding:0 2.5rem; }
+    .modal { display:none; position:fixed; top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,0.7); z-index:1000; justify-content:center;align-items:center;
     }
-    .google-icon {
-      width: 18px;
-      height: 18px;
-      margin-right: 10px;
+    .modal-content { background:white; padding:2rem; border-radius:8px;
+      max-width:500px; width:90%; text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.3);
     }
-    .social-description {
-      font-size: 14px;
-      color: #666;
-      max-width: 80%;
-      margin-top: 15px;
-    }
-    .auth-footer {
-      margin-top: 30px;
-      font-size: 14px;
-      text-align: center;
-    }
-    .auth-footer a {
-      color: #4285F4;
-      text-decoration: none;
-    }
-    .message {
-      padding: 10px;
-      border-radius: 15px;
-      margin-bottom: 20px;
-    }
-    .message.success {
-      background-color: #d4edda;
-      color: #155724;
-    }
-    .message.error {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-    .message.warning {
-      background-color: #fff3cd;
-      color: #856404;
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      color: #666;
-      font-size: 14px;
-    }
-    .username-helper-text {
-      font-size: 12px;
-      color: #666;
-      margin-top: 5px;
-    }
-    .username-helper-text.error {
-      color: #721c24;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.7);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-content {
-      background-color: white;
-      padding: 2rem;
-      border-radius: 8px;
-      max-width: 500px;
-      width: 90%;
-      text-align: center;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    }
-    .modal-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
+    .modal-buttons { display:flex; justify-content:center; gap:1rem; margin-top:1.5rem; }
   </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="index.html" class="btn secondary">Home</a>
-      <a href="login.html" class="btn secondary">Login</a>
-      <a href="signup.html" class="btn primary">Sign Up</a>
-    </div>
-  </nav>
-
-  <main class="container">
-    <h1 class="login-title">Sign Up to 4SP</h1>
-
-    <div class="auth-container">
-      <div id="authMessage"></div>
-
-      <div class="split-layout">
-        <!-- Email Sign Up Section -->
-        <div class="auth-section email-section">
-          <h2 class="auth-heading">Sign up with Email</h2>
-          <p class="auth-subheading">Create a new account using your email address</p>
-          <form id="signupForm" class="auth-form">
-            <div class="form-group">
-              <input type="email" id="signupEmail" placeholder="Email" required autocomplete="username">
-            </div>
-            <div class="form-group">
-              <input type="password" id="signupPassword" placeholder="Password" required autocomplete="new-password" minlength="6">
-            </div>
-            <div class="form-group">
-              <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required autocomplete="new-password">
-            </div>
-            <div class="form-group">
-              <input type="text" id="signupUsername" placeholder="Username" required minlength="4" maxlength="16">
-              <p class="username-helper-text">Username must be 4-16 characters</p>
-            </div>
-            <button type="submit" class="btn primary full-width">Sign Up</button>
-          </form>
-          <p class="auth-footer">Already have an account? <a href="login.html">Login</a></p>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">
+          <img src="logo.png" alt="SOGA Logo"><span class="logo-text">SOGA</span>
         </div>
+        <div class="nav-links">
+          <a href="channels.html">CHANNELS</a>
+          <a href="messages.html">DIRECT MESSAGES</a>
+          <a href="groups.html">GROUPS</a>
+          <a href="discover.html">DISCOVER</a>
+          <a href="help.html">HELP</a>
+        </div>
+        <div class="auth-buttons">
+          <a href="login.html" class="button login"><span class="arrow">›</span> LOGIN <span class="arrow">‹</span></a>
+          <a href="signup.html" class="button signup"><span class="arrow">›</span> SIGN UP <span class="arrow">‹</span></a>
+        </div>
+      </nav>
+    </div>
+  </header>
 
-        <!-- Social Sign Up Section -->
-        <div class="auth-section social-section">
-          <h2 class="auth-heading">Sign up with Google</h2>
-          <p class="auth-subheading">Quick and secure registration with your Google account</p>
-          <button id="googleSignupBtn" class="google-auth">
-            <svg class="google-icon" viewBox="0 0 24 24">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            Google
-          </button>
-          <p class="social-description">Using Google Sign-Up allows you to create your 4SP account without remembering another password.</p>
+  <section class="hero">
+    <div class="background-globe">
+      <div class="globe-circle"></div>
+      <div class="globe-circle"></div>
+      <div class="globe-circle"></div>
+      <div class="globe-line"></div>
+      <div class="globe-line"></div>
+      <div class="globe-line"></div>
+      <div class="globe-line"></div>
+      <div class="globe-line"></div>
+    </div>
+    <div class="container">
+      <h1 class="auth-heading">Sign Up to SOGA</h1>
+      <div id="authMessage"></div>
+      <div class="auth-container">
+        <div class="split-layout">
+          <!-- Email Sign Up Section -->
+          <div class="auth-section email-section">
+            <h2 class="auth-heading">Sign up with Email</h2>
+            <p class="auth-subheading">Create a new account using your email address</p>
+            <form id="signupForm" class="auth-form">
+              <div class="form-group">
+                <input type="email" id="signupEmail" placeholder="Email" required autocomplete="username">
+              </div>
+              <div class="form-group">
+                <input type="password" id="signupPassword" placeholder="Password" required autocomplete="new-password" minlength="6">
+              </div>
+              <div class="form-group">
+                <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required autocomplete="new-password">
+              </div>
+              <div class="form-group">
+                <input type="text" id="signupUsername" placeholder="Username" required minlength="4" maxlength="16">
+                <p class="username-helper-text">Username must be 4–16 characters</p>
+              </div>
+              <button type="submit" class="btn-primary">Sign Up</button>
+            </form>
+            <p class="auth-footer">Already have an account? <a href="login.html">Login</a></p>
+          </div>
+          <!-- Social Sign Up Section -->
+          <div class="auth-section social-section">
+            <h2 class="auth-heading">Sign up with Google</h2>
+            <p class="auth-subheading">Quick and secure registration with your Google account</p>
+            <button id="googleSignupBtn" class="google-auth">
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" style="width:18px;height:18px;margin-right:10px;">
+              Sign Up with Google
+            </button>
+            <p class="social-description">Using Google Sign‑Up lets you create your SOGA account without remembering another password.</p>
+          </div>
         </div>
       </div>
     </div>
-  </main>
-  
+  </section>
+
   <!-- Email Verification Modal -->
   <div id="verificationModal" class="modal">
     <div class="modal-content">
       <h2>Verify Your Email</h2>
-      <p>We've sent a verification email to <span id="verificationEmail"></span></p>
+      <p>We've sent a verification email to <strong><span id="verificationEmail"></span></strong>.</p>
       <p>Please check your inbox and click the verification link to activate your account.</p>
       <div class="modal-buttons">
-        <button id="resendVerificationBtn" class="btn secondary">Resend Email</button>
-        <button id="closeModalBtn" class="btn primary">OK</button>
+        <button id="resendVerificationBtn" class="button secondary">Resend Email</button>
+        <button id="closeModalBtn" class="button signup">OK</button>
       </div>
     </div>
   </div>
 
-  <footer>
-    <p>© 2025 4SP</p>
+  <footer style="text-align:center;padding:20px;color:#666;font-size:14px;">
+    © 2025 SOGA
   </footer>
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      // Initialize Firebase
-      let auth;
-      let db;
-      
-      // Wait for Firebase to initialize
-      const waitForFirebase = async () => {
-        return new Promise(resolve => {
-          const checkFirebase = setInterval(() => {
-            if (firebase.apps.length) {
-              clearInterval(checkFirebase);
-              auth = firebase.auth();
-              db = firebase.firestore();
-              resolve();
-            }
-          }, 100);
-        });
-      };
-      
-      await waitForFirebase();
-      
-      // DOM elements
+      // Initialize Firebase services
+      await new Promise(r => {
+        const iv = setInterval(() => {
+          if (firebase.apps.length) { clearInterval(iv); r(); }
+        }, 100);
+      });
+      const auth = firebase.auth();
+      const db   = firebase.firestore();
+
       const signupForm = document.getElementById('signupForm');
       const authMessage = document.getElementById('authMessage');
       const usernameInput = document.getElementById('signupUsername');
       const usernameHelperText = document.querySelector('.username-helper-text');
-      
-      // Modal elements
       const verificationModal = document.getElementById('verificationModal');
       const verificationEmail = document.getElementById('verificationEmail');
       const resendVerificationBtn = document.getElementById('resendVerificationBtn');
       const closeModalBtn = document.getElementById('closeModalBtn');
+      const googleSignupBtn = document.getElementById('googleSignupBtn');
 
-      // Set a flag for users created before the email verification requirement
       const VERIFICATION_REQUIREMENT_DATE = new Date('2025-05-09').getTime();
 
-      // Username validation function
-      function validateUsername(username) {
-        if (username.length < 4) {
-          return { valid: false, message: 'Username must be at least 4 characters' };
-        } else if (username.length > 16) {
-          return { valid: false, message: 'Username cannot exceed 16 characters' };
-        }
-        return { valid: true, message: 'Username is valid' };
-      }
-
-      // Check if username exists in Firestore
-      async function checkUsernameExists(username) {
-        try {
-          // Check for username in a dedicated collection for easy querying
-          const usernameSnapshot = await db.collection('usernames').doc(username.toLowerCase()).get();
-          return usernameSnapshot.exists;
-          
-          // Alternative: Query users collection where username equals the provided username
-          // const userQuery = await db.collection('users').where('username', '==', username.toLowerCase()).get();
-          // return !userQuery.empty;
-        } catch (error) {
-          console.error('Error checking username:', error);
-          return false; // If error, proceed (will be caught elsewhere)
-        }
-      }
-
-      // Username input validation event
-      usernameInput.addEventListener('input', () => {
-        const username = usernameInput.value.trim();
-        const validation = validateUsername(username);
-
-        // Update UI based on validation
-        if (validation.valid) {
-          usernameInput.classList.remove('invalid');
-          usernameInput.classList.add('valid');
-          usernameHelperText.textContent = 'Username is valid';
-          usernameHelperText.classList.remove('error');
-        } else {
-          usernameInput.classList.remove('valid');
-          usernameInput.classList.add('invalid');
-          usernameHelperText.textContent = validation.message;
-          usernameHelperText.classList.add('error');
-        }
-
-        // Handle empty input case
-        if (username === '') {
-          usernameInput.classList.remove('valid', 'invalid');
-          usernameHelperText.textContent = 'Username must be 4-16 characters';
-          usernameHelperText.classList.remove('error');
-        }
-      });
-
-      // Helper functions
-      function showMessage(message, type) {
-        authMessage.innerHTML = `<div class="message ${type}">${message}</div>`;
+      function showMessage(msg, type) {
+        authMessage.innerHTML = `<div class="message ${type}">${msg}</div>`;
         authMessage.style.display = 'block';
-        // Scroll to message
         authMessage.scrollIntoView({ behavior: 'smooth' });
       }
-
-      function handleAuthError(error) {
-        console.error('Auth Error:', error);
-        let message = error.message;
-        
-        // Handle common Firebase auth errors
-        if (error.code === 'auth/email-already-in-use') {
-          message = 'This email is already registered. Please login instead.';
-        } else if (error.code === 'auth/invalid-email') {
-          message = 'Please enter a valid email address.';
-        } else if (error.code === 'auth/weak-password') {
-          message = 'Password must be at least 6 characters.';
-        } else if (error.code === 'auth/popup-blocked') {
-          message = 'Popup blocked. Please allow popups for this site.';
-        } else if (error.code === 'auth/cancelled-popup-request') {
-          message = 'Sign up was cancelled. Please try again.';
-        } else {
-          message = 'An error occurred during sign up: ' + error.message;
-        }
-        
-        showMessage(message, 'error');
+      function handleAuthError(err) {
+        let msg = err.message;
+        if (err.code === 'auth/email-already-in-use') msg = 'This email is already registered. Please login instead.';
+        else if (err.code === 'auth/invalid-email') msg = 'Please enter a valid email address.';
+        else if (err.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
+        showMessage(msg, 'error');
       }
-
-      // Generate username from Google profile info
+      function validateUsername(un) {
+        if (un.length < 4) return {valid:false, message:'Username must be at least 4 characters'};
+        if (un.length > 16) return {valid:false, message:'Username cannot exceed 16 characters'};
+        return {valid:true};
+      }
+      async function checkUsernameExists(un) {
+        const snap = await db.collection('usernames').doc(un.toLowerCase()).get();
+        return snap.exists;
+      }
       function generateUsernameFromGoogle(user) {
-        // Use displayName or email prefix, sanitized and lowercased
-        let base = user.displayName || user.email.split('@')[0];
-        base = base.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-        
-        // Truncate if longer than 16 chars
-        if (base.length > 16) {
-          base = base.substring(0, 16);
-        }
-        
-        // Ensure minimum length
-        if (base.length < 4) {
-          base += '0000'.substring(0, 4 - base.length);
-        }
-        
+        let base = (user.displayName||user.email.split('@')[0]).replace(/[^a-zA-Z0-9]/g,'').toLowerCase();
+        if (base.length<4) base += '0000'.slice(0,4-base.length);
+        if (base.length>16) base = base.slice(0,16);
         return base;
       }
 
-      // Email/password signup
-      signupForm.addEventListener('submit', async (e) => {
+      // Username live validation
+      usernameInput.addEventListener('input', async () => {
+        const un = usernameInput.value.trim();
+        const v = validateUsername(un);
+        if (!v.valid) {
+          usernameHelperText.textContent = v.message;
+          usernameHelperText.classList.add('error');
+        } else {
+          usernameHelperText.textContent = 'Username looks good';
+          usernameHelperText.classList.remove('error');
+        }
+      });
+
+      // SAVE user record
+      async function saveUser(user, username, needsVerification) {
+        await db.collection('users').doc(user.uid).set({
+          username: username.toLowerCase(),
+          email: user.email,
+          emailVerified: user.emailVerified,
+          requiresVerification: needsVerification,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge:true });
+        await db.collection('usernames').doc(username.toLowerCase()).set({
+          uid: user.uid,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+
+      // EMAIL SIGNUP
+      signupForm.addEventListener('submit', async e => {
         e.preventDefault();
-        
+        authMessage.style.display='none';
         const email = document.getElementById('signupEmail').value;
-        const password = document.getElementById('signupPassword').value;
-        const confirmPassword = document.getElementById('signupConfirmPassword').value;
-        const username = usernameInput.value.trim();
+        const pw = document.getElementById('signupPassword').value;
+        const conf = document.getElementById('signupConfirmPassword').value;
+        const un = usernameInput.value.trim();
 
-        // Client-side validation
-        if (password !== confirmPassword) {
-          showMessage('Passwords do not match', 'error');
-          return;
-        }
-
-        if (password.length < 6) {
-          showMessage('Password must be at least 6 characters', 'error');
-          return;
-        }
-
-        // Validate Username
-        const usernameValidation = validateUsername(username);
-        if (!usernameValidation.valid) {
-          showMessage(usernameValidation.message, 'error');
-          return;
-        }
-        
-        // Check if username exists
-        const usernameExists = await checkUsernameExists(username);
-        if (usernameExists) {
-          showMessage('Username already taken. Please choose another one.', 'error');
-          return;
-        }
+        if (pw!==conf) { showMessage('Passwords do not match','error'); return; }
+        const uv = validateUsername(un);
+        if (!uv.valid) { showMessage(uv.message,'error'); return; }
+        if (await checkUsernameExists(un)) { showMessage('Username taken','error'); return; }
 
         try {
-          // Create user with email and password
-          const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-          const user = userCredential.user;
-
-          // Send email verification immediately after account creation
+          const { user } = await auth.createUserWithEmailAndPassword(email,pw);
           await user.sendEmailVerification();
-
-          // Save username to Firestore in users collection
-          await db.collection('users').doc(user.uid).set({
-            username: username.toLowerCase(),
-            email: email,
-            emailVerified: false,
-            requiresVerification: true, // Flag to indicate this account needs verification
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          
-          // Also save in usernames collection for easy unique checking
-          await db.collection('usernames').doc(username.toLowerCase()).set({
-            uid: user.uid,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          
-          // Show verification modal
+          await saveUser(user, un, true);
           verificationEmail.textContent = email;
-          verificationModal.style.display = 'flex';
-          
-          showMessage('Account created! Please verify your email before logging in.', 'success');
-        } catch (error) {
-          handleAuthError(error);
-        }
-      });
-      
-      // Handle verification modal buttons
-      resendVerificationBtn.addEventListener('click', async () => {
-        try {
-          const user = auth.currentUser;
-          if (user) {
-            await user.sendEmailVerification();
-            showMessage('Verification email resent!', 'success');
-          } else {
-            showMessage('No user signed in. Please try again.', 'error');
-          }
-        } catch (error) {
-          handleAuthError(error);
-        }
-      });
-      
-      closeModalBtn.addEventListener('click', () => {
-        verificationModal.style.display = 'none';
-        // Redirect to login page after closing modal
-        window.location.href = 'login.html';
+          verificationModal.style.display='flex';
+          showMessage('Created! Check your email to verify.','success');
+        } catch(err) { handleAuthError(err); }
       });
 
-      // Google signup
-      document.getElementById('googleSignupBtn').addEventListener('click', async () => {
+      // RESEND / CLOSE modal
+      resendVerificationBtn.onclick = async () => {
+        try { await auth.currentUser.sendEmailVerification(); showMessage('Verification email resent','success'); }
+        catch(err){ handleAuthError(err); }
+      };
+      closeModalBtn.onclick = () => {
+        verificationModal.style.display='none';
+        window.location.href='login.html';
+      };
+
+      // GOOGLE SIGNUP
+      googleSignupBtn.addEventListener('click', async () => {
+        authMessage.style.display='none';
         try {
           const provider = new firebase.auth.GoogleAuthProvider();
-          provider.addScope('email');
-          provider.addScope('profile');
-          provider.setCustomParameters({
-            prompt: 'select_account'
-          });
-
-          const result = await auth.signInWithPopup(provider);
-          const user = result.user;
-
-          // Check if this is a new user
-          const isNewUser = result.additionalUserInfo.isNewUser;
-
-          if (isNewUser) {
-            // Generate username from Google profile
-            let username = generateUsernameFromGoogle(user);
-            let originalUsername = username;
-            let counter = 1;
-            
-            // Check if username exists and make it unique if needed
-            let usernameExists = await checkUsernameExists(username);
-            while (usernameExists) {
-              // Add number suffix and try again
-              username = `${originalUsername}${counter}`;
-              counter++;
-              
-              // Ensure it's not too long
-              if (username.length > 16) {
-                username = originalUsername.substring(0, 15 - counter.toString().length) + counter;
-              }
-              
-              usernameExists = await checkUsernameExists(username);
+          provider.setCustomParameters({ prompt:'select_account' });
+          const res = await auth.signInWithPopup(provider);
+          const user = res.user;
+          if (res.additionalUserInfo.isNewUser) {
+            let un = generateUsernameFromGoogle(user), base=un, i=1;
+            while (await checkUsernameExists(un)) {
+              un = (base+ i).slice(0,16); i++;
             }
-
-            // Google accounts typically have verified emails already, but let's check
-            const requiresVerification = false; // Google OAuth handles verification
-
-            // Save username to users collection
-            await db.collection('users').doc(user.uid).set({
-              username: username.toLowerCase(),
-              email: user.email, 
-              emailVerified: user.emailVerified,
-              requiresVerification: requiresVerification,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            // Also save in usernames collection
-            await db.collection('usernames').doc(username.toLowerCase()).set({
-              uid: user.uid,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            showMessage('Account created successfully! Redirecting...', 'success');
+            await saveUser(user, un, false);
+            showMessage('Account created! Redirecting…','success');
           } else {
-            showMessage('Welcome back! Redirecting...', 'success');
+            showMessage('Welcome back! Redirecting…','success');
           }
-          
-          // Google Auth typically verifies email automatically
-          setTimeout(() => window.location.href = 'dashboard.html', 1500);
-        } catch (error) {
-          handleAuthError(error);
-        }
+          setTimeout(()=> window.location.href='channels.html',1500);
+        } catch(err) { handleAuthError(err); }
       });
 
-      // Set up auth state listener to check email verification
-      firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-          // Check if user email is verified
-          if (user.emailVerified) {
-            // Update user document to reflect verified status
-            db.collection('users').doc(user.uid).update({
-              emailVerified: true
-            }).then(() => {
-              // Only redirect if we're on the signup page and not just initializing
-              if (window.location.pathname.includes('signup.html')) {
-                showMessage('Email verified! Redirecting to dashboard...', 'success');
-                setTimeout(() => window.location.href = 'dashboard.html', 1500);
-              }
-            }).catch(error => {
-              console.error('Error updating verified status:', error);
-            });
+      // AUTH STATE & verification
+      auth.onAuthStateChanged(async user => {
+        if (user && user.emailVerified) {
+          await db.collection('users').doc(user.uid).update({ emailVerified:true, requiresVerification:false });
+          if (window.location.pathname.includes('signup.html')) {
+            showMessage('Email verified! Redirecting…','success');
+            setTimeout(()=> window.location.href='channels.html',1500);
           }
         }
       });
 
-      // Run a one-time function to mark older accounts as not requiring verification
-      // This ensures backward compatibility with existing accounts
-      async function markOlderAccountsAsVerified() {
-        try {
-          // Get all user accounts created before the verification date
-          const olderUsers = await db.collection('users')
-            .where('createdAt', '<', new Date(VERIFICATION_REQUIREMENT_DATE))
-            .get();
-          
-          // Batch update for performance
-          const batch = db.batch();
-          
-          olderUsers.forEach(doc => {
-            const userRef = db.collection('users').doc(doc.id);
-            // Set requiresVerification to false for older accounts
-            batch.update(userRef, { 
-              requiresVerification: false,
-              // If they don't have emailVerified field yet, set it to true for old accounts
-              emailVerified: doc.data().emailVerified !== undefined ? doc.data().emailVerified : true
-            });
-          });
-          
-          await batch.commit();
-          console.log(`Updated verification status for ${olderUsers.size} older accounts`);
-        } catch (error) {
-          console.error('Error updating older accounts:', error);
-        }
-      }
-      
-      // Execute this once to ensure older accounts work properly
-      markOlderAccountsAsVerified();
+      // mark older accounts
+      (async ()=>{
+        const older = await db.collection('users').where('createdAt','<',new Date(VERIFICATION_REQUIREMENT_DATE)).get();
+        const batch = db.batch();
+        older.forEach(d=> batch.update(d.ref,{ requiresVerification:false, emailVerified:d.data().emailVerified!==undefined?d.data().emailVerified:true }));
+        await batch.commit();
+      })();
     });
   </script>
 </body>
