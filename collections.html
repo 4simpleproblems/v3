@@ -4,35 +4,90 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4SP | Collections</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <title>4SP | SOUND REQUESTS COLLECTION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
+
     <style>
-        * {
-            font-family: 'Roboto Mono', monospace !important;
-            text-decoration: none !important;
-            box-sizing: border-box;
+        :root {
+            --bg-color: #ffffff;
+            /* Light background */
+            --text-color: #333333;
+            /* Dark text */
+            --primary-color: #333333;
+            /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc;
+            /* Medium gray border */
+            --navbar-bg: #f0f0f0;
+            /* Light gray for navbar */
+            --footer-bg: #f0f0f0;
+            /* Light gray for footer */
+            --hover-bg: #e0e0e0;
+            /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0;
+            /* Light gray grid lines */
+            --accent-color: #333333;
+            /* Dark accent color */
+
+            /* Request Status Badge Colors (adapted for light theme) */
+            --badge-normal-bg: #d4edda; /* Success light */
+            --badge-normal-color: #155724; /* Success dark */
+            --badge-explicit-bg: #fff3cd; /* Warning light */
+            --badge-explicit-color: #856404; /* Warning dark */
+            --badge-pending-bg: #cce5ff; /* Info light */
+            --badge-pending-color: #004085; /* Info dark */
+             --badge-approved-bg: #d4edda; /* Success light */
+            --badge-approved-color: #155724; /* Success dark */
+             --badge-denied-bg: #f8d7da; /* Danger light */
+            --badge-denied-color: #721c24; /* Danger dark */
+             --badge-deleted-bg: #e9ecef; /* Light gray */
+            --badge-deleted-color: #495057; /* Gray */
+
+
+            /* Button Delete Color (adapted for light theme) */
+             --delete-btn-color: #dc3545; /* Red */
+             --delete-btn-hover-bg: #dc3545;
+             --delete-btn-hover-color: #ffffff;
+             --delete-btn-border: #dc3545;
+
         }
 
-        :root {
-            --light-gray: #e0e0e0;
-            --dark-bg: #1a1a1a;
-            --darker-bg: #0d0d0d;
-            --light-text: #f0f0f0;
-            --primary-blue: #626cd6;
-            --pill-radius: 50px;
-            --card-radius: 24px;
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            /* Removed !important overrides for font-family and text-decoration */
         }
 
         body {
-            background-color: var(--light-gray);
-            color: var(--dark-bg);
-            margin: 0;
-            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-align: center;
+            /* Center all text by default */
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
+
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px;
+            /* Size of each grid cell */
+        }
+
+        /* Remove triangular gradients */
+        body::before,
+        body::after {
+            content: none;
         }
 
         /* Navbar */
@@ -40,176 +95,552 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.5rem 3rem;
-            background-color: var(--darker-bg);
-            color: var(--light-text);
+            padding: 20px 20px;
+            /* Adjusted padding */
+            background-color: var(--navbar-bg);
+            text-align: left;
+            /* Override center for navbar layout */
+            width: 100%;
         }
 
         .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-color);
         }
 
         .nav-buttons {
             display: flex;
-            gap: 1.5rem;
+            gap: 15px;
+            /* Adjusted gap */
+            align-items: center;
+            text-align: left;
+            /* Ensure text in buttons is not affected by body center */
         }
 
+        /* Buttons (Base Styles) */
         .btn {
-            padding: 1rem 2rem;
-            border-radius: var(--pill-radius);
-            font-size: 1rem;
+            display: inline-flex;
+            /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px;
+            /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
         }
 
         .btn.primary {
-            background-color: var(--dark-bg);
-            color: var(--light-text);
-            border: none;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            /* White text on dark primary */
+            border: 1px solid var(--primary-color);
         }
 
         .btn.secondary {
             background-color: transparent;
-            color: var(--light-text);
-            border: 2px solid var(--light-text);
+            color: var(--text-color);
+            /* Dark text on light secondary */
+            border: 1px solid var(--secondary-border-color);
+        }
+
+         .btn.primary:hover {
+            background-color: var(--hover-bg);
+             color: var(--text-color);
+             border-color: var(--hover-bg);
+         }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+             border-color: var(--hover-bg);
         }
 
         .btn.delete {
-            background-color: transparent;
-            border: 2px solid var(--dark-bg);
-            color: var(--dark-bg);
+             background-color: transparent;
+             color: var(--delete-btn-color);
+             border: 1px solid var(--delete-btn-border);
         }
 
         .btn.delete:hover {
-            background-color: var(--dark-bg);
-            color: var(--light-text);
+             background-color: var(--delete-btn-hover-bg);
+             color: var(--delete-btn-hover-color);
+        }
+
+        /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192';
+            /* Right arrow character */
+            margin-right: 8px;
+            /* Space between arrow and text */
+            font-weight: bold;
+            /* Make arrow slightly bolder */
+            color: var(--accent-color);
+            /* Dark accent color for arrow */
         }
 
         /* Main Layout */
         .container {
-            max-width: 1600px; /* Increased max-width to accommodate comments */
+            max-width: 1600px;
+            /* Increased max-width */
             margin: 2rem auto;
             padding: 0 2rem;
             display: flex;
             gap: 2rem;
+             flex-grow: 1; /* Allow container to take up space */
+             /* align-items: flex-start; */ /* Align items to the top */
+             text-align: left; /* Align content within container to the left */
         }
 
         .sidebar {
             width: 250px;
-            flex-shrink: 0; /* Prevent sidebar from shrinking */
+            flex-shrink: 0;
+            background-color: var(--navbar-bg); /* Light gray sidebar */
+            padding: 1.5rem;
+            border-radius: 10px; /* Less rounded */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+             align-self: flex-start; /* Align sidebar to the top */
+        }
+
+        .sidebar h2 {
+             font-size: 1.3rem; /* Slightly smaller heading */
+             margin-bottom: 1rem;
+             color: var(--text-color); /* Dark text */
+             text-transform: uppercase; /* All caps */
         }
 
         .main-content {
-            flex: 1; /* Allow main content to take remaining space */
+            flex: 1;
+            /* Allow main content to take remaining space */
+             /* Removed background/padding/shadow as request cards have their own */
+        }
+
+        .main-content h1 {
+             font-size: 2.5rem; /* Adjusted main heading size */
+             margin-bottom: 2rem;
+             color: var(--text-color); /* Dark text */
+             text-transform: uppercase; /* All caps */
         }
 
 
         .filter-btn {
             width: 100%;
-            padding: 1rem;
+            padding: 10px 20px; /* Matches .btn padding */
             margin-bottom: 1rem;
-            border-radius: var(--pill-radius);
-            border: none;
+            border-radius: 5px; /* Less rounded */
+            border: 1px solid var(--secondary-border-color); /* Medium gray border */
+            background-color: transparent; /* Transparent background */
+            color: var(--text-color); /* Dark text */
             cursor: pointer;
             transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px; /* Matches .btn font size */
+            text-transform: uppercase; /* All caps */
+            font-weight: 600;
+            text-align: center; /* Center button text */
+        }
+
+        .filter-btn:hover {
+             background-color: var(--hover-bg); /* Light gray hover */
+             border-color: var(--hover-bg);
         }
 
         .filter-btn.active {
-            background-color: var(--dark-bg);
-            color: white;
+            background-color: var(--primary-color); /* Dark primary */
+            color: var(--bg-color); /* White text */
+            border-color: var(--primary-color);
         }
+         .filter-btn.active:hover {
+             background-color: var(--hover-bg);
+             color: var(--text-color);
+             border-color: var(--hover-bg);
+         }
+
 
         /* Request Cards & Comments */
         .requests-grid {
             display: grid;
-            grid-template-columns: 1fr; /* Each request + comment will take full width initially */
+            grid-template-columns: 1fr;
+            /* Each request + comment will take full width initially */
             gap: 1.5rem;
         }
 
         .request-card-container {
-            display: flex; /* Arrange card and comment side-by-side */
+            display: flex;
+            /* Arrange card and comment side-by-side */
             gap: 1.5rem;
-            background: white;
-            border-radius: var(--card-radius);
+            background: var(--bg-color); /* White background */
+            border-radius: 10px;
+            /* Less rounded */
             padding: 1.5rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            /* Subtle shadow */
             transition: all 0.3s ease;
+             border: 1px solid var(--secondary-border-color); /* Subtle border */
+             flex-direction: column; /* Stack main and comment on small screens */
         }
+
+         @media (min-width: 768px) {
+             .request-card-container {
+                 flex-direction: row; /* Side-by-side on larger screens */
+             }
+         }
+
 
         .request-card-main {
-            flex: 2; /* Request card takes more space */
-            min-width: 300px; /* Minimum width for the request content */
+            flex: 2;
+            /* Request card takes more space */
+            min-width: 300px;
+            /* Minimum width for the request content */
+             text-align: left; /* Align content to the left */
         }
 
+        .request-card-main h3 {
+             font-size: 1.2rem; /* Adjusted heading size */
+             margin-bottom: 0.5rem;
+             color: var(--text-color); /* Dark text */
+             text-transform: uppercase; /* All caps */
+        }
+         .request-card-main p {
+             font-size: 1rem; /* Adjusted paragraph size */
+             margin-bottom: 1rem;
+             color: rgba(51, 51, 51, 0.8); /* Slightly lighter dark */
+             text-transform: uppercase; /* All caps */
+         }
+
+
         .comment-area {
-            flex: 1; /* Comment area takes available space */
+            flex: 1;
+            /* Comment area takes available space */
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
-            min-width: 200px; /* Minimum width for comments */
+            min-width: 200px;
+            /* Minimum width for comments */
+             text-align: left; /* Align comment area content to the left */
         }
+         .comment-area h4 {
+             font-size: 1rem; /* Comment heading size */
+             color: var(--text-color);
+             margin-bottom: 0.5rem;
+             text-transform: uppercase;
+         }
+
 
         .comment-display {
-            background-color: #f9f9f9;
+            background-color: var(--navbar-bg); /* Light gray background */
             padding: 0.75rem;
-            border-radius: 8px;
-            border: 1px solid #eee;
-            white-space: pre-wrap; /* Preserve whitespace and newlines */
+            border-radius: 5px;
+            /* Less rounded */
+            border: 1px solid var(--secondary-border-color); /* Medium gray border */
+            white-space: pre-wrap;
+            /* Preserve whitespace and newlines */
             font-size: 0.9rem;
+             color: var(--text-color); /* Dark text */
+             text-transform: none; /* Prevent uppercase for readability */
+             overflow-wrap: break-word; /* Break long words */
+             word-break: break-word;
         }
 
         .comment-area textarea {
             width: 100%;
             min-height: 80px;
-            padding: 0.5rem;
-            border-radius: 8px;
-            border: 1px solid var(--light-gray);
+            padding: 0.75rem; /* Adjusted padding */
+            border-radius: 5px;
+            /* Less rounded */
+            border: 1px solid var(--secondary-border-color); /* Medium gray border */
             resize: vertical;
             font-size: 0.9rem;
+            font-family: 'Outfit', sans-serif; /* Use Outfit font */
+             color: var(--text-color); /* Dark text */
+             background-color: var(--bg-color); /* White background */
+             text-transform: none; /* Prevent uppercase for readability */
+             outline: none;
+             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
+         .comment-area textarea:focus {
+             border-color: var(--accent-color);
+             box-shadow: 0 0 5px rgba(51, 51, 51, 0.2);
+         }
+
 
         .comment-area .btn.comment-btn {
             padding: 0.5rem 1rem;
             font-size: 0.85rem;
-            align-self: flex-end; /* Align button to the right */
+            align-self: flex-end;
+            /* Align button to the right */
+             /* Inherits .btn.primary or .btn.secondary based on implementation */
         }
 
 
         .badge {
             padding: 0.25rem 0.75rem;
-            border-radius: var(--pill-radius);
+            border-radius: 5px;
+            /* Less rounded */
             font-size: 0.75rem;
-            font-weight: 500;
+            font-weight: 600; /* Bolder */
+             text-transform: uppercase; /* All caps */
+             display: inline-block; /* Needed for margin/padding to apply correctly */
+             margin-right: 5px; /* Space between badges */
         }
 
+        /* Status Badge Colors (using light theme variables) */
         .badge-normal {
-            background-color: #e6fcf5;
-            color: #087f5b;
+            background-color: var(--badge-normal-bg);
+            color: var(--badge-normal-color);
         }
 
         .badge-explicit {
-            background-color: #fff3bf;
-            color: #8e6c00;
+            background-color: var(--badge-explicit-bg);
+            color: var(--badge-explicit-color);
         }
+
+        .badge-pending {
+             background-color: var(--badge-pending-bg);
+            color: var(--badge-pending-color);
+        }
+         .badge-approved {
+             background-color: var(--badge-approved-bg);
+            color: var(--badge-approved-color);
+         }
+         .badge-denied {
+             background-color: var(--badge-denied-bg);
+            color: var(--badge-denied-color);
+         }
+         .badge-deleted {
+             background-color: var(--badge-deleted-bg);
+            color: var(--badge-deleted-color);
+         }
+
+
+        .request-meta {
+             font-size: 0.85rem; /* Smaller meta text */
+             color: rgba(51, 51, 51, 0.6); /* Lighter dark */
+             margin-bottom: 1rem;
+             text-transform: uppercase; /* All caps */
+        }
+         .request-meta span {
+             margin-right: 10px; /* Space out meta items */
+         }
+         .request-meta span:last-child {
+             margin-right: 0;
+         }
+
 
         /* Admin action buttons */
         .admin-actions {
             margin-top: 1rem;
             display: flex;
             gap: 0.5rem;
-            flex-wrap: wrap; /* Allow buttons to wrap if not enough space */
+            flex-wrap: wrap;
+            /* Allow buttons to wrap if not enough space */
+             justify-content: flex-start; /* Align buttons to the left */
         }
 
         .admin-actions .btn {
             font-size: 0.85rem;
             padding: 0.5rem 1rem;
+             /* Inherits primary or delete styles */
         }
 
         #loadingMessage {
             text-align: center;
             padding: 2rem;
+             color: rgba(51, 51, 51, 0.8); /* Lighter dark */
+             text-transform: uppercase; /* All caps */
+             width: 100%; /* Take full width */
         }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6);
+            /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+             margin-top: auto; /* Push footer to the bottom */
+        }
+
+         /* Hide elements utility */
+        .hidden {
+            display: none !important;
+        }
+
+
+         /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .container {
+                 flex-direction: column; /* Stack sidebar and main content */
+                 gap: 1rem;
+                 padding: 0 1rem;
+            }
+
+             .sidebar {
+                 width: 100%; /* Full width sidebar */
+                 padding: 1rem;
+             }
+             .sidebar h2 {
+                 text-align: center; /* Center sidebar headings */
+             }
+             .filter-btn {
+                 width: auto; /* Allow buttons to shrink/grow based on content */
+                 padding: 8px 15px; /* Smaller padding */
+                 font-size: 12px; /* Smaller font */
+                 margin-bottom: 0.5rem;
+                 display: inline-block; /* Arrange buttons in a row */
+             }
+             .sidebar .filter-btn:last-child {
+                 margin-bottom: 1rem;
+             }
+
+
+             .main-content h1 {
+                 font-size: 1.8rem; /* Smaller main heading */
+                 margin-bottom: 1.5rem;
+             }
+
+             .request-card-container {
+                 flex-direction: column; /* Stack main and comment vertically */
+                 gap: 1rem;
+                 padding: 1rem;
+             }
+
+             .request-card-main {
+                 min-width: auto; /* Remove min-width constraint */
+             }
+             .request-card-main h3 {
+                 font-size: 1rem; /* Smaller card heading */
+             }
+             .request-card-main p {
+                 font-size: 0.9rem; /* Smaller card paragraph */
+             }
+
+             .comment-area {
+                 min-width: auto; /* Remove min-width constraint */
+             }
+             .comment-area h4 {
+                 font-size: 0.9rem;
+             }
+             .comment-display {
+                 font-size: 0.85rem;
+             }
+             .comment-area textarea {
+                 font-size: 0.85rem;
+             }
+             .comment-area .btn.comment-btn {
+                 padding: 0.4rem 0.8rem;
+                 font-size: 0.8rem;
+             }
+
+             .admin-actions .btn {
+                 font-size: 0.75rem;
+                 padding: 0.4rem 0.8rem;
+             }
+
+             .request-meta {
+                 font-size: 0.8rem;
+             }
+              .request-meta span {
+                  margin-right: 5px;
+              }
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                 padding: 15px 10px;
+             }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             .container {
+                 padding: 0 0.5rem;
+             }
+
+             .sidebar {
+                 padding: 0.8rem;
+             }
+             .sidebar h2 {
+                 font-size: 1.1rem;
+             }
+             .filter-btn {
+                 padding: 6px 12px;
+                 font-size: 10px;
+             }
+
+             .main-content h1 {
+                 font-size: 1.5rem;
+                 margin-bottom: 1rem;
+             }
+
+             .request-card-container {
+                 padding: 0.8rem;
+             }
+             .request-card-main h3 {
+                 font-size: 0.9rem;
+             }
+             .request-card-main p {
+                 font-size: 0.85rem;
+             }
+             .comment-display {
+                 font-size: 0.8rem;
+             }
+             .comment-area textarea {
+                 font-size: 0.8rem;
+                 min-height: 60px;
+             }
+
+             .admin-actions .btn {
+                 font-size: 0.7rem;
+                 padding: 0.3rem 0.6rem;
+             }
+
+             .badge {
+                 font-size: 0.65rem;
+                 padding: 0.2rem 0.5rem;
+             }
+             .request-meta {
+                 font-size: 0.75rem;
+             }
+
+        }
+
+
+         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
+        /* For simplicity, manual adjustment is used in the variables above */
+        /* function darken(color, percent) { ... } */
     </style>
 </head>
 
@@ -217,35 +648,44 @@
     <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons">
-            <a href="index.html" class="btn secondary">Home</a>
-            <a href="dashboard.html" class="btn secondary">Dashboard</a>
-            <a href="collections.html" class="btn primary">Collections</a>
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+            <a href="collections.html" class="btn primary btn-with-arrow">Collections</a>
             <button id="logoutBtn" class="btn secondary">Log Out</button>
         </div>
     </nav>
 
-    <main class="container">
-        <aside class="sidebar">
-            <h2>Filters</h2>
-            <button class="filter-btn active" data-filter="all">All Requests</button>
-            <button class="filter-btn" data-filter="normal">Normal Only</button>
-            <button class="filter-btn" data-filter="explicit">Explicit Only</button>
-            <button class="filter-btn" data-filter="deleted" id="deletedFilterBtn" style="display:none;">Deleted</button>
+    <main>
+        <div class="container">
+            <aside class="sidebar">
+                <h2>Filters</h2>
+                <button class="filter-btn active" data-filter="all">All Requests</button>
+                <button class="filter-btn" data-filter="normal">Normal Only</button>
+                <button class="filter-btn" data-filter="explicit">Explicit Only</button>
+                <button class="filter-btn" data-filter="deleted" id="deletedFilterBtn" style="display:none;">Deleted</button>
 
-            <h2>Sort By</h2>
-            <button class="filter-btn" data-sort="newest">Newest First</button>
-            <button class="filter-btn" data-sort="oldest">Oldest First</button>
-        </aside>
+                <h2>Sort By</h2>
+                <button class="filter-btn" data-sort="newest">Newest First</button>
+                <button class="filter-btn" data-sort="oldest">Oldest First</button>
+            </aside>
 
-        <section class="main-content">
-            <h1>Sound Requests Collection</h1>
-            <div id="requestsContainer" class="requests-grid">
-                <p id="loadingMessage">Loading requests...</p>
-            </div>
-        </section>
+            <section class="main-content">
+                <h1>Sound Requests Collection</h1>
+                <div id="requestsContainer" class="requests-grid">
+                    <p id="loadingMessage">Loading requests...</p>
+                </div>
+            </section>
+        </div>
     </main>
 
+    <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
+
     <script>
+        // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
         document.addEventListener('DOMContentLoaded', () => {
             const db = firebase.firestore();
             const auth = firebase.auth();
@@ -262,8 +702,10 @@
                 return query.onSnapshot((snapshot) => {
                     allRequests = snapshot.docs.map(doc => {
                         const data = doc.data();
+                        // Only filter out deleted requests for non-admins here in the listener
+                        // Filtering by filter button will be done in renderRequests
                         if (!isAdmin && data.status === "deleted") {
-                            return null;
+                            return null; // Exclude deleted for non-admins directly
                         }
                         if (data.timestamp && data.timestamp.toDate) {
                             data.timestamp = data.timestamp.toDate();
@@ -272,41 +714,45 @@
                             id: doc.id,
                             ...data
                         };
-                    }).filter(request => request);
-                    renderRequests();
+                    }).filter(request => request); // Remove null entries
+
+                    renderRequests(); // Re-render the filtered and sorted list
                 }, (error) => {
                     console.error("Listener error:", error);
-                    document.getElementById('loadingMessage').textContent = "Error loading requests";
+                    const loadingMessage = document.getElementById('loadingMessage');
+                    if (loadingMessage) {
+                         loadingMessage.textContent = "ERROR LOADING REQUESTS";
+                         loadingMessage.style.color = 'var(--error-color)';
+                    }
                 });
             };
 
             const renderRequests = () => {
                 let filteredRequests = allRequests.filter(req => {
+                    // Always show requests if admin, filtering is handled by filter buttons
                     if (isAdmin) {
-                        if (currentFilter === "all") {
-                            return req.status !== "deleted";
-                        } else if (currentFilter === "deleted") {
-                            return req.status === "deleted";
-                        } else { // normal or explicit
-                            return req.contentType === currentFilter && req.status !== "deleted";
-                        }
+                        if (currentFilter === "all") return true; // Admin sees all in "all" filter
+                        if (currentFilter === "deleted") return req.status === "deleted";
+                        return req.contentType === currentFilter && req.status !== "deleted"; // Normal/explicit filters for admin exclude deleted unless "deleted" filter is active
                     }
-                    // Non-admin
-                    if (req.status === "deleted") return false;
+                    // Non-admin: show all if filter is "all", otherwise filter by contentType
                     if (currentFilter === "all") return true;
                     return req.contentType === currentFilter;
                 });
 
+
                 filteredRequests.sort((a, b) => {
+                    const timestampA = a.timestamp ? a.timestamp.getTime() : 0;
+                    const timestampB = b.timestamp ? b.timestamp.getTime() : 0;
                     if (currentSort === "newest") {
-                        return (b.timestamp || 0) - (a.timestamp || 0);
+                        return timestampB - timestampA;
                     } else {
-                        return (a.timestamp || 0) - (b.timestamp || 0);
+                        return timestampA - timestampB;
                     }
                 });
 
                 if (filteredRequests.length === 0) {
-                    requestsContainer.innerHTML = '<p>No requests found matching your criteria.</p>';
+                    requestsContainer.innerHTML = '<p id="loadingMessage">NO REQUESTS FOUND MATCHING YOUR CRITERIA.</p>'; // Use loading message ID for consistency
                     return;
                 }
 
@@ -315,13 +761,11 @@
                         <div class="request-card-container" id="container-${request.id}">
                             <div class="request-card-main">
                                 <h3>${request.soundName}</h3>
-                                <p>${request.description || 'No description provided.'}</p>
+                                <p>${request.description || 'NO DESCRIPTION PROVIDED.'}</p>
                                 <div class="request-meta">
-                                    <span>${request.timestamp ? request.timestamp.toLocaleDateString() : 'Date N/A'}</span>
-                                    <span class="badge ${request.contentType === "normal" ? "badge-normal" : "badge-explicit"}">
-                                        ${request.contentType}
-                                    </span>
-                                    <span> | Status: ${request.status}</span>
+                                    <span>${request.timestamp ? request.timestamp.toLocaleDateString() : 'DATE N/A'}</span>
+                                    <span class="badge badge-${request.contentType}">${request.contentType}</span>
+                                     <span class="badge badge-${request.status}">${request.status}</span>
                                 </div>`;
 
                     if (isAdmin) {
@@ -329,9 +773,13 @@
                         if (request.status === "pending") {
                             cardHtml += `<button class="btn primary" onclick="handleAdminAction('${request.id}', 'approved')">Approve</button>
                                          <button class="btn primary" onclick="handleAdminAction('${request.id}', 'denied')">Deny</button>`;
+                        } else if (request.status === "approved" || request.status === "denied") {
+                             cardHtml += `<button class="btn primary" onclick="handleAdminAction('${request.id}', 'pending')">Set as Pending</button>`;
                         }
                         if (request.status !== "deleted") {
                             cardHtml += `<button class="btn delete" onclick="handleAdminAction('${request.id}', 'deleted')">Delete</button>`;
+                        } else {
+                             cardHtml += `<button class="btn secondary" onclick="handleAdminAction('${request.id}', 'pending')">Restore</button>`;
                         }
                         cardHtml += `</div>`; // Close admin-actions
                     }
@@ -345,12 +793,16 @@
 
                     if (isAdmin && request.status !== 'deleted') { // Allow commenting unless deleted
                         cardHtml += `
-                            <textarea id="comment-input-${request.id}" placeholder="Add a comment...">${request.adminComment || ''}</textarea>
+                            <textarea id="comment-input-${request.id}" placeholder="ADD A COMMENT...">${request.adminComment || ''}</textarea>
                             <button class="btn primary comment-btn" onclick="handleComment('${request.id}')">
-                                ${request.adminComment ? 'Update Comment' : 'Add Comment'}
+                                ${request.adminComment ? 'UPDATE COMMENT' : 'ADD COMMENT'}
                             </button>
                         `;
+                    } else if (request.adminComment && !isAdmin) {
+                         // Show comment area with display only for non-admins if there's a comment
+                         cardHtml += `<h4>Admin Comment:</h4><div class="comment-display">${request.adminComment.replace(/\n/g, '<br>')}</div>`;
                     }
+
                     cardHtml += `</div>`; // Close comment-area
                     cardHtml += `</div>`; // Close request-card-container
                     return cardHtml;
@@ -363,74 +815,145 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(() => {
                     console.log(`Request ${docId} updated to ${newStatus}`);
-                    // No need to call renderRequests() here if onSnapshot is working correctly.
+                    // onSnapshot listener will handle re-rendering
                 }).catch(error => {
                     console.error("Error updating request status:", error);
+                     // Show error message to the user
+                     const container = document.getElementById(`container-${docId}`);
+                     if (container) {
+                          const errorMessage = document.createElement('p');
+                          errorMessage.textContent = `ERROR UPDATING STATUS: ${error.message}`.toUpperCase();
+                          errorMessage.style.color = 'var(--error-color)';
+                          errorMessage.style.textTransform = 'uppercase';
+                          container.appendChild(errorMessage); // Append error to the specific card
+                          setTimeout(() => errorMessage.remove(), 5000); // Remove after 5 seconds
+                     }
                 });
             };
 
             window.handleComment = (docId) => {
-                const commentText = document.getElementById(`comment-input-${docId}`).value;
+                const commentTextarea = document.getElementById(`comment-input-${docId}`);
+                const commentText = commentTextarea ? commentTextarea.value : '';
+
+                 if (!commentTextarea) {
+                     console.error(`Comment input not found for request ${docId}`);
+                     return;
+                 }
+
                 db.collection("requests").doc(docId).update({
                     adminComment: commentText,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(() => {
                     console.log(`Comment for request ${docId} updated.`);
-                    // The real-time listener will auto-update the view.
+                     // Show success message near the comment area or globally
+                     const commentArea = commentTextarea.closest('.comment-area');
+                     if (commentArea) {
+                          const successMessage = document.createElement('p');
+                          successMessage.textContent = 'COMMENT UPDATED!'.toUpperCase();
+                          successMessage.style.color = 'var(--status-success-color)';
+                           successMessage.style.textTransform = 'uppercase';
+                           successMessage.style.fontSize = '0.8rem';
+                           successMessage.style.marginTop = '0.5rem';
+                          commentArea.appendChild(successMessage);
+                          setTimeout(() => successMessage.remove(), 3000);
+                     }
+                    // The real-time listener will auto-update the view, including the displayed comment.
                 }).catch(error => {
                     console.error("Error updating comment:", error);
+                     // Show error message
+                     const commentArea = commentTextarea.closest('.comment-area');
+                      if (commentArea) {
+                          const errorMessage = document.createElement('p');
+                          errorMessage.textContent = `ERROR UPDATING COMMENT: ${error.message}`.toUpperCase();
+                          errorMessage.style.color = 'var(--error-color)';
+                          errorMessage.style.textTransform = 'uppercase';
+                          errorMessage.style.fontSize = '0.8rem';
+                           errorMessage.style.marginTop = '0.5rem';
+                          commentArea.appendChild(errorMessage);
+                          setTimeout(() => errorMessage.remove(), 5000);
+                     }
                 });
             };
 
             auth.onAuthStateChanged((user) => {
                 if (user) {
                     isAdmin = (user.email === adminEmail);
-                    if (isAdmin) {
-                        document.getElementById('deletedFilterBtn').style.display = 'block';
-                    } else {
-                        document.getElementById('deletedFilterBtn').style.display = 'none';
+                    const deletedFilterBtn = document.getElementById('deletedFilterBtn');
+                    if (deletedFilterBtn) { // Check if element exists
+                         if (isAdmin) {
+                            deletedFilterBtn.style.display = 'block';
+                         } else {
+                            deletedFilterBtn.style.display = 'none';
+                            // If admin status changes while filter is 'deleted', reset filter
+                            if (currentFilter === 'deleted') {
+                                currentFilter = 'all';
+                                document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+                                const allFilterBtn = document.querySelector(".filter-btn[data-filter='all']");
+                                if (allFilterBtn) allFilterBtn.classList.add('active');
+                            }
+                         }
                     }
+
+
                     // Detach any existing listener before attaching a new one
                     if (window.firestoreListener) {
                         window.firestoreListener(); // Call the unsubscribe function
                     }
                     window.firestoreListener = setupRealTimeListener(); // Store the new unsubscribe function
                 } else {
-                    window.location.href = "index.html";
+                    window.location.href = "index.html"; // Redirect if not logged in
                 }
             });
 
+            // Set up filter button listeners
             document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
+                    // Only apply filter if it's not the deleted filter for non-admins
+                    if (!isAdmin && e.target.dataset.filter === 'deleted') {
+                        // Do nothing or show a message
+                         console.log("Access denied to deleted filter.");
+                         return;
+                    }
+
                     currentFilter = e.target.dataset.filter;
                     document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
                     e.target.classList.add('active');
-                    renderRequests();
+                    renderRequests(); // Re-render with new filter
                 });
             });
 
+            // Set up sort button listeners
             document.querySelectorAll('.filter-btn[data-sort]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     // Remove 'active' from all sort buttons, then add to current
                     document.querySelectorAll('.filter-btn[data-sort]').forEach(b => b.classList.remove('active'));
                     e.target.classList.add('active');
                     currentSort = e.target.dataset.sort;
-                    renderRequests();
+                    renderRequests(); // Re-render with new sort order
                 });
             });
+
              // Set initial active sort button (optional, good for UX)
-            document.querySelector(`.filter-btn[data-sort='${currentSort}']`).classList.add('active');
+             const initialSortButton = document.querySelector(`.filter-btn[data-sort='${currentSort}']`);
+             if(initialSortButton) initialSortButton.classList.add('active');
 
 
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                auth.signOut().then(() => {
-                    window.location.href = "index.html";
-                }).catch(error => {
-                    console.error("Logout Error:", error);
+            // Logout button functionality
+            const logoutButton = document.getElementById('logoutBtn');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', () => {
+                    auth.signOut().then(() => {
+                        window.location.href = "index.html";
+                    }).catch(error => {
+                        console.error("Logout Error:", error);
+                        // Handle logout error if necessary
+                    });
                 });
-            });
+            } else {
+                 console.error("Logout button not found.");
+            }
         });
     </script>
-</body>
+     </body>
 
 </html>
