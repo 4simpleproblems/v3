@@ -2,1005 +2,1808 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>4SP | Settings</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-  <style>
-    :root {
-      --primary-action: var(--dark-bg);
-      --secondary-action-text: var(--dark-bg);
-      --secondary-action-bg: var(--light-gray);
-      --danger-action: var(--primary-red);
-      --light-text: #f0f0f0;
-      --dark-bg: #1a1a1a;
-      --light-gray: #e0e0e0;
-      --medium-gray: #333333;
-      --darker-bg: #0d0d0d;
-      --error-red: #ff1212;
-      --info-text: var(--medium-gray);
-      --card-bg: white;
-      --card-border: var(--light-gray);
-      --pill-radius: 50px;
-      --modal-bg: rgba(0, 0, 0, 0.7);
-      --modal-content-bg: #222;
-      --modal-content-border: #666;
-      --modal-text-color: #ddd;
-      --modal-input-bg: #444;
-      --modal-input-text-color: #eee;
-      --primary-red: #ff1212;
-      --dark-red: #8b0000;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | SETTINGS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
 
-    body {
-      background-color: var(--light-gray);
-      font-family: 'Roboto Mono', monospace; /* Main font */
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      color: var(--dark-bg);
-    }
+    <style>
+        * {
+            /* Removed !important overrides */
+            font-family: 'Outfit', sans-serif;
+            box-sizing: border-box;
+        }
 
-    /* Ensure all major text elements use Roboto Mono */
-    h1, h2, h3, h4, h5, h6, p, a, span, div, li, label, button, input, textarea, select {
-        font-family: 'Roboto Mono', monospace;
-    }
+        :root {
+            --bg-color: #ffffff;
+            /* Light background */
+            --text-color: #333333;
+            /* Dark text */
+            --primary-color: #333333;
+            /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc;
+            /* Medium gray border */
+            --navbar-bg: #f0f0f0;
+            /* Light gray for navbar */
+            --footer-bg: #f0f0f0;
+            /* Light gray for footer */
+            --hover-bg: #e0e0e0;
+            /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0;
+            /* Light gray grid lines */
+            --accent-color: #333333;
+            /* Dark accent color */
 
+            /* Card colors */
+            --card-bg: #ffffff;
+            --card-border: #cccccc;
+            --card-shadow: rgba(0, 0, 0, 0.08);
 
-    .container {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 0 2rem;
-      flex: 1;
-    }
+            /* Modal Colors (adapted for light theme) */
+            --modal-bg: rgba(0, 0, 0, 0.5);
+            /* Subtle dark overlay */
+            --modal-content-bg: var(--navbar-bg);
+            /* Light gray */
+            --modal-content-border: var(--secondary-border-color);
+            /* Medium gray */
+            --modal-text-color: var(--text-color);
+            /* Dark text */
+            --modal-input-bg: var(--bg-color);
+            /* White */
+            --modal-input-border: var(--secondary-border-color);
+            /* Medium gray */
+            --modal-input-text-color: var(--text-color);
+            /* Dark text */
+            --modal-input-focus-border: var(--accent-color);
+            /* Accent color */
+            --modal-input-focus-shadow: rgba(51, 51, 51, 0.2);
 
-    h1 {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: var(--dark-bg);
-    }
+            /* Danger/Delete Colors (consistent) */
+            --danger-action: #dc3545;
+            /* Red */
+            --danger-action-hover: #c82333;
+            /* Darker Red */
 
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.5rem 3rem;
-      background-color: var(--darker-bg);
-      color: var(--light-text);
-      border-bottom: 1px solid var(--accent); /* Assuming --accent is defined or replace */
-    }
+            /* Info text color (consistent) */
+            --info-text: rgba(51, 51, 51, 0.8);
+            /* Slightly lighter dark */
 
-    .logo {
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: -1.5px;
-    }
+            /* Provider Badge Colors (consistent) */
+            --google-badge-bg: #4285F4;
+            --google-badge-color: white;
+            --email-badge-bg: var(--primary-color);
+            /* Dark primary */
+            --email-badge-color: var(--bg-color);
+            /* White */
 
-    .nav-buttons {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
+            /* Status/Message Colors (consistent) */
+            --status-success-bg: #d4edda;
+            --status-success-color: #155724;
+            --status-success-border: #155724;
+            --status-error-bg: #f8d7da;
+            --status-error-color: #721c24;
+            --status-error-border: #721c24;
+            --status-info-bg: #cce5ff;
+            --status-info-color: #004085;
+            --status-info-border: #004085;
 
-    .btn {
-      display: inline-block;
-      padding: 1rem 2rem;
-      border-radius: 50px;
-      font-size: 1rem;
-      cursor: pointer;
-      text-align: center;
-      border: 2px solid transparent;
-      font-weight: 500;
-      text-decoration: none;
-    }
-
-    .btn.primary {
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-    }
-
-    .btn.secondary {
-      background-color: transparent;
-      color: var(--light-text);
-      border-color: var(--light-text);
-    }
-
-    .btn:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    footer {
-      text-align: center;
-      padding: 1rem;
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-      border-top: 2px solid var(--primary-action);
-    }
-
-    .account-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr; /* Adjust if needed */
-      gap: 2rem;
-      margin-top: 2rem;
-    }
-
-    .account-info {
-      padding: 1.5rem 2rem; /* Increased padding slightly */
-      background-color: var(--card-bg);
-      border-radius: 15px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--card-border);
-    }
-
-    .account-info h2 { /* "User Details" heading */
-      font-size: 1.4rem;
-      margin-bottom: 1.5rem; /* More space before profile info */
-      color: var(--dark-bg);
-      text-align: left; /* Align to left if it was centered */
-    }
-
-    /* New structure for Profile Picture, Name, Email */
-    .profile-main-info {
-      display: flex;
-      align-items: center; /* Vertically align items in the middle */
-      gap: 20px; /* Space between photo and text block */
-      margin-bottom: 1.5rem; /* Space before the separator line */
-    }
-
-    .profile-main-info img#userPhoto {
-      width: 80px; /* Adjusted size */
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--card-border);
-      flex-shrink: 0; /* Prevent image from shrinking */
-    }
-
-    .profile-text-details {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem; /* Small gap between name and email */
-    }
-
-    .profile-text-details p {
-      margin-bottom: 0; /* Remove default p margin */
-      color: var(--info-text);
-      word-break: break-all;
-    }
-    #userDisplayName {
-        font-weight: 500; /* Make display name a bit bolder */
-        font-size: 1.1rem;
-        color: var(--dark-bg); /* Darker color for name */
-    }
+        }
 
 
-    /* Separator line */
-    .info-separator {
-      border: none;
-      height: 1px;
-      background-color: var(--light-gray); /* Or var(--card-border) */
-      margin: 0 0 1.5rem 0; /* Space around the line */
-    }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-align: center;
+            position: relative;
+            overflow-x: hidden;
 
-    .account-info p { /* For other p tags like created, last sign in etc */
-      margin-bottom: 0.75rem;
-      color: var(--info-text);
-      word-break: break-all;
-    }
+            /* Add padding to account for fixed navbar and footer */
+            padding-top: 80px;
+            /* Default padding for fixed navbar */
+            padding-bottom: 60px;
+            /* Default padding for fixed footer */
 
-    .additional-info h3 { /* "Additional Information" heading */
-      font-size: 1.2rem;
-      margin-top: 0; /* Remove top margin if .info-separator provides enough */
-      margin-bottom: 1rem;
-      color: var(--dark-bg);
-    }
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px;
+            /* Size of each grid cell */
+        }
+
+        /* Remove triangular gradients */
+        body::before,
+        body::after {
+            content: none;
+        }
+
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        /* Navbar - consistent with other pages */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 20px;
+            /* Adjusted padding */
+            background-color: var(--navbar-bg);
+            /* Light gray */
+            color: var(--text-color);
+            /* Dark text */
+            text-align: left;
+            /* Override center for navbar layout */
+            width: 100%;
+            position: fixed;
+            /* Ensure navbar is fixed */
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-color);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            /* Adjusted gap */
+            align-items: center;
+            text-align: left;
+            /* Ensure text in buttons is not affected by body center */
+            margin-left: auto;
+            /* Pushes the nav-buttons group to the right */
+        }
+
+        /* Buttons (Base Styles) */
+        .btn {
+            display: inline-flex;
+            /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px;
+            /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            /* White text on dark primary */
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--text-color);
+            /* Dark text on light secondary */
+            border: 1px solid var(--secondary-border-color);
+        }
+
+        .btn.primary:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-color);
+            /* Dark text on light hover */
+            border-color: var(--hover-bg);
+        }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+            border-color: var(--hover-bg);
+        }
+
+        /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192';
+            /* Right arrow character */
+            margin-right: 8px;
+            /* Space between arrow and text */
+            font-weight: bold;
+            /* Make arrow slightly bolder */
+            color: var(--accent-color);
+            /* Dark accent color for arrow */
+        }
+
+        main {
+            flex: 1;
+            /* Allow main content to grow */
+            width: 100%;
+            /* Ensure main takes full width */
+        }
+
+        .container {
+            max-width: 1200px;
+            /* Kept max-width */
+            margin: 2rem auto;
+            /* Adjusted margin */
+            padding: 0 20px;
+            /* Adjusted padding */
+            flex: 1;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            /* Consistent heading size */
+            color: var(--text-color);
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        /* Footer - consistent */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6);
+            /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        /* Account Grid */
+        .account-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            /* Keep existing ratio for now */
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        /* Account Info Card */
+        .account-info {
+            padding: 1.5rem 2rem;
+            background-color: var(--card-bg);
+            /* White background */
+            border-radius: 10px;
+            /* Less rounded */
+            box-shadow: 0 4px 12px var(--card-shadow);
+            /* Subtle shadow */
+            border: 1px solid var(--card-border);
+            /* Subtle border */
+            text-align: left;
+            /* Align content left */
+            color: var(--text-color);
+            /* Dark text */
+        }
+
+        .account-info h2 {
+            /* "User Details" heading */
+            font-size: 1.5rem;
+            /* Consistent heading size */
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        /* Profile Picture, Name, Email */
+        .profile-main-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-main-info img#userPhoto {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--card-border);
+            /* Subtle border */
+            flex-shrink: 0;
+        }
+
+        .profile-text-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .profile-text-details p {
+            margin-bottom: 0;
+            color: var(--text-color);
+            /* Dark text */
+            word-break: break-all;
+            text-transform: none;
+            /* Mixed case */
+             font-size: 1rem;
+        }
+
+        #userDisplayName {
+            font-weight: 600;
+            /* Bolder */
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            /* Darker color for name */
+            text-transform: none;
+            /* Mixed case */
+        }
 
 
-    .account-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      padding: 1.5rem;
-    }
+        /* Separator line */
+        .info-separator {
+            border: none;
+            height: 1px;
+            background-color: var(--card-border);
+            /* Use card border color */
+            margin: 0 0 1.5rem 0;
+        }
 
-    .account-buttons button {
-      padding: 1rem 1.5rem;
-      border-radius: var(--pill-radius);
-      border: 2px solid var(--dark-bg);
-      background-color: transparent;
-      color: var(--dark-bg);
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      text-align: center;
-      width: 100%;
-      display: inline-block;
-      box-sizing: border-box;
-    }
+        .account-info p {
+            /* For other p tags like created, last sign in etc */
+            margin-bottom: 0.75rem;
+            color: var(--text-color);
+            /* Dark text */
+            word-break: break-all;
+            text-transform: uppercase;
+            /* All caps */
+             font-size: 0.9rem;
+        }
 
-    .account-buttons button:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      background-color: var(--light-gray);
-    }
+        .additional-info h3 {
+            /* "Additional Information" heading */
+            font-size: 1.2rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
 
-    .account-buttons button.edit-profile {
-      border-color: var(--dark-bg);
-    }
+        /* Account Buttons Section */
+        .account-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            /* Adjusted gap */
+            padding: 1.5rem;
+            background-color: var(--card-bg);
+            /* Add background like the info card */
+            border-radius: 10px;
+            /* Match info card */
+            box-shadow: 0 4px 12px var(--card-shadow);
+            /* Match info card */
+            border: 1px solid var(--card-border);
+            /* Match info card */
+        }
 
-    .account-buttons button.manage-subscriptions {
-      border-color: var(--dark-bg);
-    }
+        .account-buttons button {
+            /* Base style for buttons within account-buttons */
+            /* Inherit from .btn.secondary */
+            width: 100%;
+            /* Full width */
+            padding: 10px 20px;
+            /* Matches .btn padding */
+            min-height: 40px;
+            border-radius: 5px;
+            /* Less rounded */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--secondary-border-color);
+            /* Secondary button border */
+            background-color: transparent;
+            /* Secondary button background */
+            color: var(--text-color);
+            /* Dark text */
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .account-buttons button.danger {
-      background-color: var(--danger-action);
-      color: var(--light-text);
-      border: 2px solid var(--dark-red);
-    }
+        .account-buttons button:hover {
+            /* Secondary button hover */
+            background-color: var(--hover-bg);
+            border-color: var(--hover-bg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            /* Subtle shadow on hover */
+        }
 
-    .account-buttons button.danger:hover {
-      background-color: var(--dark-red);
-    }
 
-    .account-buttons button.disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
+        .account-buttons button.danger {
+            background-color: var(--danger-action);
+            /* Red danger color */
+            color: var(--bg-color);
+            /* White text */
+            border: 1px solid var(--danger-action);
+            /* Red border */
+        }
 
-    .provider-badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      border-radius: 50px;
-      font-size: 0.85rem;
-      margin-left: 0.75rem;
-      vertical-align: middle;
-      font-weight: 500;
-    }
+        .account-buttons button.danger:hover {
+            background-color: var(--danger-action-hover);
+            /* Darker red on hover */
+            border-color: var(--danger-action-hover);
+        }
 
-    .provider-badge.google {
-      background-color: #4285F4;
-      color: white;
-    }
+        .account-buttons button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            /* pointer-events: none; /* Removed, as disabled attribute handles pointer events */
+            background-color: var(--secondary-border-color);
+            /* Gray background when disabled */
+            color: rgba(51, 51, 51, 0.6);
+            /* Lighter dark text when disabled */
+            border-color: var(--secondary-border-color);
+        }
+         .account-buttons button:disabled { /* Use :disabled pseudo-class */
+              opacity: 0.5;
+              cursor: not-allowed;
+              background-color: var(--secondary-border-color);
+              color: rgba(51, 51, 51, 0.6);
+              border-color: var(--secondary-border-color);
+         }
 
-    .provider-badge.email {
-      background-color: var(--dark-bg);
-      color: white;
-    }
 
-    .modal {
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: var(--modal-bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0s linear 0.3s;
-    }
+        /* Provider Badge */
+        .provider-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 5px;
+            /* Less rounded */
+            font-size: 0.85rem;
+            margin-left: 0.75rem;
+            vertical-align: middle;
+            font-weight: 600;
+            /* Bolder */
+            text-transform: uppercase;
+            /* All caps */
+        }
 
-    .modal.show {
-      opacity: 1;
-      visibility: visible;
-      transition: opacity 0.3s ease, visibility 0s linear 0s;
-    }
+        .provider-badge.google {
+            background-color: var(--google-badge-bg);
+            color: var(--google-badge-color);
+            border: 1px solid var(--google-badge-bg);
+        }
 
-    .modal-content {
-      background-color: var(--modal-content-bg);
-      padding: 2rem;
-      border: 1px solid var(--modal-content-border);
-      width: 90%;
-      max-width: 500px;
-      border-radius: 15px;
-      position: relative;
-      color: var(--modal-text-color);
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-      transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
+        .provider-badge.email {
+            background-color: var(--email-badge-bg);
+            color: var(--email-badge-color);
+            border: 1px solid var(--email-badge-bg);
+        }
 
-    .close {
-      position: absolute;
-      top: 1rem;
-      right: 1.5rem;
-      color: var(--modal-text-color);
-      font-size: 28px;
-      font-weight: bold;
-      transition: color 0.2s ease;
-      cursor: pointer;
-    }
+        /* Modals */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: var(--modal-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+        }
 
-    .close:hover {
-      color: #fff;
-      text-decoration: none;
-    }
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0s linear 0s;
+        }
 
-    .form,
-    .password-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
+        .modal-content {
+            background-color: var(--modal-content-bg);
+            /* Light gray */
+            padding: 2rem;
+            border: 1px solid var(--modal-content-border);
+            /* Medium gray */
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            /* Less rounded */
+            position: relative;
+            color: var(--modal-text-color);
+            /* Dark text */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            /* Subtle shadow */
+            transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+             text-align: left; /* Align content left */
+             text-transform: none; /* Prevent uppercase for readability */
+        }
 
-    .form label,
-    .password-form label {
-      font-weight: bold; /* Consider if this should be normal for Roboto Mono */
-      color: var(--modal-text-color);
-      display: block;
-      margin-bottom: 0.25rem;
-    }
+        .close {
+            position: absolute;
+            top: 10px;
+            /* Adjusted position */
+            right: 15px;
+            /* Adjusted position */
+            color: var(--modal-text-color);
+            /* Dark text */
+            font-size: 1.8rem;
+            /* Adjusted size */
+            font-weight: bold;
+            transition: color 0.2s ease;
+            cursor: pointer;
+        }
+        .close:hover {
+             color: var(--danger-action); /* Red on hover */
+        }
 
-    .form input[type="text"],
-    .form input[type="url"],
-    .form input[type="email"],
-    .password-form input[type="password"] {
-      padding: 1rem;
-      font-size: 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: var(--pill-radius);
-      color: var(--modal-input-text-color);
-      background-color: var(--modal-input-bg);
-      width: 100%;
-      box-sizing: border-box;
-      transition: border-color 0.2s ease;
-      font-family: 'Roboto Mono', monospace; /* Ensure font */
-    }
 
-    .form input[type="text"]:focus,
-    .form input[type="url"]:focus,
-    .form input[type="email"]:focus,
-    .password-form input[type="password"]:focus {
-      outline: none;
-      border-color: var(--primary-red);
-      box-shadow: 0 0 0 2px rgba(255, 18, 18, 0.3);
-    }
+        .form,
+        .password-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
 
-    .form button,
-    .password-form button {
-      display: inline-block;
-      padding: 1rem 2rem;
-      border-radius: var(--pill-radius);
-      font-size: 1rem;
-      cursor: pointer;
-      text-align: center;
-      border: none;
-      font-weight: 500;
-      color: var(--light-text);
-      transition: background-color 0.2s ease;
-      margin-top: 0.5rem;
-      font-family: 'Roboto Mono', monospace; /* Ensure font */
-    }
+        .form label,
+        .password-form label {
+            font-weight: 600;
+            /* Bolder */
+            color: var(--modal-text-color);
+            /* Dark text */
+            display: block;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            /* All caps */
+            font-size: 0.9rem;
+        }
 
-    .form button.primary-action,
-    .password-form button.confirm {
-      background-color: var(--primary-red);
-    }
+        .form input[type="text"],
+        .form input[type="url"],
+        .form input[type="email"],
+        .password-form input[type="password"] {
+            padding: 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--modal-input-border);
+            /* Medium gray */
+            border-radius: 5px;
+            /* Less rounded */
+            color: var(--modal-input-text-color);
+            /* Dark text */
+            background-color: var(--modal-input-bg);
+            /* White */
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            font-family: 'Outfit', sans-serif;
+            text-transform: none;
+            /* Mixed case */
+            outline: none;
+        }
 
-    .form button.primary-action:hover,
-    .password-form button.confirm:hover {
-      background-color: #cc0c0c;
-    }
+        .form input[type="text"]:focus,
+        .form input[type="url"]:focus,
+        .form input[type="email"]:focus,
+        .password-form input[type="password"]:focus {
+            border-color: var(--modal-input-focus-border);
+            box-shadow: 0 0 5px var(--modal-input-focus-shadow);
+        }
 
-    .password-form button.delete {
-      background-color: var(--danger-action);
-    }
+        .form button,
+        .password-form button {
+            /* Inherit from .btn */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            min-height: 40px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
 
-    .password-form button.delete:hover {
-      background-color: #cc0000;
-    }
+        .form button.primary-action,
+        .password-form button.confirm {
+            /* Use primary button style */
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: 1px solid var(--primary-color);
+        }
 
-    .modal h2 {
-      margin: 0;
-      color: var(--modal-text-color);
-      font-size: 1.75rem;
-      font-weight: 600; /* Consider if bold is too much for mono */
-      text-align: center;
-    }
+        .form button.primary-action:hover,
+        .password-form button.confirm:hover {
+            /* Use primary button hover style */
+            background-color: var(--hover-bg);
+            color: var(--text-color);
+            border-color: var(--hover-bg);
+        }
 
-    .modal p {
-      color: rgba(240, 240, 240, 0.8);
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
 
-    #logoutBtn {
-      background-color: var(--primary-action);
-      color: var(--light-text);
-      border: none;
-      border-radius: var(--pill-radius);
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
+        .password-form button.delete {
+            /* Use danger button style */
+            background-color: var(--danger-action);
+            color: var(--bg-color);
+            border: 1px solid var(--danger-action);
+        }
 
-    #logoutBtn:hover {
-      background-color: var(--darker-bg);
-    }
+        .password-form button.delete:hover {
+            /* Use danger button hover style */
+            background-color: var(--danger-action-hover);
+            border-color: var(--danger-action-hover);
+        }
 
-    #googleReauthButton {
-      background-color: #3498db;
-      color: var(--light-text);
-      border-radius: var(--pill-radius);
-      border: 2px solid #2980b9;
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      display: block;
-      margin: 1rem auto 0;
-    }
 
-    #googleReauthButton:hover {
-      background-color: #2980b9;
-    }
+        .modal h2 {
+            margin: 0;
+            color: var(--modal-text-color);
+            font-size: 1.75rem;
+            font-weight: 900;
+            /* Bolder */
+            text-align: center;
+            text-transform: uppercase;
+            /* All caps */
+            margin-bottom: 1rem; /* Add bottom margin */
+        }
 
-    .google-auth-message {
-      color: var(--modal-text-color);
-      text-align: center;
-      font-size: 1rem;
-      line-height: 1.5;
-    }
+        .modal p {
+            color: var(--modal-text-color);
+            /* Dark text */
+            opacity: 0.8;
+            /* Slight opacity */
+            margin-bottom: 1.5rem;
+            text-align: left;
+            /* Align left */
+            text-transform: none;
+            /* Mixed case */
+            font-size: 1rem;
+        }
 
-    .google-auth-message a {
-      color: #4285F4;
-      text-decoration: underline;
-    }
+         /* Ensure the logout button in the navbar matches the theme buttons */
+         #logoutBtn {
+             /* Inherit from .btn.secondary */
+             background-color: transparent;
+             color: var(--text-color);
+             border: 1px solid var(--secondary-border-color);
+             padding: 10px 20px;
+             border-radius: 5px;
+             font-size: 14px;
+             font-weight: 600;
+             text-transform: uppercase;
+             transition: all 0.3s ease;
+         }
+         #logoutBtn:hover {
+             /* Inherit from .btn.secondary:hover */
+             background-color: var(--hover-bg);
+             border-color: var(--hover-bg);
+             box-shadow: none; /* Remove default hover box shadow */
+         }
 
-    .spinner {
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top: 4px solid #fff; /* Or a theme color */
-      width: 20px;
-      height: 20px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto;
-    }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+        #googleReauthButton {
+            /* Inherit from .btn.secondary or define a specific style */
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--secondary-border-color);
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            margin: 1rem auto 0;
+            /* Center button */
+        }
 
-  </style>
+        #googleReauthButton:hover {
+             /* Inherit from .btn.secondary:hover */
+            background-color: var(--hover-bg);
+            border-color: var(--hover-bg);
+        }
+
+        .google-auth-message {
+            color: var(--modal-text-color);
+            /* Dark text */
+            opacity: 0.8;
+            /* Slight opacity */
+            text-align: left;
+            /* Align left */
+            font-size: 1rem;
+            line-height: 1.5;
+            text-transform: none;
+            /* Mixed case */
+        }
+
+        .google-auth-message a {
+            color: var(--accent-color);
+            /* Accent color */
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .spinner {
+            border: 4px solid rgba(51, 51, 51, 0.3);
+            /* Dark spinner with some opacity */
+            border-radius: 50%;
+            border-top: 4px solid var(--text-color);
+            /* Dark text color */
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            /* Center spinner if used alone */
+             display: inline-block; /* Ensure spinner is inline with text if needed */
+             vertical-align: middle; /* Align with text */
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+         /* Responsive adjustments */
+         @media (max-width: 768px) {
+             .navbar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+                 margin-left: 0;
+                 width: 100%;
+            }
+
+            body {
+                 padding-top: 120px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 80px; /* Adjust padding for footer */
+            }
+
+             .container {
+                 padding: 0 10px;
+                 margin: 1.5rem auto;
+             }
+
+             h1 {
+                 font-size: 1.8rem;
+                 margin-bottom: 1.5rem;
+             }
+
+             .account-grid {
+                 grid-template-columns: 1fr; /* Stack columns */
+                 gap: 1.5rem;
+                 margin-top: 1.5rem;
+             }
+
+             .account-info {
+                 padding: 1rem 1.5rem;
+             }
+
+             .account-info h2 {
+                 font-size: 1.3rem;
+                 margin-bottom: 1rem;
+             }
+
+             .profile-main-info {
+                 flex-direction: column; /* Stack photo and text */
+                 align-items: flex-start; /* Align stacked items to the left */
+                 gap: 10px;
+                 margin-bottom: 1rem;
+             }
+
+              .profile-main-info img#userPhoto {
+                 width: 60px; /* Smaller photo */
+                 height: 60px;
+              }
+              .profile-text-details {
+                 gap: 0.1rem;
+              }
+               .profile-text-details p {
+                  font-size: 0.9rem;
+               }
+               #userDisplayName {
+                  font-size: 1rem;
+               }
+
+
+             .info-separator {
+                 margin: 0 0 1rem 0;
+             }
+
+             .account-info p {
+                 font-size: 0.8rem;
+                 margin-bottom: 0.6rem;
+             }
+
+             .additional-info h3 {
+                 font-size: 1.1rem;
+                 margin-bottom: 0.8rem;
+             }
+
+
+             .account-buttons {
+                 padding: 1rem;
+                 gap: 10px;
+             }
+             .account-buttons button {
+                 padding: 8px 15px;
+                 font-size: 12px;
+             }
+
+             /* Modal adjustments */
+             .modal-content {
+                 padding: 1.5rem;
+                 gap: 1rem;
+             }
+             .modal h2 {
+                 font-size: 1.5rem;
+                 margin-bottom: 0.8rem;
+             }
+             .modal p {
+                 font-size: 0.9rem;
+                 margin-bottom: 1rem;
+             }
+
+             .form label, .password-form label {
+                 font-size: 0.85rem;
+             }
+             .form input, .password-form input {
+                 padding: 0.8rem;
+                 font-size: 0.9rem;
+             }
+              .form button, .password-form button {
+                  padding: 8px 15px;
+                  font-size: 12px;
+                  margin-top: 0.5rem;
+              }
+              #googleReauthButton {
+                   padding: 8px 15px;
+                   font-size: 12px;
+               }
+
+               .google-auth-message {
+                  font-size: 0.9rem;
+               }
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                 padding: 15px 10px;
+             }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             body {
+                 padding-top: 150px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 100px; /* Adjust padding for footer */
+             }
+
+             .container {
+                 padding: 0 8px;
+                 margin: 1rem auto;
+             }
+
+              h1 {
+                 font-size: 1.5rem;
+                 margin-bottom: 1rem;
+             }
+
+              .account-grid {
+                 gap: 1rem;
+                 margin-top: 1rem;
+             }
+
+              .account-info {
+                 padding: 0.8rem 1rem;
+             }
+              .account-info h2 {
+                  font-size: 1.1rem;
+                  margin-bottom: 0.8rem;
+              }
+
+              .profile-main-info {
+                 gap: 8px;
+                 margin-bottom: 0.8rem;
+              }
+              .profile-main-info img#userPhoto {
+                 width: 50px;
+                 height: 50px;
+              }
+              .profile-text-details p {
+                  font-size: 0.8rem;
+               }
+               #userDisplayName {
+                  font-size: 0.9rem;
+               }
+
+             .info-separator {
+                 margin: 0 0 0.8rem 0;
+             }
+
+              .account-info p {
+                 font-size: 0.7rem;
+                 margin-bottom: 0.5rem;
+             }
+             .additional-info h3 {
+                 font-size: 1rem;
+                 margin-bottom: 0.6rem;
+             }
+
+             .account-buttons {
+                 padding: 0.8rem;
+                 gap: 8px;
+             }
+              .account-buttons button {
+                 padding: 6px 10px;
+                 font-size: 10px;
+             }
+
+             /* Modal adjustments */
+             .modal-content {
+                 padding: 1rem;
+                 gap: 0.8rem;
+             }
+              .modal h2 {
+                 font-size: 1.2rem;
+                 margin-bottom: 0.6rem;
+             }
+             .modal p {
+                 font-size: 0.8rem;
+                 margin-bottom: 1rem;
+             }
+              .form label, .password-form label {
+                 font-size: 0.8rem;
+              }
+              .form input, .password-form input {
+                 padding: 0.6rem;
+                 font-size: 0.8rem;
+             }
+              .form button, .password-form button {
+                   padding: 6px 10px;
+                   font-size: 10px;
+                   margin-top: 0.4rem;
+               }
+              #googleReauthButton {
+                   padding: 6px 10px;
+                   font-size: 10px;
+                   margin-top: 0.6rem;
+               }
+               .google-auth-message {
+                   font-size: 0.8rem;
+               }
+
+         }
+
+
+    </style>
 </head>
 
 <body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="index.html" class="btn secondary">Home</a>
-      <a href="dashboard.html" class="btn secondary">Dashboard</a>
-      <button class="btn secondary" id="logoutBtn">Log Out</button>
-    </div>
-  </nav>
-
-  <main class="container">
-    <h1>Account Information</h1>
-    <div class="account-grid">
-      <div class="account-info">
-        <h2>User Details</h2>
-
-        <div class="profile-main-info">
-          <img id="userPhoto" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23ddd%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2210px%22%20fill%3D%22%23777%22%3ELoading%3C/text%3E%3C/svg%3E" alt="User Photo">
-          <div class="profile-text-details">
-            <p id="userDisplayName">Display Name: Loading...</p>
-            <p id="userEmail">Email: Loading...</p>
-          </div>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+             <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+             <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+             <a href="collections.html" class="btn secondary btn-with-arrow">Collections</a>
+             <button id="logoutBtn" class="btn secondary">Log Out</button>
         </div>
+    </nav>
 
-        <hr class="info-separator">
+    <main>
+        <div class="container">
+            <h1>Account Information</h1>
+            <div class="account-grid">
+                <div class="account-info">
+                    <h2>User Details</h2>
 
-        <p id="authProvider">Sign-in Method: Loading...</p>
-        <p id="creationTime">Created: Loading...</p>
-        <div class="additional-info">
-          <h3>Additional Information</h3>
-          <p id="lastSignIn">Last Sign-in: Loading...</p>
-          <p id="userUID">User ID: Loading...</p>
+                    <div class="profile-main-info">
+                        <img id="userPhoto" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23eee%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22Outfit%22%20font-size%3D%2210px%22%20fill%3D%22%23aaa%22%3ENO%20PHOTO%3C/text%3E%3C/svg%3E" alt="User Photo">
+                        <div class="profile-text-details">
+                            <p id="userDisplayName">Name: Loading...</p>
+                            <p id="userEmail">Email: Loading...</p>
+                        </div>
+                    </div>
+
+                    <hr class="info-separator">
+
+                    <p id="authProvider">Sign-in Method: Loading...</p>
+                    <p id="creationTime">Created: Loading...</p>
+                    <div class="additional-info">
+                        <h3>Additional Information</h3>
+                        <p id="lastSignIn">Last Sign-in: Loading...</p>
+                        <p id="userUID">User ID: Loading...</p>
+                    </div>
+                </div>
+
+                <div class="account-buttons">
+                    <button id="editProfileBtn">Edit Profile</button>
+                    <button id="changePasswordBtn">Change Password</button>
+                    <button id="manageSubscriptionsBtn">Manage Subscriptions</button>
+                    <button id="deleteAccountBtn" class="danger">Delete Account</button>
+                </div>
+            </div>
         </div>
-      </div>
+    </main>
 
-      <div class="account-buttons">
-        <button id="editProfileBtn" class="edit-profile">Edit Profile</button>
-        <button id="changePasswordBtn" class="secondary">Change Password</button>
-        <button id="manageSubscriptionsBtn" class="manage-subscriptions">Manage Subscriptions</button>
-        <button id="deleteAccountBtn" class="danger">Delete Account</button>
-      </div>
-    </div>
-  </main>
+    <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
 
-  <footer>
-    <p>© 2025 4SP</p>
-  </footer>
-
-  <div id="editProfileModal" class="modal">
-    <div class="modal-content">
-      <span class="close" data-modal-id="editProfileModal">&times;</span>
-      <h2>Edit Profile</h2>
-      <form class="form" id="editProfileForm">
-        <div>
-          <label for="profileDisplayName">Display Name:</label>
-          <input type="text" id="profileDisplayName" placeholder="Enter your display name">
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-modal-id="editProfileModal">&times;</span>
+            <h2>Edit Profile</h2>
+            <form class="form" id="editProfileForm">
+                <div>
+                    <label for="profileDisplayName">Display Name:</label>
+                    <input type="text" id="profileDisplayName" placeholder="Enter your display name">
+                </div>
+                <div>
+                    <label for="profilePhotoURL">Photo URL:</label>
+                    <input type="url" id="profilePhotoURL" placeholder="Enter URL for your photo">
+                </div>
+                <button type="submit" class="primary-action">Save Profile</button>
+            </form>
         </div>
-        <div>
-          <label for="profilePhotoURL">Photo URL:</label>
-          <input type="url" id="profilePhotoURL" placeholder="Enter URL for your photo">
+    </div>
+
+
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-modal-id="changePasswordModal">&times;</span>
+            <h2>Change Password</h2>
+            <div id="emailAuthContent">
+                <p>Confirm your current password, then enter a new password.</p>
+                <form class="password-form" id="confirmPasswordForm">
+                    <label for="currentPassword">Current Password:</label>
+                    <input type="password" id="currentPassword" required>
+                    <button type="submit" class="confirm primary-action">Confirm Password</button>
+                </form>
+                <p style="display:none;" id="change-password-message">Now enter your new password!</p>
+                <form class="password-form" id="newPasswordForm" style="display: none;">
+                    <label for="newPassword">New Password:</label>
+                    <input type="password" id="newPassword" required minlength="6">
+                    <label for="confirmNewPassword">Confirm New Password:</label>
+                    <input type="password" id="confirmNewPassword" required minlength="6">
+                    <button type="submit" class="confirm primary-action">Change Password</button>
+                </form>
+            </div>
+            <div id="googleAuthContent" style="display: none;">
+                <div class="google-auth-message">
+                    <p>You're signed in with Google, so your password is managed through your Google account.</p>
+                    <p>To change your password, please visit <a href="https://myaccount.google.com/security" target="_blank">Google Account Settings</a>.</p>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="primary-action">Save Profile</button>
-      </form>
     </div>
-  </div>
 
-
-  <div id="changePasswordModal" class="modal">
-    <div class="modal-content">
-      <span class="close" data-modal-id="changePasswordModal">&times;</span>
-      <h2>Change Password</h2>
-      <div id="emailAuthContent">
-        <p>Confirm your current password, then enter a new password.</p>
-        <form class="password-form" id="confirmPasswordForm">
-          <label for="currentPassword">Current Password:</label>
-          <input type="password" id="currentPassword" required>
-          <button type="submit" class="confirm">Confirm Password</button>
-        </form>
-        <p style="display:none;" id="change-password-message">Now enter your new password!</p>
-        <form class="password-form" id="newPasswordForm" style="display: none;">
-          <label for="newPassword">New Password:</label>
-          <input type="password" id="newPassword" required minlength="6">
-          <label for="confirmNewPassword">Confirm New Password:</label>
-          <input type="password" id="confirmNewPassword" required minlength="6">
-          <button type="submit" class="confirm">Change Password</button>
-        </form>
-      </div>
-      <div id="googleAuthContent" style="display: none;">
-        <div class="google-auth-message">
-          <p>You're signed in with Google, so your password is managed through your Google account.</p>
-          <p>To change your password, please visit <a href="https://myaccount.google.com/security" target="_blank">Google Account Settings</a>.</p>
+    <div id="deleteAccountModal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-modal-id="deleteAccountModal">&times;</span>
+            <h2>Delete Account</h2>
+            <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+            <form class="password-form" id="deleteAccountForm">
+                <label for="deletePassword" id="deletePasswordLabel">Enter Password to Confirm:</label>
+                <input type="password" id="deletePassword" required>
+                <button type="submit" class="delete danger">Delete Account</button>
+            </form>
+            <div id="googleDeleteContent" style="display: none;">
+                <p>Since you're signed in with Google, you'll need to re-authenticate to delete your account.</p>
+                <button id="googleReauthButton" class="secondary">Re-authenticate with Google</button> </div>
         </div>
-      </div>
     </div>
-  </div>
-
-  <div id="deleteAccountModal" class="modal">
-    <div class="modal-content">
-      <span class="close" data-modal-id="deleteAccountModal">&times;</span>
-      <h2>Delete Account</h2>
-      <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-      <form class="password-form" id="deleteAccountForm">
-        <label for="deletePassword" id="deletePasswordLabel">Enter Password to Confirm:</label>
-        <input type="password" id="deletePassword" required>
-        <button type="submit" class="delete">Delete Account</button>
-      </form>
-      <div id="googleDeleteContent" style="display: none;">
-        <p>Since you're signed in with Google, you'll need to re-authenticate to delete your account.</p>
-        <button id="googleReauthButton">Re-authenticate with Google</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Firebase Initialization
-      const auth = firebase.auth();
-      const db = firebase.firestore(); // Initialize Firestore
-
-      // Get DOM Elements - User Details
-      const userDisplayNameElement = document.getElementById('userDisplayName');
-      const userPhotoElement = document.getElementById('userPhoto');
-      const userEmailElement = document.getElementById('userEmail');
-      const authProviderElement = document.getElementById('authProvider');
-      const creationTimeElement = document.getElementById('creationTime');
-      const lastSignInElement = document.getElementById('lastSignIn');
-      const userUIDElement = document.getElementById('userUID');
-
-      // Buttons
-      const changePasswordBtn = document.getElementById('changePasswordBtn');
-      const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-      const logoutBtn = document.getElementById('logoutBtn');
-      const editProfileBtn = document.getElementById('editProfileBtn');
-      // const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn');
-
-      // Modals
-      const editProfileModal = document.getElementById('editProfileModal');
-      const changePasswordModal = document.getElementById('changePasswordModal');
-      const deleteAccountModal = document.getElementById('deleteAccountModal');
-
-      // Forms & Inputs - Edit Profile
-      const editProfileForm = document.getElementById('editProfileForm');
-      const profileDisplayNameInput = document.getElementById('profileDisplayName');
-      const profilePhotoURLInput = document.getElementById('profilePhotoURL');
-
-      // Forms & Inputs - Change Password
-      const confirmPasswordForm = document.getElementById('confirmPasswordForm');
-      const newPasswordForm = document.getElementById('newPasswordForm');
-      const currentPasswordInput = document.getElementById('currentPassword');
-      const newPasswordInput = document.getElementById('newPassword');
-      const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
-      const changePasswordMessage = document.getElementById('change-password-message');
-
-      // Forms & Inputs - Delete Account
-      const deleteAccountForm = document.getElementById('deleteAccountForm');
-      const deletePasswordInput = document.getElementById('deletePassword');
-
-      // Close Modal Buttons
-      const closeModalButtons = document.querySelectorAll('.close');
-
-      // Google Auth Specific Elements
-      const emailAuthContent = document.getElementById('emailAuthContent');
-      const googleAuthContent = document.getElementById('googleAuthContent');
-      const googleDeleteContent = document.getElementById('googleDeleteContent');
-      const googleReauthButton = document.getElementById('googleReauthButton');
-      // const deletePasswordLabel = document.getElementById('deletePasswordLabel');
-
-      let isGoogleUser = false;
-      let currentUser = null;
-
-      const defaultPhotoURL = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23eee%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2210px%22%20fill%3D%22%23aaa%22%3ENo%20Photo%3C/text%3E%3C/svg%3E';
 
 
-      // --- Modal Helper Functions ---
-      const openModal = (modal) => {
-        modal.style.display = 'flex';
-        void modal.offsetWidth;
-        modal.classList.add('show');
-      };
+    <script>
+        // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-      const closeModal = (modalOrId) => {
-        const modal = typeof modalOrId === 'string' ? document.getElementById(modalOrId) : modalOrId;
-        if (modal) {
-          modal.classList.remove('show');
-          setTimeout(() => {
-            modal.style.display = 'none';
-            const forms = modal.querySelectorAll('form');
-            forms.forEach(form => form.reset());
-            if (modal.id === 'changePasswordModal' && confirmPasswordForm && changePasswordMessage && newPasswordForm) {
-                 confirmPasswordForm.style.display = "block";
-                 changePasswordMessage.style.display = "none";
-                 newPasswordForm.style.display = "none";
+        document.addEventListener('DOMContentLoaded', () => {
+            // Firebase Initialization
+            let auth; // Declare auth
+            let db; // Declare db
+
+             // Check if Firebase SDK is available and initialized
+            if (typeof firebase !== 'undefined') {
+                // Initialize Firebase app if not already initialized
+                if (firebase.apps.length === 0 && typeof firebaseConfig !== 'undefined') {
+                    try {
+                         firebase.initializeApp(firebaseConfig);
+                    } catch (error) {
+                        console.error("Firebase initialization error:", error);
+                         // Handle initialization error - maybe show a message on the page
+                         document.querySelector('.container').innerHTML = '<h1 style="color: var(--status-error-color); font-size: 1.5rem;">ERROR INITIALIZING FIREBASE. PLEASE CHECK YOUR CONNECTION.</h1>';
+                         // Disable buttons or hide sections that rely on Firebase
+                         document.querySelectorAll('.account-buttons button').forEach(btn => btn.disabled = true);
+                          document.getElementById('logoutBtn').disabled = true;
+                         return; // Stop script execution if Firebase fails to initialize
+                    }
+                }
+                 // Assign auth and db instances
+                 auth = firebase.auth();
+                 db = firebase.firestore();
+
+                 // Set up auth state change listener
+                 auth.onAuthStateChanged(user => handleAuthState(user));
+
+
+            } else {
+                console.error("Firebase SDK not available.");
+                 // Handle case where Firebase script failed to load
+                 document.querySelector('.container').innerHTML = '<h1 style="color: var(--status-error-color); font-size: 1.5rem;">FIREBASE SDK NOT LOADED. PLEASE CHECK YOUR INTERNET CONNECTION.</h1>';
+                 // Disable buttons or hide sections that rely on Firebase
+                 document.querySelectorAll('.account-buttons button').forEach(btn => btn.disabled = true);
+                  document.getElementById('logoutBtn').disabled = true;
             }
-          }, 300);
-        }
-      };
-
-      // --- User Profile Functions ---
-      const loadUserProfile = async (user) => {
-        if (!user) return;
-
-        // Clear previous text content to avoid "Loading..." text from showing up with actual text
-        userDisplayNameElement.textContent = '';
-        userEmailElement.textContent = '';
-        authProviderElement.textContent = '';
-        creationTimeElement.textContent = '';
-        lastSignInElement.textContent = '';
-        userUIDElement.textContent = '';
 
 
-        // Set basic auth info that doesn't rely on Firestore first
-        userEmailElement.textContent = `Email: ${user.email || 'N/A'}`;
-        creationTimeElement.textContent = `Created: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
-        lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
-        userUIDElement.textContent = `User ID: ${user.uid}`;
+            // Get DOM Elements - User Details
+            const userDisplayNameElement = document.getElementById('userDisplayName');
+            const userPhotoElement = document.getElementById('userPhoto');
+            const userEmailElement = document.getElementById('userEmail');
+            const authProviderElement = document.getElementById('authProvider');
+            const creationTimeElement = document.getElementById('creationTime');
+            const lastSignInElement = document.getElementById('lastSignIn');
+            const userUIDElement = document.getElementById('userUID');
 
-        try {
-          const userDocRef = db.collection('users').doc(user.uid);
-          const docSnap = await userDocRef.get();
+            // Buttons
+            const changePasswordBtn = document.getElementById('changePasswordBtn');
+            const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const editProfileBtn = document.getElementById('editProfileBtn');
+            // const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn'); // Uncomment if used
 
-          let displayNameToSet = user.displayName || 'Not Set';
-          let photoURLToSet = user.photoURL || defaultPhotoURL;
+            // Modals
+            const editProfileModal = document.getElementById('editProfileModal');
+            const changePasswordModal = document.getElementById('changePasswordModal');
+            const deleteAccountModal = document.getElementById('deleteAccountModal');
 
-          if (docSnap.exists()) {
-            const profileData = docSnap.data();
-            displayNameToSet = profileData.displayName || displayNameToSet;
-            photoURLToSet = profileData.photoURL || photoURLToSet;
-          } else {
-             // Optionally, create a basic profile in Firestore if it doesn't exist on first load from Auth
-             if (user.displayName || user.photoURL) { // Only create if there's something to save from Auth
-                await userDocRef.set({
-                    displayName: user.displayName || 'Not Set',
-                    photoURL: user.photoURL || '', // Save empty string if null to avoid issues
-                    email: user.email
-                }, { merge: true });
-             }
-          }
-          userDisplayNameElement.textContent = `Name: ${displayNameToSet}`;
-          userPhotoElement.src = photoURLToSet;
+            // Forms & Inputs - Edit Profile
+            const editProfileForm = document.getElementById('editProfileForm');
+            const profileDisplayNameInput = document.getElementById('profileDisplayName');
+            const profilePhotoURLInput = document.getElementById('profilePhotoURL');
 
-          // For edit modal prefill
-          profileDisplayNameInput.value = displayNameToSet === 'Not Set' ? '' : displayNameToSet;
-          profilePhotoURLInput.value = photoURLToSet === defaultPhotoURL ? '' : photoURLToSet;
+            // Forms & Inputs - Change Password
+            const confirmPasswordForm = document.getElementById('confirmPasswordForm');
+            const newPasswordForm = document.getElementById('newPasswordForm');
+            const currentPasswordInput = document.getElementById('currentPassword');
+            const newPasswordInput = document.getElementById('newPassword');
+            const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+            const changePasswordMessage = document.getElementById('change-password-message');
 
+            // Forms & Inputs - Delete Account
+            const deleteAccountForm = document.getElementById('deleteAccountForm');
+            const deletePasswordInput = document.getElementById('deletePassword');
 
-        } catch (error) {
-          console.error("Error loading user profile:", error);
-          userDisplayNameElement.textContent = `Name: ${user.displayName || 'Error'}`;
-          userPhotoElement.src = user.photoURL || defaultPhotoURL;
-        }
-        userPhotoElement.onerror = () => { userPhotoElement.src = defaultPhotoURL; };
-      };
+            // Close Modal Buttons
+            const closeModalButtons = document.querySelectorAll('.close');
 
+            // Google Auth Specific Elements
+            const emailAuthContent = document.getElementById('emailAuthContent');
+            const googleAuthContent = document.getElementById('googleAuthContent');
+            const googleDeleteContent = document.getElementById('googleDeleteContent');
+            const googleReauthButton = document.getElementById('googleReauthButton');
+            // const deletePasswordLabel = document.getElementById('deletePasswordLabel');
 
-      // --- Auth Provider Check ---
-      const checkAuthProvider = (user) => {
-        if (user && user.providerData) {
-          const googleProvider = user.providerData.find(p => p.providerId === 'google.com');
-          isGoogleUser = !!googleProvider;
+            let isGoogleUser = false;
+            let currentUser = null;
 
-          if (isGoogleUser) {
-            authProviderElement.innerHTML = `Sign-in Method: <span class="provider-badge google">Google</span>`;
-            changePasswordBtn.classList.add('disabled');
-            changePasswordBtn.title = "Password is managed by your Google account";
-            if(emailAuthContent) emailAuthContent.style.display = 'none';
-            if(googleAuthContent) googleAuthContent.style.display = 'block';
-            if(deleteAccountForm) deleteAccountForm.style.display = 'none';
-            if(googleDeleteContent) googleDeleteContent.style.display = 'block';
-          } else {
-            authProviderElement.innerHTML = `Sign-in Method: <span class="provider-badge email">Email</span>`;
-            changePasswordBtn.classList.remove('disabled');
-            changePasswordBtn.title = "";
-            if(emailAuthContent) emailAuthContent.style.display = 'block';
-            if(googleAuthContent) googleAuthContent.style.display = 'none';
-            if(deleteAccountForm) deleteAccountForm.style.display = 'block';
-            if(googleDeleteContent) googleDeleteContent.style.display = 'none';
-          }
-        } else {
-            authProviderElement.textContent = 'Sign-in Method: Unknown';
-        }
-      };
+             // Use Outfit font in the default SVG
+            const defaultPhotoURL = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23eee%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%20text-anchor%3D%22middle%22%20font-family%3D%22Outfit%22%20font-size%3D%2210px%22%20fill%3D%22%23aaa%22%3ENO%20PHOTO%3C/text%3E%3C/svg%3E';
 
 
-      // --- Event Listeners ---
-      closeModalButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const modalId = button.dataset.modalId;
-          if (modalId) closeModal(modalId);
-          else closeModal(button.closest('.modal'));
-        });
-      });
+            // --- Auth State Change Handler ---
+            const handleAuthState = (user) => {
+                 currentUser = user; // Update currentUser variable
 
-      window.addEventListener('click', (event) => {
-        if (event.target.classList.contains('modal') && event.target.classList.contains('show')) {
-          closeModal(event.target);
-        }
-      });
+                 if (user) {
+                     console.log("User is logged in:", user.email);
+                     // User is logged in, load profile, check provider, setup listeners
+                     loadUserProfile(user);
+                     checkAuthProvider(user);
+                     setupAuthDependentListeners(); // Setup listeners that require authenticated user
 
-      editProfileBtn.addEventListener('click', () => {
-        if (currentUser) {
-          // Pre-fill logic is now part of loadUserProfile and updated when modal opens
-          const currentName = userDisplayNameElement.textContent.replace('Name: ', '').trim();
-          const currentPhoto = userPhotoElement.src;
+                     // Show logout button if authenticated
+                     if (logoutBtn) logoutBtn.classList.remove('hidden');
 
-          profileDisplayNameInput.value = (currentName === 'Not Set' || currentName === 'Error') ? '' : currentName;
-          profilePhotoURLInput.value = (currentPhoto === defaultPhotoURL || !currentPhoto.startsWith('http')) ? '' : currentPhoto;
+                 } else {
+                     console.log("No user logged in. Redirecting to index.html");
+                     // Redirect if not authenticated
+                     window.location.href = 'index.html';
+                 }
+            };
 
-          openModal(editProfileModal);
-        } else {
-          alert("Please wait, user data is loading.");
-        }
-      });
 
-      if (editProfileForm) {
-        editProfileForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const newDisplayName = profileDisplayNameInput.value.trim() || 'Not Set'; // Default to 'Not Set' if empty
-          const newPhotoURL = profilePhotoURLInput.value.trim(); // Keep empty if not provided
+            // --- Setup Auth-Dependent Listeners ---
+            const setupAuthDependentListeners = () => {
 
-          if (!currentUser) {
-            alert('User not available. Please try again.');
-            return;
-          }
+                 // Ensure listeners are only added once
+                 if (setupAuthDependentListeners.initialized) return;
+                 setupAuthDependentListeners.initialized = true;
 
-          const saveButton = editProfileForm.querySelector('button[type="submit"]');
-          const originalButtonText = saveButton.textContent;
-          saveButton.innerHTML = '<div class="spinner"></div> Saving...';
-          saveButton.disabled = true;
 
-          try {
-            await currentUser.updateProfile({
-              displayName: newDisplayName === 'Not Set' ? (currentUser.displayName || '') : newDisplayName, // Avoid clearing Auth profile if user enters nothing
-              photoURL: newPhotoURL,
-            });
+                 // --- Modal Helper Functions ---
+                 const openModal = (modal) => {
+                     modal.style.display = 'flex'; // Use flex to center
+                     // Force a reflow to ensure transition works
+                     void modal.offsetWidth;
+                     modal.classList.add('show');
+                 };
 
-            const userDocRef = db.collection('users').doc(currentUser.uid);
-            await userDocRef.set({
-              displayName: newDisplayName,
-              photoURL: newPhotoURL,
-              email: currentUser.email
-            }, { merge: true });
+                 const closeModal = (modalOrId) => {
+                     const modal = typeof modalOrId === 'string' ? document.getElementById(modalOrId) : modalOrId;
+                     if (modal) {
+                         modal.classList.remove('show');
+                         // Use a timeout to hide the modal after the fade-out transition
+                         setTimeout(() => {
+                             modal.style.display = 'none';
+                             // Reset forms and password modal state after closing
+                             const forms = modal.querySelectorAll('form');
+                             forms.forEach(form => form.reset());
 
-            userDisplayNameElement.textContent = `Name: ${newDisplayName}`;
-            userPhotoElement.src = newPhotoURL || defaultPhotoURL;
-            userPhotoElement.onerror = () => { userPhotoElement.src = defaultPhotoURL; };
+                              // Reset password modal state
+                              if (modal.id === 'changePasswordModal' && confirmPasswordForm && changePasswordMessage && newPasswordForm) {
+                                confirmPasswordForm.style.display = "block";
+                                changePasswordMessage.style.display = "none";
+                                newPasswordForm.style.display = "none";
+                              }
 
-            alert('Profile updated successfully!');
-            closeModal(editProfileModal);
-          } catch (error) {
-            console.error('Error updating profile:', error);
-            alert('Failed to update profile: ' + error.message);
-          } finally {
-            saveButton.textContent = originalButtonText;
-            saveButton.disabled = false;
-          }
-        });
-      }
+                         }, 300); // Match CSS transition duration
+                     }
+                 };
 
-      changePasswordBtn.addEventListener('click', () => {
-        if (!isGoogleUser && currentUser) {
-          openModal(changePasswordModal);
-        } else if (isGoogleUser) {
-          // The button is disabled, but if clicked programmatically:
-          alert("Password is managed through your Google account.");
-        } else {
-            alert("User not loaded yet.");
-        }
-      });
 
-      if(confirmPasswordForm){
-        confirmPasswordForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const password = currentPasswordInput.value;
-          if (!currentUser || isGoogleUser) return;
+                 // --- User Profile Functions ---
+                 const loadUserProfile = async (user) => {
+                     if (!user || !db) {
+                          console.error("User or Firestore not available for loading profile.");
+                          // Display error messages on the page elements
+                          userDisplayNameElement.textContent = 'Name: Error Loading';
+                          userEmailElement.textContent = 'Email: Error Loading';
+                          authProviderElement.textContent = 'Sign-in Method: Error Loading';
+                          creationTimeElement.textContent = 'Created: Error Loading';
+                          lastSignInElement.textContent = 'Last Sign-in: Error Loading';
+                          userUIDElement.textContent = 'User ID: Error Loading';
+                          userPhotoElement.src = defaultPhotoURL; // Set default photo on error
+                          userPhotoElement.onerror = null; // Prevent infinite error loop
+                          return;
+                     }
 
-          const confirmButton = confirmPasswordForm.querySelector('button[type="submit"]');
-          const originalButtonText = confirmButton.textContent;
-          confirmButton.innerHTML = '<div class="spinner"></div>';
-          confirmButton.disabled = true;
+                     // Display loading state initially
+                     userDisplayNameElement.textContent = 'Name: Loading...';
+                     userEmailElement.textContent = 'Email: Loading...';
+                     authProviderElement.textContent = 'Sign-in Method: Loading...';
+                     creationTimeElement.textContent = 'Created: Loading...';
+                     lastSignInElement.textContent = 'Last Sign-in: Loading...';
+                     userUIDElement.textContent = 'User ID: Loading...';
+                     userPhotoElement.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23ddd%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%20text-anchor%3D%22middle%22%20font-family%3D%22Outfit%22%20font-size%3D%2210px%22%20fill%3D%22%23777%22%3ELoading%3C/text%3E%3C/svg%3E'; // Loading SVG
+                     userPhotoElement.onerror = null; // Temporarily remove error handler
 
-          try {
-            const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
-            await currentUser.reauthenticateWithCredential(credential);
-            confirmPasswordForm.style.display = "none";
-            changePasswordMessage.style.display = "block";
-            newPasswordForm.style.display = "block";
-            currentPasswordInput.value = '';
-          } catch (error) {
-            alert('Incorrect password. Please try again. ' + error.message);
-          } finally {
-             confirmButton.textContent = originalButtonText;
-             confirmButton.disabled = false;
-          }
-        });
-      }
+                     try {
+                         // Set basic auth info that doesn't rely on Firestore first
+                         userEmailElement.textContent = `Email: ${user.email || 'N/A'}`;
+                         creationTimeElement.textContent = `Created: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
+                         lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
+                         userUIDElement.textContent = `User ID: ${user.uid}`;
 
-      if(newPasswordForm){
-        newPasswordForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const newPass = newPasswordInput.value;
-          const confirmNewPass = confirmNewPasswordInput.value;
 
-          if (newPass !== confirmNewPass) {
-            alert("New passwords do not match."); return;
-          }
-          if (newPass.length < 6) {
-            alert("Password must be at least 6 characters."); return;
-          }
-          if (!currentUser || isGoogleUser) return;
+                         const userDocRef = db.collection('users').doc(user.uid);
+                         const docSnap = await userDocRef.get();
 
-          const changeButton = newPasswordForm.querySelector('button[type="submit"]');
-          const originalButtonText = changeButton.textContent;
-          changeButton.innerHTML = '<div class="spinner"></div>';
-          changeButton.disabled = true;
+                         let displayNameToSet = user.displayName || 'Not Set';
+                         let photoURLToSet = user.photoURL || defaultPhotoURL;
 
-          try {
-            await currentUser.updatePassword(newPass);
-            alert('Password updated successfully!');
-            newPasswordInput.value = '';
-            confirmNewPasswordInput.value = '';
-            closeModal(changePasswordModal);
-            // Reset modal state
-            if (confirmPasswordForm && changePasswordMessage && newPasswordForm) {
-                confirmPasswordForm.style.display = "block";
-                changePasswordMessage.style.display = "none";
-                newPasswordForm.style.display = "none";
-            }
-          } catch (error) {
-            alert('Error updating password: ' + error.message);
-          } finally {
-            changeButton.textContent = originalButtonText;
-            changeButton.disabled = false;
-          }
-        });
-      }
 
-      logoutBtn.addEventListener('click', async () => {
-        try {
-          await auth.signOut();
-          window.location.href = 'index.html';
-        } catch (error) {
-          console.error('Error signing out: ', error);
-          alert('Failed to log out.');
-        }
-      });
+                         if (docSnap.exists()) {
+                             const profileData = docSnap.data();
+                             displayNameToSet = profileData.displayName || displayNameToSet; // Prioritize Firestore data
+                             photoURLToSet = profileData.photoURL || photoURLToSet; // Prioritize Firestore data
+                         } else {
+                             // If Firestore document doesn't exist, create it with initial Auth data
+                             if (user.displayName || user.photoURL || user.email) { // Only create if there's some data
+                                 await userDocRef.set({
+                                     displayName: user.displayName || 'Not Set',
+                                     photoURL: user.photoURL || '', // Use empty string if null to avoid issues
+                                     email: user.email || ''
+                                 }, { merge: true });
+                                 console.log("Created new user profile document in Firestore.");
+                             }
+                         }
 
-      deleteAccountBtn.addEventListener('click', () => {
-        if (currentUser) openModal(deleteAccountModal);
-        else alert("User not loaded yet.");
-      });
+                         userDisplayNameElement.textContent = `Name: ${displayNameToSet}`;
+                         userPhotoElement.src = photoURLToSet;
+                         // Add error handler back after setting the source
+                         userPhotoElement.onerror = () => { userPhotoElement.src = defaultPhotoURL; };
 
-      if(deleteAccountForm){
-        deleteAccountForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          if (!currentUser || isGoogleUser) return;
 
-          const password = deletePasswordInput.value;
-          if (!confirm("FINAL WARNING: Delete account? This cannot be undone.")) return;
+                         // For edit modal prefill - populate input values
+                         if (profileDisplayNameInput) profileDisplayNameInput.value = (displayNameToSet === 'Not Set' || displayNameToSet === 'Error') ? '' : displayNameToSet;
+                         if (profilePhotoURLInput) profilePhotoURLInput.value = (photoURLToSet === defaultPhotoURL || !photoURLToSet || photoURLToSet.startsWith('data:')) ? '' : photoURLToSet;
 
-          const deleteButton = deleteAccountForm.querySelector('button[type="submit"]');
-          const originalButtonText = deleteButton.textContent;
-          deleteButton.innerHTML = '<div class="spinner"></div>';
-          deleteButton.disabled = true;
 
-          try {
-            const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
-            await currentUser.reauthenticateWithCredential(credential);
-            // Optional: await db.collection('users').doc(currentUser.uid).delete();
-            await currentUser.delete();
-            alert('Account deleted.');
-            window.location.href = 'index.html';
-          } catch (error) {
-            alert('Error deleting account: ' + error.message);
-            deletePasswordInput.value = '';
-          } finally {
-            deleteButton.textContent = originalButtonText;
-            deleteButton.disabled = false;
-          }
-        });
-      }
+                     } catch (error) {
+                         console.error("Error loading user profile:", error);
+                         // Display error messages on the page elements
+                         userDisplayNameElement.textContent = `Name: ${user.displayName || 'Error Loading'}`;
+                         userEmailElement.textContent = `Email: ${user.email || 'Error Loading'}`;
+                         authProviderElement.textContent = 'Sign-in Method: Error Loading';
+                         creationTimeElement.textContent = `Created: ${user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'Error Loading'}`;
+                         lastSignInElement.textContent = `Last Sign-in: ${user.metadata.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleString() : 'Error Loading'}`;
+                         userUIDElement.textContent = `User ID: ${user.uid || 'Error Loading'}`;
+                         userPhotoElement.src = user.photoURL || defaultPhotoURL; // Fallback to Auth photo or default
+                         userPhotoElement.onerror = () => { userPhotoElement.src = defaultPhotoURL; }; // Ensure error handler is present
+                     }
 
-      if(googleReauthButton){
-        googleReauthButton.addEventListener('click', async () => {
-          if (!currentUser || !isGoogleUser) return;
-          if (!confirm("FINAL WARNING: Delete account? This cannot be undone.")) return;
+                      // After loading profile, check auth provider to update modal content visibility
+                      checkAuthProvider(user);
 
-          const originalButtonText = googleReauthButton.textContent;
-          googleReauthButton.innerHTML = '<div class="spinner"></div>';
-          googleReauthButton.disabled = true;
+                 };
 
-          try {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            await currentUser.reauthenticateWithPopup(provider);
-            // Optional: await db.collection('users').doc(currentUser.uid).delete();
-            await currentUser.delete();
-            alert('Account deleted.');
-            window.location.href = 'index.html';
-          } catch (error) {
-            console.error('Google re-auth/delete error:', error);
-            alert('Failed to delete account: ' + error.message);
-          } finally {
-            googleReauthButton.textContent = originalButtonText;
-            googleReauthButton.disabled = false;
-          }
-        });
-      }
 
-      auth.onAuthStateChanged(async user => {
-        if (user) {
-          currentUser = user;
-          await loadUserProfile(user);
-          checkAuthProvider(user);
-        } else {
-          currentUser = null;
-          console.log("No user signed in, redirecting to login.");
-          window.location.href = 'login.html';
-        }
-      });
+                 // --- Auth Provider Check ---
+                 const checkAuthProvider = (user) => {
+                     if (user && user.providerData && changePasswordBtn && emailAuthContent && googleAuthContent && deleteAccountForm && googleDeleteContent) {
+                         const googleProvider = user.providerData.find(p => p.providerId === 'google.com');
+                         isGoogleUser = !!googleProvider;
 
-    });
-  </script>
+                         if (isGoogleUser) {
+                             authProviderElement.innerHTML = `Sign-in Method: <span class="provider-badge google">Google</span>`;
+                             changePasswordBtn.disabled = true; // Disable password change button
+                             changePasswordBtn.title = "Password is managed by your Google account";
+                             changePasswordBtn.style.cursor = 'not-allowed'; // Explicitly set cursor
 
+                              // Show/Hide content in change password modal
+                             emailAuthContent.style.display = 'none';
+                             googleAuthContent.style.display = 'block';
+
+                              // Show/Hide content in delete account modal
+                             deleteAccountForm.style.display = 'none';
+                             googleDeleteContent.style.display = 'block';
+
+                         } else {
+                             authProviderElement.innerHTML = `Sign-in Method: <span class="provider-badge email">Email</span>`;
+                             changePasswordBtn.disabled = false; // Enable password change button
+                             changePasswordBtn.title = "";
+                             changePasswordBtn.style.cursor = 'pointer'; // Reset cursor
+
+                              // Show/Hide content in change password modal
+                             emailAuthContent.style.display = 'block';
+                             googleAuthContent.style.display = 'none';
+
+                              // Show/Hide content in delete account modal
+                             deleteAccountForm.style.display = 'block';
+                             googleDeleteContent.style.display = 'none';
+                         }
+                     } else {
+                         // Handle case where user or required elements are missing
+                         authProviderElement.textContent = 'Sign-in Method: Unknown';
+                          if (changePasswordBtn) changePasswordBtn.disabled = true;
+                          if(emailAuthContent) emailAuthContent.style.display = 'none';
+                          if(googleAuthContent) googleAuthContent.style.display = 'none';
+                          if(deleteAccountForm) deleteAccountForm.style.display = 'none';
+                          if(googleDeleteContent) googleDeleteContent.style.display = 'none';
+                          console.warn("Could not check auth provider: User or required elements missing.");
+                     }
+                 };
+
+
+                 // --- Event Listeners ---
+                 // Close Modal Buttons
+                 closeModalButtons.forEach(button => {
+                     button.addEventListener('click', () => {
+                         const modalId = button.dataset.modalId;
+                         if (modalId) closeModal(modalId);
+                         else closeModal(button.closest('.modal'));
+                     });
+                 });
+
+                 // Close Modals by clicking outside
+                 window.addEventListener('click', (event) => {
+                     // Check if the click target is a modal overlay and it's currently visible
+                     if (event.target.classList.contains('modal') && event.target.classList.contains('show')) {
+                         closeModal(event.target);
+                     }
+                 });
+
+                 // Edit Profile Button
+                 editProfileBtn.addEventListener('click', () => {
+                     if (currentUser) {
+                         // Pre-fill logic is done in loadUserProfile and updated when modal opens
+                         // Ensure inputs are populated from current state before opening modal
+                         const currentName = userDisplayNameElement.textContent.replace('Name: ', '').trim();
+                         const currentPhoto = userPhotoElement.src;
+
+                         if (profileDisplayNameInput) profileDisplayNameInput.value = (currentName === 'Not Set' || currentName === 'Error Loading') ? '' : currentName;
+                         // Check if photo URL is default SVG or invalid before pre-filling
+                         if (profilePhotoURLInput) profilePhotoURLInput.value = (currentPhoto === defaultPhotoURL || !currentPhoto || currentPhoto.startsWith('data:')) ? '' : currentPhoto;
+
+
+                         openModal(editProfileModal);
+                     } else {
+                         alert("Please wait, user data is loading."); // Or show a status message
+                     }
+                 });
+
+                 // Edit Profile Form Submit
+                 if (editProfileForm && profileDisplayNameInput && profilePhotoURLInput) {
+                     editProfileForm.addEventListener('submit', async (e) => {
+                         e.preventDefault();
+                         const newDisplayName = profileDisplayNameInput.value.trim() || ''; // Use empty string if trimmed input is empty
+                         const newPhotoURL = profilePhotoURLInput.value.trim();
+
+                         if (!currentUser) {
+                             alert('User not available. Please try again.');
+                             return;
+                         }
+
+                         const saveButton = editProfileForm.querySelector('button[type="submit"]');
+                         const originalButtonContent = saveButton.innerHTML; // Save innerHTML for spinner
+                         saveButton.innerHTML = '<div class="spinner"></div> SAVING...'; // Uppercase spinner text
+                         saveButton.disabled = true;
+
+                         try {
+                              // Validate photo URL if provided
+                              if (newPhotoURL) {
+                                  try {
+                                       new URL(newPhotoURL); // Check if it's a valid URL format
+                                  } catch (e) {
+                                       alert('Invalid photo URL format.');
+                                       return; // Stop submission if URL is invalid
+                                  }
+                              }
+
+                             // Update Auth profile
+                              // Set displayName to null or empty string if user clears it, so Auth doesn't keep old value
+                             await currentUser.updateProfile({
+                                 displayName: newDisplayName || null,
+                                 photoURL: newPhotoURL || null, // Set to null if empty string
+                             });
+
+                             // Update Firestore document
+                             const userDocRef = db.collection('users').doc(currentUser.uid);
+                             await userDocRef.set({
+                                 displayName: newDisplayName || '', // Use empty string for consistency in Firestore
+                                 photoURL: newPhotoURL || '',
+                                 email: currentUser.email || '' // Ensure email is saved if available
+                             }, { merge: true }); // Use merge to avoid overwriting other potential fields
+
+                             // Update displayed information on the page
+                             userDisplayNameElement.textContent = `Name: ${newDisplayName || 'Not Set'}`;
+                             userPhotoElement.src = newPhotoURL || defaultPhotoURL;
+                             userPhotoElement.onerror = () => { userPhotoElement.src = defaultPhotoURL; }; // Re-add error handler
+
+                             alert('PROFILE UPDATED SUCCESSFULLY!'); // Uppercase alert
+                             closeModal(editProfileModal);
+
+                         } catch (error) {
+                             console.error('Error updating profile:', error);
+                             alert('FAILED TO UPDATE PROFILE: ' + error.message.toUpperCase()); // Uppercase alert and error message
+                         } finally {
+                             saveButton.innerHTML = originalButtonContent; // Restore button content
+                             saveButton.disabled = false;
+                         }
+                     });
+                 } else {
+                      console.error("Edit profile form or inputs not found.");
+                 }
+
+
+                 // Change Password Button
+                 changePasswordBtn.addEventListener('click', () => {
+                     if (currentUser) {
+                         if (!isGoogleUser) {
+                             openModal(changePasswordModal);
+                         } else {
+                             // This should be handled by the disabled state, but good to have a fallback
+                             alert("PASSWORD IS MANAGED THROUGH YOUR GOOGLE ACCOUNT."); // Uppercase alert
+                         }
+                     } else {
+                         alert("USER NOT LOADED YET."); // Uppercase alert
+                     }
+                 });
+
+                 // Confirm Current Password Form Submit
+                 if (confirmPasswordForm && currentPasswordInput && changePasswordMessage && newPasswordForm) {
+                     confirmPasswordForm.addEventListener('submit', async (e) => {
+                         e.preventDefault();
+                         const password = currentPasswordInput.value;
+                         if (!currentUser || isGoogleUser) return; // Should be handled by button disabled state, but safety check
+
+                         const confirmButton = confirmPasswordForm.querySelector('button[type="submit"]');
+                         const originalButtonContent = confirmButton.innerHTML;
+                         confirmButton.innerHTML = '<div class="spinner"></div> CONFIRMING...'; // Uppercase spinner text
+                         confirmButton.disabled = true;
+
+                         try {
+                             const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
+                             await currentUser.reauthenticateWithCredential(credential);
+
+                              // Transition to new password form
+                             confirmPasswordForm.style.display = "none";
+                             changePasswordMessage.style.display = "block";
+                             newPasswordForm.style.display = "block";
+
+                             currentPasswordInput.value = ''; // Clear the current password input
+
+                         } catch (error) {
+                             console.error('Error reauthenticating:', error);
+                             alert('INCORRECT PASSWORD. PLEASE TRY AGAIN. ' + error.message.toUpperCase()); // Uppercase alert and error message
+                         } finally {
+                             confirmButton.innerHTML = originalButtonContent;
+                             confirmButton.disabled = false;
+                         }
+                     });
+                 } else {
+                      console.error("Confirm password form or related elements not found.");
+                 }
+
+
+                 // New Password Form Submit
+                 if (newPasswordForm && newPasswordInput && confirmNewPasswordInput && confirmPasswordForm && changePasswordMessage) {
+                     newPasswordForm.addEventListener('submit', async (e) => {
+                         e.preventDefault();
+                         const newPass = newPasswordInput.value;
+                         const confirmNewPass = confirmNewPasswordInput.value;
+
+                         if (newPass !== confirmNewPass) {
+                             alert("NEW PASSWORDS DO NOT MATCH."); // Uppercase alert
+                             return;
+                         }
+                         if (newPass.length < 6) {
+                             alert("PASSWORD MUST BE AT LEAST 6 CHARACTERS."); // Uppercase alert
+                             return;
+                         }
+                         if (!currentUser || isGoogleUser) return; // Safety check
+
+                         const changeButton = newPasswordForm.querySelector('button[type="submit"]');
+                         const originalButtonContent = changeButton.innerHTML;
+                         changeButton.innerHTML = '<div class="spinner"></div> CHANGING...'; // Uppercase spinner text
+                         changeButton.disabled = true;
+
+                         try {
+                             await currentUser.updatePassword(newPass);
+                             alert('PASSWORD UPDATED SUCCESSFULLY!'); // Uppercase alert
+
+                              // Reset forms and close modal
+                             newPasswordInput.value = '';
+                             confirmNewPasswordInput.value = '';
+                             closeModal(changePasswordModal);
+
+                              // Reset modal state for next time it opens
+                             confirmPasswordForm.style.display = "block";
+                             changePasswordMessage.style.display = "none";
+                             newPasswordForm.style.display = "none";
+
+
+                         } catch (error) {
+                             console.error('Error updating password:', error);
+                             alert('FAILED TO UPDATE PASSWORD: ' + error.message.toUpperCase()); // Uppercase alert and error message
+                              // Reset modal state on error if preferred, or keep open for user to try again
+                              // closeModal(changePasswordModal); // Optional: close on error
+                         } finally {
+                             changeButton.innerHTML = originalButtonContent;
+                             changeButton.disabled = false;
+                         }
+                     });
+                 } else {
+                      console.error("New password form or related elements not found.");
+                 }
+
+
+                 // Delete Account Button
+                 deleteAccountBtn.addEventListener('click', () => {
+                     if (currentUser) {
+                         if (!isGoogleUser) {
+                             openModal(deleteAccountModal);
+                         } else {
+                             // This should be handled by the checkAuthProvider logic showing Google delete content
+                              // But good to have a fallback
+                             console.warn("Google user attempting email/password delete path.");
+                             // The UI should prevent this path for Google users.
+                         }
+                     } else {
+                         alert("USER NOT LOADED YET."); // Uppercase alert
+                     }
+                 });
+
+                 // Delete Account Form Submit (for email/password users)
+                 if (deleteAccountForm && deletePasswordInput && googleDeleteContent) {
+                     deleteAccountForm.addEventListener('submit', async (e) => {
+                         e.preventDefault();
+                         const password = deletePasswordInput.value;
+                         if (!currentUser || isGoogleUser) return; // Safety check
+
+                         const deleteButton = deleteAccountForm.querySelector('button[type="submit"]');
+                         const originalButtonContent = deleteButton.innerHTML;
+                         deleteButton.innerHTML = '<div class="spinner"></div> DELETING...'; // Uppercase spinner text
+                         deleteButton.disabled = true;
+
+                         try {
+                             const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
+                             await currentUser.reauthenticateWithCredential(credential);
+
+                              // User reauthenticated, now delete the account
+                             await currentUser.delete();
+
+                              // Optionally, delete user data from Firestore
+                              if (db) {
+                                  // Note: Deleting user data in Firestore upon account deletion is good practice
+                                  // but requires careful implementation and security rules to prevent abuse.
+                                  // This example shows how you *could* delete, but production apps might use Cloud Functions.
+                                  const userDocRef = db.collection('users').doc(currentUser.uid);
+                                  userDocRef.delete().catch(err => console.error("Error deleting user Firestore doc:", err));
+
+                                   // Also consider deleting playlists, etc., associated with the user ID
+                                   // This often requires complex queries and potential Cloud Functions.
+                              }
+
+
+                             alert('ACCOUNT DELETED SUCCESSFULLY.'); // Uppercase alert
+                             closeModal(deleteAccountModal);
+                             // Redirect to index or a confirmation page after deletion
+                             window.location.href = 'index.html'; // Redirect after successful deletion
+
+                         } catch (error) {
+                             console.error('Error deleting account:', error);
+                             alert('FAILED TO DELETE ACCOUNT: ' + error.message.toUpperCase()); // Uppercase alert and error message
+                             // Handle specific errors like 'auth/requires-recent-login'
+                             if (error.code === 'auth/requires-recent-login' && !isGoogleUser) {
+                                  alert('Please log in again to delete your account.'); // More specific message
+                                  auth.signOut(); // Log out user
+                                  window.location.href = 'index.html'; // Redirect to login
+                             }
+                         } finally {
+                             deleteButton.innerHTML = originalButtonContent;
+                             deleteButton.disabled = false;
+                             deletePasswordInput.value = ''; // Clear password input
+                         }
+                     });
+                 } else {
+                      console.error("Delete account form or related elements not found.");
+                 }
+
+
+                 // Google Reauthentication Button (for Google users deleting account)
+                 if (googleReauthButton && deleteAccountModal && googleDeleteContent) {
+                     googleReauthButton.addEventListener('click', async () => {
+                         if (!currentUser || !isGoogleUser) return; // Safety check
+
+                         // Re-authenticate with Google provider
+                         const provider = new firebase.auth.GoogleAuthProvider();
+                         const deleteButton = googleReauthButton; // Use the Google button for spinner/state
+                         const originalButtonContent = deleteButton.innerHTML;
+                         deleteButton.innerHTML = '<div class="spinner"></div> REAUTHENTICATING...'; // Uppercase spinner text
+                         deleteButton.disabled = true;
+
+                         try {
+                             // This will likely open a pop-up or redirect
+                             await currentUser.reauthenticateWithPopup(provider);
+                              console.log("Google reauthentication successful.");
+
+                              // After successful reauthentication, proceed to delete the account
+                             try {
+                                  await currentUser.delete();
+
+                                   // Optionally, delete user data from Firestore (see comments in email/password delete)
+                                   if (db) {
+                                       const userDocRef = db.collection('users').doc(currentUser.uid);
+                                       userDocRef.delete().catch(err => console.error("Error deleting user Firestore doc after Google reauth:", err));
+                                   }
+
+                                  alert('ACCOUNT DELETED SUCCESSFULLY.'); // Uppercase alert
+                                  closeModal(deleteAccountModal);
+                                  window.location.href = 'index.html'; // Redirect after successful deletion
+
+                             } catch (deleteError) {
+                                  console.error('Error deleting account after reauth:', deleteError);
+                                  alert('FAILED TO DELETE ACCOUNT AFTER REAUTHENTICATION: ' + deleteError.message.toUpperCase()); // Uppercase alert and error message
+                                   // Handle specific errors after reauth if necessary
+                             }
+
+
+                         } catch (reauthError) {
+                             console.error('Error during Google reauthentication:', reauthError);
+                              // Handle specific reauthentication errors (e.g., user cancels)
+                             alert('GOOGLE REAUTHENTICATION FAILED: ' + reauthError.message.toUpperCase()); // Uppercase alert and error message
+                         } finally {
+                             deleteButton.innerHTML = originalButtonContent;
+                             deleteButton.disabled = false;
+                         }
+                     });
+                 } else {
+                      console.error("Google reauth button or related elements not found.");
+                 }
+
+
+                 // Logout Button (in navbar)
+                 if (logoutBtn) {
+                     logoutBtn.addEventListener('click', () => {
+                         if (auth) { // Ensure auth is available
+                             auth.signOut().then(() => {
+                                 console.log("User signed out.");
+                                 window.location.href = 'index.html'; // Redirect to index after logout
+                             }).catch(error => {
+                                 console.error("Logout Error:", error);
+                                 alert("Error logging out. Please try again.");
+                             });
+                         } else {
+                             console.error("Firebase Auth not available for logout.");
+                             alert("Logout failed. Firebase services not available.");
+                         }
+                     });
+                 } else {
+                      console.error("Logout button not found in setupAuthDependentListeners.");
+                 }
+
+
+                 // Manage Subscriptions Button (if implemented)
+                 // if (manageSubscriptionsBtn) {
+                 //     manageSubscriptionsBtn.addEventListener('click', () => {
+                 //          // Implement subscription management logic (e.g., redirect to Stripe portal)
+                 //          alert("Manage Subscriptions clicked (Feature not fully implemented)");
+                 //     });
+                 // }
+
+
+             }; // End of setupAuthDependentListeners
+
+        }); // End of DOMContentLoaded
+    </script>
 </body>
+
 </html>
