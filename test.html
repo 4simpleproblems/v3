@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
 
+
     <style>
         :root {
             --bg-color: #ffffff;
@@ -40,27 +41,35 @@
             --warning-color: #856404;
 
             /* Sound Button Colors (adapted for light theme) */
-            --sound-button-bg: #f8f8f8; /* Very light gray */
-            --sound-button-border: #cccccc; /* Medium gray */
-            --sound-button-text: #333333; /* Dark text */
-            --sound-button-hover-bg: #e0e0e0; /* Lighter gray */
+            --sound-button-bg: #f8f8f8;
+            /* Very light gray */
+            --sound-button-border: #cccccc;
+            /* Medium gray */
+            --sound-button-text: #333333;
+            /* Dark text */
+            --sound-button-hover-bg: #e0e0e0;
+            /* Lighter gray */
 
             /* Options Dropdown Colors (adapted for light theme) */
-            --options-bg: #f8f8f8; /* Very light gray */
-            --options-border: #cccccc; /* Medium gray */
-            --options-text: #333333; /* Dark text */
-            --options-section-border: rgba(51, 51, 51, 0.2); /* Darker border for sections */
+            --options-bg: #f8f8f8;
+            /* Very light gray */
+            --options-border: #cccccc;
+            /* Medium gray */
+            --options-text: #333333;
+            /* Dark text */
+            --options-section-border: rgba(51, 51, 51, 0.2);
+            /* Darker border for sections */
 
-             /* Status Message Colors (adapted for light theme) */
-             --status-success-bg: #d4edda;
-             --status-success-color: #155724;
-             --status-success-border: #155724;
-             --status-error-bg: #f8d7da;
-             --status-error-color: #721c24;
-             --status-error-border: #721c24;
-             --status-info-bg: #cce5ff;
-             --status-info-color: #004085;
-             --status-info-border: #004085;
+            /* Status Message Colors (adapted for light theme) */
+            --status-success-bg: #d4edda;
+            --status-success-color: #155724;
+            --status-success-border: #155724;
+            --status-error-bg: #f8d7da;
+            --status-error-color: #721c24;
+            --status-error-border: #721c24;
+            --status-info-bg: #cce5ff;
+            --status-info-color: #004085;
+            --status-info-border: #004085;
 
         }
 
@@ -76,7 +85,8 @@
             color: var(--text-color);
             line-height: 1.6;
             text-transform: uppercase;
-            text-align: center; /* Center all text by default */
+            text-align: center;
+            /* Center all text by default */
             position: relative;
             overflow-x: hidden;
             display: flex;
@@ -104,7 +114,8 @@
             /* Adjusted padding */
             flex: 1;
             /* Allow container to grow */
-             text-align: left; /* Align content within the container to the left */
+            text-align: left;
+            /* Align content within the container to the left */
         }
 
         /* Navbar */
@@ -209,13 +220,15 @@
 
         /* Soundboard specific styles */
         main h1 {
-             text-align: center; /* Center main title */
-             margin-top: 20px;
-             margin-bottom: 10px;
+            text-align: center;
+            /* Center main title */
+            margin-top: 20px;
+            margin-bottom: 10px;
         }
 
         main p {
-            text-align: center; /* Center intro paragraph */
+            text-align: center;
+            /* Center intro paragraph */
             margin-bottom: 30px;
             color: rgba(51, 51, 51, 0.8);
         }
@@ -223,38 +236,48 @@
 
         .sound-section {
             margin-bottom: 2rem;
-             text-align: left; /* Align section content to the left */
+            text-align: left;
+            /* Align section content to the left */
         }
 
         .sound-section h2 {
             margin-bottom: 0.5rem;
             font-size: 1.5rem;
             padding-bottom: 0.25rem;
-            border-bottom: 2px solid var(--secondary-border-color); /* Light theme border */
-            color: var(--text-color); /* Dark text */
+            border-bottom: 2px solid var(--secondary-border-color);
+            /* Light theme border */
+            color: var(--text-color);
+            /* Dark text */
             width: 100%;
-             text-transform: uppercase; /* All caps */
+            text-transform: uppercase;
+            /* All caps */
         }
 
         .soundButtonsContainer {
             display: flex;
             flex-wrap: wrap;
             justify-content: flex-start;
-            padding: 1rem 0; /* Adjusted padding */
-            gap: 15px; /* Adjusted gap */
+            padding: 1rem 0;
+            /* Adjusted padding */
+            gap: 15px;
+            /* Adjusted gap */
             width: 100%;
         }
 
         .sound-button {
             min-width: 100px;
             height: 100px;
-            border-radius: 10px; /* Less rounded, use a consistent style */
-            background-color: var(--sound-button-bg); /* Light background */
-            color: var(--sound-button-text); /* Dark text */
-            border: 2px solid var(--sound-button-border); /* Medium gray border */
+            border-radius: 20px; /* Adjusted border-radius */
+            background-color: var(--sound-button-bg);
+            /* Light background */
+            color: var(--sound-button-text);
+            /* Dark text */
+            border: 2px solid var(--sound-button-border);
+            /* Medium gray border */
             cursor: pointer;
             font-size: 0.85rem;
-            font-weight: 600; /* Bolder */
+            font-weight: 600;
+            /* Bolder */
             padding: 0 1.5rem;
             transition: background-color 0.3s ease, transform 0.1s ease, border-color 0.3s ease;
             display: flex;
@@ -262,25 +285,25 @@
             justify-content: center;
             text-align: center;
             line-height: 1.2;
-            max-width: 150px; /* Constrain width slightly */
+            max-width: 150px;
+            /* Constrain width slightly */
             word-wrap: break-word;
             hyphens: auto;
-             text-transform: uppercase; /* All caps */
+            text-transform: uppercase;
+            /* All caps */
         }
 
-        /* Adjust short text buttons for potentially smaller size or different padding if circular is intended */
+        /* Remove specific short-text styling as all buttons will have the same border-radius */
          .sound-button.short-text {
-            /* If you want circular, use these styles */
-             width: 100px;
-             height: 100px;
-             border-radius: 50%; /* Keep circular if desired */
-             padding: 0.5rem;
+             /* Removed border-radius: 50%; and width/height overrides */
          }
 
 
         .sound-button:hover {
-            background-color: var(--sound-button-hover-bg); /* Lighter gray hover */
-            border-color: var(--accent-color); /* Accent border on hover */
+            background-color: var(--sound-button-hover-bg);
+            /* Lighter gray hover */
+            border-color: var(--accent-color);
+            /* Accent border on hover */
         }
 
         .sound-button:active {
@@ -294,15 +317,22 @@
 
         .options-button {
             background-color: transparent;
-            color: var(--text-color); /* Dark text */
-            padding: 10px 20px; /* Matches other buttons */
-            font-size: 14px; /* Matches other buttons */
-            border: 1px solid var(--secondary-border-color); /* Matches other buttons */
-            border-radius: 5px; /* Matches other buttons */
+            color: var(--text-color);
+            /* Dark text */
+            padding: 10px 20px;
+            /* Matches other buttons */
+            font-size: 14px;
+            /* Matches other buttons */
+            border: 1px solid var(--secondary-border-color);
+            /* Matches other buttons */
+            border-radius: 5px;
+            /* Matches other buttons */
             cursor: pointer;
-             text-transform: uppercase; /* All caps */
-             font-weight: 600;
-             display: inline-flex; /* Needed for flex layout */
+            text-transform: uppercase;
+            /* All caps */
+            font-weight: 600;
+            display: inline-flex;
+            /* Needed for flex layout */
             align-items: center;
             justify-content: center;
         }
@@ -318,7 +348,8 @@
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(-10px); /* Subtle animation */
+                transform: translateY(-10px);
+                /* Subtle animation */
             }
             to {
                 opacity: 1;
@@ -333,24 +364,32 @@
             }
             to {
                 opacity: 0;
-                transform: translateY(-10px); /* Subtle animation */
+                transform: translateY(-10px);
+                /* Subtle animation */
             }
         }
 
         .options-content {
             display: none;
             position: absolute;
-            background-color: var(--options-bg); /* Light gray */
+            background-color: var(--options-bg);
+            /* Light gray */
             min-width: 250px;
-            border: 1px solid var(--options-border); /* Medium gray */
+            border: 1px solid var(--options-border);
+            /* Medium gray */
             padding: 1rem;
             z-index: 2;
             right: 0;
-            border-radius: 5px; /* Less rounded */
-            color: var(--options-text); /* Dark text */
-             box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Subtle shadow */
-             text-align: left; /* Align options content to the left */
-             text-transform: none; /* Prevent uppercase for readability */
+            border-radius: 5px;
+            /* Less rounded */
+            color: var(--options-text);
+            /* Dark text */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            /* Subtle shadow */
+            text-align: left;
+            /* Align options content to the left */
+            text-transform: none;
+            /* Prevent uppercase for readability */
         }
 
         .options-content.fade-in {
@@ -366,61 +405,76 @@
         .options-content label {
             display: block;
             margin-bottom: 0.5rem;
-            color: var(--options-text); /* Dark text */
-             font-size: 0.9rem;
+            color: var(--options-text);
+            /* Dark text */
+            font-size: 0.9rem;
         }
 
         .options-content input[type="checkbox"] {
             margin-right: 0.5rem;
             vertical-align: middle;
-            background-color: var(--bg-color); /* White background */
-            border: 1px solid var(--secondary-border-color); /* Medium gray border */
+            background-color: var(--bg-color);
+            /* White background */
+            border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
             appearance: none;
             width: 16px;
             height: 16px;
             cursor: pointer;
             position: relative;
-            border-radius: 3px; /* Slightly rounded checkbox */
-             outline: none;
-             transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            border-radius: 3px;
+            /* Slightly rounded checkbox */
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-         .options-content input[type="checkbox"]:checked {
-             background-color: var(--accent-color); /* Dark background when checked */
-             border-color: var(--accent-color);
-             /* Simple white checkmark - adjust color if needed */
-             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='20 6 9 17 4 12'%3e%3c/polyline%3e%3c/svg%3e");
-             background-size: 80%;
-             background-repeat: no-repeat;
-             background-position: center;
-         }
-         .options-content input[type="checkbox"]:focus {
-             box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
-         }
+
+        .options-content input[type="checkbox"]:checked {
+            background-color: var(--accent-color);
+            /* Dark background when checked */
+            border-color: var(--accent-color);
+            /* Simple white checkmark - adjust color if needed */
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='20 6 9 17 4 12'%3e%3c/polyline%3e%3c/svg%3e");
+            background-size: 80%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .options-content input[type="checkbox"]:focus {
+            box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
+        }
 
 
         .options-content #autoClickDelayLabel {
             margin-top: 0.5rem;
             display: block;
-             font-size: 0.9rem;
+            font-size: 0.9rem;
         }
 
         .options-content #autoClickDelay {
-            width: 70px; /* Slightly wider input */
-            padding: 0.4rem; /* Adjusted padding */
-            border-radius: 5px; /* Less rounded */
-            border: 1px solid var(--secondary-border-color); /* Medium gray border */
-            background-color: var(--bg-color); /* White background */
-            color: var(--text-color); /* Dark text */
-             font-family: 'Outfit', sans-serif;
-             font-size: 0.9rem;
-             text-transform: none; /* Prevent uppercase */
-             outline: none;
-             transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            width: 70px;
+            /* Slightly wider input */
+            padding: 0.4rem;
+            /* Adjusted padding */
+            border-radius: 5px;
+            /* Less rounded */
+            border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
+            background-color: var(--bg-color);
+            /* White background */
+            color: var(--text-color);
+            /* Dark text */
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            text-transform: none;
+            /* Prevent uppercase */
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-         .options-content #autoClickDelay:focus {
-              border-color: var(--accent-color);
-              box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
-         }
+
+        .options-content #autoClickDelay:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
+        }
 
         /* Style for the playback speed select */
         .options-content label.playback-speed-label {
@@ -428,8 +482,9 @@
             /* Spacing from previous element */
             margin-bottom: 0.5rem;
             /* Spacing to next element */
-             display: block; /* Ensure label is block */
-             font-size: 0.9rem;
+            display: block;
+            /* Ensure label is block */
+            font-size: 0.9rem;
         }
 
         .options-content #playbackSpeed {
@@ -438,10 +493,14 @@
             padding: 0.5rem;
             margin-top: 0.25rem;
             /* Space below the label text */
-            border-radius: 5px; /* Less rounded */
-            border: 1px solid var(--secondary-border-color); /* Medium gray border */
-            background-color: var(--bg-color); /* White background */
-            color: var(--text-color); /* Dark text */
+            border-radius: 5px;
+            /* Less rounded */
+            border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
+            background-color: var(--bg-color);
+            /* White background */
+            color: var(--text-color);
+            /* Dark text */
             font-family: 'Outfit', sans-serif;
             font-size: 0.9rem;
             -webkit-appearance: none;
@@ -453,25 +512,31 @@
             background-position: right 0.7rem center;
             background-size: 1em;
             cursor: pointer;
-             outline: none;
-             transition: border-color 0.2s ease, box-shadow 0.2s ease;
-             text-transform: none; /* Prevent uppercase */
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            text-transform: none;
+            /* Prevent uppercase */
         }
 
         .options-content #playbackSpeed:focus {
-            border-color: var(--accent-color); /* Accent color on focus */
+            border-color: var(--accent-color);
+            /* Accent color on focus */
             box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
         }
+
         .options-content #playbackSpeed option {
-             background-color: var(--options-bg); /* Background for dropdown options */
-             color: var(--options-text); /* Text color for dropdown options */
+            background-color: var(--options-bg);
+            /* Background for dropdown options */
+            color: var(--options-text);
+            /* Text color for dropdown options */
         }
 
 
         .options-section {
             margin-bottom: 1rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid var(--options-section-border); /* Darker border */
+            border-bottom: 1px solid var(--options-section-border);
+            /* Darker border */
         }
 
         .options-section:last-child {
@@ -483,60 +548,79 @@
         .options-section h3 {
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
-            color: var(--options-text); /* Dark text */
+            color: var(--options-text);
+            /* Dark text */
             opacity: 0.8;
-             text-transform: uppercase; /* All caps */
+            text-transform: uppercase;
+            /* All caps */
         }
 
         .keyboard-shortcuts {
             margin-top: 1rem;
             padding: 0.5rem;
-            border-radius: 5px; /* Less rounded */
-            background-color: rgba(51, 51, 51, 0.05); /* Very subtle dark background */
-             border: 1px solid var(--secondary-border-color);
-             text-align: left; /* Align shortcut text left */
+            border-radius: 5px;
+            /* Less rounded */
+            background-color: rgba(51, 51, 51, 0.05);
+            /* Very subtle dark background */
+            border: 1px solid var(--secondary-border-color);
+            text-align: left;
+            /* Align shortcut text left */
         }
 
         .keyboard-shortcuts p {
             margin: 0.25rem 0;
             font-size: 0.85rem;
-            color: var(--text-color); /* Dark text */
+            color: var(--text-color);
+            /* Dark text */
             opacity: 0.8;
-             text-transform: none; /* Prevent uppercase for readability */
+            text-transform: none;
+            /* Prevent uppercase for readability */
         }
 
         #applyDelayBtn {
-            padding: 0.4rem 0.8rem; /* Adjusted padding */
-            border: 1px solid var(--secondary-border-color); /* Medium gray border */
-            border-radius: 5px; /* Less rounded */
-            background-color: var(--hover-bg); /* Light gray background */
-            color: var(--text-color); /* Dark text */
+            padding: 0.4rem 0.8rem;
+            /* Adjusted padding */
+            border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
+            border-radius: 5px;
+            /* Less rounded */
+            background-color: var(--hover-bg);
+            /* Light gray background */
+            color: var(--text-color);
+            /* Dark text */
             cursor: pointer;
             margin-left: 4px;
             font-size: 0.8rem;
-            text-transform: uppercase; /* All caps */
+            text-transform: uppercase;
+            /* All caps */
             font-family: 'Outfit', sans-serif;
-             transition: background-color 0.2s ease, border-color 0.2s ease;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
         }
 
         #applyDelayBtn:hover {
-            background-color: var(--secondary-border-color); /* Darker gray on hover */
-             border-color: var(--accent-color);
+            background-color: var(--secondary-border-color);
+            /* Darker gray on hover */
+            border-color: var(--accent-color);
         }
 
         #clearAllSoundsBtn {
             width: 100%;
             margin-top: 0.5rem;
-            background-color: var(--hover-bg); /* Light gray background */
-            color: var(--text-color); /* Dark text */
-            border: 1px solid var(--secondary-border-color); /* Medium gray border */
+            background-color: var(--hover-bg);
+            /* Light gray background */
+            color: var(--text-color);
+            /* Dark text */
+            border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
             position: relative;
             overflow: hidden;
-             border-radius: 5px; /* Less rounded */
+            border-radius: 5px;
+            /* Less rounded */
         }
+
         #clearAllSoundsBtn:hover {
-             background-color: var(--secondary-border-color);
-             border-color: var(--accent-color);
+            background-color: var(--secondary-border-color);
+            border-color: var(--accent-color);
         }
 
 
@@ -545,7 +629,8 @@
                 transform: scale(1);
             }
             50% {
-                transform: scale(1.05); /* Subtle pop */
+                transform: scale(1.05);
+                /* Subtle pop */
             }
             75% {
                 transform: scale(0.98);
@@ -567,10 +652,14 @@
         }
 
         #clearAllSoundsBtn.active {
-            animation: none; /* Remove pop animation */
-            background-color: var(--error-bg); /* Error background color */
-            border-color: var(--error-color); /* Error border color */
-            color: var(--error-color); /* Error text color */
+            animation: none;
+            /* Remove pop animation */
+            background-color: var(--error-bg);
+            /* Error background color */
+            border-color: var(--error-color);
+            /* Error border color */
+            color: var(--error-color);
+            /* Error text color */
         }
 
         .ripple-container {
@@ -587,7 +676,8 @@
         .ripple {
             position: absolute;
             border-radius: 50%;
-            background-color: rgba(255, 0, 0, 0.4); /* Reddish ripple for clear button */
+            background-color: rgba(255, 0, 0, 0.4);
+            /* Reddish ripple for clear button */
             width: 100px;
             height: 100px;
             margin-top: -50px;
@@ -659,15 +749,20 @@
 
         .status-message {
             display: none;
-            padding: 0.75rem 1.5rem; /* Adjusted padding */
+            padding: 0.75rem 1.5rem;
+            /* Adjusted padding */
             margin: 1rem auto;
-            border-radius: 5px; /* Less rounded */
+            border-radius: 5px;
+            /* Less rounded */
             font-size: 0.9rem;
-            background-color: var(--navbar-bg); /* Use a light theme background */
+            background-color: var(--navbar-bg);
+            /* Use a light theme background */
             text-align: center;
             max-width: 80%;
-             text-transform: none; /* Prevent uppercase */
-             border: 1px solid transparent; /* Add a subtle border */
+            text-transform: none;
+            /* Prevent uppercase */
+            border: 1px solid transparent;
+            /* Add a subtle border */
         }
 
         .status-message.fade-in {
@@ -711,7 +806,7 @@
         }
 
 
-         /* Responsive adjustments */
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             .navbar {
                 flex-direction: column;
@@ -723,103 +818,107 @@
                 gap: 10px;
             }
 
-             main h1 {
-                 font-size: 2rem;
-             }
+            main h1 {
+                font-size: 2rem;
+            }
 
-             .sound-section h2 {
-                 font-size: 1.3rem;
-             }
+            .sound-section h2 {
+                font-size: 1.3rem;
+            }
 
             .sound-button {
-                 min-width: 80px;
-                 height: 80px;
-                 font-size: 0.75rem;
-                 padding: 0 1rem;
+                min-width: 80px;
+                height: 80px;
+                font-size: 0.75rem;
+                padding: 0 1rem;
+                border-radius: 15px; /* Adjusted for smaller screens */
             }
-             .sound-button.short-text {
-                 width: 80px;
-                 height: 80px;
-             }
 
-             .options-content {
-                 min-width: 200px;
-             }
+            .sound-button.short-text {
+                /* Removed border-radius: 50%; and width/height overrides */
+            }
+
+            .options-content {
+                min-width: 200px;
+            }
         }
 
-         @media (max-width: 480px) {
+        @media (max-width: 480px) {
             .navbar {
                 padding: 15px 10px;
             }
-             .logo {
+
+            .logo {
                 font-size: 20px;
-             }
+            }
 
             .nav-buttons {
-                 gap: 8px;
-             }
+                gap: 8px;
+            }
 
             .btn {
-                 padding: 8px 15px;
-                 font-size: 12px;
+                padding: 8px 15px;
+                font-size: 12px;
             }
 
-             main h1 {
-                 font-size: 1.5rem;
-                 margin-top: 10px;
-                 margin-bottom: 5px;
-             }
-             main p {
-                 font-size: 0.9rem;
-                 margin-bottom: 20px;
-             }
-
-
-             .sound-section h2 {
-                 font-size: 1.1rem;
-             }
-
-             .soundButtonsContainer {
-                 gap: 10px;
-                 padding: 0.5rem 0;
-             }
-
-             .sound-button {
-                 min-width: 70px;
-                 height: 70px;
-                 font-size: 0.7rem;
-                 padding: 0 0.5rem;
+            main h1 {
+                font-size: 1.5rem;
+                margin-top: 10px;
+                margin-bottom: 5px;
             }
-             .sound-button.short-text {
-                 width: 70px;
-                 height: 70px;
-                 padding: 0.5rem;
-             }
 
-             .options-content {
-                 min-width: 180px;
-                 padding: 0.8rem;
-             }
+            main p {
+                font-size: 0.9rem;
+                margin-bottom: 20px;
+            }
 
-             .options-content label,
-             .options-content #autoClickDelayLabel,
-             .options-content #playbackSpeed,
-             .options-content #autoClickDelay {
-                 font-size: 0.8rem;
-             }
 
-             .keyboard-shortcuts p {
-                 font-size: 0.75rem;
-             }
+            .sound-section h2 {
+                font-size: 1.1rem;
+            }
 
-             #applyDelayBtn {
-                 padding: 0.3rem 0.6rem;
-                 font-size: 0.7rem;
-             }
+            .soundButtonsContainer {
+                gap: 10px;
+                padding: 0.5rem 0;
+            }
+
+            .sound-button {
+                min-width: 70px;
+                height: 70px;
+                font-size: 0.7rem;
+                padding: 0 0.5rem;
+                 border-radius: 10px; /* Adjusted for very small screens */
+            }
+
+            .sound-button.short-text {
+                /* Removed border-radius: 50%; and width/height overrides */
+            }
+
+
+            .options-content {
+                min-width: 180px;
+                padding: 0.8rem;
+            }
+
+            .options-content label,
+            .options-content #autoClickDelayLabel,
+            .options-content #playbackSpeed,
+            .options-content #autoClickDelay {
+                font-size: 0.8rem;
+            }
+
+            .keyboard-shortcuts p {
+                font-size: 0.75rem;
+            }
+
+            #applyDelayBtn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.7rem;
+            }
         }
 
 
-         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
         /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
         /* For simplicity, manual adjustment is used in the variables above */
         /* function darken(color, percent) { ... } */
@@ -1102,13 +1201,13 @@
                     if (instantMute) {
                         muteAllSounds();
                         stopAllAudios(100); // Small delay for mute to take effect before stopping
-                        showStatus('All sounds muted and cleared', 'success');
+                        showStatus('ALL SOUNDS MUTED AND CLEARED', 'success'); // Uppercase status
                     } else {
                         stopAllAudios();
-                        showStatus('All sounds stopped', 'success');
+                        showStatus('ALL SOUNDS STOPPED', 'success'); // Uppercase status
                     }
                 } else if (!instantMute) {
-                    showStatus('No sounds to clear', 'info');
+                    showStatus('NO SOUNDS TO CLEAR', 'info'); // Uppercase status
                 }
                 if (instantMute) closeOptionsMenu();
             }
@@ -1174,7 +1273,8 @@
                 const button = document.createElement('button');
                 button.classList.add('sound-button');
                 button.textContent = soundName;
-                if (soundName.length < 10) button.classList.add('short-text'); // Keep short text class
+                // Removed check for short text class, as all will have same border-radius
+                // if (soundName.length < 10) button.classList.add('short-text');
 
                 button.addEventListener('click', () => {
                     if (!soundOverlayCheckbox.checked) {
@@ -1227,7 +1327,7 @@
                     stopAutoClicker();
                 }
                 localStorage.setItem('autoClicker', this.checked);
-                 showStatus(`AUTO CLICKER: ${this.checked ? 'ON' : 'OFF'}`, 'info'); // Uppercase status
+                showStatus(`AUTO CLICKER: ${this.checked ? 'ON' : 'OFF'}`, 'info'); // Uppercase status
             });
 
             autoClickDelayInput.addEventListener('keydown', function(e) {
