@@ -3,86 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4SP | Request a Sound</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>4SP | REQUEST A SOUND</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
+
     <style>
         * {
-            font-family: 'Roboto Mono', monospace !important;
-            text-decoration: none !important;
+            /* Removed !important overrides */
+            font-family: 'Outfit', sans-serif;
             box-sizing: border-box;
         }
 
         :root {
-            --black: #000000;
-            --white: #ffffff;
-            --light-gray: #f0f0f0;
-            --dark-gray: #333333;
-            --pill-radius: 50px;
-            --card-radius: 24px;
+            --bg-color: #ffffff; /* Light background */
+            --text-color: #333333; /* Dark text */
+            --primary-color: #333333; /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc; /* Medium gray border */
+            --navbar-bg: #f0f0f0; /* Light gray for navbar */
+            --footer-bg: #f0f0f0; /* Light gray for footer */
+            --hover-bg: #e0e0e0; /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0; /* Light gray grid lines */
+            --accent-color: #333333; /* Dark accent color */
+
+             /* Form container/card colors */
+             --form-bg: var(--navbar-bg); /* Use navbar background for form card */
+             --form-border: var(--secondary-border-color);
+             --form-shadow: rgba(0, 0, 0, 0.08);
+
+             /* Message colors */
+             --message-success-bg: var(--status-success-bg);
+             --message-success-color: var(--status-success-color);
+             --message-success-border: var(--status-success-border);
+             --message-error-bg: var(--status-error-bg);
+             --message-error-color: var(--status-error-color);
+             --message-error-border: var(--status-error-border);
         }
 
         body {
-            background-color: var(--light-gray);
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
             margin: 0;
             padding: 0;
             min-height: 100vh;
-            color: var(--black);
+            color: var(--text-color); /* Dark text */
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-align: center; /* Center all text by default */
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+             /* Add padding to account for fixed navbar and footer */
+             padding-top: 80px; /* Default padding for fixed navbar */
+             padding-bottom: 60px; /* Default padding for fixed footer - adjusted if needed */
+
+             /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px; /* Size of each grid cell */
         }
 
-        /* Navbar */
+        /* Remove triangular gradients */
+        body::before, body::after {
+            content: none;
+        }
+
+
+        a {
+             /* Inherit color or set theme color, text decoration handled by specific classes */
+             color: var(--text-color);
+             text-decoration: none;
+         }
+
+
+        /* Navbar - consistent with other pages */
         .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.5rem 3rem;
-            background-color: var(--black);
-            color: var(--white);
-            border-bottom: 1px solid var(--dark-gray);
+            padding: 20px 20px;
+            /* Adjusted padding */
+            background-color: var(--navbar-bg);
+            /* Light gray */
+            color: var(--text-color);
+            /* Dark text */
+            text-align: left;
+            /* Override center for navbar layout */
+            width: 100%;
+            position: fixed; /* Ensure navbar is fixed */
+            top: 0;
+            left: 0;
+            z-index: 100;
         }
 
         .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: -1.5px;
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-color);
         }
 
         .nav-buttons {
             display: flex;
-            gap: 1.5rem;
+            gap: 15px;
+            /* Adjusted gap */
             align-items: center;
+            text-align: left;
+            /* Ensure text in buttons is not affected by body center */
         }
 
-        /* Buttons */
+        /* Buttons (Base Styles) */
         .btn {
-            display: inline-block;
-            padding: 1rem 2rem;
-            border-radius: var(--pill-radius);
-            font-size: 1rem;
+            display: inline-flex;
+            /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px;
+            /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
             cursor: pointer;
-            text-align: center;
-            font-weight: 500;
             transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
         }
 
         .btn.primary {
-            background-color: var(--black);
-            color: var(--white);
-            border: 2px solid var(--black);
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            /* White text on dark primary */
+            border: 1px solid var(--primary-color);
         }
 
         .btn.secondary {
             background-color: transparent;
-            color: var(--white);
-            border: 2px solid var(--white);
+            color: var(--text-color);
+            /* Dark text on light secondary */
+            border: 1px solid var(--secondary-border-color);
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        .btn.primary:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-color);
+            /* Dark text on light hover */
+            border-color: var(--hover-bg);
+        }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+            border-color: var(--hover-bg);
+        }
+
+        /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192';
+            /* Right arrow character */
+            margin-right: 8px;
+            /* Space between arrow and text */
+            font-weight: bold;
+            /* Make arrow slightly bolder */
+            color: var(--accent-color);
+            /* Dark accent color for arrow */
+        }
+
+
+        main {
+             flex: 1; /* Allow main content to grow */
+             width: 100%; /* Ensure main takes full width */
         }
 
         /* Form Container */
@@ -90,10 +185,23 @@
             max-width: 700px;
             margin: 2rem auto;
             padding: 2rem;
-            background: var(--white);
-            border-radius: var(--card-radius);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background: var(--form-bg); /* Form card background */
+            border-radius: 10px; /* Less rounded */
+            box-shadow: 0 4px 12px var(--form-shadow); /* Subtle shadow */
+            border: 1px solid var(--form-border); /* Subtle border */
+             text-align: left; /* Align content left */
         }
+
+        .form-container h1 {
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            /* Consistent heading size */
+            color: var(--text-color);
+            font-weight: 900;
+            text-align: center; /* Center title */
+             text-transform: uppercase; /* All caps */
+        }
+
 
         .form-group {
             margin-bottom: 1.5rem;
@@ -102,7 +210,10 @@
         label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 500;
+            font-weight: 600; /* Bolder */
+             color: var(--text-color);
+             text-transform: uppercase; /* All caps */
+             font-size: 0.9rem; /* Smaller label size */
         }
 
         input[type="text"],
@@ -111,177 +222,505 @@
         select {
             width: 100%;
             padding: 1rem;
-            border: 1px solid var(--dark-gray);
-            border-radius: var(--pill-radius);
+            border: 1px solid var(--secondary-border-color); /* Medium gray border */
+            border-radius: 5px; /* Less rounded */
             font-size: 1rem;
-            background-color: var(--white);
+            background-color: var(--bg-color); /* White background */
+             color: var(--text-color); /* Dark text */
+             font-family: 'Outfit', sans-serif;
+             text-transform: none; /* Prevent uppercase for input */
+             outline: none;
+             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
+         input[type="text"]:focus, input[type="url"]:focus, textarea:focus, select:focus {
+             border-color: var(--accent-color);
+             box-shadow: 0 0 5px rgba(51, 51, 51, 0.2);
+         }
+
 
         textarea {
             min-height: 120px;
             resize: vertical;
         }
 
-        /* Submit Button */
-        .submit-btn {
-            width: 100%;
-            padding: 1rem;
-            background-color: var(--black);
-            color: var(--white);
-            border: none;
-            border-radius: var(--pill-radius);
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .submit-btn:hover {
-            background-color: var(--dark-gray);
-        }
-
-        /* Messages */
-        .message {
-            padding: 1rem;
-            margin-top: 1rem;
-            border-radius: var(--pill-radius);
-            text-align: center;
-            display: none;
-        }
-
-        .message.success {
-            background-color: rgba(0,0,0,0.1);
-            color: var(--black);
-            border: 1px solid var(--dark-gray);
-        }
-
-        .message.error {
-            background-color: rgba(0,0,0,0.1);
-            color: var(--black);
-            border: 1px solid var(--dark-gray);
-        }
-
         /* Radio Group */
         .radio-group {
             display: flex;
             gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
         }
 
         .radio-option {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+             text-transform: none; /* Prevent uppercase for radio label text */
+             font-size: 0.9rem;
+             color: var(--text-color);
         }
+         .radio-option label {
+              margin-bottom: 0; /* Remove label bottom margin */
+              text-transform: none; /* Ensure label text is not uppercase */
+              font-weight: 400; /* Normal weight for radio labels */
+              font-size: 0.9rem; /* Consistent font size */
+         }
+          .radio-option input[type="radio"] {
+               /* Basic styling for default radio buttons */
+               margin-right: 0; /* Adjust gap */
+               width: auto; /* Auto width */
+               padding: 0; /* Remove padding */
+               border: none; /* Remove default border */
+               border-radius: 50%; /* Circular */
+               background-color: var(--bg-color); /* White background */
+               color: var(--text-color); /* Doesn't affect radio button appearance directly */
+               font-size: 1rem; /* Affects size indirectly */
+               appearance: radio; /* Use default radio button appearance */
+               -webkit-appearance: radio;
+               -moz-appearance: radio;
+               transition: none; /* Remove transitions */
+               cursor: pointer;
+          }
+           .radio-option input[type="radio"]:focus {
+               outline: 1px solid var(--accent-color); /* Simple focus indicator */
+               box-shadow: none; /* Remove complex shadow */
+           }
+
+
+        /* Submit Button (Re-styling to match .btn.primary) */
+        .submit-btn {
+             /* Inherit styles from .btn.primary */
+             width: 100%; /* Full width */
+             padding: 10px 20px; /* Matches .btn padding */
+             min-height: 40px;
+             border-radius: 5px;
+             font-weight: 600;
+             cursor: pointer;
+             transition: all 0.3s ease;
+             border: none;
+             font-family: 'Outfit', sans-serif;
+             text-transform: uppercase;
+             font-size: 14px;
+             text-align: center;
+             display: inline-flex;
+             align-items: center;
+             justify-content: center;
+
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        /* Submit Button Hover (Re-styling to match .btn.primary:hover) */
+        .submit-btn:hover {
+             /* Inherit styles from .btn.primary:hover */
+             background-color: var(--hover-bg);
+             color: var(--text-color);
+             border-color: var(--hover-bg);
+        }
+
+
+        /* Messages */
+        .message {
+            padding: 0.75rem 1.5rem; /* Adjusted padding */
+            margin-top: 1.5rem; /* Adjusted margin */
+            border-radius: 5px; /* Less rounded */
+            text-align: center;
+            display: none;
+            /* Use theme colors */
+             border: 1px solid transparent; /* Subtle border */
+             text-transform: none; /* Prevent uppercase */
+             font-size: 0.9rem;
+        }
+
+        .message.success {
+            background-color: var(--message-success-bg);
+            color: var(--message-success-color);
+            border-color: var(--message-success-border);
+        }
+
+        .message.error {
+            background-color: var(--message-error-bg);
+            color: var(--message-error-color);
+            border-color: var(--message-error-border);
+        }
+
+         .message a {
+             color: var(--accent-color); /* Accent color for link */
+             text-decoration: underline;
+             font-weight: 600;
+         }
+
+
+         /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6);
+            /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+            /* Make the footer fixed at the bottom */
+             position: fixed;
+             bottom: 0;
+             left: 0; /* Ensure it starts from the left edge */
+             z-index: 100; /* Ensure it's above other content */
+        }
+
+
+         /* Responsive adjustments */
+        @media (max-width: 768px) {
+             .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            body {
+                 padding-top: 120px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 80px; /* Adjust padding for footer */
+            }
+
+
+             .form-container {
+                 padding: 1.5rem;
+                 margin: 1.5rem auto;
+             }
+
+             .form-container h1 {
+                 font-size: 1.8rem;
+                 margin-bottom: 1rem;
+             }
+
+             label {
+                 font-size: 0.85rem;
+             }
+
+             input[type="text"],
+             input[type="url"],
+             textarea,
+             select {
+                 padding: 0.8rem;
+                 font-size: 0.9rem;
+             }
+              textarea {
+                 min-height: 100px;
+             }
+
+              .message {
+                  padding: 0.6rem 1.2rem;
+                  font-size: 0.8rem;
+                  margin-top: 1rem;
+              }
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                 padding: 15px 10px;
+             }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             body {
+                 padding-top: 150px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 100px; /* Adjust padding for footer */
+             }
+
+
+             .form-container {
+                 padding: 1rem;
+                 margin: 1rem auto;
+             }
+
+              .form-container h1 {
+                 font-size: 1.5rem;
+                 margin-bottom: 0.8rem;
+             }
+
+             label {
+                 font-size: 0.8rem;
+                 margin-bottom: 0.3rem;
+             }
+
+             input[type="text"],
+             input[type="url"],
+             textarea,
+             select {
+                 padding: 0.6rem;
+                 font-size: 0.8rem;
+                 margin-bottom: 1rem;
+             }
+             textarea {
+                 min-height: 80px;
+             }
+
+             .radio-group {
+                 gap: 0.8rem;
+             }
+             .radio-option {
+                 font-size: 0.8rem;
+                 gap: 0.3rem;
+             }
+
+              .message {
+                  padding: 0.5rem 1rem;
+                  font-size: 0.7rem;
+                  margin-top: 0.8rem;
+              }
+        }
+
+         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
+        /* function darken(color, percent) { ... } */
+
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons">
-            <a href="index.html" class="btn secondary">Home</a>
-            <a href="dashboard.html" class="btn secondary">Dashboard</a>
-            <a href="collections.html" class="btn primary">Collections</a>
-            <button id="logoutBtn" class="btn secondary">Log Out</button>
+             <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+             <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+             <a href="collections.html" class="btn secondary btn-with-arrow">Collections</a> <button id="logoutBtn" class="btn secondary">Log Out</button>
         </div>
     </nav>
 
-    <main class="form-container">
-        <h1>Request a Sound</h1>
-        <form id="requestForm">
-            <div class="form-group">
-                <label for="soundName">Sound Name</label>
-                <input type="text" id="soundName" required maxlength="20">
-            </div>
+    <main>
+        <div class="form-container">
+            <h1>Request a Sound</h1>
+            <form id="requestForm">
+                <div class="form-group">
+                    <label for="soundName">Sound Name</label>
+                    <input type="text" id="soundName" required maxlength="20">
+                </div>
 
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" required maxlength="40"></textarea>
-            </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" required maxlength="40"></textarea>
+                </div>
 
-            <div class="form-group">
-                <label for="audioUrl">Audio URL (optional)</label>
-                <input type="url" id="audioUrl" placeholder="https://example.com/sound.mp3">
-            </div>
+                <div class="form-group">
+                    <label for="audioUrl">Audio URL (optional)</label>
+                    <input type="url" id="audioUrl" placeholder="https://example.com/sound.mp3">
+                </div>
 
-            <div class="form-group">
-                <label>Content Type</label>
-                <div class="radio-group">
-                    <div class="radio-option">
-                        <input type="radio" id="normal" name="contentType" value="normal" checked>
-                        <label for="normal">Normal</label>
-                    </div>
-                    <div class="radio-option">
-                        <input type="radio" id="explicit" name="contentType" value="explicit">
-                        <label for="explicit">Explicit</label>
+                <div class="form-group">
+                    <label>Content Type</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="normal" name="contentType" value="normal" checked>
+                            <label for="normal">Normal</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="explicit" name="contentType" value="explicit">
+                            <label for="explicit">Explicit</label>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <button type="submit" class="submit-btn">Submit Request</button>
-            <div id="message" class="message"></div>
-        </form>
+                <button type="submit" class="submit-btn">Submit Request</button>
+                <div id="message" class="message"></div>
+            </form>
+        </div>
     </main>
 
+    <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
+
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const db = firebase.firestore();
-            const auth = firebase.auth();
-            const requestForm = document.getElementById('requestForm');
-            const messageDiv = document.getElementById('message');
-            const logoutBtn = document.getElementById('logoutBtn');
+         // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+         // --- Firebase initialization & Auth guard ---
+         let auth, db;
+         // Check if firebaseConfig is defined and firebase is not already initialized
+         if (typeof firebaseConfig !== 'undefined' && firebase.apps.length === 0) {
+             firebase.initializeApp(firebaseConfig);
+         }
+         // Ensure auth and db are initialized regardless of previous check if firebase is available
+         if (typeof firebase !== 'undefined') {
+              if (typeof firebase.auth !== 'undefined') auth = firebase.auth();
+              if (typeof firebase.firestore !== 'undefined') db = firebase.firestore();
+              initAuthAndSetupForm(); // Initialize auth flow and setup form listeners
+         } else {
+             console.warn("Firebase SDK not available. Auth and Firestore features will be disabled.");
+             // Display error or handle lack of features gracefully
+             const formContainer = document.querySelector('.form-container');
+              if(formContainer) formContainer.innerHTML = '<p style="color: var(--error-color); text-align: center;">FIREBASE SERVICES NOT AVAILABLE. CANNOT SUBMIT REQUESTS.</p>';
+             // Hide auth/firestore dependent elements
+             const logoutBtn = document.getElementById('logoutBtn');
+             if(logoutBtn) logoutBtn.classList.add('hidden');
+              const requestForm = document.getElementById('requestForm');
+             if(requestForm) requestForm.classList.add('hidden');
+         }
+
+
+         async function initAuthAndSetupForm() {
+             if (!auth) {
+                 console.error("Firebase Auth not initialized.");
+                 // Redirect or handle error
+                 window.location.href = 'index.html'; // Redirect if auth is strictly required
+                 return;
+             }
+
+             auth.onAuthStateChanged(user => {
+                 if (!user) {
+                     console.log("No user logged in. Redirecting to index.html");
+                     window.location.href = 'index.html'; // Redirect if not authenticated
+                 } else {
+                     console.log("User authenticated:", user.email);
+                     // User is logged in, setup form listeners
+                     setupFormListeners(user);
+                     setupNavListeners(); // Setup navigation listeners
+                 }
+             });
+         }
+
+
+        function setupFormListeners(user) {
+             // DOM Elements (get them here after user is authenticated and elements are assumed present)
+             const requestForm = document.getElementById('requestForm');
+             const messageDiv = document.getElementById('message');
+
+             if (!requestForm || !messageDiv) {
+                 console.error("Request form or message element not found.");
+                 // Optionally display an error message if crucial form elements are missing
+                  const formContainer = document.querySelector('.form-container');
+                  if(formContainer) formContainer.innerHTML = '<p style="color: var(--error-color); text-align: center;">REQUIRED FORM ELEMENTS MISSING.</p>';
+                 return;
+             }
 
             requestForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const soundName = document.getElementById('soundName').value.trim();
-                const description = document.getElementById('description').value.trim();
-                const audioUrlField = document.getElementById('audioUrl');
-                const audioUrl = audioUrlField.value.trim();
-                const contentType = document.querySelector('input[name="contentType"]:checked').value;
-                const userId = auth.currentUser.uid;
+
+                const soundNameInput = document.getElementById('soundName');
+                const descriptionInput = document.getElementById('description');
+                const audioUrlInput = document.getElementById('audioUrl');
+                const contentTypeRadio = document.querySelector('input[name="contentType"]:checked');
+
+                const soundName = soundNameInput ? soundNameInput.value.trim() : '';
+                const description = descriptionInput ? descriptionInput.value.trim() : '';
+                const audioUrl = audioUrlInput ? audioUrlInput.value.trim() : '';
+                const contentType = contentTypeRadio ? contentTypeRadio.value : 'normal'; // Default to normal if radios not found
+
+
+                if (!soundName || !description) {
+                    showMessage('SOUND NAME AND DESCRIPTION ARE REQUIRED.', 'error'); // Uppercase status
+                    return;
+                }
+
+                 if (!db) {
+                     showMessage('DATABASE NOT AVAILABLE. CANNOT SUBMIT REQUEST.', 'error'); // Uppercase status
+                     console.error("Firestore not initialized.");
+                     return;
+                 }
+
 
                 try {
-                    // Validate URL only if provided
+                    // Validate URL only if provided and not empty after trimming
                     if (audioUrl) {
-                        new URL(audioUrl);
+                        try {
+                            new URL(audioUrl); // Check if it's a valid URL format
+                        } catch (e) {
+                            showMessage('INVALID AUDIO URL FORMAT.', 'error'); // Uppercase status
+                            return; // Stop submission if URL is invalid
+                        }
                     }
 
                     await db.collection('requests').add({
-                        soundName,
-                        description,
-                        audioUrl: audioUrl || null,
-                        contentType,
-                        status: 'pending',
-                        submittedBy: userId,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        soundName: soundName,
+                        description: description,
+                        audioUrl: audioUrl || null, // Store null if URL is empty
+                        contentType: contentType,
+                        status: 'pending', // Initial status
+                        submittedBy: user.uid, // User ID from authenticated user
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp() // Server timestamp
                     });
 
-                    showMessage('Request submitted successfully! <a href="collections.html">View in Collections</a>', 'success');
-                    requestForm.reset();
+                    showMessage('REQUEST SUBMITTED SUCCESSFULLY! <a href="collections.html">VIEW IN COLLECTIONS</a>', 'success'); // Uppercase status with link
+                    requestForm.reset(); // Reset the form after successful submission
+
                 } catch (error) {
-                    showMessage('Error: ' + error.message, 'error');
+                    console.error('Error submitting request:', error);
+                    showMessage('ERROR SUBMITTING REQUEST: ' + error.message.toUpperCase(), 'error'); // Uppercase status and error message
                 }
             });
 
-            logoutBtn.addEventListener('click', () => {
-                auth.signOut().then(() => {
-                    window.location.href = 'index.html';
-                });
-            });
-
-            auth.onAuthStateChanged(user => {
-                if (!user) {
-                    window.location.href = 'index.html';
-                }
-            });
 
             function showMessage(text, type) {
-                messageDiv.innerHTML = text;
-                messageDiv.className = 'message ' + type;
-                messageDiv.style.display = 'block';
-                setTimeout(() => {
-                    messageDiv.style.display = 'none';
-                }, 5000);
+                 if (!messageDiv) {
+                     console.error("Message element not found.");
+                     alert(text); // Fallback to alert if message div is missing
+                     return;
+                 }
+                 messageDiv.innerHTML = text;
+                 messageDiv.className = 'message ' + type;
+                 messageDiv.style.display = 'block';
+                 setTimeout(() => {
+                     messageDiv.style.display = 'none';
+                 }, 5000); // Hide after 5 seconds
             }
-        });
+
+        } // End of setupFormListeners
+
+
+         function setupNavListeners() {
+             // DOM Elements (get them here after DOM is ready)
+              const logoutButton = document.getElementById('logoutBtn'); // Renamed to avoid conflict
+
+             // Logout button listener
+             if (logoutButton) {
+                  logoutButton.addEventListener('click', () => {
+                       if(auth) { // Ensure auth is available
+                            auth.signOut().then(() => {
+                                console.log("User signed out.");
+                                window.location.href = 'index.html'; // Redirect to index after logout
+                            }).catch(error => {
+                                console.error("Logout Error:", error);
+                                alert("Error logging out. Please try again.");
+                            });
+                       } else {
+                           console.error("Firebase Auth not available for logout in setupNavListeners.");
+                           alert("Logout failed. Firebase services not available.");
+                       }
+                  });
+             } else {
+                  console.error("Logout button not found in setupNavListeners.");
+             }
+
+             // Navigation links already have hrefs, no extra JS listeners needed for basic navigation
+              // If you wanted advanced navigation (e.g., single page app routing), you'd add them here.
+         }
+
+         // Note: The footer is now in the HTML directly, not added by JS.
+         // The current year script is also inline in the HTML.
+
+         // Call initAuthAndSetupForm directly once DOM is ready
+         document.addEventListener('DOMContentLoaded', () => {
+             // This part is now handled by the script right after Firebase SDKs
+             // initAuthAndSetupForm(); // This line should be removed or adjusted
+             // The logic to call initAuthAndSetupForm is now placed right after
+             // checking for Firebase SDK availability at the top of the <script> block.
+         });
+
     </script>
-</body>
+     </body>
 </html>
