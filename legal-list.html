@@ -1,218 +1,449 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>4SP | Legal List</title>
-  <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4SP | LEGAL LIST</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
 
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="firebase-config.js"></script>
+    <style>
+        :root {
+            --bg-color: #ffffff; /* Light background */
+            --text-color: #333333; /* Dark text */
+            --primary-color: #333333; /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc; /* Medium gray border */
+            --navbar-bg: #f0f0f0; /* Light gray for navbar */
+            --footer-bg: #f0f0f0; /* Light gray for footer */
+            --hover-bg: #e0e0e0; /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0; /* Light gray grid lines */
+            --accent-color: #333333; /* Dark accent color */
 
-  <style>
-    :root {
-        --dark-bg: #1a1a1a;
-        --darker-bg: #0d0d0d;
-        --light-text: #f0f0f0;
-        --light-gray: #e0e0e0;
-        --tile-height: 180px; /* Shorter height */
-    }
-
-    body {
-        background-color: var(--light-gray);
-        color: var(--dark-bg);
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        margin: 0;
-        font-family: 'Roboto Mono', monospace;
-    }
-
-    main.container {
-        max-width: 1400px; /* Wider container */
-        margin: 2rem auto;
-        padding: 0 2rem;
-        flex: 1;
-    }
-
-    footer {
-        text-align: center;
-        padding: 1rem 0;
-        color: #333333;
-    }
-
-    /* Navigation bar styling using darker background */
-    .navbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem 3rem;
-        background-color: var(--darker-bg);
-        color: var(--light-text);
-        border-bottom: 1px solid var(--darker-bg);
-    }
-    .logo {
-        font-size: 1.8rem;
-        font-weight: 700;
-        letter-spacing: -1.5px;
-    }
-    .nav-buttons {
-        display: flex;
-        gap: 1.5rem;
-        align-items: center;
-    }
-
-    /* Basic button styles ensuring correct height via padding/font-size */
-    .btn {
-        display: inline-block;
-        padding: 1rem 2rem;
-        border-radius: 50px;
-        font-size: 1rem;
-        line-height: normal;
-        cursor: pointer;
-        text-align: center;
-        border: 2px solid transparent;
-        font-weight: 500;
-        transition: none !important;
-    }
-    /* Secondary button style */
-    .btn.secondary {
-        background-color: transparent;
-        color: var(--light-text);
-        border-color: var(--light-text);
-    }
-
-    .hidden {
-        display: none !important;
-    }
-
-    /* Dashboard grid layout */
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 2rem;
-        margin: 2rem 0;
-    }
-    @media (max-width: 768px) {
-        .dashboard-grid {
-            grid-template-columns: 1fr;
+             /* Re-define tile height from the dashboard styles */
+             --tile-height: 220px;
         }
-    }
-    .dashboard-tile {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        background: white;
-        border-radius: 24px;
-        padding: 2.5rem;
-        text-decoration: none;
-        color: var(--dark-bg);
-        overflow: hidden;
-        height: var(--tile-height);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border: 1px solid var(--light-gray);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-    }
-    .dashboard-tile .tile-content {
-        position: relative;
-        z-index: 2;
-    }
-    .dashboard-tile .tile-content h3 {
-        font-size: 1.6rem;
-        margin-bottom: 1rem;
-        font-weight: 600;
-    }
-    .dashboard-tile .tile-content p {
-        font-size: 1rem;
-        line-height: 1.6;
-    }
-    .dashboard-tile .tile-frame {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        border: 3px solid rgba(0, 0, 0, 0.08);
-        border-radius: 22px;
-        z-index: 1;
-        transition: border-color 0.3s ease;
-    }
-    .dashboard-tile:hover {
-        transform: translateY(-5px) scale(1.03);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    }
-    .dashboard-tile:hover .tile-frame {
-        border-color: var(--dark-bg);
-    }
 
-    /* Page title */
-    .page-title {
-        font-size: 2.2rem;
-        margin: 2rem 0;
-        font-weight: 700;
-    }
-  </style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-align: center; /* Center all text by default */
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px; /* Size of each grid cell */
+        }
+
+         /* Remove triangular gradients */
+        body::before, body::after {
+            content: none;
+        }
+
+        main.container {
+            max-width: 1200px; /* Adjusted max-width */
+            margin: 2rem auto;
+            padding: 0 20px; /* Adjusted padding */
+            flex: 1;
+             text-align: left; /* Align content within container to the left */
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 20px; /* Adjusted padding */
+            background-color: var(--navbar-bg); /* Light gray */
+            color: var(--text-color); /* Dark text */
+             /* Removed border-bottom */
+             text-align: left; /* Override center for navbar layout */
+             width: 100%;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-color);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px; /* Adjusted gap */
+            align-items: center;
+             text-align: left; /* Ensure text in buttons is not affected by body center */
+        }
+
+        /* Buttons (Base Styles) */
+        .btn {
+            display: inline-flex; /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px; /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px; /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase; /* All caps */
+            font-size: 14px;
+            text-align: center;
+             /* Removed !important transition override */
+        }
+
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--bg-color); /* White text on dark primary */
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--text-color); /* Dark text on light secondary */
+            border: 1px solid var(--secondary-border-color);
+        }
+
+         .btn.primary:hover {
+            background-color: var(--hover-bg);
+             color: var(--text-color);
+             border-color: var(--hover-bg);
+         }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+             border-color: var(--hover-bg);
+        }
+
+         /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192'; /* Right arrow character */
+            margin-right: 8px; /* Space between arrow and text */
+            font-weight: bold; /* Make arrow slightly bolder */
+             color: var(--accent-color); /* Dark accent color for arrow */
+        }
+
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Dashboard grid layout (adapted from dashboard.html) */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Use auto-fit for flexibility */
+            gap: 2rem; /* Consistent gap */
+            margin: 2rem 0;
+             text-align: center; /* Center grid items within the grid container */
+        }
+        /* Specific layout overrides for certain numbers of items (optional, from dashboard.html) */
+        @media (min-width: 992px) {
+             .dashboard-grid:has(:first-child:last-child) {
+                 grid-template-columns: 1fr;
+             }
+             .dashboard-grid:has(:nth-child(2):last-child) {
+                 grid-template-columns: repeat(2, 1fr);
+             }
+         }
+         @media (max-width: 991px) and (min-width: 768px) {
+             .dashboard-grid:has(:first-child:last-child) {
+                 grid-template-columns: 1fr;
+             }
+              /* Default to 2 columns on medium screens */
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+         }
+         @media (max-width: 767px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr; /* Single column on small screens */
+            }
+         }
+
+
+        /* Dashboard tile (adapted from dashboard.html) */
+        .dashboard-tile {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: var(--navbar-bg); /* Light gray background */
+            border-radius: 10px; /* Less rounded */
+            padding: 2.5rem;
+            text-decoration: none;
+            color: var(--text-color); /* Dark text */
+            overflow: hidden;
+            height: var(--tile-height); /* Use defined tile height */
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            border: 1px solid var(--secondary-border-color); /* Subtle border */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+             text-align: left; /* Align tile content to the left */
+        }
+        .dashboard-tile .tile-content {
+            position: relative;
+            z-index: 2;
+        }
+        .dashboard-tile .tile-content h3 {
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            font-weight: 600; /* Bolder weight */
+             color: var(--text-color); /* Dark text */
+             text-transform: uppercase; /* All caps */
+        }
+        .dashboard-tile .tile-content p {
+            font-size: 1rem;
+            line-height: 1.6;
+             color: rgba(51, 51, 51, 0.8); /* Slightly lighter dark */
+             text-transform: uppercase; /* All caps */
+        }
+
+        /* Inner frame (adapted from dashboard.html) */
+        .dashboard-tile .tile-frame {
+            position: absolute;
+            inset: 0;
+            border: 4px solid rgba(51, 51, 51, 0.08); /* Subtle inner border using dark text color */
+            border-radius: 8px; /* Matches tile border-radius - 2px */
+            z-index: 1;
+            transition: border-color 0.3s ease;
+        }
+        .dashboard-tile:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+             border-color: var(--accent-color); /* Accent border on hover */
+        }
+        .dashboard-tile:hover .tile-frame {
+            border-color: rgba(51, 51, 51, 0.2); /* Inner border darker on hover */
+        }
+
+
+        /* Page title */
+        .page-title {
+            font-size: 2.5rem; /* Adjusted size */
+            margin: 2rem 0;
+            font-weight: 900; /* Bolder weight */
+            color: var(--text-color); /* Dark text */
+             text-transform: uppercase; /* All caps */
+             text-align: center; /* Center page title */
+        }
+
+         /* Auth notice message styling */
+         #authNotice {
+             text-align: center;
+             font-size: 1.2rem;
+             color: var(--text-color);
+             margin: 2rem 0;
+             padding: 1rem;
+             background-color: var(--navbar-bg);
+             border-radius: 10px;
+             border: 1px solid var(--secondary-border-color);
+              text-transform: uppercase; /* All caps */
+         }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px; /* Adjusted padding */
+            color: rgba(51, 51, 51, 0.6); /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg); /* Light gray */
+            text-transform: uppercase;
+            width: 100%;
+             margin-top: auto; /* Push footer to the bottom */
+        }
+
+
+         /* Responsive adjustments */
+        @media (max-width: 768px) {
+             .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            main.container {
+                 padding: 0 1rem;
+                 margin: 1.5rem auto;
+            }
+
+             .page-title {
+                 font-size: 1.8rem;
+                 margin: 1.5rem 0;
+             }
+
+             .dashboard-grid {
+                 gap: 1rem;
+                 margin: 1rem 0;
+             }
+
+             .dashboard-tile {
+                 height: 200px; /* Adjust height */
+                 padding: 2rem; /* Adjust padding */
+                 border-radius: 8px; /* Slightly smaller radius */
+             }
+              .dashboard-tile .tile-frame {
+                  border-radius: 6px; /* Matches tile radius - 2px */
+              }
+
+             .dashboard-tile .tile-content h3 {
+                 font-size: 1.4rem;
+             }
+             .dashboard-tile .tile-content p {
+                 font-size: 0.9rem;
+             }
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                 padding: 15px 10px;
+             }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             main.container {
+                 padding: 0 0.5rem;
+                 margin: 1rem auto;
+             }
+
+             .page-title {
+                 font-size: 1.5rem;
+                 margin: 1rem 0;
+             }
+
+             .dashboard-grid {
+                 gap: 0.8rem;
+                 margin: 0.8rem 0;
+             }
+
+             .dashboard-tile {
+                 height: 180px; /* Adjust height */
+                 padding: 1.5rem; /* Adjust padding */
+                 border-radius: 6px; /* Smaller radius */
+             }
+             .dashboard-tile .tile-frame {
+                  border-radius: 4px; /* Matches tile radius - 2px */
+             }
+
+             .dashboard-tile .tile-content h3 {
+                 font-size: 1.2rem;
+             }
+             .dashboard-tile .tile-content p {
+                 font-size: 0.8rem;
+             }
+        }
+
+
+         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
+        /* For simplicity, manual adjustment is used in the variables above */
+        /* function darken(color, percent) { ... } */
+    </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="index.html" class="btn secondary">Home</a>
-    </div>
-  </nav>
-
-  <main class="container">
-    <h1 class="page-title">Legal List</h1>
-    <h1 class="hidden" id="authNotice">Please login to access the legal documentary.</h1>
-
-    <div class="dashboard-grid" id="dashboardGrid">
-      <a href="privacy.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Privacy Policy</h3>
-          <p>The privacy policy for collecting data, for improvement of this website.</p>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+            <button id="logoutBtn" class="btn secondary hidden">Log Out</button>
         </div>
-        <div class="tile-frame"></div>
-      </a>
-      <a href="terms.html" class="dashboard-tile">
-        <div class="tile-content">
-          <h3>Terms of Service</h3>
-          <p>The terms of the service provided by the use of this website.</p>
+    </nav>
+
+    <main class="container">
+        <h1 class="page-title">Legal List</h1>
+        <h1 class="hidden" id="authNotice">PLEASE LOGIN TO ACCESS THE LEGAL DOCUMENTARY.</h1>
+
+        <div class="dashboard-grid" id="dashboardGrid">
+            <a href="privacy.html" class="dashboard-tile">
+                <div class="tile-content">
+                    <h3>Privacy Policy</h3>
+                    <p>THE PRIVACY POLICY FOR COLLECTING DATA, FOR IMPROVEMENT OF THIS WEBSITE.</p>
+                </div>
+                <div class="tile-frame"></div>
+            </a>
+            <a href="terms.html" class="dashboard-tile">
+                <div class="tile-content">
+                    <h3>Terms of Service</h3>
+                    <p>THE TERMS OF THE SERVICE PROVIDED BY THE USE OF THIS WEBSITE.</p>
+                </div>
+                <div class="tile-frame"></div>
+            </a>
         </div>
-        <div class="tile-frame"></div>
-      </a>
-    </div>
-  </main>
+    </main>
 
-  <footer>
-    <p>© 2025 4SP</p>
-  </footer>
+    <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Only hook up Log Out if Firebase Auth is present
-      if (window.firebase && firebase.auth) {
-        const auth = firebase.auth();
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-          logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            auth.signOut()
-              .then(() => window.location.href = 'index.html')
-              .catch(err => console.error('Logout error:', err));
-          });
-        }
-      } else {
-        // Firebase not loaded — hide the Log Out button
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) logoutBtn.classList.add('hidden');
-      }
+    <script>
+        // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-      // **No onAuthStateChanged listener, and no redirects on error.**
-      // The page will remain visible regardless of login state.
-    });
-  </script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Only hook up Log Out if Firebase Auth is present
+            if (window.firebase && firebase.auth) {
+                const auth = firebase.auth();
+                const logoutButton = document.getElementById('logoutBtn'); // Renamed to avoid conflict if other 'logoutBtn' exists
+                if (logoutButton) {
+                    // Remove any existing listeners before adding a new one
+                     const newLogoutButton = logoutButton.cloneNode(true);
+                     logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
+
+                     newLogoutButton.classList.remove('hidden'); // Show the logout button
+
+                    newLogoutButton.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        auth.signOut()
+                            .then(() => {
+                                console.log("User logged out.");
+                                window.location.href = 'index.html';
+                            })
+                            .catch(err => console.error('Logout error:', err));
+                    });
+                } else {
+                    console.error("Logout button element not found.");
+                }
+            } else {
+                console.warn("Firebase SDK or Auth not available. Logout button hidden.");
+                // Firebase not loaded — hide the Log Out button (already handled by initial HTML structure hidden class)
+                // const logoutBtn = document.getElementById('logoutBtn');
+                // if (logoutBtn) logoutBtn.classList.add('hidden');
+            }
+
+            // **No onAuthStateChanged listener, and no redirects on error.**
+            // The page will remain visible regardless of login state, as per the original code's intent.
+        });
+    </script>
 </body>
 </html>
