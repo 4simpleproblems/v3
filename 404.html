@@ -1,121 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>4SP | Page Not Found</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap"
-    rel="stylesheet"
-  />
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Roboto Mono', monospace;
-      background-color: #f5f5f5;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 20px;
-    }
-    nav.navbar {
-      position: absolute;
-      top: 0;
-      width: 100%;
-      background-color: #111;
-      color: #fff;
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .logo { font-size: 24px; font-weight: 700; }
-    .nav-buttons a, .nav-buttons button {
-      margin-left: 10px;
-      padding: 8px 16px;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 500;
-      cursor: pointer;
-      border: 1px solid white;
-      background: transparent;
-      color: #fff;
-      transition: background 0.3s ease;
-    }
-    .nav-buttons a:hover, .nav-buttons button:hover {
-      background: rgba(255,255,255,0.1);
-    }
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      max-width: 600px;
-      margin-top: 80px; /* accommodate navbar */
-    }
-    h1 {
-      font-size: 6rem;
-      margin-bottom: 1rem;
-      color: #111111;
-    }
-    p {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
-    }
-    .btn {
-      padding: 12px 24px;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: none;
-      font-family: 'Roboto Mono', monospace;
-      display: inline-block;
-      text-align: center;
-    }
-    .btn.primary {
-      background-color: #f33f33;
-      color: #fff;
-      border: 1px solid;
-    }
-    .btn.primary:hover {
-      background-color: #f11f11;
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      color: #666;
-      font-size: 14px;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>4SP | PAGE NOT FOUND</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --bg-color: #ffffff; /* Light background */
+            --text-color: #333333; /* Dark text */
+            --primary-color: #333333; /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc; /* Medium gray border */
+            --navbar-bg: #f0f0f0; /* Light gray for navbar */
+            --footer-bg: #f0f0f0; /* Light gray for footer */
+            --hover-bg: #e0e0e0; /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0; /* Light gray grid lines */
+            --accent-color: #333333; /* Dark accent color */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-align: center; /* Center all text by default */
+            position: relative;
+            overflow-x: hidden;
+
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px; /* Size of each grid cell */
+
+            /* Flexbox for centering content */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center; /* Center content vertically */
+            padding: 20px; /* Add general padding */
+             padding-top: 150px; /* Increased padding to clear fixed navbar */
+        }
+
+         /* Remove triangular gradients */
+        body::before, body::after {
+            content: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navbar */
+        nav.navbar {
+            position: fixed; /* Changed from absolute to fixed */
+            top: 0;
+            left: 0; /* Added left: 0 */
+            width: 100%;
+            background-color: var(--navbar-bg); /* Light gray */
+            color: var(--text-color); /* Dark text */
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100; /* Ensure navbar is above content */
+             text-align: left; /* Override center for navbar layout */
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 900; /* Bolder weight */
+            color: var(--text-color);
+        }
+        .nav-buttons {
+             display: flex; /* Use flex */
+             gap: 15px; /* Add gap */
+             align-items: center;
+             text-align: left; /* Ensure text in buttons is not affected by body center */
+        }
+        .nav-buttons a, .nav-buttons button {
+            /* Styles derived from .btn base class */
+            padding: 10px 20px; /* Adjusted padding */
+            border-radius: 5px; /* Less rounded */
+            text-decoration: none;
+            font-weight: 600; /* Bolder weight */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--secondary-border-color); /* Medium gray border */
+            background: transparent;
+            color: var(--text-color); /* Dark text */
+            font-family: 'Outfit', sans-serif; /* Use Outfit font */
+            text-transform: uppercase; /* All caps */
+            font-size: 14px; /* Adjusted font size */
+            text-align: center; /* Center button text */
+            display: inline-flex; /* Use flex to align content and arrow */
+            align-items: center; /* Vertically center content and arrow */
+            margin-left: 0; /* Remove margin-left if using flexbox gap */
+        }
+         /* Apply secondary style directly for consistency */
+         .nav-buttons a.secondary, .nav-buttons button.secondary {
+             background-color: transparent;
+             color: var(--text-color);
+             border-color: var(--secondary-border-color);
+         }
+         .nav-buttons a.secondary:hover, .nav-buttons button.secondary:hover {
+            background: var(--hover-bg); /* Light gray hover */
+            border-color: var(--hover-bg);
+         }
+
+         /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192'; /* Right arrow character */
+            margin-right: 8px; /* Space between arrow and text */
+            font-weight: bold; /* Make arrow slightly bolder */
+             color: var(--accent-color); /* Dark accent color for arrow */
+        }
+
+
+        main {
+             /* Removed flex: 1 as body is already flex container */
+             /* Removed display, flex-direction, align-items, justify-content as body handles centering */
+            max-width: 600px;
+            margin-top: 0; /* Remove margin-top as body padding handles space */
+            padding: 50px; /* Increased padding */
+            background-color: var(--navbar-bg); /* Light gray background for main content */
+            border-radius: 10px; /* Less rounded */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); /* Subtle shadow */
+        }
+        h1 {
+            font-size: 6rem;
+            margin-bottom: 1rem;
+            color: var(--text-color); /* Dark text */
+            font-weight: 900; /* Bolder weight */
+             text-transform: uppercase; /* All caps */
+        }
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: rgba(51, 51, 51, 0.8); /* Slightly lighter dark */
+             text-transform: uppercase; /* All caps */
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 5px; /* Less rounded */
+            text-decoration: none;
+            font-weight: 600; /* Bolder weight */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif; /* Use Outfit font */
+            display: inline-flex; /* Use flex to align content and arrow */
+            align-items: center; /* Vertically center content and arrow */
+            justify-content: center; /* Center button text */
+            text-transform: uppercase; /* All caps */
+        }
+        .btn.primary {
+            background-color: var(--primary-color); /* Dark primary */
+            color: var(--bg-color); /* White text */
+            border: 1px solid var(--primary-color);
+        }
+        .btn.primary:hover {
+            background-color: var(--hover-bg); /* Light gray hover */
+            color: var(--text-color); /* Dark text */
+             border-color: var(--hover-bg);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6); /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+             margin-top: auto; /* Push footer to the bottom */
+        }
+
+         /* Responsive adjustments */
+        @media (max-width: 768px) {
+            nav.navbar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px 10px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            body {
+                 padding-top: 180px; /* Adjust padding for stacked navbar */
+            }
+
+            h1 {
+                font-size: 4rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+
+            .btn {
+                 padding: 10px 20px;
+                 font-size: 12px;
+            }
+
+             main {
+                 padding: 40px; /* Adjust padding */
+            }
+        }
+
+         @media (max-width: 480px) {
+            nav.navbar {
+                 padding: 10px 5px;
+            }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 10px;
+            }
+
+             body {
+                 padding-top: 200px; /* Adjust padding for stacked navbar */
+             }
+
+
+            h1 {
+                font-size: 3rem;
+            }
+
+            p {
+                font-size: 0.9rem;
+            }
+
+             main {
+                 padding: 20px; /* Adjust padding */
+             }
+        }
+
+    </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="index.html" class="btn secondary">Home</a>
-      <a href="dashboard.html" class="btn secondary">Dashboard</a>
-    </div>
-  </nav>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+        </div>
+    </nav>
 
-  <main>
-    <h1>404</h1>
-    <p>Oops! The page you’re looking for doesn’t exist.</p>
-    <a href="dashboard.html" class="btn primary">Go Back to Dashboard</a>
-  </main>
+    <main>
+        <h1>404</h1>
+        <p>OOPS! THE PAGE YOU’RE LOOKING FOR DOESN’T EXIST.</p>
+        <a href="dashboard.html" class="btn primary btn-with-arrow">Go Back to Dashboard</a>
+    </main>
 
-  <footer>
-    <p>© 2025 4SP</p>
-  </footer>
+    <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
+
+    <script>
+        // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
 </body>
 </html>
