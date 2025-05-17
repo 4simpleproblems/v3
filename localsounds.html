@@ -196,8 +196,10 @@
         }
 
         .btn.danger:hover {
-            background-color: darken(#e74c3c, 10%); /* Placeholder for darkening */
-            border-color: darken(#e74c3c, 10%); /* Placeholder for darkening */
+            /* Placeholder for darkening */
+            background-color: #c0392b;
+            /* Darker shade of #e74c3c */
+            border-color: #c0392b;
         }
 
 
@@ -249,7 +251,8 @@
             border: 2px solid var(--sound-button-border);
             /* Medium gray border */
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 1rem;
+            /* Increased font size for readability */
             font-weight: 600;
             padding: 0 1.5rem;
             transition: background-color 0.3s ease, transform 0.1s ease, border-color 0.3s ease;
@@ -288,7 +291,8 @@
                 transform: scale(1);
             }
             50% {
-                transform: scale(1.02); /* Slightly reduced scale for subtlety */
+                transform: scale(1.02);
+                /* Slightly reduced scale for subtlety */
             }
             100% {
                 transform: scale(1);
@@ -345,7 +349,8 @@
             background-color: rgba(0, 0, 0, 0.5);
             justify-content: center;
             align-items: center;
-            animation: fadeInOverlay 0.3s ease forwards; /* Added fade-in animation */
+            animation: fadeInOverlay 0.3s ease forwards;
+            /* Added fade-in animation */
         }
 
         .modal.fade-out {
@@ -378,11 +383,13 @@
             width: 90%;
             max-width: 500px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            animation: fadeInUp 0.3s ease forwards; /* Added slide-in animation */
+            animation: fadeInUp 0.3s ease forwards;
+            /* Added slide-in animation */
         }
-         .modal-content.fade-out {
-             animation: fadeOutDown 0.3s ease forwards;
-         }
+
+        .modal-content.fade-out {
+            animation: fadeOutDown 0.3s ease forwards;
+        }
 
         @keyframes fadeInUp {
             from {
@@ -431,7 +438,7 @@
             font-weight: bold;
             text-transform: uppercase;
             font-size: 0.9rem;
-             color: var(--text-color);
+            color: var(--text-color);
         }
 
         .form-control {
@@ -440,9 +447,15 @@
             border: 1px solid var(--secondary-border-color);
             border-radius: 4px;
             font-size: 14px;
-             background-color: var(--bg-color);
-             color: var(--text-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
+
+         .form-control[type="color"] {
+             padding: 5px; /* Smaller padding for color picker */
+             height: 40px; /* Consistent height */
+         }
+
 
         .form-actions {
             display: flex;
@@ -453,9 +466,10 @@
 
         .color-picker {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(30px, 1fr)); /* Adjusted for flexibility */
             gap: 8px;
             margin-top: 8px;
+             max-width: 300px; /* Limit width */
         }
 
         .color-option {
@@ -471,6 +485,17 @@
             border: 2px solid var(--accent-color);
         }
 
+         .text-color-options {
+             display: flex;
+             align-items: center;
+             gap: 15px; /* Space between options */
+         }
+
+         .text-color-options label {
+             margin-bottom: 0; /* Remove bottom margin from label in flex container */
+             font-weight: normal; /* Less bold for individual options */
+         }
+
         .empty-state {
             text-align: center;
             padding: 40px;
@@ -478,15 +503,15 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
-             color: var(--text-color);
-             border: 1px solid var(--secondary-border-color);
+            color: var(--text-color);
+            border: 1px solid var(--secondary-border-color);
         }
 
         .empty-state h2 {
             margin-bottom: 15px;
             color: var(--text-color);
             text-transform: uppercase;
-             font-size: 1.5rem;
+            font-size: 1.5rem;
         }
 
         .empty-state p {
@@ -496,52 +521,458 @@
             font-size: 1rem;
         }
 
-         /* Status Message styles (copied from soundboard.html) */
-         .status-message {
-             display: none;
-             padding: 0.75rem 1.5rem;
-             /* Adjusted padding */
-             margin: 1rem auto;
-             border-radius: 5px;
-             /* Less rounded */
-             font-size: 0.9rem;
-             background-color: var(--navbar-bg);
-             /* Use a light theme background */
-             text-align: center;
-             max-width: 80%;
-             text-transform: none;
-             /* Prevent uppercase */
-             border: 1px solid transparent;
-             /* Add a subtle border */
-         }
+        /* Status Message styles (copied from soundboard.html) */
+        .status-message {
+            display: none;
+            padding: 0.75rem 1.5rem;
+            /* Adjusted padding */
+            margin: 1rem auto;
+            border-radius: 5px;
+            /* Less rounded */
+            font-size: 0.9rem;
+            background-color: var(--navbar-bg);
+            /* Use a light theme background */
+            text-align: center;
+            max-width: 80%;
+            text-transform: none;
+            /* Prevent uppercase */
+            border: 1px solid transparent;
+            /* Add a subtle border */
+        }
 
-         .status-message.fade-in {
-             display: block;
-             animation: fadeInUp 0.3s ease forwards;
-         }
+        .status-message.fade-in {
+            display: block;
+            animation: fadeInUp 0.3s ease forwards;
+        }
 
-         .status-message.fade-out {
-             display: block;
-             animation: fadeOutDown 0.3s ease forwards;
-         }
+        .status-message.fade-out {
+            display: block;
+            animation: fadeOutDown 0.3s ease forwards;
+        }
 
-         .status-message.success {
-             background-color: var(--status-success-bg);
-             color: var(--status-success-color);
-             border-color: var(--status-success-border);
-         }
+        .status-message.success {
+            background-color: var(--status-success-bg);
+            color: var(--status-success-color);
+            border-color: var(--status-success-border);
+        }
 
-         .status-message.error {
-             background-color: var(--status-error-bg);
-             color: var(--status-error-color);
-             border-color: var(--status-error-border);
-         }
+        .status-message.error {
+            background-color: var(--status-error-bg);
+            color: var(--status-error-color);
+            border-color: var(--status-error-border);
+        }
 
-         .status-message.info {
-             background-color: var(--status-info-bg);
-             color: var(--status-info-color);
-             border-color: var(--status-info-border);
-         }
+        .status-message.info {
+            background-color: var(--status-info-bg);
+            color: var(--status-info-color);
+            border-color: var(--status-info-border);
+        }
+
+
+        /* Options Dropdown styles (copied from soundboard.html) */
+        .options-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .options-button {
+            background-color: transparent;
+            color: var(--text-color);
+            /* Dark text */
+            padding: 10px 20px;
+            /* Matches other buttons */
+            font-size: 14px;
+            /* Matches other buttons */
+            border: 1px solid var(--secondary-border-color);
+            /* Matches other buttons */
+            border-radius: 5px;
+            /* Less rounded */
+            cursor: pointer;
+            text-transform: uppercase;
+            /* All caps */
+            font-weight: 600;
+            display: inline-flex;
+            /* Needed for flex layout */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .options-button:hover {
+            background-color: var(--hover-bg);
+            border-color: var(--hover-bg);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+                /* Subtle animation */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+                /* Subtle animation */
+            }
+        }
+
+        .options-content {
+            display: none;
+            position: absolute;
+            background-color: var(--options-bg);
+            /* Light gray */
+            min-width: 250px;
+            border: 1px solid var(--options-border);
+            /* Medium gray */
+            padding: 1rem;
+            z-index: 2;
+            right: 0;
+            border-radius: 5px;
+            /* Less rounded */
+            color: var(--options-text);
+            /* Dark text */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            /* Subtle shadow */
+            text-align: left;
+            /* Align options content to the left */
+            text-transform: none;
+            /* Prevent uppercase for readability */
+        }
+
+        .options-content.fade-in {
+            display: block;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .options-content.fade-out {
+            display: block;
+            animation: fadeOut 0.3s ease forwards;
+        }
+
+        .options-content label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--options-text);
+            /* Dark text */
+            font-size: 0.9rem;
+        }
+
+        .options-content input[type="checkbox"] {
+            margin-right: 0.5rem;
+            vertical-align: middle;
+            background-color: var(--bg-color);
+            /* White background */
+            border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            position: relative;
+            border-radius: 3px;
+            /* Slightly rounded checkbox */
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .options-content input[type="checkbox"]:checked {
+            background-color: var(--accent-color);
+            /* Dark background when checked */
+            border-color: var(--accent-color);
+            /* Simple white checkmark - adjust color if needed */
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='20 6 9 17 4 12'%3e%3c/polyline%3e%3c/svg%3e");
+            background-size: 80%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .options-content input[type="checkbox"]:focus {
+            box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
+        }
+
+
+        .options-content #autoClickDelayLabel {
+            margin-top: 0.5rem;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .options-content #autoClickDelay {
+            width: 70px;
+            /* Slightly wider input */
+            padding: 0.4rem;
+            /* Adjusted padding */
+            border-radius: 5px;
+            /* Less rounded */
+            border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
+            background-color: var(--bg-color);
+            /* White background */
+            color: var(--text-color);
+            /* Dark text */
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            text-transform: none;
+            /* Prevent uppercase */
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .options-content #autoClickDelay:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
+        }
+
+        /* Style for the playback speed select */
+        .options-content label.playback-speed-label {
+            margin-top: 0.5rem;
+            /* Spacing from previous element */
+            margin-bottom: 0.5rem;
+            /* Spacing to next element */
+            display: block;
+            /* Ensure label is block */
+            font-size: 0.9rem;
+        }
+
+        .options-content #playbackSpeed {
+            width: 100%;
+            /* Full width of its container */
+            padding: 0.5rem;
+            margin-top: 0.25rem;
+            /* Space below the label text */
+            border-radius: 5px;
+            /* Less rounded */
+            border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
+            background-color: var(--bg-color);
+            /* White background */
+            color: var(--text-color);
+            /* Dark text */
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            /* Using dark accent color for stroke */
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 1em;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            text-transform: none;
+            /* Prevent uppercase */
+        }
+
+        .options-content #playbackSpeed:focus {
+            border-color: var(--accent-color);
+            /* Accent color on focus */
+            box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
+        }
+
+        .options-content #playbackSpeed option {
+            background-color: var(--options-bg);
+            /* Background for dropdown options */
+            color: var(--options-text);
+            /* Text color for dropdown options */
+        }
+
+
+        .options-section {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--options-section-border);
+            /* Darker border */
+        }
+
+        .options-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .options-section h3 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: var(--options-text);
+            /* Dark text */
+            opacity: 0.8;
+            text-transform: uppercase;
+            /* All caps */
+        }
+
+        .keyboard-shortcuts {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 5px;
+            /* Less rounded */
+            background-color: rgba(51, 51, 51, 0.05);
+            /* Very subtle dark background */
+            border: 1px solid var(--secondary-border-color);
+            text-align: left;
+            /* Align shortcut text left */
+        }
+
+        .keyboard-shortcuts p {
+            margin: 0.25rem 0;
+            font-size: 0.85rem;
+            color: var(--text-color);
+            /* Dark text */
+            opacity: 0.8;
+            text-transform: none;
+            /* Prevent uppercase for readability */
+        }
+
+        #applyDelayBtn {
+            padding: 0.4rem 0.8rem;
+            /* Adjusted padding */
+            border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
+            border-radius: 5px;
+            /* Less rounded */
+            background-color: var(--hover-bg);
+            /* Light gray background */
+            color: var(--text-color);
+            /* Dark text */
+            cursor: pointer;
+            margin-left: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            /* All caps */
+            font-family: 'Outfit', sans-serif;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        #applyDelayBtn:hover {
+            background-color: var(--secondary-border-color);
+            /* Darker gray on hover */
+            border-color: var(--accent-color);
+        }
+
+        #clearAllSoundsBtn {
+            width: 100%;
+            margin-top: 0.5rem;
+            background-color: var(--hover-bg);
+            /* Light gray background */
+            color: var(--text-color);
+            /* Dark text */
+            border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
+            position: relative;
+            overflow: hidden;
+            border-radius: 5px;
+            /* Less rounded */
+        }
+
+        #clearAllSoundsBtn:hover {
+            background-color: var(--secondary-border-color);
+            border-color: var(--accent-color);
+        }
+
+
+        @keyframes buttonPop {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+                /* Subtle pop */
+            }
+            75% {
+                transform: scale(0.98);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        #clearAllSoundsBtn.active {
+            animation: none;
+            /* Remove pop animation */
+            background-color: var(--error-bg);
+            /* Error background color */
+            border-color: var(--error-color);
+            /* Error border color */
+            color: var(--error-color);
+            /* Error text color */
+        }
+
+        .ripple-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 0, 0, 0.4);
+            /* Reddish ripple for clear button */
+            width: 100px;
+            height: 100px;
+            margin-top: -50px;
+            margin-left: -50px;
+            animation: ripple 0.6s ease-out;
+            pointer-events: none;
+        }
+
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            animation: fadeInOverlay 0.3s ease forwards;
+        }
+
+        .overlay.fade-out {
+            animation: fadeOutOverlay 0.3s ease forwards;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6);
+            /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+             margin-top: auto; /* Push footer to the bottom */
+        }
 
 
         /* Responsive adjustments */
@@ -566,7 +997,13 @@
 
             .sound-button {
                 height: 100px;
-                 border-radius: 15px;
+                border-radius: 15px;
+                font-size: 0.9rem;
+                /* Adjusted font size */
+            }
+
+            .options-content {
+                min-width: 200px;
             }
         }
 
@@ -602,14 +1039,37 @@
             .soundboard {
                 gap: 10px;
                 padding: 0.5rem 0;
-                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
             }
 
             .sound-button {
                 height: 80px;
-                font-size: 0.75rem;
+                font-size: 0.8rem;
+                /* Adjusted font size */
                 padding: 0 0.5rem;
                 border-radius: 10px;
+            }
+
+
+            .options-content {
+                min-width: 180px;
+                padding: 0.8rem;
+            }
+
+            .options-content label,
+            .options-content #autoClickDelayLabel,
+            .options-content #playbackSpeed,
+            .options-content #autoClickDelay {
+                font-size: 0.8rem;
+            }
+
+            .keyboard-shortcuts p {
+                font-size: 0.75rem;
+            }
+
+            #applyDelayBtn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.7rem;
             }
         }
     </style>
@@ -619,6 +1079,44 @@
     <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons">
+            <div class="options-dropdown">
+                <button class="options-button">Options</button>
+                <div class="options-content" id="optionsMenu">
+                    <div class="options-section">
+                        <h3>Playback Options</h3>
+                        <label>
+                            <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
+                        </label>
+                        <label for="playbackSpeed" class="playback-speed-label">Playback Speed:
+                            <select id="playbackSpeed">
+                                <option value="0.25">0.25x</option>
+                                <option value="0.5">0.5x</option>
+                                <option value="0.75">0.75x</option>
+                                <option value="1" selected>1x (Normal)</option>
+                                <option value="1.25">1.25x</option>
+                                <option value="1.5">1.5x</option>
+                                <option value="1.75">1.75x</option>
+                                <option value="2">2x</option>
+                                <option value="2.25">2.25x</option>
+                                <option value="2.5">2.5x</option>
+                                <option value="2.75">2.75x</option>
+                                <option value="3">3x</option>
+                            </select>
+                        </label>
+                        </div>
+                    <div class="options-section">
+                        <h3>Management</h3>
+                        <button id="clearAllSoundsBtn" class="btn secondary">
+                            Clear All Sounds
+                            <div class="ripple-container"></div>
+                        </button>
+                    </div>
+                    <div class="keyboard-shortcuts">
+                        <p><strong>Keyboard Shortcuts:</strong></p>
+                        <p>Shift + C: Mute & clear all sounds</p>
+                    </div>
+                </div>
+            </div>
             <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
             </div>
     </nav>
@@ -685,6 +1183,25 @@
                         <div class="color-option" style="background-color: #16a085;" data-color="#16a085"></div>
                     </div>
                 </div>
+                <div class="form-group">
+                     <label>Text Color</label>
+                     <div class="text-color-options">
+                         <label>
+                             <input type="radio" name="textColorOption" value="default" checked> Default
+                         </label>
+                         <label>
+                             <input type="radio" name="textColorOption" value="black"> Black
+                         </label>
+                         <label>
+                             <input type="radio" name="textColorOption" value="white"> White
+                         </label>
+                         <label>
+                              <input type="radio" name="textColorOption" value="custom"> Custom:
+                         </label>
+                         <input type="color" id="customTextColor" class="form-control" value="#333333">
+                     </div>
+                </div>
+
                 <div class="form-actions">
                     <button type="button" id="cancelBtn" class="btn secondary">Cancel</button>
                     <button type="submit" class="btn primary">Save</button>
@@ -706,6 +1223,9 @@
             </div>
         </div>
     </div>
+
+    <div class="overlay" id="overlay"></div>
+
 
     <script>
         // Display current year in footer
@@ -734,18 +1254,35 @@
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
             const modalTitle = document.getElementById('modalTitle');
             const colorOptions = document.querySelectorAll('.color-option');
-             const statusMessage = document.getElementById('statusMessage');
+            const statusMessage = document.getElementById('statusMessage');
+
+            // New Text Color Elements
+            const textColorOptions = document.querySelectorAll('input[name="textColorOption"]');
+            const customTextColorInput = document.getElementById('customTextColor');
+
+            // Options Menu Elements
+            const optionsButton = document.querySelector('.options-button');
+            const optionsMenu = document.getElementById('optionsMenu');
+            const overlay = document.getElementById('overlay');
+            const soundOverlayCheckbox = document.getElementById('soundOverlayCheckbox');
+            const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
+            const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
+            const playbackSpeedSelect = document.getElementById('playbackSpeed');
 
 
             // Variables
             let sounds = [];
             let editMode = false;
             let currentDeleteId = null;
-            let selectedColor = '#3498db';
-            let currentlyPlaying = null;
+            let selectedButtonColor = '#3498db'; // Renamed from selectedColor
+            let currentlyPlaying = null; // Used if sound overlay is off
+            let allPlayingAudios = []; // Used if sound overlay is on
             let draggedItem = null;
             let draggedItemIndex = null;
-             let statusMessageTimeout = null;
+            let statusMessageTimeout = null;
+            let menuIsOpen = false;
+            let isRippling = false;
+            let currentPlaybackSpeed = 1.0;
 
 
             // Initialize the application
@@ -755,30 +1292,31 @@
                 loadSounds();
                 renderSoundboard();
                 setupEventListeners();
+                loadPreferences(); // Load preferences on init
             }
 
-             function showStatus(message, type = 'info') {
-                 if (statusMessageTimeout) {
-                     clearTimeout(statusMessageTimeout);
-                     statusMessage.classList.remove('fade-in', 'fade-out');
-                 }
-                 statusMessage.textContent = message.toUpperCase(); // Keep status messages uppercase
-                 statusMessage.className = 'status-message ' + type;
+            function showStatus(message, type = 'info') {
+                if (statusMessageTimeout) {
+                    clearTimeout(statusMessageTimeout);
+                    statusMessage.classList.remove('fade-in', 'fade-out');
+                }
+                statusMessage.textContent = message.toUpperCase(); // Keep status messages uppercase
+                statusMessage.className = 'status-message ' + type;
 
-                 // Simplified fade logic for status message
-                 statusMessage.style.display = 'block';
-                 statusMessage.classList.remove('fade-out'); // Ensure it's not stuck in fade-out
-                 statusMessage.classList.add('fade-in');
+                // Simplified fade logic for status message
+                statusMessage.style.display = 'block';
+                statusMessage.classList.remove('fade-out'); // Ensure it's not stuck in fade-out
+                statusMessage.classList.add('fade-in');
 
-                 statusMessageTimeout = setTimeout(() => {
-                     statusMessage.classList.remove('fade-in');
-                     statusMessage.classList.add('fade-out');
-                     setTimeout(() => {
-                         statusMessage.style.display = 'none';
-                         statusMessage.classList.remove('fade-out');
-                     }, 300); // Match fadeOut animation duration
-                 }, 3000); // Message visible for 3 seconds
-             }
+                statusMessageTimeout = setTimeout(() => {
+                    statusMessage.classList.remove('fade-in');
+                    statusMessage.classList.add('fade-out');
+                    setTimeout(() => {
+                        statusMessage.style.display = 'none';
+                        statusMessage.classList.remove('fade-out');
+                    }, 300); // Match fadeOut animation duration
+                }, 3000); // Message visible for 3 seconds
+            }
 
 
             // Load sounds from localStorage
@@ -812,6 +1350,9 @@
                     button.setAttribute('data-id', sound.id);
                     button.style.backgroundColor = sound.color || '#3498db';
                     button.innerText = sound.name;
+                     // Apply text color
+                     button.style.color = sound.textColor || var(--sound-button-text);
+
 
                     // Button controls for edit mode
                     const buttonControls = document.createElement('div');
@@ -894,74 +1435,194 @@
                 // Form submission
                 soundForm.addEventListener('submit', handleFormSubmit);
 
-                // Color picker
+                // Color picker (Button Color)
                 colorOptions.forEach(option => {
                     option.addEventListener('click', () => {
                         // Remove selected class from all options
                         colorOptions.forEach(opt => opt.classList.remove('selected'));
                         // Add selected class to clicked option
                         option.classList.add('selected');
-                        selectedColor = option.getAttribute('data-color');
+                        selectedButtonColor = option.getAttribute('data-color'); // Renamed variable
                     });
                 });
+
+                // Text Color Options Listener
+                textColorOptions.forEach(option => {
+                     option.addEventListener('change', handleTextColorOptionChange);
+                });
+                 customTextColorInput.addEventListener('input', function() {
+                     // Automatically select custom option when color is picked
+                     document.querySelector('input[name="textColorOption"][value="custom"]').checked = true;
+                 });
+
+
+                // Options Menu Event Listeners
+                optionsButton.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent click from bubbling to document/overlay
+                    menuIsOpen ? closeOptionsMenu() : openOptionsMenu();
+                });
+                overlay.addEventListener('click', closeOptionsMenu);
+                document.addEventListener('click', (event) => { // Close menu if clicked outside
+                    if (menuIsOpen && !optionsMenu.contains(event.target) && event.target !== optionsButton) {
+                        closeOptionsMenu();
+                    }
+                });
+
+                // Clear All Sounds Button and Ripple
+                clearAllSoundsBtn.addEventListener('click', function(e) {
+                    createRipple(e);
+                    clearAllSounds(false); // Clear all sounds when button is clicked
+                });
+
+
+                // Checkbox and Select listeners (from soundboard.html)
+                soundOverlayCheckbox.addEventListener('change', function() {
+                    if (!this.checked) stopAllAudios(); // Stop all if overlay is turned off
+                    localStorage.setItem('soundOverlay', this.checked);
+                    showStatus(`SOUND OVERLAY: ${this.checked ? 'ON' : 'OFF'}`, 'info');
+                });
+
+                playbackSpeedSelect.addEventListener('change', function() {
+                    currentPlaybackSpeed = parseFloat(this.value);
+                    localStorage.setItem('playbackSpeed', currentPlaybackSpeed.toString());
+                    allPlayingAudios.forEach(applyPlaybackSpeedToAudio); // Update speed for already playing sounds
+                    showStatus(`PLAYBACK SPEED SET TO ${currentPlaybackSpeed}X`, 'info');
+                });
+
+                // Keyboard Shortcut Listener (from soundboard.html)
+                document.addEventListener('keydown', function(e) {
+                    if (e.shiftKey && (e.key.toLowerCase() === 'c' || e.code.toLowerCase() === 'keyc')) {
+                        e.preventDefault(); // Prevent default browser behavior
+                        clearAllSounds(true); // Clear all sounds instantly with mute
+                        closeOptionsMenu(); // Close menu when shortcut is used
+                    }
+                });
+
             }
+
+            // Handle change in text color radio options
+             function handleTextColorOptionChange() {
+                 const selectedValue = document.querySelector('input[name="textColorOption"]:checked').value;
+                 if (selectedValue === 'default') {
+                     // Default color is handled in CSS by not setting an inline style
+                     customTextColorInput.style.display = 'none';
+                 } else if (selectedValue === 'custom') {
+                     customTextColorInput.style.display = 'inline-block';
+                 } else {
+                     customTextColorInput.style.display = 'none';
+                 }
+             }
+
 
             // Toggle edit mode
             function toggleEditMode() {
                 editMode = !editMode;
                 renderSoundboard();
-                 showStatus(`EDIT MODE: ${editMode ? 'ON' : 'OFF'}`, 'info'); // Added status message
+                showStatus(`EDIT MODE: ${editMode ? 'ON' : 'OFF'}`, 'info'); // Added status message
             }
 
             // Play a sound
             function playSound(sound) {
                 if (!sound.audioData) return;
 
-                // Stop currently playing sound if exists and overlay is not checked (assuming a local overlay setting)
-                 // You might want to add an options menu and checkbox similar to soundboard.html
-                 const soundOverlayEnabled = false; // Placeholder for a setting
-                 if (!soundOverlayEnabled && currentlyPlaying) {
-                     currentlyPlaying.audio.pause();
-                     currentlyPlaying.audio.currentTime = 0;
-                     const playingButton = document.querySelector(`.sound-button[data-id="${currentlyPlaying.id}"]`);
-                     if (playingButton) playingButton.classList.remove('playing');
-                 }
+                const soundOverlayEnabled = soundOverlayCheckbox.checked;
+
+                // Stop currently playing sound if exists and overlay is off
+                if (!soundOverlayEnabled && currentlyPlaying) {
+                    currentlyPlaying.audio.pause();
+                    currentlyPlaying.audio.currentTime = 0;
+                    const playingButton = document.querySelector(`.sound-button[data-id="${currentlyPlaying.id}"]`);
+                    if (playingButton) playingButton.classList.remove('playing');
+                }
 
 
                 // Create audio from base64 data
                 const audio = new Audio(sound.audioData);
+                applyPlaybackSpeedToAudio(audio); // Apply current speed
+
 
                 // Add playing class to button
                 const button = document.querySelector(`.sound-button[data-id="${sound.id}"]`);
                 if (button) button.classList.add('playing');
 
-                // Set current playing sound if overlay is not enabled
-                 if (!soundOverlayEnabled) {
-                     currentlyPlaying = {
-                         id: sound.id,
-                         audio: audio
-                     };
-                 }
+                // Manage playing audios based on overlay setting
+                if (soundOverlayEnabled) {
+                    allPlayingAudios.push(audio);
+                    audio.addEventListener('ended', () => {
+                        allPlayingAudios = allPlayingAudios.filter(a => a !== audio);
+                        if (button) button.classList.remove('playing');
+                    });
+                } else {
+                    currentlyPlaying = {
+                        id: sound.id,
+                        audio: audio
+                    };
+                    audio.addEventListener('ended', () => {
+                        currentlyPlaying = null;
+                        if (button) button.classList.remove('playing');
+                    });
+                }
 
 
                 // Play the sound
                 audio.play()
-                 .catch(err => {
-                     console.error(`Error playing sound "${sound.name}":`, err);
-                     showStatus(`CANNOT PLAY: ${sound.name}`, 'error'); // Added status message
-                     if (!soundOverlayEnabled) currentlyPlaying = null;
-                     if (button) button.classList.remove('playing');
-                 });
-
-
-                // Remove playing class when sound ends
-                audio.addEventListener('ended', () => {
-                    if (button) button.classList.remove('playing');
-                     if (!soundOverlayEnabled && currentlyPlaying && currentlyPlaying.id === sound.id) {
-                         currentlyPlaying = null;
-                     }
-                });
+                    .catch(err => {
+                        console.error(`Error playing sound "${sound.name}":`, err);
+                        showStatus(`CANNOT PLAY: ${sound.name}`, 'error'); // Added status message
+                        if (soundOverlayEnabled) {
+                            allPlayingAudios = allPlayingAudios.filter(a => a !== audio);
+                        } else {
+                            if (currentlyPlaying && currentlyPlaying.id === sound.id) {
+                                currentlyPlaying = null;
+                            }
+                        }
+                        if (button) button.classList.remove('playing');
+                    });
             }
+
+            function muteAllSounds() {
+                allPlayingAudios.forEach(audio => audio.volume = 0);
+                if (currentlyPlaying) currentlyPlaying.audio.volume = 0;
+            }
+
+            function stopAllAudios(delay = 0) {
+                const audiosToStop = currentlyPlaying ? [currentlyPlaying.audio] : allPlayingAudios.slice(); // Copy array if overlay is on
+                if (audiosToStop.length === 0) return;
+
+                if (delay > 0) {
+                    muteAllSounds();
+                    setTimeout(() => {
+                        audiosToStop.forEach(audio => {
+                            audio.pause();
+                            audio.currentTime = 0;
+                        });
+                        allPlayingAudios = []; // Clear array if overlay is on
+                        currentlyPlaying = null; // Clear if overlay is off
+
+                        // Remove playing class from all buttons
+                        document.querySelectorAll('.sound-button.playing').forEach(btn => btn.classList.remove('playing'));
+
+                    }, delay);
+                } else {
+                    audiosToStop.forEach(audio => {
+                        audio.pause();
+                        audio.currentTime = 0;
+                    });
+                    allPlayingAudios = [];
+                    currentlyPlaying = null;
+
+                    // Remove playing class from all buttons
+                    document.querySelectorAll('.sound-button.playing').forEach(btn => btn.classList.remove('playing'));
+                }
+            }
+
+
+            function applyPlaybackSpeedToAudio(audioElement) {
+                if (audioElement) {
+                    audioElement.playbackRate = currentPlaybackSpeed;
+                }
+            }
+
 
             // Open add sound modal
             function openAddModal() {
@@ -972,7 +1633,7 @@
                 currentFileLabel.textContent = '';
                 soundFileInput.required = true;
 
-                // Reset color selection
+                // Reset button color selection
                 colorOptions.forEach(option => {
                     if (option.getAttribute('data-color') === '#3498db') {
                         option.classList.add('selected');
@@ -980,11 +1641,16 @@
                         option.classList.remove('selected');
                     }
                 });
-                selectedColor = '#3498db';
+                selectedButtonColor = '#3498db';
+
+                 // Reset text color selection to default
+                 document.querySelector('input[name="textColorOption"][value="default"]').checked = true;
+                 customTextColorInput.value = '#333333'; // Reset custom color picker value
+                 customTextColorInput.style.display = 'none'; // Hide custom color picker
 
                 soundModal.style.display = 'flex';
-                 soundModal.classList.remove('fade-out');
-                 soundModal.querySelector('.modal-content').classList.remove('fade-out');
+                soundModal.classList.remove('fade-out');
+                soundModal.querySelector('.modal-content').classList.remove('fade-out');
             }
 
             // Open edit sound modal
@@ -998,7 +1664,7 @@
                 currentFileLabel.textContent = 'Current file will be kept unless you select a new one';
                 soundFileInput.required = false;
 
-                // Set color selection
+                // Set button color selection
                 colorOptions.forEach(option => {
                     if (option.getAttribute('data-color') === sound.color) {
                         option.classList.add('selected');
@@ -1006,43 +1672,61 @@
                         option.classList.remove('selected');
                     }
                 });
-                selectedColor = sound.color;
+                selectedButtonColor = sound.color;
+
+                // Set text color selection
+                 if (sound.textColor === 'black') {
+                     document.querySelector('input[name="textColorOption"][value="black"]').checked = true;
+                     customTextColorInput.style.display = 'none';
+                 } else if (sound.textColor === 'white') {
+                     document.querySelector('input[name="textColorOption"][value="white"]').checked = true;
+                     customTextColorInput.style.display = 'none';
+                 } else if (sound.textColor) { // Custom color
+                     document.querySelector('input[name="textColorOption"][value="custom"]').checked = true;
+                     customTextColorInput.value = sound.textColor;
+                     customTextColorInput.style.display = 'inline-block';
+                 } else { // Default
+                      document.querySelector('input[name="textColorOption"][value="default"]').checked = true;
+                     customTextColorInput.value = '#333333'; // Default custom color picker value
+                     customTextColorInput.style.display = 'none';
+                 }
+
 
                 soundModal.style.display = 'flex';
-                 soundModal.classList.remove('fade-out');
-                 soundModal.querySelector('.modal-content').classList.remove('fade-out');
+                soundModal.classList.remove('fade-out');
+                soundModal.querySelector('.modal-content').classList.remove('fade-out');
             }
 
             // Close modal
             function closeModal() {
-                 soundModal.classList.add('fade-out');
-                 soundModal.querySelector('.modal-content').classList.add('fade-out');
-                 setTimeout(() => {
-                     soundModal.style.display = 'none';
-                     soundForm.reset();
-                     soundModal.classList.remove('fade-out');
-                     soundModal.querySelector('.modal-content').classList.remove('fade-out');
-                 }, 300); // Match animation duration
+                soundModal.classList.add('fade-out');
+                soundModal.querySelector('.modal-content').classList.add('fade-out');
+                setTimeout(() => {
+                    soundModal.style.display = 'none';
+                    soundForm.reset();
+                    soundModal.classList.remove('fade-out');
+                    soundModal.querySelector('.modal-content').classList.remove('fade-out');
+                }, 300); // Match animation duration
             }
 
             // Open delete confirmation modal
             function openDeleteConfirmation(id) {
                 currentDeleteId = id;
                 confirmModal.style.display = 'flex';
-                 confirmModal.classList.remove('fade-out');
-                 confirmModal.querySelector('.modal-content').classList.remove('fade-out');
+                confirmModal.classList.remove('fade-out');
+                confirmModal.querySelector('.modal-content').classList.remove('fade-out');
             }
 
             // Close confirmation modal
             function closeConfirmModal() {
-                 confirmModal.classList.add('fade-out');
-                 confirmModal.querySelector('.modal-content').classList.add('fade-out');
-                 setTimeout(() => {
-                     confirmModal.style.display = 'none';
-                     currentDeleteId = null;
-                     confirmModal.classList.remove('fade-out');
-                     confirmModal.querySelector('.modal-content').classList.remove('fade-out');
-                 }, 300); // Match animation duration
+                confirmModal.classList.add('fade-out');
+                confirmModal.querySelector('.modal-content').classList.add('fade-out');
+                setTimeout(() => {
+                    confirmModal.style.display = 'none';
+                    currentDeleteId = null;
+                    confirmModal.classList.remove('fade-out');
+                    confirmModal.querySelector('.modal-content').classList.remove('fade-out');
+                }, 300); // Match animation duration
             }
 
             // Delete a sound
@@ -1051,7 +1735,7 @@
                     sounds = sounds.filter(sound => sound.id !== currentDeleteId);
                     saveSounds();
                     closeConfirmModal();
-                     showStatus('SOUND DELETED', 'success'); // Added status message
+                    showStatus('SOUND DELETED', 'success'); // Added status message
                 }
             }
 
@@ -1063,6 +1747,18 @@
                 const name = buttonNameInput.value;
                 const file = soundFileInput.files[0];
 
+                // Get selected text color
+                 let selectedTextColor = '';
+                 const textColorOption = document.querySelector('input[name="textColorOption"]:checked').value;
+                 if (textColorOption === 'black') {
+                     selectedTextColor = 'black';
+                 } else if (textColorOption === 'white') {
+                     selectedTextColor = 'white';
+                 } else if (textColorOption === 'custom') {
+                     selectedTextColor = customTextColorInput.value;
+                 } // 'default' case leaves selectedTextColor as '' or undefined, handled in render
+
+
                 // Find existing sound if editing
                 const existingSound = sounds.find(s => s.id === id);
 
@@ -1071,18 +1767,18 @@
                 // Process new file if provided
                 if (file) {
                     try {
-                         audioData = await readFileAsDataURL(file);
+                        audioData = await readFileAsDataURL(file);
                     } catch (error) {
-                         showStatus('ERROR READING FILE', 'error'); // Added status message
-                         console.error("Error reading file:", error);
-                         return; // Stop submission if file reading fails
+                        showStatus('ERROR READING FILE', 'error'); // Added status message
+                        console.error("Error reading file:", error);
+                        return; // Stop submission if file reading fails
                     }
                 }
 
                 // Validate if we have audio data
                 if (!audioData) {
                     alert('Please select an audio file'); // Consider using the status message system
-                     showStatus('PLEASE SELECT AN AUDIO FILE', 'warning'); // Added status message
+                    showStatus('PLEASE SELECT AN AUDIO FILE', 'warning'); // Added status message
                     return;
                 }
 
@@ -1090,7 +1786,8 @@
                     id,
                     name,
                     audioData,
-                    color: selectedColor,
+                    color: selectedButtonColor, // Use renamed variable
+                     textColor: selectedTextColor, // Save text color
                     timestamp: Date.now()
                 };
 
@@ -1098,10 +1795,10 @@
                 if (existingSound) {
                     const index = sounds.findIndex(s => s.id === id);
                     sounds[index] = soundData;
-                     showStatus('SOUND UPDATED', 'success'); // Added status message
+                    showStatus('SOUND UPDATED', 'success'); // Added status message
                 } else {
                     sounds.push(soundData);
-                     showStatus('SOUND ADDED', 'success'); // Added status message
+                    showStatus('SOUND ADDED', 'success'); // Added status message
                 }
 
                 saveSounds();
@@ -1136,7 +1833,7 @@
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
-                 showStatus('SOUNDBOARD EXPORTED', 'info'); // Added status message
+                showStatus('SOUNDBOARD EXPORTED', 'info'); // Added status message
             }
 
             // Import soundboard
@@ -1157,17 +1854,17 @@
                                 if (confirm('This will replace your current soundboard. Continue?')) {
                                     sounds = importedSounds;
                                     saveSounds();
-                                     showStatus('SOUNDBOARD IMPORTED', 'success'); // Added status message
+                                    showStatus('SOUNDBOARD IMPORTED', 'success'); // Added status message
                                 } else {
-                                     showStatus('IMPORT CANCELLED', 'info'); // Added status message
+                                    showStatus('IMPORT CANCELLED', 'info'); // Added status message
                                 }
                             } else {
                                 alert('Invalid soundboard file format'); // Consider using status message
-                                 showStatus('INVALID FILE FORMAT', 'error'); // Added status message
+                                showStatus('INVALID FILE FORMAT', 'error'); // Added status message
                             }
                         } catch (error) {
                             alert('Error importing soundboard: ' + error.message); // Consider using status message
-                             showStatus('ERROR IMPORTING SOUNDBOARD', 'error'); // Added status message
+                            showStatus('ERROR IMPORTING SOUNDBOARD', 'error'); // Added status message
                             console.error("Error importing soundboard:", error);
                         }
                     };
@@ -1226,7 +1923,7 @@
 
                 // Save and update UI
                 saveSounds();
-                 showStatus('LAYOUT UPDATED', 'info'); // Added status message
+                showStatus('LAYOUT UPDATED', 'info'); // Added status message
 
 
                 return false;
@@ -1245,6 +1942,72 @@
                 draggedItem = null;
                 draggedItemIndex = null;
             }
+
+            // Options Menu Functions
+            function openOptionsMenu() {
+                if (menuIsOpen) return;
+                menuIsOpen = true;
+                overlay.classList.remove('fade-out'); // Ensure no conflicting animation
+                optionsMenu.classList.remove('fade-out');
+                overlay.style.display = 'block';
+                overlay.classList.add('fade-in');
+                optionsMenu.style.display = 'block';
+                optionsMenu.classList.add('fade-in');
+            }
+
+            function closeOptionsMenu() {
+                if (!menuIsOpen) return;
+                menuIsOpen = false;
+                overlay.classList.remove('fade-in');
+                optionsMenu.classList.remove('fade-in');
+                overlay.classList.add('fade-out');
+                optionsMenu.classList.add('fade-out');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    overlay.classList.remove('fade-out');
+                    optionsMenu.style.display = 'none';
+                    optionsMenu.classList.remove('fade-out');
+                }, 300); // Match animation duration
+            }
+
+            // Ripple effect for Clear All Sounds button
+            function createRipple(event) {
+                if (isRippling) return;
+                isRippling = true;
+                const rect = clearAllSoundsBtn.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                rippleContainer.innerHTML = ''; // Clear previous ripples
+                rippleContainer.appendChild(ripple);
+                setTimeout(() => {
+                    ripple.remove();
+                    isRippling = false;
+                }, 600); // Ripple animation duration
+            }
+
+            // Load preferences from Local Storage
+            function loadPreferences() {
+                if (localStorage.getItem('soundOverlay') === 'true') soundOverlayCheckbox.checked = true;
+
+                const savedPlaybackSpeed = localStorage.getItem('playbackSpeed');
+                if (savedPlaybackSpeed !== null) {
+                    currentPlaybackSpeed = parseFloat(savedPlaybackSpeed);
+                    playbackSpeedSelect.value = currentPlaybackSpeed.toString();
+                } else {
+                    playbackSpeedSelect.value = "1"; // Default to 1x if nothing saved
+                    currentPlaybackSpeed = 1.0;
+                }
+                // Apply loaded playback speed to any sounds that might start playing soon after load
+                allPlayingAudios.forEach(applyPlaybackSpeedToAudio);
+                if (currentlyPlaying) applyPlaybackSpeedToAudio(currentlyPlaying.audio);
+
+            }
+
+
         });
     </script>
 </body>
