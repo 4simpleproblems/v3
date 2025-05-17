@@ -47,13 +47,18 @@
             --theme-accent-border: #f0f0f0;
              --theme-accent-shadow: rgba(255, 255, 255, 0.2);
 
+             /* Monokai Preset (Example) */
+             --theme-monokai-bg: #272822;
+             --theme-monokai-text: #f8f8f2;
+             --theme-monokai-border: #f92672; /* Pink accent */
+              --theme-monokai-shadow: rgba(249, 38, 114, 0.4);
+
 
             /* Clock Display Colors (Default, can be overridden by active theme or custom) */
              --clock-bg: var(--theme-default-light-bg);
              --clock-text: var(--theme-default-light-text);
              --clock-border: var(--theme-default-light-border);
              --clock-shadow: var(--theme-default-light-shadow);
-
 
              /* Status/Message Colors (consistent) */
              --status-success-bg: #d4edda;
@@ -92,7 +97,24 @@
             /* Add padding to account for fixed navbar and footer */
             padding-top: 80px; /* Default padding for fixed navbar */
             padding-bottom: 60px; /* Default padding for fixed footer */
+
+             /* Prevent scrolling when clock is fullscreened */
+             overflow-y: auto;
         }
+
+         /* Styles for the body when clock is in simulated fullscreen */
+        body.fullscreen-clock-active {
+             overflow: hidden; /* Hide scrollbars */
+             padding-top: 0; /* Remove body padding */
+             padding-bottom: 0;
+             background-image: none; /* Remove grid background */
+        }
+         body.fullscreen-clock-active .navbar,
+         body.fullscreen-clock-active main,
+         body.fullscreen-clock-active footer {
+             display: none !important; /* Hide other elements */
+         }
+
 
          /* Remove triangular gradients */
         body::before, body::after {
@@ -233,27 +255,63 @@
              background-color: var(--clock-bg);
              color: var(--clock-text);
              box-shadow: 0 4px 12px var(--clock-shadow);
-             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for theme */
+             /* Add transitions for properties that change in fullscreen */
+             transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease,
+                         position 0.5s ease, top 0.5s ease, left 0.5s ease, width 0.5s ease, height 0.5s ease,
+                         font-size 0.5s ease, padding 0.5s ease, border-radius 0.5s ease;
              display: flex;
              flex-direction: column;
              gap: 0.5rem; /* Space between date and time */
+             z-index: 50; /* Default z-index */
+             position: relative; /* Needed for z-index to work relative to siblings */
+             transform: translate(0, 0); /* Base transform for animation */
         }
          /* Text Alignment Classes */
          #clock-display.align-left { text-align: left; }
          #clock-display.align-center { text-align: center; }
          #clock-display.align-right { text-align: right; }
 
+         /* Styles for clock display when in simulated fullscreen */
+        body.fullscreen-clock-active #clock-display {
+             position: fixed; /* Take over the viewport */
+             top: 0;
+             left: 0;
+             width: 100vw;
+             height: 100vh;
+             z-index: 9999; /* Ensure it's on top */
+             margin: 0; /* Remove margin */
+             border-radius: 0; /* Fullscreen should have no border-radius */
+             padding: 20px; /* Add some padding in fullscreen */
+             display: flex;
+             flex-direction: column;
+             justify-content: center; /* Center content vertically in fullscreen */
+             align-items: center; /* Center content horizontally in fullscreen */
+             text-align: center !important; /* Force center alignment in fullscreen */
+             box-shadow: none; /* Remove shadow in fullscreen */
+             gap: 20px; /* Larger gap in fullscreen */
+        }
+
+         /* Adjust font sizes in fullscreen */
+        body.fullscreen-clock-active #clock-display #clock-date {
+             font-size: 3rem; /* Larger date font in fullscreen */
+        }
+        body.fullscreen-clock-active #clock-display #clock-time {
+             font-size: 12rem; /* Much larger time font in fullscreen */
+        }
+
 
         #clock-date {
-             font-size: 1.5rem;
+             font-size: 1.5rem; /* Default date font size */
              font-weight: 600;
              text-transform: none; /* Mixed case for date */
+             transition: font-size 0.5s ease; /* Add transition */
         }
 
         #clock-time {
-             font-size: 4rem;
+             font-size: 4rem; /* Default time font size */
              font-weight: 900;
              text-transform: none; /* Mixed case for time (AM/PM) or numbers */
+              transition: font-size 0.5s ease; /* Add transition */
         }
 
 
@@ -374,6 +432,7 @@
                  padding: 0.3rem; /* Smaller padding for color picker */
              }
 
+
          /* Fullscreen button styling */
          #fullscreen-btn {
              margin-top: 1.5rem; /* Space above button */
@@ -381,12 +440,19 @@
              width: auto; /* Auto width */
              align-self: center; /* Center button in flex container */
          }
-          #fullscreen-btn::before { /* Add fullscreen icon */
+          /* Icon for Fullscreen button (using pseudo-element for consistency) */
+          #fullscreen-btn::before {
              content: '\26F6'; /* Unicode for fullscreen icon */
              margin-right: 8px;
-              font-weight: normal; /* Don't make icon bold */
+              font-weight: normal; /* Ensure icon font weight is normal */
              color: var(--accent-color);
+             transition: color 0.3s ease; /* Add transition for icon color */
           }
+           /* Icon for Exit Fullscreen state */
+           #fullscreen-btn.exit-fullscreen::before {
+              content: '\274C'; /* Unicode for close/exit icon */
+              color: var(--text-color); /* Change icon color in exit state */
+           }
 
 
         /* Footer - consistent */
@@ -428,7 +494,14 @@
             body {
                  padding-top: 120px; /* Adjust padding for stacked navbar */
                  padding-bottom: 80px; /* Adjust padding for footer */
+                 overflow-y: auto; /* Re-enable scroll for responsive layout */
             }
+             body.fullscreen-clock-active {
+                  padding-top: 0;
+                  padding-bottom: 0;
+                   overflow: hidden; /* Hide scrollbars when fullscreen */
+             }
+
 
              main {
                  padding: 1.5rem 10px;
@@ -452,6 +525,19 @@
               #clock-time {
                  font-size: 3rem;
               }
+
+               /* Adjust font sizes in fullscreen (responsive) */
+              body.fullscreen-clock-active #clock-display {
+                   padding: 15px; /* Adjust padding in fullscreen */
+                   gap: 15px; /* Adjust gap */
+              }
+             body.fullscreen-clock-active #clock-display #clock-date {
+                 font-size: 2rem; /* Responsive larger date */
+             }
+             body.fullscreen-clock-active #clock-display #clock-time {
+                 font-size: 8rem; /* Responsive larger time */
+             }
+
 
              #clock-settings h2 {
                  font-size: 1.3rem;
@@ -523,7 +609,15 @@
              body {
                  padding-top: 150px; /* Adjust padding for stacked navbar */
                  padding-bottom: 100px; /* Adjust padding for footer */
+                  overflow-y: auto; /* Re-enable scroll */
              }
+              body.fullscreen-clock-active {
+                   padding-top: 0;
+                   padding-bottom: 0;
+                   overflow: hidden; /* Hide scrollbars when fullscreen */
+              }
+
+
              main {
                  padding: 1rem 8px;
              }
@@ -544,6 +638,20 @@
              #clock-time {
                  font-size: 2.5rem;
               }
+
+               /* Adjust font sizes in fullscreen (responsive) */
+              body.fullscreen-clock-active #clock-display {
+                  padding: 10px; /* Adjust padding in fullscreen */
+                   gap: 10px; /* Adjust gap */
+              }
+             body.fullscreen-clock-active #clock-display #clock-date {
+                 font-size: 1.5rem; /* Responsive larger date */
+             }
+             body.fullscreen-clock-active #clock-display #clock-time {
+                 font-size: 6rem; /* Responsive larger time */
+             }
+
+
              #clock-settings h2 {
                  font-size: 1.1rem;
                  margin-bottom: 0.8rem;
@@ -683,7 +791,11 @@
                              <input type="radio" id="preset-accent" name="theme-preset" value="accent">
                              <label for="preset-accent">ACCENT</label>
                          </div>
+                         <div class="radio-option">
+                             <input type="radio" id="preset-monokai" name="theme-preset" value="monokai">
+                             <label for="preset-monokai">MONOKAI</label>
                          </div>
+                     </div>
                  </div>
 
                  <div class="settings-group">
@@ -720,9 +832,7 @@
                      </div>
                  </div>
 
-                 <button id="fullscreen-btn" class="btn secondary">Fullscreen</button>
-
-            </div>
+                 <button id="fullscreen-btn" class="btn secondary btn-with-arrow">Fullscreen</button> </div>
         </div>
     </main>
 
@@ -738,6 +848,7 @@
         let auth;
         let db; // Firestore instance
         let currentUser = null; // Current authenticated user
+        const bodyEl = document.body; // Get body element once
 
         document.addEventListener('DOMContentLoaded', () => {
              // Initially hide logout button until user is confirmed authenticated
@@ -794,22 +905,28 @@
              // --- Preset Theme Colors ---
              const PRESET_THEMES = {
                  'default-light': {
-                     bg: getComputedStyle(document.documentElement).getPropertyValue('--theme-default-light-bg').trim(),
-                     text: getComputedStyle(document.documentElement).getPropertyValue('--theme-default-light-text').trim(),
-                     border: getComputedStyle(document.documentElement).getPropertyValue('--theme-default-light-border').trim(),
-                      shadow: 'rgba(0, 0, 0, 0.08)' // Hardcoded default shadow for now
+                     bg: getComputedStyle(document.documentElement).getPropertyValue('--theme-default-light-bg').trim() || '#f0f0f0',
+                     text: getComputedStyle(document.documentElement).getPropertyValue('--theme-default-light-text').trim() || '#333333',
+                     border: getComputedStyle(document.documentElement).getPropertyValue('--theme-default-light-border').trim() || '#cccccc',
+                      shadow: 'rgba(0, 0, 0, 0.08)'
                  },
                  'dark': {
-                     bg: getComputedStyle(document.documentElement).getPropertyValue('--theme-dark-bg').trim(),
-                     text: getComputedStyle(document.documentElement).getPropertyValue('--theme-dark-text').trim(),
-                     border: getComputedStyle(document.documentElement).getPropertyValue('--theme-dark-border').trim(),
-                      shadow: 'rgba(255, 255, 255, 0.1)' // Hardcoded dark shadow for now
+                     bg: getComputedStyle(document.documentElement).getPropertyValue('--theme-dark-bg').trim() || '#1a1a1a',
+                     text: getComputedStyle(document.documentElement).getPropertyValue('--theme-dark-text').trim() || '#f0f0f0',
+                     border: getComputedStyle(document.documentElement).getPropertyValue('--theme-dark-border').trim() || '#666666',
+                      shadow: 'rgba(255, 255, 255, 0.1)'
                  },
                  'accent': {
-                     bg: getComputedStyle(document.documentElement).getPropertyValue('--theme-accent-bg').trim(),
-                     text: getComputedStyle(document.documentElement).getPropertyValue('--theme-accent-text').trim(),
-                     border: getComputedStyle(document.documentElement).getPropertyValue('--theme-accent-border').trim(),
-                      shadow: 'rgba(255, 255, 255, 0.2)' // Hardcoded accent shadow for now
+                     bg: getComputedStyle(document.documentElement).getPropertyValue('--theme-accent-bg').trim() || '#333333',
+                     text: getComputedStyle(document.documentElement).getPropertyValue('--theme-accent-text').trim() || '#ffffff',
+                     border: getComputedStyle(document.documentElement).getPropertyValue('--theme-accent-border').trim() || '#f0f0f0',
+                      shadow: 'rgba(255, 255, 255, 0.2)'
+                 },
+                 'monokai': {
+                     bg: getComputedStyle(document.documentElement).getPropertyValue('--theme-monokai-bg').trim() || '#272822',
+                     text: getComputedStyle(document.documentElement).getPropertyValue('--theme-monokai-text').trim() || '#f8f8f2',
+                     border: getComputedStyle(document.documentElement).getPropertyValue('--theme-monokai-border').trim() || '#f92672',
+                      shadow: 'rgba(249, 38, 114, 0.4)'
                  }
                  // Add more preset themes here
              };
@@ -827,7 +944,7 @@
                     bg: '#f0f0f0',
                     text: '#333333',
                     border: '#cccccc',
-                     shadow: '#000000'
+                     shadow: '#000000' // Default shadow color (black)
                 }
             };
 
@@ -925,6 +1042,7 @@
                              }
                          };
                           // Ensure old 'theme' property is handled if loading from older data
+                           // This might be necessary if the structure changed
                          if (savedSettings.theme && !savedSettings.themeMode) {
                              currentSettings.themeMode = savedSettings.theme === 'custom' ? 'custom' : 'preset';
                              if (currentSettings.themeMode === 'preset' && !currentSettings.presetTheme) {
@@ -988,6 +1106,12 @@
                      themeModeRadios.forEach(radio => {
                          radio.checked = (radio.value === settings.themeMode);
                      });
+                     // Show/hide custom theme controls based on themeMode
+                     if (settings.themeMode === 'custom') {
+                         customThemeControlsEl.classList.add('active');
+                     } else {
+                         customThemeControlsEl.classList.remove('active');
+                     }
                  } else { console.warn("Theme mode radios or custom theme controls element not found."); }
 
 
@@ -1001,11 +1125,15 @@
 
                  // Apply Colors based on Theme Mode (Preset or Custom)
                  if (settings.themeMode === 'custom') {
-                     if (customThemeControlsEl) customThemeControlsEl.classList.add('active');
-                      // Apply colors from customColors directly
+                     // Apply colors from customColors directly
                      applyClockColors(settings.customColors);
+                     // Update custom color inputs to reflect the *saved* custom colors
+                     if (customBgColorInput) customBgColorInput.value = settings.customColors.bg;
+                     if (customTextColorInput) customTextColorInput.value = settings.customColors.text;
+                     if (customBorderColorInput) customBorderColorInput.value = settings.customColors.border;
+                     if (customShadowColorInput) customShadowColorInput.value = settings.customColors.shadow || '#000000'; // Default to black if missing
+
                  } else { // themeMode is 'preset'
-                     if (customThemeControlsEl) customThemeControlsEl.classList.remove('active');
                       // Find the colors for the selected preset
                      const presetColors = PRESET_THEMES[settings.presetTheme] || PRESET_THEMES['default-light']; // Fallback to default
                       // Apply colors from the selected preset
@@ -1015,16 +1143,8 @@
                       if (customBgColorInput) customBgColorInput.value = presetColors.bg;
                       if (customTextColorInput) customTextColorInput.value = presetColors.text;
                       if (customBorderColorInput) customBorderColorInput.value = presetColors.border;
-                      if (customShadowColorInput) customShadowColorInput.value = presetColors.shadow ? rgbToHex(presetColors.shadow) : '#000000'; // Convert rgba to hex if necessary and update
+                       if (customShadowColorInput) customShadowColorInput.value = presetColors.shadow ? rgbToHex(presetColors.shadow) : '#000000'; // Convert rgba to hex if necessary and update
                  }
-
-
-                 // Update the custom color input values based on currentSettings.customColors (regardless of active theme)
-                 // This ensures that if the user switches to custom, their last custom colors are shown
-                if (customBgColorInput) customBgColorInput.value = settings.customColors.bg;
-                if (customTextColorInput) customTextColorInput.value = settings.customColors.text;
-                if (customBorderColorInput) customBorderColorInput.value = settings.customColors.border;
-                 if (customShadowColorInput) customShadowColorInput.value = settings.customColors.shadow ? rgbToHex(settings.customColors.shadow) : '#000000';
 
 
                  // Update the clock display immediately with new settings
@@ -1039,13 +1159,13 @@
                      clockDisplayEl.style.setProperty('--clock-border', colors.border);
                       // Handle shadow separately as it's a box-shadow property
                       const shadowColor = colors.shadow || 'rgba(0, 0, 0, 0.08)'; // Fallback shadow
+                      // If the shadow color is hex, ensure it includes alpha if needed for effect
+                      // For simplicity with color picker, let's just apply the hex color directly
                       clockDisplayEl.style.boxShadow = `0 4px 12px ${shadowColor}`;
-                     // Update the CSS variable if using it directly for shadow color (less common)
-                     // clockDisplayEl.style.setProperty('--clock-shadow', colors.shadow || 'rgba(0, 0, 0, 0.08)');
                   } else { console.warn("Clock display element not found for applying colors."); }
              }
 
-             // Helper to convert RGBA/RGB string to Hex (basic implementation)
+             // Helper to convert RGBA/RGB string to Hex (basic implementation) - Needed for setting color input values from RGBA shadows
             function rgbToHex(rgb) {
                 if (!rgb || typeof rgb !== 'string') return '#000000';
                 // Handle hex colors directly
@@ -1197,15 +1317,17 @@
                          if (radio.checked) {
                              currentSettings.themeMode = radio.value;
 
-                              // If switching to custom, ensure a preset is still selected in the preset group
+                              // If switching to custom, ensure the custom color inputs show the *current* custom colors
                              if (currentSettings.themeMode === 'custom') {
                                   // No change needed in preset radios when switching TO custom mode
+                                   // custom color inputs are updated in applySettings
                              } else { // Switching to preset mode
                                   // Ensure a preset radio is checked (use the current presetTheme value)
                                    presetThemeRadios.forEach(presetRadio => {
                                         if (presetRadio.value === currentSettings.presetTheme) presetRadio.checked = true;
                                         else presetRadio.checked = false;
                                    });
+                                   // custom color inputs will be updated to the preset colors in applySettings
                              }
 
                              applySettings(currentSettings); // Apply and Save
@@ -1223,9 +1345,9 @@
                      // Automatically switch theme mode to custom when a custom color is picked
                      currentSettings.themeMode = 'custom';
                       themeModeRadios.forEach(modeRadio => {
-                          if (modeRadio.value === 'custom') modeRadio.checked = true;
-                          else modeRadio.checked = false;
-                      });
+                           if (modeRadio.value === 'custom') modeRadio.checked = true;
+                           else modeRadio.checked = false;
+                       });
                      applySettings(currentSettings); // Apply and Save
                      if (currentUser) saveSettings(currentSettings);
                  });
@@ -1263,45 +1385,34 @@
 
 
             // --- Fullscreen Button Listener ---
-             if (fullscreenBtn) {
+             if (fullscreenBtn && bodyEl && clockDisplayEl) {
                  fullscreenBtn.addEventListener('click', () => {
-                     if (!document.fullscreenElement) {
-                         // Request fullscreen on the entire document
-                          document.documentElement.requestFullscreen().catch(err => {
-                             console.error("Error attempting to enable fullscreen:", err);
-                             alert(`Error attempting to enable fullscreen: ${err.message} (Is it allowed by your browser/settings?)`);
-                         });
-                     } else {
-                         // Exit fullscreen
-                         document.exitFullscreen();
-                     }
+                     // Toggle the class on the body to activate/deactivate simulated fullscreen CSS
+                     bodyEl.classList.toggle('fullscreen-clock-active');
+
+                     // Update button text/icon
+                      if (bodyEl.classList.contains('fullscreen-clock-active')) {
+                         fullscreenBtn.textContent = 'Exit Fullscreen';
+                         fullscreenBtn.classList.add('exit-fullscreen'); // Add class for exit icon/style
+                         fullscreenBtn.classList.remove('btn-with-arrow'); // Remove arrow
+
+                      } else {
+                         fullscreenBtn.textContent = 'Fullscreen';
+                         fullscreenBtn.classList.remove('exit-fullscreen'); // Remove exit class
+                         fullscreenBtn.classList.add('btn-with-arrow'); // Add arrow back
+                      }
+
+                      // Reapply font sizes after the transition is complete,
+                      // or if the class changes immediately, the CSS transitions handle it.
+                      // If needed, you could listen for transitionend event on clockDisplayEl
+                      // to perform actions *after* the animation finishes.
+                      // For now, relying on CSS transitions.
                  });
 
-                 // Optional: Update button text or icon when fullscreen state changes
-                 document.addEventListener('fullscreenchange', () => {
-                     if (document.fullscreenElement) {
-                         // Entering fullscreen
-                          fullscreenBtn.textContent = 'Exit Fullscreen';
-                          fullscreenBtn.classList.remove('btn-with-arrow'); // Remove arrow if using text
-                          fullscreenBtn.style.setProperty('--accent-color', 'var(--text-color)'); // Change icon color
-                          // Update icon if using pseudo-element
-                           const icon = fullscreenBtn.querySelector('::before');
-                           if (icon) icon.content = '\u{274C}'; // Use a close/exit icon
-                     } else {
-                         // Exiting fullscreen
-                          fullscreenBtn.textContent = 'Fullscreen';
-                          fullscreenBtn.classList.add('btn-with-arrow'); // Add arrow back
-                          fullscreenBtn.style.setProperty('--accent-color', 'var(--accent-color)'); // Revert icon color
-                           const icon = fullscreenBtn.querySelector('::before');
-                           if (icon) icon.content = '\u{26F6}'; // Revert to fullscreen icon
-                     }
-                     // Reapply button styles as class changes might override
-                      fullscreenBtn.className = 'btn secondary'; // Reset classes
-                      if (!document.fullscreenElement) fullscreenBtn.classList.add('btn-with-arrow'); // Add arrow back if not fullscreen
-                      fullscreenBtn.style.setProperty('--accent-color', 'var(--accent-color)'); // Ensure icon color is correct
-                 });
+                 // Note: The native Fullscreen API is not used for the clock element itself
+                 // with this animated simulated approach. The button only toggles the CSS class.
 
-             } else { console.warn("Fullscreen button not found."); }
+             } else { console.warn("Fullscreen button, body, or clock display element not found."); }
 
 
             // --- Setup Logout Button Listener ---
