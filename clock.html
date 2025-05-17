@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4SP | CLOCK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
+     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #ffffff; /* Light background */
+            --text-color: #333333; /* Dark text */
+            --primary-color: #333333; /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc; /* Medium gray border */
+            --navbar-bg: #f0f0f0; /* Light gray for navbar */
+            --footer-bg: #f0f0f0; /* Light gray for footer */
+            --hover-bg: #e0e0e0; /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0; /* Light gray grid lines */
+            --accent-color: #333333; /* Dark accent color */
+
+            /* Clock Display Colors (Default, can be overridden by Custom Theme) */
+             --clock-bg: var(--navbar-bg);
+             --clock-text: var(--primary-color);
+             --clock-border: var(--secondary-border-color);
+             --clock-shadow: rgba(0, 0, 0, 0.08);
+
+             /* Status/Message Colors (consistent) */
+             --status-success-bg: #d4edda;
+             --status-success-color: #155724;
+             --status-success-border: #155724;
+             --status-error-bg: #f8d7da;
+             --status-error-color: #721c24;
+             --status-error-border: #721c24;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            text-transform: uppercase; /* Apply uppercase to body text */
+            text-align: center; /* Center content by default */
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px; /* Size of each grid cell */
+
+            /* Add padding to account for fixed navbar and footer */
+            padding-top: 80px; /* Default padding for fixed navbar */
+            padding-bottom: 60px; /* Default padding for fixed footer */
+        }
+
+         /* Remove triangular gradients */
+        body::before, body::after {
+            content: none;
+        }
+
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        /* Navbar - consistent with other pages */
+        .navbar {
+            display: flex;
+            justify-content: space-between; /* Pushes logo to left, buttons to right */
+            align-items: center; /* Vertically centers items in navbar */
+            padding: 20px 20px;
+            /* Adjusted padding */
+            background-color: var(--navbar-bg);
+            /* Light gray */
+            color: var(--text-color);
+            /* Dark text */
+             text-align: left; /* Override center for navbar layout */
+            width: 100%;
+            position: fixed; /* Ensure navbar is fixed */
+            top: 0;
+            left: 0; /* Ensure it starts from the left edge */
+            z-index: 100; /* Ensure it's above other content */
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+             color: var(--text-color);
+             /* Removed specific letter-spacing */
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            /* Adjusted gap */
+            align-items: center; /* Vertically centers buttons within nav-buttons */
+             text-align: left; /* Ensure text in buttons is not affected by body center */
+             margin-left: auto; /* Pushes the nav-buttons group to the right */
+        }
+
+        /* Buttons (Base Styles) */
+        .btn {
+            display: inline-flex; /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px; /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px; /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none; /* Removed default transparent border */
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--bg-color); /* White text on dark primary */
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--text-color); /* Dark text on light secondary */
+            border: 1px solid var(--secondary-border-color);
+        }
+
+        .btn.primary:hover {
+            background-color: var(--hover-bg);
+             color: var(--text-color);
+             border-color: var(--hover-bg);
+         }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+             border-color: var(--hover-bg);
+        }
+
+         /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192'; /* Right arrow character */
+            margin-right: 8px; /* Space between arrow and text */
+            font-weight: bold; /* Make arrow slightly bolder */
+             color: var(--accent-color); /* Dark accent color for arrow */
+        }
+
+        main {
+            flex: 1; /* Allow main content area to grow */
+            width: 100%; /* Ensure main takes full width */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center content horizontally */
+            padding: 2rem 20px; /* Padding around content */
+        }
+
+         /* Content container/card */
+        .container {
+            max-width: 800px;
+            width: 100%; /* Ensure container takes full width up to max-width */
+            margin: 0 auto; /* Center container */
+            padding: 2rem;
+            background: var(--navbar-bg); /* Use navbar background for content card */
+            border-radius: 10px; /* Less rounded */
+            box-shadow: 0 4px 12px var(--clock-shadow); /* Subtle shadow */
+            border: 1px solid var(--secondary-border-color); /* Subtle border */
+             text-align: left; /* Align content left */
+             display: flex;
+             flex-direction: column;
+             gap: 2rem; /* Gap between clock and settings */
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            /* Consistent heading size */
+            color: var(--text-color);
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        /* Clock Display */
+        #clock-display {
+             text-align: center;
+             padding: 2rem;
+             border: 2px solid var(--clock-border);
+             border-radius: 10px;
+             background-color: var(--clock-bg);
+             color: var(--clock-text);
+             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; /* Smooth transition for custom theme */
+             display: flex;
+             flex-direction: column;
+             gap: 0.5rem; /* Space between date and time */
+        }
+
+        #clock-date {
+             font-size: 1.5rem;
+             font-weight: 600;
+             text-transform: none; /* Mixed case for date */
+        }
+
+        #clock-time {
+             font-size: 4rem;
+             font-weight: 900;
+             text-transform: none; /* Mixed case for time (AM/PM) or numbers */
+        }
+
+
+        /* Settings Area */
+        #clock-settings h2 {
+             font-size: 1.5rem;
+             font-weight: 900;
+             margin-bottom: 1.5rem;
+             text-transform: uppercase;
+             text-align: center;
+             color: var(--primary-color);
+        }
+         #clock-settings .settings-group {
+             margin-bottom: 1.5rem;
+         }
+
+         #clock-settings label {
+             display: block;
+             margin-bottom: 0.5rem;
+             font-weight: 600; /* Bolder */
+             color: var(--text-color);
+             text-transform: uppercase; /* All caps */
+             font-size: 0.9rem; /* Smaller label size */
+         }
+
+          #clock-settings select,
+          #clock-settings input[type="color"],
+          #clock-settings input[type="text"] {
+             width: 100%; /* Full width controls */
+             padding: 1rem;
+             border: 1px solid var(--secondary-border-color);
+             border-radius: 5px;
+             font-size: 1rem;
+             background-color: var(--bg-color);
+             color: var(--text-color);
+             font-family: 'Outfit', sans-serif;
+             text-transform: none; /* Prevent uppercase for input */
+             outline: none;
+             transition: border-color 0.2s ease, box-shadow 0.2s ease;
+          }
+
+          #clock-settings select:focus,
+          #clock-settings input[type="color"]:focus,
+          #clock-settings input[type="text"]:focus {
+             border-color: var(--accent-color);
+             box-shadow: 0 0 5px rgba(51, 51, 51, 0.2);
+          }
+
+         #clock-settings input[type="color"] {
+             padding: 0.5rem; /* Smaller padding for color picker */
+             height: 40px; /* Fixed height for consistency */
+         }
+
+
+         #clock-settings .radio-group {
+             display: flex;
+             gap: 1rem;
+             align-items: center;
+             flex-wrap: wrap;
+         }
+          #clock-settings .radio-option {
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              text-transform: none; /* Prevent uppercase for radio label text */
+              font-size: 0.9rem;
+              color: var(--text-color);
+          }
+          #clock-settings .radio-option label {
+               margin-bottom: 0;
+               text-transform: none; /* Ensure label text is not uppercase */
+               font-weight: 400; /* Normal weight */
+               font-size: 0.9rem;
+          }
+          #clock-settings .radio-option input[type="radio"] {
+              width: auto;
+              padding: 0;
+              border: none;
+              border-radius: 50%;
+              background-color: var(--bg-color);
+              color: var(--text-color);
+              font-size: 1rem;
+              appearance: radio;
+              -webkit-appearance: radio;
+              -moz-appearance: radio;
+              transition: none;
+              cursor: pointer;
+          }
+          #clock-settings .radio-option input[type="radio"]:focus {
+               outline: 1px solid var(--accent-color); /* Simple focus indicator */
+               box-shadow: none;
+          }
+
+          /* Custom Theme Controls */
+          #custom-theme-controls {
+               margin-top: 1.5rem;
+               padding-top: 1.5rem;
+               border-top: 1px solid var(--secondary-border-color);
+               display: none; /* Hidden by default */
+               flex-direction: column;
+               gap: 1rem;
+          }
+           #custom-theme-controls.active {
+               display: flex; /* Show when active */
+           }
+           #custom-theme-controls .color-input-group {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+           }
+            #custom-theme-controls .color-input-group label {
+                flex-shrink: 0; /* Prevent label from shrinking */
+                 width: 120px; /* Fixed width for labels */
+            }
+             #custom-theme-controls .color-input-group input[type="color"] {
+                 flex-grow: 1; /* Color input takes remaining space */
+                 width: auto; /* Override 100% width */
+                 padding: 0.3rem; /* Smaller padding for color picker */
+             }
+
+
+        /* Footer - consistent */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6);
+            /* Slightly lighter dark color for footer text */
+            font-size: 14px;
+            background-color: var(--footer-bg);
+            text-transform: uppercase;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+             .navbar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+                 margin-left: 0;
+                 width: 100%;
+            }
+
+            body {
+                 padding-top: 120px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 80px; /* Adjust padding for footer */
+            }
+
+             main {
+                 padding: 1.5rem 10px;
+             }
+             .container {
+                 padding: 1.5rem;
+                 gap: 1.5rem;
+             }
+
+             h1 {
+                 font-size: 1.8rem;
+                 margin-bottom: 1.5rem;
+             }
+
+             #clock-display {
+                 padding: 1.5rem;
+             }
+              #clock-date {
+                 font-size: 1.2rem;
+              }
+              #clock-time {
+                 font-size: 3rem;
+              }
+
+             #clock-settings h2 {
+                 font-size: 1.3rem;
+                 margin-bottom: 1rem;
+             }
+              #clock-settings .settings-group {
+                 margin-bottom: 1rem;
+             }
+             #clock-settings label {
+                 font-size: 0.85rem;
+             }
+              #clock-settings select,
+             #clock-settings input[type="color"],
+              #clock-settings input[type="text"] {
+                 padding: 0.8rem;
+                 font-size: 0.9rem;
+             }
+              #clock-settings input[type="color"] {
+                   padding: 0.4rem;
+                   height: 35px;
+              }
+
+              #clock-settings .radio-group {
+                  gap: 0.8rem;
+              }
+               #clock-settings .radio-option {
+                   font-size: 0.8rem;
+                   gap: 0.4rem;
+               }
+                #clock-settings .color-input-group {
+                    flex-direction: column; /* Stack label and input */
+                    align-items: flex-start;
+                    gap: 0.5rem;
+                }
+                 #custom-theme-controls .color-input-group label {
+                     width: auto; /* Remove fixed width */
+                 }
+                 #custom-theme-controls .color-input-group input[type="color"] {
+                      width: 100%; /* Full width */
+                      padding: 0.5rem;
+                      height: 30px;
+                 }
+
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                 padding: 15px 10px;
+             }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             body {
+                 padding-top: 150px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 100px; /* Adjust padding for footer */
+             }
+             main {
+                 padding: 1rem 8px;
+             }
+              .container {
+                 padding: 1rem;
+                 gap: 1rem;
+             }
+             h1 {
+                 font-size: 1.5rem;
+                 margin-bottom: 1rem;
+             }
+             #clock-display {
+                 padding: 1rem;
+             }
+             #clock-date {
+                 font-size: 1rem;
+              }
+             #clock-time {
+                 font-size: 2.5rem;
+              }
+             #clock-settings h2 {
+                 font-size: 1.1rem;
+                 margin-bottom: 0.8rem;
+             }
+             #clock-settings .settings-group {
+                 margin-bottom: 0.8rem;
+             }
+              #clock-settings label {
+                 font-size: 0.8rem;
+             }
+              #clock-settings select,
+              #clock-settings input[type="color"],
+              #clock-settings input[type="text"] {
+                 padding: 0.6rem;
+                 font-size: 0.8rem;
+             }
+             #clock-settings input[type="color"] {
+                  padding: 0.3rem;
+                  height: 25px;
+             }
+
+              #clock-settings .radio-group {
+                  gap: 0.6rem;
+              }
+               #clock-settings .radio-option {
+                   font-size: 0.7rem;
+                   gap: 0.3rem;
+               }
+                #custom-theme-controls .color-input-group {
+                    gap: 0.4rem;
+                }
+
+        }
+
+         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
+        /* function darken(color, percent) { ... } */
+
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+            <a href="collections.html" class="btn secondary btn-with-arrow">Collections</a>
+            <button id="logoutBtn" class="btn secondary">Log Out</button>
+        </div>
+    </nav>
+
+    <main>
+        <h1>CUSTOM CLOCK</h1>
+        <div class="container">
+            <div id="clock-display">
+                <div id="clock-date">Loading Date...</div>
+                <div id="clock-time">Loading Time...</div>
+            </div>
+
+            <div id="clock-settings">
+                <h2>SETTINGS</h2>
+                <div class="settings-group">
+                    <label for="font-select">FONT</label>
+                    <select id="font-select">
+                        <option value="Outfit">Outfit</option>
+                        <option value="Space Mono">Space Mono</option>
+                        <option value="Share Tech Mono">Share Tech Mono</option>
+                        </select>
+                </div>
+
+                <div class="settings-group">
+                    <label>TIME FORMAT</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="time-format-12hr" name="time-format" value="12hr" checked>
+                            <label for="time-format-12hr">12 HOUR (AM/PM)</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="time-format-24hr" name="time-format" value="24hr">
+                            <label for="time-format-24hr">24 HOUR</label>
+                        </div>
+                         <div class="radio-option">
+                            <input type="radio" id="time-format-military" name="time-format" value="military">
+                            <label for="time-format-military">MILITARY (NO SEPARATOR)</label>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="settings-group">
+                     <label for="date-format-select">DATE FORMAT</label>
+                     <select id="date-format-select">
+                         <option value="en-US">MM/DD/YYYY</option>
+                         <option value="en-GB">DD/MM/YYYY</option>
+                         <option value="sv-SE">YYYY-MM-DD</option>
+                          <option value="full">FULL DATE STRING</option>
+                         </select>
+                 </div>
+
+                 <div class="settings-group">
+                     <label>THEME</label>
+                     <div class="radio-group">
+                         <div class="radio-option">
+                             <input type="radio" id="theme-default" name="theme" value="default" checked>
+                             <label for="theme-default">DEFAULT THEME</label>
+                         </div>
+                         <div class="radio-option">
+                             <input type="radio" id="theme-custom" name="theme" value="custom">
+                             <label for="theme-custom">CUSTOM THEME</label>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div id="custom-theme-controls">
+                     <div class="color-input-group">
+                         <label for="custom-bg-color">BACKGROUND COLOR:</label>
+                         <input type="color" id="custom-bg-color" value="#f0f0f0">
+                     </div>
+                      <div class="color-input-group">
+                         <label for="custom-text-color">TEXT COLOR:</label>
+                         <input type="color" id="custom-text-color" value="#333333">
+                     </div>
+                      <div class="color-input-group">
+                         <label for="custom-border-color">BORDER COLOR:</label>
+                         <input type="color" id="custom-border-color" value="#cccccc">
+                     </div>
+                 </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
+
+    <script>
+        // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // --- Firebase Initialization and Auth ---
+        let auth;
+        let db; // Firestore instance
+        let currentUser = null; // Current authenticated user
+
+        document.addEventListener('DOMContentLoaded', () => {
+             // Initially hide logout button until user is confirmed authenticated
+            const logoutButton = document.getElementById('logoutBtn');
+            if (logoutButton) logoutButton.classList.add('hidden');
+
+            // Check if Firebase SDKs are available
+            if (typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined' && typeof firebase.firestore !== 'undefined') {
+                try {
+                    // Initialize Firebase app if not already initialized
+                    if (firebase.apps.length === 0 && typeof firebaseConfig !== 'undefined') {
+                        firebase.initializeApp(firebaseConfig);
+                    }
+                     // Assign auth and db instances
+                    auth = firebase.auth();
+                    db = firebase.firestore();
+
+                     // Set up auth state change listener
+                    auth.onAuthStateChanged(user => handleAuthState(user));
+
+                } catch (error) {
+                    console.error('Firebase initialization error:', error);
+                    // Handle initialization error (e.g., show message, disable features)
+                    console.error("Firebase initialization failed. Settings saving/loading disabled.");
+                     // Disable settings controls if Firebase fails
+                     disableSettings();
+                     if (logoutButton) logoutButton.classList.add('hidden'); // Hide logout if auth fails
+                }
+            } else {
+                console.error("Firebase SDKs not available. Settings saving/loading disabled.");
+                // Handle case where Firebase SDKs failed to load
+                 disableSettings();
+                 if (logoutButton) logoutButton.classList.add('hidden'); // Hide logout if SDKs not loaded
+            }
+
+            // --- DOM Elements ---
+            const clockDateEl = document.getElementById('clock-date');
+            const clockTimeEl = document.getElementById('clock-time');
+            const fontSelectEl = document.getElementById('font-select');
+            const timeFormatRadios = document.querySelectorAll('input[name="time-format"]');
+            const dateFormatSelectEl = document.getElementById('date-format-select');
+            const themeRadios = document.querySelectorAll('input[name="theme"]');
+            const customThemeControlsEl = document.getElementById('custom-theme-controls');
+            const customBgColorInput = document.getElementById('custom-bg-color');
+            const customTextColorInput = document.getElementById('custom-text-color');
+            const customBorderColorInput = document.getElementById('custom-border-color');
+             const clockDisplayEl = document.getElementById('clock-display');
+
+
+            // --- Default Settings ---
+            let currentSettings = {
+                font: 'Outfit',
+                timeFormat: '12hr',
+                dateFormat: 'en-US',
+                theme: 'default',
+                customColors: {
+                    bg: '#f0f0f0', // Default light theme bg
+                    text: '#333333', // Default light theme text
+                    border: '#cccccc' // Default light theme border
+                }
+            };
+
+             // --- Auth State Change Handler ---
+             const handleAuthState = (user) => {
+                 currentUser = user; // Update currentUser variable
+                  const logoutButton = document.getElementById('logoutBtn');
+
+                 if (user) {
+                     console.log("User is logged in:", user.email);
+                      // User is logged in, attempt to load settings
+                     loadSettings(user.uid);
+                     // Show logout button and setup listener
+                     if (logoutButton) {
+                         logoutButton.classList.remove('hidden');
+                          setupLogoutListener(); // Setup listener after button is visible/auth'd
+                     }
+
+
+                 } else {
+                     console.log("No user logged in. Using default settings.");
+                     // Not authenticated, use default settings and disable saving/loading
+                     applySettings(currentSettings); // Apply default settings
+                      disableSettings(); // Disable settings controls
+                      if (logoutButton) logoutButton.classList.add('hidden'); // Hide logout button
+
+                     // Optional: Redirect if authentication is strictly required for this page
+                     // window.location.href = 'index.html';
+                 }
+             };
+
+            // --- Disable Settings Controls ---
+            function disableSettings() {
+                if (fontSelectEl) fontSelectEl.disabled = true;
+                 if (timeFormatRadios) timeFormatRadios.forEach(radio => radio.disabled = true);
+                 if (dateFormatSelectEl) dateFormatSelectEl.disabled = true;
+                 if (themeRadios) themeRadios.forEach(radio => radio.disabled = true);
+                 if (customBgColorInput) customBgColorInput.disabled = true;
+                 if (customTextColorInput) customTextColorInput.disabled = true;
+                 if (customBorderColorInput) customBorderColorInput.disabled = true;
+                 // Optionally show a message that settings cannot be saved/loaded
+                 console.warn("Settings controls disabled due to Firebase/Auth unavailability.");
+            }
+
+
+            // --- Save Settings to Firestore ---
+            async function saveSettings(settings) {
+                 if (!currentUser || !db) {
+                     console.warn("Cannot save settings: User not logged in or Firestore not available.");
+                     return;
+                 }
+                 try {
+                     const settingsRef = db.collection('users').doc(currentUser.uid).collection('settings').doc('clock');
+                     await settingsRef.set(settings, { merge: true }); // Use merge to avoid overwriting other settings
+                     console.log("Clock settings saved successfully.");
+                 } catch (error) {
+                     console.error("Error saving settings:", error);
+                     // Optionally display a user-friendly error message
+                 }
+            }
+
+            // --- Load Settings from Firestore ---
+            async function loadSettings(uid) {
+                 if (!db) {
+                     console.warn("Cannot load settings: Firestore not available.");
+                     applySettings(currentSettings); // Apply defaults if cannot load
+                     return;
+                 }
+                 try {
+                     const settingsRef = db.collection('users').doc(uid).collection('settings').doc('clock');
+                     const doc = await settingsRef.get();
+
+                     if (doc.exists) {
+                         const savedSettings = doc.data();
+                          // Merge saved settings with defaults to handle missing fields
+                         currentSettings = { ...currentSettings, ...savedSettings };
+                          // Ensure nested customColors is also merged or handled
+                         if (savedSettings.customColors) {
+                             currentSettings.customColors = { ...currentSettings.customColors, ...savedSettings.customColors };
+                         }
+
+                         console.log("Clock settings loaded:", currentSettings);
+                         applySettings(currentSettings);
+                     } else {
+                         console.log("No saved settings found. Using default settings.");
+                         applySettings(currentSettings); // Apply defaults if no saved settings
+                     }
+                 } catch (error) {
+                     console.error("Error loading settings:", error);
+                     applySettings(currentSettings); // Apply defaults on error
+                     // Optionally display a user-friendly error message
+                 }
+            }
+
+
+            // --- Apply Settings to UI and Clock Display ---
+            function applySettings(settings) {
+                 // Apply Font
+                if (fontSelectEl) {
+                    fontSelectEl.value = settings.font;
+                     clockDisplayEl.style.fontFamily = `'${settings.font}', sans-serif`; // Apply font to display
+                } else { console.warn("Font select element not found."); }
+
+
+                 // Apply Time Format (update radio buttons)
+                if (timeFormatRadios) {
+                     timeFormatRadios.forEach(radio => {
+                         radio.checked = (radio.value === settings.timeFormat);
+                     });
+                 } else { console.warn("Time format radios not found."); }
+
+
+                 // Apply Date Format (update select dropdown)
+                if (dateFormatSelectEl) {
+                    dateFormatSelectEl.value = settings.dateFormat;
+                } else { console.warn("Date format select element not found."); }
+
+
+                 // Apply Theme (update radio buttons and show/hide custom controls)
+                if (themeRadios) {
+                     themeRadios.forEach(radio => {
+                         radio.checked = (radio.value === settings.theme);
+                     });
+                 } else { console.warn("Theme radios not found."); }
+
+
+                 // Show/hide custom theme controls
+                 if (customThemeControlsEl) {
+                     if (settings.theme === 'custom') {
+                         customThemeControlsEl.classList.add('active');
+                          // Apply custom colors immediately
+                         applyCustomColors(settings.customColors);
+                     } else {
+                         customThemeControlsEl.classList.remove('active');
+                          // Revert to default CSS variables for the clock display
+                         revertToDefaultThemeColors();
+                     }
+                 } else { console.warn("Custom theme controls element not found."); }
+
+
+                 // Apply Custom Colors (update color pickers)
+                if (customBgColorInput) customBgColorInput.value = settings.customColors.bg;
+                if (customTextColorInput) customTextColorInput.value = settings.customColors.text;
+                if (customBorderColorInput) customBorderColorInput.value = settings.customColors.border;
+
+
+                 // Update the clock display immediately with new settings
+                 updateClockDisplay();
+            }
+
+             // --- Apply Custom Colors via CSS Variables ---
+             function applyCustomColors(colors) {
+                  if (clockDisplayEl) {
+                     clockDisplayEl.style.setProperty('--clock-bg', colors.bg);
+                     clockDisplayEl.style.setProperty('--clock-text', colors.text);
+                     clockDisplayEl.style.setProperty('--clock-border', colors.border);
+                  } else { console.warn("Clock display element not found for applying custom colors."); }
+             }
+
+             // --- Revert to Default Theme Colors ---
+              function revertToDefaultThemeColors() {
+                   if (clockDisplayEl) {
+                       clockDisplayEl.style.removeProperty('--clock-bg');
+                       clockDisplayEl.style.removeProperty('--clock-text');
+                       clockDisplayEl.style.removeProperty('--clock-border');
+                   } else { console.warn("Clock display element not found for reverting theme colors."); }
+              }
+
+
+            // --- Clock Update Function ---
+            function updateClockDisplay() {
+                const now = new Date();
+
+                // Apply Date Format
+                let dateString = '';
+                if (currentSettings.dateFormat === 'full') {
+                     dateString = now.toDateString().toUpperCase(); // Full date string, uppercase
+                } else {
+                    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+                    try {
+                         dateString = now.toLocaleDateString(currentSettings.dateFormat, options);
+                    } catch (e) {
+                         console.error("Invalid date format locale:", currentSettings.dateFormat, e);
+                         dateString = now.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' }); // Fallback
+                    }
+                }
+                if (clockDateEl) clockDateEl.textContent = dateString; else console.warn("Clock date element not found.");
+
+
+                // Apply Time Format
+                let timeString = '';
+                const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+
+                if (currentSettings.timeFormat === '12hr') {
+                    timeOptions.hour12 = true;
+                    try {
+                        timeString = now.toLocaleTimeString('en-US', timeOptions);
+                    } catch (e) {
+                        console.error("Invalid time format locale (12hr):", e);
+                         timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true }); // Fallback
+                    }
+                } else if (currentSettings.timeFormat === '24hr') {
+                    timeOptions.hour12 = false;
+                    try {
+                       timeString = now.toLocaleTimeString('en-GB', timeOptions); // Use en-GB for 24hr format without AM/PM
+                    } catch (e) {
+                         console.error("Invalid time format locale (24hr):", e);
+                          timeString = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }); // Fallback
+                    }
+                } else if (currentSettings.timeFormat === 'military') {
+                     // Custom military format (HHMM)
+                     const hours = now.getHours().toString().padStart(2, '0');
+                     const minutes = now.getMinutes().toString().padStart(2, '0');
+                     // Military time often doesn't show seconds, but let's include for clarity
+                     const seconds = now.getSeconds().toString().padStart(2, '0');
+                     timeString = `${hours}${minutes}${seconds}`;
+                }
+
+                if (clockTimeEl) clockTimeEl.textContent = timeString; else console.warn("Clock time element not found.");
+            }
+
+             // Update the clock every second
+            setInterval(updateClockDisplay, 1000);
+
+
+            // --- Event Listeners for Settings Changes ---
+
+            // Font Selection
+            if (fontSelectEl) {
+                fontSelectEl.addEventListener('change', () => {
+                    currentSettings.font = fontSelectEl.value;
+                    applySettings(currentSettings); // Apply and Save
+                    if (currentUser) saveSettings(currentSettings);
+                });
+            }
+
+            // Time Format Radio Buttons
+             if (timeFormatRadios) {
+                 timeFormatRadios.forEach(radio => {
+                     radio.addEventListener('change', () => {
+                         if (radio.checked) {
+                             currentSettings.timeFormat = radio.value;
+                             applySettings(currentSettings); // Apply and Save
+                             if (currentUser) saveSettings(currentSettings);
+                         }
+                     });
+                 });
+             }
+
+            // Date Format Selection
+             if (dateFormatSelectEl) {
+                 dateFormatSelectEl.addEventListener('change', () => {
+                     currentSettings.dateFormat = dateFormatSelectEl.value;
+                     applySettings(currentSettings); // Apply and Save
+                     if (currentUser) saveSettings(currentSettings);
+                 });
+             }
+
+             // Theme Radio Buttons
+             if (themeRadios && customThemeControlsEl) {
+                 themeRadios.forEach(radio => {
+                     radio.addEventListener('change', () => {
+                         if (radio.checked) {
+                             currentSettings.theme = radio.value;
+                             // Toggle custom theme controls visibility
+                              if (currentSettings.theme === 'custom') {
+                                   customThemeControlsEl.classList.add('active');
+                                   applyCustomColors(currentSettings.customColors); // Apply saved/current custom colors
+                              } else {
+                                   customThemeControlsEl.classList.remove('active');
+                                   revertToDefaultThemeColors(); // Revert to default theme colors
+                              }
+                             applySettings(currentSettings); // Apply (mostly for visual state) and Save
+                             if (currentUser) saveSettings(currentSettings);
+                         }
+                     });
+                 });
+             }
+
+             // Custom Theme Color Pickers
+             if (customBgColorInput && customTextColorInput && customBorderColorInput) {
+                 customBgColorInput.addEventListener('input', () => { // Use 'input' for real-time update
+                     currentSettings.customColors.bg = customBgColorInput.value;
+                     applyCustomColors(currentSettings.customColors); // Apply immediately
+                     if (currentUser) saveSettings(currentSettings); // Save on change
+                 });
+                 customTextColorInput.addEventListener('input', () => {
+                     currentSettings.customColors.text = customTextColorInput.value;
+                     applyCustomColors(currentSettings.customColors);
+                     if (currentUser) saveSettings(currentSettings);
+                 });
+                 customBorderColorInput.addEventListener('input', () => {
+                     currentSettings.customColors.border = customBorderColorInput.value;
+                     applyCustomColors(currentSettings.customColors);
+                     if (currentUser) saveSettings(currentSettings);
+                 });
+             }
+
+
+            // --- Setup Logout Button Listener ---
+            const setupLogoutListener = () => {
+                const logoutButton = document.getElementById('logoutBtn');
+                // Add listener only if button exists and auth is initialized
+                if (logoutButton && auth) {
+                    // Remove any existing listener to prevent duplicates
+                    const newLogoutButton = logoutButton.cloneNode(true);
+                    logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
+                    const currentLogoutButton = newLogoutButton; // Use the new button instance
+
+                    currentLogoutButton.addEventListener('click', () => {
+                        auth.signOut().then(() => {
+                            console.log("User signed out.");
+                            window.location.href = 'index.html'; // Redirect to index after logout
+                        }).catch(error => {
+                            console.error("Logout Error:", error);
+                            alert("Error logging out. Please try again."); // Use alert for simplicity
+                        });
+                    });
+                } else {
+                    console.warn("Logout button or Firebase Auth not available for listener setup.");
+                }
+            };
+
+
+            // Initial clock display when the page loads, before setInterval kicks in
+            updateClockDisplay();
+
+        }); // End of DOMContentLoaded
+    </script>
+</body>
+
+</html>
