@@ -525,8 +525,23 @@
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
 
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        // const auth = firebase.auth(); // Keep auth for user check
+        // const db = firebase.firestore(); // Keep db for potential future use or other features
+        let auth, db;
+         // Check if firebaseConfig is defined and firebase is not already initialized
+         if (typeof firebaseConfig !== 'undefined' && firebase.apps.length === 0) {
+             firebase.initializeApp(firebaseConfig);
+         }
+         // Ensure auth and db are initialized regardless of previous check if firebase is available
+         if (typeof firebase !== 'undefined') {
+              if (typeof firebase.auth !== 'undefined') auth = firebase.auth();
+              if (typeof firebase.firestore !== 'undefined') db = firebase.firestore(); // Initialize db
+         } else {
+             console.warn("Firebase SDK not available. Auth and Firestore features will be disabled.");
+             // Potentially disable form elements or show message if Firebase is critical
+         }
+
+
         const normalGrid = document.getElementById('normalGrid');
         const explicitGrid = document.getElementById('explicitGrid');
         const form = document.getElementById('createForm');
@@ -536,15 +551,23 @@
         let selections = []; // Array to store selected sound objects
 
         // Auth state change listener
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                 console.log("No user logged in. Redirecting to index.html");
-                 window.location.href = 'index.html'; // Redirect if not authenticated
-            } else {
-                 console.log("User logged in:", user.email);
-                 loadSoundButtons(); // Load sounds once authenticated
-            }
-        });
+        if (auth) { // Only attach if auth is initialized
+            auth.onAuthStateChanged(user => {
+                if (!user) {
+                     console.log("No user logged in. Redirecting to index.html");
+                     window.location.href = 'index.html'; // Redirect if not authenticated
+                } else {
+                     console.log("User logged in:", user.email);
+                     loadSoundButtons(); // Load sounds once authenticated
+                }
+            });
+        } else {
+             console.warn("Firebase Auth not available. Cannot perform auth check or load sounds.");
+              // Display error message on the page if Firebase is not available
+              if (normalGrid) normalGrid.innerHTML = '<p style="color: var(--error-color);">FIREBASE AUTH NOT AVAILABLE. CANNOT LOAD SOUNDS.</p>';
+              if (explicitGrid) explicitGrid.innerHTML = ''; // Clear explicit grid if needed
+        }
+
 
         // Navigation button listeners (assuming they exist in the HTML)
         // Dashboard button listener
@@ -562,13 +585,18 @@
         // Logout button listener
         if (logoutButton) {
              logoutButton.addEventListener('click', () => {
-                 auth.signOut().then(() => {
-                     console.log("User signed out.");
-                     window.location.href = 'index.html'; // Redirect to index after logout
-                 }).catch(error => {
-                     console.error("Logout Error:", error);
-                     alert("Error logging out. Please try again."); // Keeping alert for simplicity
-                 });
+                 if (auth) { // Check if auth is initialized
+                      auth.signOut().then(() => {
+                          console.log("User signed out.");
+                          window.location.href = 'index.html'; // Redirect to index after logout
+                      }).catch(error => {
+                          console.error("Logout Error:", error);
+                          alert("Error logging out. Please try again."); // Keeping alert for simplicity
+                      });
+                 } else {
+                      console.error("Firebase Auth not available for logout.");
+                      alert("Logout failed. Firebase services not available.");
+                 }
              });
         } else {
              console.error("Logout button not found.");
@@ -661,7 +689,41 @@
         form.addEventListener('submit', async e => {
             e.preventDefault();
 
-             const user = auth.currentUser;
+             // Commented out playlist creation logic as requested
+             console.log("Form submitted, but playlist creation is disabled.");
+
+             const nameInput = document.getElementById('name');
+             const descriptionInput = document.getElementById('description');
+
+             const name = nameInput.value.trim();
+             const desc = descriptionInput.value.trim();
+
+             console.log("Attempted to create playlist with:");
+             console.log("Name:", name);
+             console.log("Description:", desc);
+             console.log("Selected Sounds:", selections);
+
+
+             // Optional: Provide feedback to the user that creation is disabled
+              if (notification) {
+                  notification.textContent = 'PLAYLIST CREATION IS CURRENTLY DISABLED.';
+                  notification.style.display = 'block';
+                   setTimeout(() => {
+                       if (notification) notification.style.display = 'none'; // Hide after 5 seconds
+                   }, 5000);
+              } else {
+                   alert("Playlist creation is currently disabled."); // Fallback alert
+              }
+
+             // You can keep the form reset and selection clearing if you want
+            // form.reset();
+            // selections = [];
+            // document.querySelectorAll('.sound-btn.selected').forEach(b => b.classList.remove('selected'));
+
+
+            
+            // Original Firebase Playlist Creation Logic (commented out)
+            const user = auth.currentUser;
              if (!user) {
                  console.error("User not authenticated for form submission.");
                  // Optionally redirect or show error message
@@ -749,6 +811,7 @@
                 console.error('Error creating playlist:', err);
                  alert('Error creating playlist: ' + err.message); // Show error message to user
             }
+        
         });
     </script>
      </body>
