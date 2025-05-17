@@ -2,230 +2,447 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4SP | Links</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --dark-bg: #121212;
-      --darker-bg: #1e1e1e;
-      --light-text: #ffffff;
-      --light-gray: #f0f0f0;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4SP | LINKS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
 
-    body {
-      font-family: 'Roboto Mono', monospace;
-      background-color: var(--dark-bg);
-      color: var(--light-text);
-      line-height: 1.6;
-      /* Add padding to prevent content from being hidden by fixed navbar/footer */
-      padding-top: 5rem; /* Adjust based on navbar height */
-      padding-bottom: 4rem; /* Adjust based on footer height */
-    }
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            /* Light background */
+            --text-color: #333333;
+            /* Dark text */
+            --primary-color: #333333;
+            /* Dark primary for contrast on light */
+            --secondary-border-color: #cccccc;
+            /* Medium gray border */
+            --navbar-bg: #f0f0f0;
+            /* Light gray for navbar */
+            --footer-bg: #f0f0f0;
+            /* Light gray for footer */
+            --hover-bg: #e0e0e0;
+            /* Lighter gray on hover */
+            --grid-line-color: #f0f0f0;
+            /* Light gray grid lines */
+            --accent-color: #333333;
+            /* Dark accent color */
+        }
 
-    a {
-      color: var(--light-text);
-      text-decoration: none;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: var(--darker-bg);
-      padding: 0.75rem 1.5rem;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 999;
-    }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            text-transform: uppercase;
+            text-align: center;
+            /* Center all text by default */
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            /* Adjust padding based on navbar and footer height */
+            padding-top: 80px; /* Default padding for fixed navbar */
+             padding-bottom: 60px; /* Default padding for fixed footer */
 
-    .navbar .logo {
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
 
-    .nav-buttons {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px;
+            /* Size of each grid cell */
+        }
 
-    .btn.secondary {
-      background-color: transparent;
-      border: 1px solid var(--light-text);
-      color: var(--light-text);
-      padding: 0.5rem 1rem;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: background-color 0.2s, color 0.2s;
-    }
+        /* Remove triangular gradients */
+        body::before,
+        body::after {
+            content: none;
+        }
 
-    .btn.secondary:hover {
-      background-color: var(--light-gray);
-      color: var(--dark-bg);
-    }
+        a {
+            /* Inherit color or set theme color, text decoration handled by specific classes */
+            color: var(--text-color);
+            text-decoration: none;
+        }
 
-    main.container {
-      max-width: 800px;
-      /* Adjusted margin to account for fixed navbar */
-      margin: 1rem auto 2rem auto;
-      background-color: var(--darker-bg);
-      padding: 2rem;
-      border-radius: 30px;
-    }
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--navbar-bg);
+            padding: 20px 20px; /* Adjusted padding */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100; /* Ensure navbar is above content */
+            color: var(--text-color);
+             text-align: left; /* Override center for navbar layout */
+        }
 
-    main.container h1 {
-      margin-bottom: 1.5rem;
-      font-size: 1.75rem;
-    }
+        .navbar .logo {
+            font-size: 24px; /* Consistent logo size */
+            font-weight: 900;
+            color: var(--text-color);
+        }
 
-    .links-list {
-      list-style: none;
-      padding: 0;
-    }
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* Adjusted gap */
+             text-align: left; /* Ensure text in buttons is not affected by body center */
+        }
 
-    .links-list li {
-      margin-bottom: 1rem;
-    }
+        /* Buttons (Base Styles - re-using .btn) */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px; /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px; /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+        }
 
-    .links-list a {
-      font-size: 1.25rem;
-      text-decoration: underline;
-      transition: color 0.2s;
-    }
+        .btn.secondary {
+            background-color: transparent;
+            border: 1px solid var(--secondary-border-color);
+            color: var(--text-color);
+        }
 
-    .links-list a:hover {
-      color: var(--light-gray);
-    }
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+            border-color: var(--hover-bg);
+        }
 
-    footer {
-      text-align: center;
-      padding: 1rem 0;
-      background-color: var(--darker-bg);
-      position: fixed;
-      width: 100%;
-      bottom: 0;
-      left: 0; /* Added for consistency */
-      z-index: 999; /* Added to ensure it's above other content if overlaps */
-    }
+        /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192';
+            /* Right arrow character */
+            margin-right: 8px;
+            /* Space between arrow and text */
+            font-weight: bold;
+            /* Make arrow slightly bolder */
+            color: var(--accent-color);
+            /* Dark accent color for arrow */
+        }
 
-    footer p {
-      font-size: 0.85rem;
-      opacity: 0.7;
-    }
-  </style>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="firebase-config.js"></script>
+        main.container {
+            max-width: 800px;
+            margin: 2rem auto; /* Adjusted margin */
+            background-color: var(--navbar-bg); /* Light gray background */
+            padding: 2rem;
+            border-radius: 10px; /* Less rounded */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+             border: 1px solid var(--secondary-border-color); /* Subtle border */
+             flex-grow: 1; /* Allow container to grow */
+             text-align: left; /* Align content within container to the left */
+        }
+
+        main.container h1 {
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem; /* Consistent heading size */
+            color: var(--text-color);
+            font-weight: 900;
+             text-transform: uppercase; /* All caps */
+             text-align: center; /* Center the heading */
+        }
+
+        .links-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .links-list li {
+            margin-bottom: 1rem;
+        }
+
+        .links-list a {
+            font-size: 1.1rem; /* Slightly smaller font size */
+            text-decoration: none; /* Remove underline by default */
+            transition: color 0.2s ease;
+            color: var(--text-color); /* Dark text */
+            font-weight: 600; /* Bolder */
+             text-transform: none; /* Prevent uppercase for readability */
+             display: inline-block; /* Allows padding/margin/background if needed later */
+             position: relative; /* For underline effect */
+        }
+         /* Add a subtle underline effect on hover */
+         .links-list a::after {
+             content: '';
+             position: absolute;
+             left: 0;
+             bottom: -3px; /* Position below text */
+             width: 0;
+             height: 2px; /* Thickness of underline */
+             background-color: var(--accent-color); /* Accent color underline */
+             transition: width 0.3s ease;
+         }
+        .links-list a:hover {
+            color: var(--accent-color); /* Accent color on hover */
+        }
+         .links-list a:hover::after {
+             width: 100%; /* Expand underline on hover */
+         }
+
+
+        footer {
+            text-align: center;
+            padding: 20px; /* Adjusted padding */
+            background-color: var(--footer-bg); /* Light gray */
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            left: 0;
+            z-index: 100; /* Ensure footer is above content */
+            color: rgba(51, 51, 51, 0.6); /* Slightly lighter dark */
+             text-transform: uppercase;
+        }
+
+        footer p {
+            font-size: 14px; /* Consistent font size */
+            opacity: 1; /* Remove opacity */
+        }
+
+         /* Utility class */
+        .hidden {
+            display: none !important;
+        }
+
+         /* Responsive adjustments */
+        @media (max-width: 768px) {
+             .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            body {
+                 padding-top: 120px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 80px; /* Adjust padding for footer */
+            }
+
+            main.container {
+                 padding: 1.5rem;
+                 margin: 1.5rem auto;
+            }
+
+             main.container h1 {
+                 font-size: 1.8rem;
+                 margin-bottom: 1rem;
+             }
+
+             .links-list a {
+                 font-size: 1rem;
+             }
+
+             footer {
+                 padding: 15px;
+             }
+             footer p {
+                 font-size: 12px;
+             }
+        }
+
+         @media (max-width: 480px) {
+            .navbar {
+                 padding: 15px 10px;
+             }
+             .logo {
+                font-size: 20px;
+             }
+
+            .nav-buttons {
+                 gap: 8px;
+             }
+
+            .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+            }
+
+             body {
+                 padding-top: 150px; /* Adjust padding for stacked navbar */
+                 padding-bottom: 100px; /* Adjust padding for footer */
+             }
+
+
+             main.container {
+                 padding: 1rem;
+                 margin: 1rem auto;
+             }
+              main.container h1 {
+                 font-size: 1.5rem;
+                 margin-bottom: 0.8rem;
+             }
+
+             .links-list a {
+                 font-size: 0.9rem;
+             }
+             .links-list li {
+                 margin-bottom: 0.8rem;
+             }
+
+             footer {
+                 padding: 10px;
+             }
+             footer p {
+                 font-size: 10px;
+             }
+        }
+
+
+         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
+        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
+        /* For simplicity, manual adjustment is used in the variables above */
+        /* function darken(color, percent) { ... } */
+    </style>
 </head>
 
 <body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="dashboard.html" class="btn secondary">Dashboard</a>
-      <a href="#" class="btn secondary" id="logoutBtn">Log Out</a>
-    </div>
-  </nav>
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+            <button id="logoutBtn" class="btn secondary">Log Out</button>
+        </div>
+    </nav>
 
-  <main class="container" id="mainContent" style="display: none;"> <h1>Links</h1>
-    <ul class="links-list" id="linksList">
-      </ul>
-  </main>
+    <main class="container" id="mainContent" style="display: none;">
+        <h1>Links</h1>
+        <ul class="links-list" id="linksList">
+            </ul>
+    </main>
 
-  <footer>
-    <p>© <script>document.write(new Date().getFullYear())</script> 4SP</p>
-  </footer>
+    <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
 
-  <script>
-    const logoutBtn = document.getElementById('logoutBtn');
-    const mainContent = document.getElementById('mainContent');
+    <script>
+        // Display current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-    // Function to populate links
-    function populateLinks() {
-      // Define your links here as { name: 'Display Name', url: 'https://...' }
-      const links = [
-        { name: 'Eaglercraft Download (Download in Google Drive)', url: 'https://drive.google.com/file/d/1hbX_VPMVK6Ke9JSQMUeacqLunmgcnmci/view' },
-        { name: 'ExtPrinter Download (Disables Extensions) - Open in Files', url: 'https://drive.google.com/file/d/1loqwjXoKeu4KNJkibvHY93lrVMqkjWaD/view' },
-        { name: 'Minecraft Movie Download', url: 'https://drive.google.com/file/d/1IQ7rk-XoeZvlHjVJvMDmVjIuXSCCaKLU/view' }
-      ];
+        const logoutButton = document.getElementById('logoutBtn'); // Renamed to avoid conflict
+        const mainContent = document.getElementById('mainContent');
 
-      const listEl = document.getElementById('linksList');
-      if (!listEl) {
-          console.error("Error: linksList element not found.");
-          return;
-      }
-      listEl.innerHTML = ''; // Clear any existing links
+        // Function to populate links
+        function populateLinks() {
+            // Define your links here as { name: 'Display Name', url: 'https://...' }
+            const links = [
+                { name: 'Eaglercraft Download (Download in Google Drive)', url: 'https://drive.google.com/file/d/1hbX_VPMVK6Ke9JSQMUeacqLunmgcnmci/view' },
+                { name: 'ExtPrinter Download (Disables Extensions) - Open in Files', url: 'https://drive.google.com/file/d/1loqwjXoKeu4KNJkibvHY93lrVMqkjWaD/view' },
+                { name: 'Minecraft Movie Download', url: 'https://drive.google.com/file/d/1IQ7rk-XoeZvlHjVJvMDmVjIuXSCCaKLU/view' }
+            ];
 
-      links.forEach(link => {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.textContent = link.name;
-        a.href = link.url;
-        a.target = '_blank'; // open in new tab
-        li.appendChild(a);
-        listEl.appendChild(li);
-      });
-      mainContent.style.display = 'block'; // Show content once links are ready
-    }
+            const listEl = document.getElementById('linksList');
+            if (!listEl) {
+                console.error("Error: linksList element not found.");
+                return;
+            }
+            listEl.innerHTML = ''; // Clear any existing links
 
-    // Authentication check
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (user) {
-        // User is signed in.
-        console.log("User signed in:", user.email);
+            if (links.length === 0) {
+                 listEl.innerHTML = '<li><p style="color: var(--text-color); text-transform: uppercase; text-align: center;">NO LINKS AVAILABLE.</p></li>';
+                 return;
+            }
 
-        // Check if bannedEmails is defined and the user's email is in the list
-        if (typeof bannedEmails !== 'undefined' && bannedEmails.includes(user.email)) {
-          console.log("User email is banned. Redirecting to index.html");
-          alert("Your account is not permitted to access this page. Redirecting...");
-          window.location.href = 'index.html'; // Or a generic access denied page
-        } else {
-          // User is signed in and not banned, proceed to populate links
-          console.log("User is not banned. Populating links.");
-          populateLinks();
+
+            links.forEach(link => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.textContent = link.name;
+                a.href = link.url;
+                a.target = '_blank'; // open in new tab
+                 // Add class for styling if needed, e.g., a.classList.add('link-item');
+                li.appendChild(a);
+                listEl.appendChild(li);
+            });
+            mainContent.style.display = 'block'; // Show content once links are ready
         }
-      } else {
-        // No user is signed in.
-        console.log("No user signed in. Redirecting to login.html");
-        window.location.href = 'login.html';
-      }
-    });
 
-    // Logout functionality
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', function(event) {
-        event.preventDefault(); // Prevent default anchor behavior
-        firebase.auth().signOut().then(() => {
-          // Sign-out successful.
-          console.log("User signed out. Redirecting to login.html");
-          window.location.href = 'login.html';
-        }).catch((error) => {
-          // An error happened.
-          console.error("Sign out error:", error);
-          alert("Error signing out. Please try again.");
-        });
-      });
-    } else {
-        console.error("Logout button not found.");
-    }
+        // Authentication check
+         if (typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined') {
+             firebase.auth().onAuthStateChanged(function(user) {
+                 if (user) {
+                     // User is signed in.
+                     console.log("User signed in:", user.email);
 
-    // Dynamically update copyright year
-    // const currentYear = new Date().getFullYear();
-    // const footerText = document.querySelector("footer p");
-    // if (footerText) {
-    //   footerText.textContent = `© ${currentYear} 4SP`;
-    // }
-    // Done with inline script for simplicity for the year
-  </script>
+                     // Check if bannedEmails is defined and the user's email is in the list
+                     // Assuming bannedEmails is defined in firebase-config.js or elsewhere globally
+                     if (typeof window.bannedEmails !== 'undefined' && window.bannedEmails.includes(user.email)) {
+                         console.log("User email is banned. Redirecting to index.html");
+                         // Use a more styled message than alert if possible, but keeping alert for now
+                         alert("Your account is not permitted to access this page. Redirecting...");
+                         window.location.href = 'index.html'; // Or a generic access denied page
+                     } else {
+                         // User is signed in and not banned, proceed to populate links
+                         console.log("User is not banned. Populating links.");
+                         populateLinks();
+                     }
+                 } else {
+                     // No user is signed in.
+                     console.log("No user signed in. Redirecting to login.html");
+                     window.location.href = 'login.html';
+                 }
+             });
+         } else {
+             console.error("Firebase SDK or Auth not available on DOM load. Cannot perform auth check.");
+             // Optionally show an error message or redirect if auth is mandatory
+              mainContent.innerHTML = '<p style="color: var(--error-color); text-transform: uppercase; text-align: center;">ERROR LOADING AUTHENTICATION. PLEASE TRY AGAIN.</p>';
+               mainContent.style.display = 'block';
+         }
+
+
+        // Logout functionality
+        if (logoutButton) {
+            logoutButton.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent default anchor behavior
+                 if (typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined') {
+                     firebase.auth().signOut().then(() => {
+                         // Sign-out successful.
+                         console.log("User signed out. Redirecting to login.html");
+                         window.location.href = 'login.html';
+                     }).catch((error) => {
+                         // An error happened.
+                         console.error("Sign out error:", error);
+                         alert("Error signing out. Please try again."); // Keeping alert for simplicity
+                     });
+                 } else {
+                     console.error("Firebase SDK or Auth not available. Cannot sign out.");
+                     alert("Logout failed. Firebase services not available.");
+                 }
+            });
+        } else {
+            console.error("Logout button not found.");
+        }
+
+        // Dynamically update copyright year - using inline script in footer HTML
+    </script>
 </body>
+
 </html>
