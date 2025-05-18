@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4SP | PLAYLIST DETAILS</title>
+    <title>4SP | PLAYLIST SOUNDBOARD</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -12,29 +12,55 @@
     <script src="firebase-config.js"></script>
 
     <style>
-        * {
-            font-family: 'Outfit', sans-serif;
-            box-sizing: border-box;
-        }
-
         :root {
             --bg-color: #ffffff;
+            /* Light background */
             --text-color: #333333;
+            /* Dark text */
             --primary-color: #333333;
+            /* Dark primary for contrast on light */
             --secondary-border-color: #cccccc;
+            /* Medium gray border */
             --navbar-bg: #f0f0f0;
+            /* Light gray for navbar */
             --footer-bg: #f0f0f0;
+            /* Light gray for footer */
             --hover-bg: #e0e0e0;
+            /* Lighter gray on hover */
             --grid-line-color: #f0f0f0;
+            /* Light gray grid lines */
             --accent-color: #333333;
+            /* Dark accent color */
+
+            /* Message box colors for light theme */
+            --success-bg: #d4edda;
+            --success-color: #155724;
+            --error-bg: #f8d7da;
+            --error-color: #721c24;
+            --warning-bg: #fff3cd;
+            --warning-color: #856404;
+
+            /* Sound Button Colors (adapted for light theme) */
             --sound-button-bg: #f8f8f8;
+            /* Very light gray */
             --sound-button-border: #cccccc;
+            /* Medium gray */
             --sound-button-text: #333333;
+            /* Dark text */
             --sound-button-hover-bg: #e0e0e0;
+            /* Lighter gray */
+
+            /* Options Dropdown Colors (adapted for light theme) */
             --options-bg: #f8f8f8;
+            /* Very light gray */
             --options-border: #cccccc;
+            /* Medium gray */
             --options-text: #333333;
+            /* Dark text */
             --options-section-border: rgba(51, 51, 51, 0.2);
+            /* Darker border for sections */
+
+            /* Status Message Colors (adapted for light theme) */
             --status-success-bg: #d4edda;
             --status-success-color: #155724;
             --status-success-border: #155724;
@@ -44,48 +70,69 @@
             --status-info-bg: #cce5ff;
             --status-info-color: #004085;
             --status-info-border: #004085;
-            --danger-action: #dc3545;
-            --danger-action-hover: #c82333;
+
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            margin: 0;
-            background: var(--bg-color);
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
             color: var(--text-color);
             line-height: 1.6;
             text-transform: uppercase;
             text-align: center;
+            /* Center all text by default */
             position: relative;
             overflow-x: hidden;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
-                repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
-            background-size: 20px 20px;
             padding-top: 80px;
             /* Adjusted for fixed navbar */
             padding-bottom: 60px;
+            /* Adjusted for fixed footer */
+
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px;
+            /* Size of each grid cell */
         }
 
+        /* Remove triangular gradients */
         body::before,
         body::after {
             content: none;
         }
 
-        a {
-            color: var(--text-color);
-            text-decoration: none;
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            /* Adjusted padding */
+            flex: 1;
+            /* Allow container to grow */
+            text-align: left;
+            /* Align content within the container to the left */
+            margin-top: 20px;
+            /* Ensure content is below the fixed navbar */
         }
 
+        /* Navbar */
         .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px 20px;
             background-color: var(--navbar-bg);
-            color: var(--text-color);
             text-align: left;
+            /* Override center for navbar layout */
             width: 100%;
             position: fixed;
             top: 0;
@@ -126,22 +173,29 @@
             text-transform: uppercase;
         }
 
+
         .nav-buttons {
             display: flex;
             gap: 15px;
+            /* Adjusted gap */
             align-items: center;
             text-align: left;
-            /* Add padding to the left of the buttons container */
+            /* Ensure text in buttons is not affected by body center */
             padding-left: 15px;
+            /* Add padding to the left of the buttons container */
         }
 
+        /* Buttons */
         .btn {
             display: inline-flex;
+            /* Use inline-flex */
             align-items: center;
             justify-content: center;
             padding: 10px 20px;
+            /* Adjusted padding */
             min-height: 40px;
             border-radius: 5px;
+            /* Less rounded */
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
@@ -156,18 +210,21 @@
         .btn.primary {
             background-color: var(--primary-color);
             color: var(--bg-color);
+            /* White text on dark primary */
             border: 1px solid var(--primary-color);
         }
 
         .btn.secondary {
             background-color: transparent;
             color: var(--text-color);
+            /* Dark text on light secondary */
             border: 1px solid var(--secondary-border-color);
         }
 
         .btn.primary:hover {
             background-color: var(--hover-bg);
             color: var(--text-color);
+            /* Dark text on light hover */
             border-color: var(--hover-bg);
         }
 
@@ -176,20 +233,39 @@
             border-color: var(--hover-bg);
         }
 
-        main.container {
-            flex: 1;
-            width: 100%;
-            padding: 20px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            text-align: left;
-            /* Ensure content is below the fixed navbar */
-            margin-top: 20px;
+        /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192';
+            /* Right arrow character */
+            margin-right: 8px;
+            /* Space between arrow and text */
+            font-weight: bold;
+            /* Make arrow slightly bolder */
+            color: var(--accent-color);
+            /* Dark accent color for arrow */
         }
 
+
+        /* Soundboard specific styles */
+        main h1 {
+            text-align: center;
+            /* Center main title */
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        main p {
+            text-align: center;
+            /* Center intro paragraph */
+            margin-bottom: 30px;
+            color: rgba(51, 51, 51, 0.8);
+        }
+
+
         .sound-section {
-            margin: 2rem 0;
+            margin-bottom: 2rem;
             text-align: left;
+            /* Align section content to the left */
         }
 
         .sound-section h2 {
@@ -197,9 +273,12 @@
             font-size: 1.5rem;
             padding-bottom: 0.25rem;
             border-bottom: 2px solid var(--secondary-border-color);
+            /* Light theme border */
             color: var(--text-color);
+            /* Dark text */
             width: 100%;
             text-transform: uppercase;
+            /* All caps */
         }
 
         .soundButtonsContainer {
@@ -209,6 +288,7 @@
             /* Responsive grid */
             gap: 15px;
             padding: 1rem 0;
+            /* Adjusted padding */
             width: 100%;
         }
 
@@ -218,21 +298,30 @@
             aspect-ratio: 1 / 1;
             /* Maintain square aspect ratio */
             border-radius: 20px;
-            background: var(--sound-button-bg);
+            /* Adjusted border-radius */
+            background-color: var(--sound-button-bg);
+            /* Light background */
             color: var(--sound-button-text);
+            /* Dark text */
             border: 2px solid var(--sound-button-border);
+            /* Medium gray border */
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            /* Bolder */
+            padding: 0 1.5rem;
+            transition: background-color 0.3s ease, transform 0.1s ease, border-color 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 0 1.5rem;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.1s ease, border-color 0.3s ease;
+            line-height: 1.2;
+            max-width: 300px;
+            /* Constrain width slightly */
             word-wrap: break-word;
             hyphens: auto;
-            cursor: pointer;
             text-transform: uppercase;
+            /* All caps */
             overflow: hidden;
             /* Prevent text overflow */
             text-overflow: ellipsis;
@@ -241,15 +330,11 @@
             /* Allow wrapping */
         }
 
-        .sound-button.short-text {
-            padding: 0 1.5rem;
-            border-radius: 20px;
-            /* Redundant, already in .sound-button */
-        }
-
         .sound-button:hover {
-            background: var(--sound-button-hover-bg);
+            background-color: var(--sound-button-hover-bg);
+            /* Lighter gray hover */
             border-color: var(--accent-color);
+            /* Accent border on hover */
         }
 
         .sound-button:active {
@@ -264,22 +349,31 @@
         .options-button {
             background-color: transparent;
             color: var(--text-color);
+            /* Dark text */
             padding: 10px 20px;
+            /* Matches other buttons */
             font-size: 14px;
+            /* Matches other buttons */
             border: 1px solid var(--secondary-border-color);
+            /* Matches other buttons */
             border-radius: 5px;
+            /* Matches other buttons */
             cursor: pointer;
             text-transform: uppercase;
+            /* All caps */
             font-weight: 600;
             display: inline-flex;
+            /* Needed for flex layout */
             align-items: center;
             justify-content: center;
         }
+
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
                 transform: translateY(-10px);
+                /* Subtle animation */
             }
 
             to {
@@ -297,6 +391,7 @@
             to {
                 opacity: 0;
                 transform: translateY(-10px);
+                /* Subtle animation */
             }
         }
 
@@ -304,16 +399,23 @@
             display: none;
             position: absolute;
             background-color: var(--options-bg);
+            /* Light gray */
             min-width: 250px;
             border: 1px solid var(--options-border);
+            /* Medium gray */
             padding: 1rem;
             z-index: 2;
             right: 0;
             border-radius: 5px;
+            /* Less rounded */
             color: var(--options-text);
+            /* Dark text */
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            /* Subtle shadow */
             text-align: left;
+            /* Align options content to the left */
             text-transform: none;
+            /* Prevent uppercase for readability */
         }
 
         .options-content.fade-in {
@@ -330,6 +432,7 @@
             display: block;
             margin-bottom: 0.5rem;
             color: var(--options-text);
+            /* Dark text */
             font-size: 0.9rem;
         }
 
@@ -337,20 +440,25 @@
             margin-right: 0.5rem;
             vertical-align: middle;
             background-color: var(--bg-color);
+            /* White background */
             border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
             appearance: none;
             width: 16px;
             height: 16px;
             cursor: pointer;
             position: relative;
             border-radius: 3px;
+            /* Slightly rounded checkbox */
             outline: none;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .options-content input[type="checkbox"]:checked {
             background-color: var(--accent-color);
+            /* Dark background when checked */
             border-color: var(--accent-color);
+            /* Simple white checkmark - adjust color if needed */
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='20 6 9 17 4 12'%3e%3c/polyline%3e%3c/svg%3e");
             background-size: 80%;
             background-repeat: no-repeat;
@@ -361,6 +469,7 @@
             box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
         }
 
+
         .options-content #autoClickDelayLabel {
             margin-top: 0.5rem;
             display: block;
@@ -369,14 +478,21 @@
 
         .options-content #autoClickDelay {
             width: 70px;
+            /* Slightly wider input */
             padding: 0.4rem;
+            /* Adjusted padding */
             border-radius: 5px;
+            /* Less rounded */
             border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
             background-color: var(--bg-color);
+            /* White background */
             color: var(--text-color);
+            /* Dark text */
             font-family: 'Outfit', sans-serif;
             font-size: 0.9rem;
             text-transform: none;
+            /* Prevent uppercase */
             outline: none;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
@@ -386,10 +502,67 @@
             box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
         }
 
+        /* Style for the playback speed select */
+        .options-content label.playback-speed-label {
+            margin-top: 0.5rem;
+            /* Spacing from previous element */
+            margin-bottom: 0.5rem;
+            /* Spacing to next element */
+            display: block;
+            /* Ensure label is block */
+            font-size: 0.9rem;
+        }
+
+        .options-content #playbackSpeed {
+            width: 100%;
+            /* Full width of its container */
+            padding: 0.5rem;
+            margin-top: 0.25rem;
+            /* Space below the label text */
+            border-radius: 5px;
+            /* Less rounded */
+            border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
+            background-color: var(--bg-color);
+            /* White background */
+            color: var(--text-color);
+            /* Dark text */
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            /* Using dark accent color for stroke */
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 1em;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            text-transform: none;
+            /* Prevent uppercase */
+        }
+
+        .options-content #playbackSpeed:focus {
+            border-color: var(--accent-color);
+            /* Accent color on focus */
+            box-shadow: 0 0 3px rgba(51, 51, 51, 0.3);
+        }
+
+        .options-content #playbackSpeed option {
+            background-color: var(--options-bg);
+            /* Background for dropdown options */
+            color: var(--options-text);
+            /* Text color for dropdown options */
+        }
+
+
         .options-section {
             margin-bottom: 1rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid var(--options-section-border);
+            /* Darker border */
         }
 
         .options-section:last-child {
@@ -402,37 +575,50 @@
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
             color: var(--options-text);
+            /* Dark text */
             opacity: 0.8;
             text-transform: uppercase;
+            /* All caps */
         }
 
         .keyboard-shortcuts {
             margin-top: 1rem;
             padding: 0.5rem;
             border-radius: 5px;
+            /* Less rounded */
             background-color: rgba(51, 51, 51, 0.05);
+            /* Very subtle dark background */
             border: 1px solid var(--secondary-border-color);
             text-align: left;
+            /* Align shortcut text left */
         }
 
         .keyboard-shortcuts p {
             margin: 0.25rem 0;
             font-size: 0.85rem;
             color: var(--text-color);
+            /* Dark text */
             opacity: 0.8;
             text-transform: none;
+            /* Prevent uppercase for readability */
         }
 
         #applyDelayBtn {
             padding: 0.4rem 0.8rem;
+            /* Adjusted padding */
             border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
             border-radius: 5px;
+            /* Less rounded */
             background-color: var(--hover-bg);
+            /* Light gray background */
             color: var(--text-color);
+            /* Dark text */
             cursor: pointer;
             margin-left: 4px;
             font-size: 0.8rem;
             text-transform: uppercase;
+            /* All caps */
             font-family: 'Outfit', sans-serif;
             transition: background-color 0.2s ease, border-color 0.2s ease;
         }
@@ -442,19 +628,19 @@
             border-color: var(--accent-color);
         }
 
-        #clearAllSoundsBtn,
-        #deletePlaylistBtn {
+        #clearAllSoundsBtn {
             width: 100%;
             margin-top: 0.5rem;
+            background-color: var(--hover-bg);
+            /* Light gray background */
+            color: var(--text-color);
+            /* Dark text */
+            border: 1px solid var(--secondary-border-color);
+            /* Medium gray border */
             position: relative;
             overflow: hidden;
             border-radius: 5px;
-        }
-
-        #clearAllSoundsBtn {
-            background-color: var(--hover-bg);
-            color: var(--text-color);
-            border: 1px solid var(--secondary-border-color);
+            /* Less rounded */
         }
 
         #clearAllSoundsBtn:hover {
@@ -462,16 +648,6 @@
             border-color: var(--accent-color);
         }
 
-        #deletePlaylistBtn {
-            background-color: var(--danger-action);
-            color: var(--bg-color);
-            border: 1px solid var(--danger-action);
-        }
-
-        #deletePlaylistBtn:hover {
-            background-color: var(--danger-action-hover);
-            border-color: var(--danger-action-hover);
-        }
 
         @keyframes buttonPop {
             0% {
@@ -480,6 +656,7 @@
 
             50% {
                 transform: scale(1.05);
+                /* Subtle pop */
             }
 
             75% {
@@ -503,9 +680,15 @@
             }
         }
 
-        #clearAllSoundsBtn.active,
-        #deletePlaylistBtn.active {
-            animation: buttonPop 0.4s ease-in-out;
+        #clearAllSoundsBtn.active {
+            animation: none;
+            /* Remove pop animation */
+            background-color: var(--error-bg);
+            /* Error background color */
+            border-color: var(--error-color);
+            /* Error border color */
+            color: var(--error-color);
+            /* Error text color */
         }
 
         .ripple-container {
@@ -522,7 +705,8 @@
         .ripple {
             position: absolute;
             border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.4);
+            background-color: rgba(255, 0, 0, 0.4);
+            /* Reddish ripple for clear button */
             width: 100px;
             height: 100px;
             margin-top: -50px;
@@ -587,7 +771,6 @@
         @keyframes fadeOutDown {
             from {
                 opacity: 1;
-                transform: translateY(0);
             }
 
             to {
@@ -599,14 +782,19 @@
         .status-message {
             display: none;
             padding: 0.75rem 1.5rem;
+            /* Adjusted padding */
             margin: 1rem auto;
             border-radius: 5px;
+            /* Less rounded */
             font-size: 0.9rem;
             background-color: var(--navbar-bg);
+            /* Use a light theme background */
             text-align: center;
             max-width: 80%;
             text-transform: none;
+            /* Prevent uppercase */
             border: 1px solid transparent;
+            /* Add a subtle border */
             position: fixed;
             /* Fix position */
             top: 80px;
@@ -618,7 +806,6 @@
             width: auto;
             /* Adjust width */
         }
-
 
         .status-message.fade-in {
             display: block;
@@ -648,126 +835,7 @@
             border-color: var(--status-info-border);
         }
 
-        .modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.show {
-            display: flex;
-            animation: fadeIn 0.3s ease forwards;
-        }
-
-        .modal.fade-out {
-            display: flex;
-            animation: fadeOut 0.3s ease forwards;
-        }
-
-        .modal-content {
-            background-color: var(--navbar-bg);
-            border-radius: 10px;
-            padding: 1.5rem;
-            width: 90%;
-            max-width: 500px;
-            color: var(--text-color);
-            position: relative;
-            border: 1px solid var(--secondary-border-color);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            text-align: left;
-            text-transform: none;
-        }
-
-        .modal h3 {
-            margin-top: 0;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--text-color);
-            text-transform: uppercase;
-        }
-
-        .close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            color: var(--text-color);
-            font-size: 1.8rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-
-        .close:hover {
-            color: var(--danger-action);
-        }
-
-        .delete-form {
-            margin-top: 1.5rem;
-        }
-
-        .delete-form input {
-            width: 100%;
-            padding: 0.8rem;
-            border-radius: 5px;
-            border: 1px solid var(--secondary-border-color);
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin-bottom: 1rem;
-            box-sizing: border-box;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
-            text-transform: none;
-            outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .delete-form input:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 5px rgba(51, 51, 51, 0.2);
-        }
-
-        .delete-form button {
-            width: 100%;
-            padding: 10px 20px;
-            min-height: 40px;
-            border-radius: 5px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            font-family: 'Outfit', sans-serif;
-            text-transform: uppercase;
-            font-size: 14px;
-            text-align: center;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--danger-action);
-            color: var(--bg-color);
-            border: 1px solid var(--danger-action);
-        }
-
-        .delete-form button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background-color: var(--secondary-border-color);
-            color: rgba(51, 51, 51, 0.6);
-            border-color: var(--secondary-border-color);
-        }
-
-        .delete-form button:hover:not(:disabled) {
-            background-color: var(--danger-action-hover);
-            border-color: var(--danger-action-hover);
-        }
-
+        /* Footer */
         footer {
             position: fixed;
             left: 0;
@@ -776,12 +844,11 @@
             text-align: center;
             padding: 20px;
             color: rgba(51, 51, 51, 0.6);
+            /* Slightly lighter dark color for footer text */
             font-size: 14px;
             background-color: var(--footer-bg);
             text-transform: uppercase;
             width: 100%;
-            margin: 0;
-            /* ensure no extra margins */
         }
 
         /* Prevent page content from hiding behind the fixed footer */
@@ -791,6 +858,7 @@
         }
 
 
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             .navbar {
                 flex-direction: column;
@@ -818,6 +886,7 @@
                 font-size: 0.8rem;
             }
 
+
             .nav-buttons {
                 flex-direction: column;
                 gap: 10px;
@@ -844,9 +913,6 @@
                 /* Adjusted margin-top for smaller screens */
             }
 
-            .sound-section {
-                margin: 1.5rem 0;
-            }
 
             .sound-section h2 {
                 font-size: 1.3rem;
@@ -865,8 +931,10 @@
                 font-size: 0.75rem;
                 padding: 0 1rem;
                 border-radius: 15px;
+                /* Adjusted for smaller screens */
                 max-width: 100%;
             }
+
 
             .options-content {
                 min-width: 200px;
@@ -883,15 +951,6 @@
                 display: block;
                 opacity: 1;
                 transform: translateX(-50%);
-            }
-
-            .modal-content {
-                width: 95%;
-                padding: 1rem;
-            }
-
-            .modal h3 {
-                font-size: 1.2rem;
             }
 
             .status-message {
@@ -921,6 +980,7 @@
                 font-size: 0.7rem;
             }
 
+
             .nav-buttons {
                 gap: 8px;
                 padding-left: 0;
@@ -944,56 +1004,47 @@
                 /* Adjusted margin-top */
             }
 
-            .sound-section {
-                margin: 1rem 0;
-            }
 
             .sound-section h2 {
                 font-size: 1.1rem;
             }
 
             .soundButtonsContainer {
-                gap: 8px;
-                padding: 0.3rem 0;
+                gap: 10px;
+                padding: 0.5rem 0;
                 grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
                 /* Adjusted min width */
             }
 
-            .sound-button,
-            .sound-button.short-text {
+            .sound-button {
                 min-width: 70px;
                 height: 70px;
                 font-size: 0.7rem;
                 padding: 0 0.5rem;
                 border-radius: 10px;
+                /* Adjusted for very small screens */
             }
+
 
             .options-content {
                 min-width: 180px;
                 padding: 0.8rem;
             }
 
-            .options-content label {
+            .options-content label,
+            .options-content #autoClickDelayLabel,
+            .options-content #playbackSpeed,
+            .options-content #autoClickDelay {
                 font-size: 0.8rem;
             }
 
-            .options-content input[type="checkbox"] {
-                width: 14px;
-                height: 14px;
+            .keyboard-shortcuts p {
+                font-size: 0.75rem;
             }
 
-            .modal-content {
-                width: 95%;
-                padding: 0.8rem;
-            }
-
-            .modal h3 {
-                font-size: 1rem;
-            }
-
-            .status-message {
-                top: 180px;
-                /* Adjust top for smaller screens */
+            #applyDelayBtn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.7rem;
             }
         }
     </style>
@@ -1009,18 +1060,13 @@
             </div>
         </div>
         <div class="nav-buttons">
-            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
-            <a href="playlists.html" class="btn secondary btn-with-arrow" id="backBtn">Playlists</a>
             <div class="options-dropdown">
-                <button class="btn secondary options-button">Options</button>
+                <button class="options-button">Options</button>
                 <div class="options-content" id="optionsMenu">
                     <div class="options-section">
                         <h3>Playback Options</h3>
-                        <label><input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay</label>
-                        <label><input type="checkbox" id="autoClickerCheckbox" />Auto Clicker</label>
-                        <label id="autoClickDelayLabel" style="display: none;">
-                            Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" />
-                            <button id="applyDelayBtn">Apply</button>
+                        <label>
+                            <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
                         </label>
                         <label for="playbackSpeed" class="playback-speed-label">Playback Speed:
                             <select id="playbackSpeed">
@@ -1038,14 +1084,19 @@
                                 <option value="3">3x</option>
                             </select>
                         </label>
+                        <label>
+                            <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
+                        </label>
+                        <label id="autoClickDelayLabel" style="display: none;">
+                            Delay (ms): <input type="number" id="autoClickDelay" value="1000" min="0" />
+                            <button id="applyDelayBtn">Apply</button>
+                        </label>
                     </div>
                     <div class="options-section">
                         <h3>Management</h3>
                         <button id="clearAllSoundsBtn" class="btn secondary">
-                            Clear All Sounds <div class="ripple-container"></div>
-                        </button>
-                        <button id="deletePlaylistBtn" class="btn secondary danger-btn">
-                            Delete Playlist <div class="ripple-container"></div>
+                            Clear All Sounds
+                            <div class="ripple-container"></div>
                         </button>
                     </div>
                     <div class="keyboard-shortcuts">
@@ -1054,61 +1105,94 @@
                     </div>
                 </div>
             </div>
-            <button id="saveBtn" class="btn secondary" style="display:none;">Save Changes</button>
-            <button id="logoutBtn" class="btn secondary">Log Out</button>
+            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+            <a href="playlists.html" class="btn secondary btn-with-arrow" id="backBtn">Playlists</a>
+            <button class="btn secondary" id="logoutBtn">Log Out</button>
         </div>
     </nav>
 
     <main>
         <div class="container">
+             <h1>Playlist Soundboard</h1>
+            <p>Click the buttons to play a sound from the playlist.</p>
+
             <div class="status-message" id="statusMessage"></div>
             <div class="overlay" id="overlay"></div>
+
             <section class="sound-section">
-                <h2>Playlist Sounds</h2>
+                <h2 id="playlistSoundsTitle">Playlist Sounds</h2>
                 <div id="soundGrid" class="soundButtonsContainer">
                     <p style="color: var(--text-color);">LOADING PLAYLIST SOUNDS...</p>
                 </div>
             </section>
-        </div>
+
+            </div>
     </main>
 
     <footer>
         <p>&copy; <span id="currentYear"></span> 4SP</p>
     </footer>
 
-    <div id="deletePlaylistModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Delete Playlist</h3>
-            <p>ARE YOU SURE YOU WANT TO DELETE THIS PLAYLIST? THIS ACTION CANNOT BE UNDONE.</p>
-            <p>PLEASE TYPE <strong id="confirmPlaylistNameText"></strong> TO CONFIRM:</p>
-            <div class="delete-form">
-                <input type="text" id="confirmPlaylistInput" placeholder="TYPE PLAYLIST NAME">
-                <button id="confirmDeleteBtn" class="btn danger-btn" disabled>Delete</button>
-            </div>
-        </div>
-    </div>
-
     <script>
+        // Display current year in footer
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
+        // --- Firebase initialization & Auth guard ---
         let auth, db;
-        if (typeof firebaseConfig !== 'undefined' && firebase.apps.length === 0) {
-            firebase.initializeApp(firebaseConfig);
+        try {
+            // Check if firebaseConfig is defined and firebase is not already initialized
+            if (typeof firebaseConfig !== 'undefined' && firebase.apps.length === 0) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            // Get auth and firestore instances if firebase is available
+            if (typeof firebase !== 'undefined') {
+                if (typeof firebase.auth !== 'undefined') auth = firebase.auth();
+                if (typeof firebase.firestore !== 'undefined') db = firebase.firestore();
+                initAuthAndLoadPlaylist(); // Start the process
+            } else {
+                console.error("Firebase SDK not available.");
+                // Handle error, maybe redirect to a static error page or show message
+                const soundGrid = document.getElementById('soundGrid');
+                if (soundGrid) soundGrid.innerHTML = '<p style="color: var(--error-color);">FIREBASE SERVICES NOT AVAILABLE.</p>';
+                // Hide elements that require auth or firestore
+                ['logoutBtn', 'deletePlaylistBtn', 'saveBtn'].forEach(id => {
+                    const btn = document.getElementById(id);
+                    if (btn) btn.style.display = 'none';
+                });
+                 // Hide options that require advanced features if no firebase
+                 const optionsButton = document.querySelector('.options-button');
+                 if(optionsButton) optionsButton.style.display = 'none';
+            }
+        } catch (e) {
+            console.error("Firebase initialization error:", e);
+            // Handle error
+             const soundGrid = document.getElementById('soundGrid');
+             if(soundGrid) soundGrid.innerHTML = '<p style="color: var(--error-color);">FIREBASE INITIALIZATION ERROR.</p>';
+              ['logoutBtn', 'deletePlaylistBtn', 'saveBtn'].forEach(id => {
+                 const btn = document.getElementById(id);
+                 if(btn) btn.style.display = 'none';
+             });
+              const optionsButton = document.querySelector('.options-button');
+              if(optionsButton) optionsButton.style.display = 'none';
         }
-        if (typeof firebase !== 'undefined') {
-            if (typeof firebase.auth !== 'undefined') auth = firebase.auth();
-            if (typeof firebase.firestore !== 'undefined') db = firebase.firestore();
-            initAuthAndLoadPlaylist();
-        } else {
-            console.warn("Firebase SDK not available.");
-            const soundGrid = document.getElementById('soundGrid');
-            if (soundGrid) soundGrid.innerHTML = '<p style="color: var(--error-color);">FIREBASE SERVICES NOT AVAILABLE.</p>';
-            ['logoutBtn', 'deletePlaylistBtn', 'saveBtn'].forEach(id => {
-                const btn = document.getElementById(id);
-                if (btn) btn.style.display = 'none';
+
+
+        async function initAuthAndLoadPlaylist() {
+            if (!auth) {
+                console.error("Firebase Auth not initialized.");
+                window.location.href = 'index.html'; // Redirect to login/home if auth is not available
+                return;
+            }
+            auth.onAuthStateChanged(async user => {
+                if (!user) {
+                    window.location.href = 'index.html'; // Redirect if not logged in
+                    return;
+                }
+                // User is logged in, load playlist data
+                loadPlaylistData(user);
             });
         }
+
 
         let playingAudios = [];
         let autoClickInterval;
@@ -1118,22 +1202,7 @@
         let menuIsOpen = false;
         let isRippling = false;
         let currentPlaybackSpeed = 1.0;
-        let originalPlaylistData = {}; // To store original data for reverting edits
 
-        async function initAuthAndLoadPlaylist() {
-            if (!auth) {
-                console.error("Firebase Auth not initialized.");
-                window.location.href = 'index.html';
-                return;
-            }
-            auth.onAuthStateChanged(async user => {
-                if (!user) {
-                    window.location.href = 'index.html';
-                    return;
-                }
-                loadPlaylistData(user);
-            });
-        }
 
         async function loadPlaylistData(user) {
             const params = new URLSearchParams(location.search);
@@ -1141,20 +1210,24 @@
             const isLocal = params.get('local') === 'true';
             let data = {
                 items: []
-            };
+            }; // Default empty data
 
             const plNameEl = document.getElementById('plName');
             const plDescEl = document.getElementById('plDesc');
             const soundGrid = document.getElementById('soundGrid');
-            const deletePlaylistBtn = document.getElementById('deletePlaylistBtn');
+            const playlistSoundsTitle = document.getElementById('playlistSoundsTitle');
+
 
             if (!playlistId) {
                 console.error("No playlist ID provided.");
                 if (soundGrid) soundGrid.innerHTML = '<p style="color: var(--error-color);">PLAYLIST ID MISSING.</p>';
-                if (deletePlaylistBtn) deletePlaylistBtn.style.display = 'none';
+                if (playlistSoundsTitle) playlistSoundsTitle.textContent = 'ERROR';
+                 showStatus('PLAYLIST ID MISSING.', 'error');
                 return;
             }
             if (soundGrid) soundGrid.innerHTML = '<p style="color: var(--text-color);">LOADING PLAYLIST SOUNDS...</p>';
+             if (playlistSoundsTitle) playlistSoundsTitle.textContent = 'LOADING...';
+
 
             try {
                 if (isLocal) {
@@ -1169,8 +1242,7 @@
                         showStatus('PLAYLIST NOT FOUND OR ACCESS DENIED.', 'error');
                         setTimeout(() => {
                             location.href = 'playlists.html';
-                        }, 2000);
-                        if (deletePlaylistBtn) deletePlaylistBtn.style.display = 'none';
+                        }, 2000); // Redirect after showing message
                         return;
                     }
                     data = doc.data();
@@ -1179,43 +1251,69 @@
                 if (!data || !data.name) {
                     console.warn("Playlist data not found after loading attempt.");
                     if (soundGrid) soundGrid.innerHTML = '<p style="color: var(--error-color);">PLAYLIST DATA NOT FOUND.</p>';
-                    if (deletePlaylistBtn) deletePlaylistBtn.style.display = 'none';
+                    if (playlistSoundsTitle) playlistSoundsTitle.textContent = 'ERROR';
+                     showStatus('PLAYLIST DATA NOT FOUND.', 'error');
                     return;
                 }
 
-                originalPlaylistData = JSON.parse(JSON.stringify(data)); // Deep copy for reverting edits
-
+                // Update playlist name and description in the header
                 plNameEl.textContent = data.name || 'Unnamed Playlist';
                 plDescEl.textContent = data.description || 'No Description';
-                renderSoundButtons(data.items || []);
-                setupActionListeners(playlistId, data, isLocal);
-                loadUserPreferences();
+                if (playlistSoundsTitle) playlistSoundsTitle.textContent = `${data.name || 'PLAYLIST'} SOUNDS`;
 
+
+                renderSoundButtons(data.items || []);
+                setupEventListeners(playlistId, data, isLocal); // Pass necessary data to event listeners setup
+                loadUserPreferences(); // Load user preferences after DOM is ready
 
             } catch (error) {
                 console.error("Error loading playlist data:", error);
                 if (soundGrid) soundGrid.innerHTML = `<p style="color: var(--error-color);">ERROR LOADING: ${error.message.toUpperCase()}</p>`;
-                if (deletePlaylistBtn) deletePlaylistBtn.style.display = 'none';
+                if (playlistSoundsTitle) playlistSoundsTitle.textContent = 'ERROR';
+                 showStatus(`ERROR LOADING PLAYLIST: ${error.message.toUpperCase()}`, 'error');
             }
         }
 
 
         function renderSoundButtons(items) {
             const grid = document.getElementById('soundGrid');
-            grid.innerHTML = '';
+            grid.innerHTML = ''; // Clear loading message
             if (!items || items.length === 0) {
                 grid.innerHTML = '<p style="color: var(--text-color);">NO SOUNDS IN THIS PLAYLIST.</p>';
                 return;
             }
+            // Sort items alphabetically by label/filename
+            items.sort((a, b) => {
+                const labelA = (a.label || a.fileName || '').toLowerCase();
+                const labelB = (b.label || b.fileName || '').toLowerCase();
+                if (labelA < labelB) return -1;
+                if (labelA > labelB) return 1;
+                return 0;
+            });
+
             items.forEach(item => {
                 const btn = document.createElement('button');
                 btn.classList.add('sound-button');
                 const label = item.label || item.fileName || 'Unnamed Sound';
-                btn.textContent = label.replace(/\.(mp3|wav)$/i, '').replace(/_/g, ' ');
-                // The short-text class logic seems unnecessary with grid layout and word wrapping
-                // if (btn.textContent.length < 10) btn.classList.add('short-text');
+                // Remove file extension and replace underscores in the button text
+                btn.textContent = label.replace(/\.(mp3|wav|ogg)$/i, '').replace(/_/g, ' ');
 
-                const soundUrl = item.url || `${item.folder}/${item.fileName}`;
+                // Construct sound URL - prioritize 'url' property, then 'folder' + 'fileName'
+                const soundUrl = item.url || (item.folder && item.fileName ? `${item.folder}/${item.fileName}` : null);
+
+                if (!soundUrl) {
+                     console.warn(`Skipping sound button for item with no valid URL: ${label}`);
+                     // Optionally show a placeholder or error state button
+                     const errorBtn = document.createElement('div'); // Use a div since it's not clickable
+                     errorBtn.classList.add('sound-button'); // Keep styling
+                     errorBtn.style.backgroundColor = 'var(--status-error-bg)'; // Indicate error
+                     errorBtn.style.borderColor = 'var(--status-error-border)';
+                     errorBtn.style.color = 'var(--status-error-color)';
+                     errorBtn.textContent = `${btn.textContent} (Error)`;
+                     grid.appendChild(errorBtn);
+                     return; // Skip this item
+                }
+
 
                 btn.addEventListener('click', () => playSound(soundUrl, label));
                 // Modify mouseenter and mouseleave listeners for proper autoclicker control
@@ -1244,13 +1342,13 @@
                 audio.addEventListener('error', (e) => {
                     console.error(`Error playing sound "${label}" from "${soundUrl}":`, e);
                     showStatus(`CANNOT PLAY: ${label}`, 'error');
-                    playingAudios = playingAudios.filter(a => a !== audio);
+                    playingAudios = playingAudios.filter(a => a !== audio); // Remove audio from list if error
                 });
                 playingAudios.push(audio);
                 audio.play().catch(err => {
                     console.error(`Autoplay error for "${label}":`, err);
                     showStatus(`CANNOT PLAY: ${label}. CHECK BROWSER SETTINGS.`, 'error');
-                    playingAudios = playingAudios.filter(a => a !== audio);
+                    playingAudios = playingAudios.filter(a => a !== audio); // Remove audio from list if autoplay fails
                 });
             } catch (e) {
                 console.error(`Error creating audio for "${label}":`, e);
@@ -1258,8 +1356,8 @@
             }
         }
 
-        function setupActionListeners(playlistId, playlistData, isLocal) {
-            // Common elements
+        function setupEventListeners(playlistId, playlistData, isLocal) {
+            // Common elements (ensure these exist in the HTML)
             const overlay = document.getElementById('overlay');
             const optionsButton = document.querySelector('.options-button');
             const optionsMenu = document.getElementById('optionsMenu');
@@ -1273,51 +1371,40 @@
             const logoutBtn = document.getElementById('logoutBtn');
             const backBtn = document.getElementById('backBtn');
 
-            // Elements for editing
-            const plNameElement = document.getElementById('plName');
-            const plDescElement = document.getElementById('plDesc');
-            const saveBtnElement = document.getElementById('saveBtn');
-
-            // Elements for deleting
-            const deletePlaylistBtn = document.getElementById('deletePlaylistBtn');
-            const deletePlaylistModal = document.getElementById('deletePlaylistModal');
-            const confirmPlaylistNameText = document.getElementById('confirmPlaylistNameText');
-            const confirmPlaylistInput = document.getElementById('confirmPlaylistInput');
-            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-            const closeModalBtn = deletePlaylistModal.querySelector('.close');
-
             // Options Menu
-            optionsButton.onclick = (e) => {
+            if (optionsButton) optionsButton.onclick = (e) => {
                 e.stopPropagation();
                 menuIsOpen ? closeOptionsMenu() : openOptionsMenu();
             };
-            overlay.onclick = closeOptionsMenu;
+            if (overlay) overlay.onclick = closeOptionsMenu;
             document.onclick = (event) => {
-                if (menuIsOpen && !optionsMenu.contains(event.target) && event.target !== optionsButton) closeOptionsMenu();
+                if (menuIsOpen && optionsMenu && optionsButton && !optionsMenu.contains(event.target) && event.target !== optionsButton) {
+                    closeOptionsMenu();
+                }
             };
 
             // Playback Options
-            soundOverlayCheckbox.onchange = function() {
+            if (soundOverlayCheckbox) soundOverlayCheckbox.onchange = function() {
                 if (!this.checked) stopAllAudios();
                 localStorage.setItem('soundOverlay', this.checked);
                 showStatus(`SOUND OVERLAY: ${this.checked ? 'ON' : 'OFF'}`, 'info');
             };
-            autoClickerCheckbox.onchange = function() {
-                autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
+            if (autoClickerCheckbox) autoClickerCheckbox.onchange = function() {
+                if (autoClickDelayLabel) autoClickDelayLabel.style.display = this.checked ? 'block' : 'none';
                 // Start or stop autoclicker immediately on checkbox change if currently hovering
                 if (this.checked && currentlyHoveredButton) startAutoClicker();
                 else if (!this.checked) stopAutoClicker();
                 localStorage.setItem('autoClicker', this.checked);
                 showStatus(`AUTO CLICKER: ${this.checked ? 'ON' : 'OFF'}`, 'info');
             };
-            applyDelayBtn.onclick = applyAutoClickerDelay;
-            autoClickDelayInput.onkeydown = (e) => {
+            if (applyDelayBtn) applyDelayBtn.onclick = applyAutoClickerDelay;
+            if (autoClickDelayInput) autoClickDelayInput.onkeydown = (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     applyAutoClickerDelay();
                 }
             };
-            playbackSpeedSelect.onchange = function() {
+            if (playbackSpeedSelect) playbackSpeedSelect.onchange = function() {
                 currentPlaybackSpeed = parseFloat(this.value);
                 localStorage.setItem('playbackSpeed', currentPlaybackSpeed.toString());
                 playingAudios.forEach(applyPlaybackSpeedToAudio);
@@ -1325,150 +1412,15 @@
             };
 
             // Management Buttons
-            clearAllSoundsBtn.onclick = (e) => {
+            if (clearAllSoundsBtn) clearAllSoundsBtn.onclick = (e) => {
                 createRipple(e, clearAllSoundsBtn);
                 clearAllSounds();
             };
 
-            // Delete Playlist Logic
-            if (deletePlaylistBtn) {
-                deletePlaylistBtn.onclick = (e) => {
-                    createRipple(e, deletePlaylistBtn);
-                    confirmPlaylistNameText.textContent = playlistData.name || 'this playlist';
-                    confirmPlaylistInput.value = '';
-                    confirmDeleteBtn.disabled = true;
-                    deletePlaylistModal.classList.remove('fade-out');
-                    deletePlaylistModal.style.display = 'flex';
-                    deletePlaylistModal.classList.add('show');
-                    closeOptionsMenu();
-                };
-            }
-
-            if (closeModalBtn) closeModalBtn.onclick = closeDeleteModal;
-            window.onclick = (e) => {
-                if (e.target === deletePlaylistModal) closeDeleteModal();
-            };
-
-            if (confirmPlaylistInput) {
-                confirmPlaylistInput.oninput = () => {
-                    confirmDeleteBtn.disabled = confirmPlaylistInput.value.trim().toLowerCase() !== (playlistData.name || '').toLowerCase();
-                };
-            }
-
-            if (confirmDeleteBtn) {
-                confirmDeleteBtn.onclick = async () => {
-                    if (confirmPlaylistInput.value.trim().toLowerCase() === (playlistData.name || '').toLowerCase()) {
-                        try {
-                            stopAllAudios();
-                            if (isLocal) {
-                                const playlists = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-                                localStorage.setItem('localPlaylists', JSON.stringify(playlists.filter(p => p.id !== playlistId)));
-                            } else {
-                                if (!db) throw new Error("Firestore not available.");
-                                await db.collection('playlists').doc(playlistId).delete();
-                            }
-                            showStatus('PLAYLIST DELETED.', 'success');
-                            closeDeleteModal();
-                            setTimeout(() => {
-                                location.href = 'playlists.html';
-                            }, 1000);
-                        } catch (error) {
-                            console.error('Error deleting playlist:', error);
-                            showStatus(`DELETE FAILED: ${error.message.toUpperCase()}`, 'error');
-                            closeDeleteModal();
-                        }
-                    } else {
-                        showStatus('NAME DOES NOT MATCH.', 'info');
-                    }
-                };
-            }
-
-            // Edit Playlist Name/Description
-            [plNameElement, plDescElement].forEach(el => {
-                el.addEventListener('click', function() {
-                    if (this.contentEditable !== 'true') {
-                        this.contentEditable = true;
-                        this.focus();
-                        saveBtnElement.style.display = 'inline-flex';
-                    }
-                });
-                el.addEventListener('blur', function() {
-                    // Basic auto-save on blur, or rely on explicit save button
-                    // For explicit save, this blur might just remove focus styling if any
-                });
-            });
-
-            saveBtnElement.onclick = async () => {
-                const updatedName = plNameElement.textContent.trim();
-                const updatedDesc = plDescElement.textContent.trim();
-
-                if (!updatedName) {
-                    showStatus('PLAYLIST NAME CANNOT BE EMPTY.', 'info');
-                    plNameElement.textContent = originalPlaylistData.name || 'Unnamed Playlist'; // Revert
-                    return;
-                }
-
-                const currentData = { ...originalPlaylistData,
-                    name: updatedName,
-                    description: updatedDesc,
-                    items: playlistData.items
-                }; // Ensure items are current
-
-                try {
-                    if (isLocal) {
-                        let playlists = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
-                        playlists = playlists.map(p => p.id === playlistId ? currentData : p);
-                        localStorage.setItem('localPlaylists', JSON.stringify(playlists));
-                    } else {
-                        if (!db) throw new Error("Firestore not available.");
-                        await db.collection('playlists').doc(playlistId).update({
-                            name: updatedName,
-                            description: updatedDesc
-                            // Items are not editable on this page currently
-                        });
-                    }
-                    originalPlaylistData.name = updatedName; // Update original data upon successful save
-                    originalPlaylistData.description = updatedDesc;
-                    showStatus('PLAYLIST SAVED.', 'success');
-                    closeEditMode();
-                } catch (error) {
-                    console.error('Error saving playlist:', error);
-                    showStatus(`SAVE FAILED: ${error.message.toUpperCase()}`, 'error');
-                    // Revert UI to original data on failure
-                    plNameElement.textContent = originalPlaylistData.name;
-                    plDescElement.textContent = originalPlaylistData.description;
-                    closeEditMode();
-                }
-            };
-
-            function closeEditMode() {
-                plNameElement.contentEditable = false;
-                plDescElement.contentEditable = false;
-                saveBtnElement.style.display = 'none';
-            }
-
-            // Clicking outside editable fields or save button while in edit mode
-            document.addEventListener('click', (e) => {
-                if (plNameElement.contentEditable === 'true' || plDescElement.contentEditable === 'true') {
-                    if (e.target !== plNameElement && e.target !== plDescElement && e.target !== saveBtnElement) {
-                        // Optional: Ask to save changes or discard
-                        // For now, just revert and close edit mode if changes were not saved
-                        if (plNameElement.textContent.trim() !== originalPlaylistData.name || plDescElement.textContent.trim() !== originalPlaylistData.description) {
-                            // showStatus("Changes not saved. Click 'Save Changes' or edit again.", "info");
-                            // Revert to original if not saved explicitly
-                            plNameElement.textContent = originalPlaylistData.name;
-                            plDescElement.textContent = originalPlaylistData.description;
-                        }
-                        closeEditMode();
-                    }
-                }
-            });
-
-
             // Navigation
             if (backBtn) backBtn.onclick = () => location.href = 'playlists.html';
-            if (logoutBtn) logoutBtn.onclick = () => {
-                if (auth) auth.signOut().then(() => location.href = 'index.html');
+            if (logoutBtn && auth) logoutBtn.onclick = () => {
+                auth.signOut().then(() => location.href = 'index.html');
             };
 
             // Keyboard Shortcuts
@@ -1476,11 +1428,10 @@
                 if (e.shiftKey && (e.key.toLowerCase() === 'c' || e.code.toLowerCase() === 'keyc') &&
                     document.activeElement.tagName !== 'INPUT' &&
                     document.activeElement.tagName !== 'TEXTAREA' &&
-                    !deletePlaylistModal.contains(document.activeElement) &&
-                    !optionsMenu.contains(document.activeElement)) {
+                     !optionsMenu.contains(document.activeElement)) { // Check if not inside options menu inputs
                     e.preventDefault();
                     clearAllSounds(true);
-                    closeOptionsMenu();
+                    closeOptionsMenu(); // Close menu on clear shortcut
                 }
             };
         }
@@ -1488,6 +1439,10 @@
         // Utility functions (showStatus, open/closeOptionsMenu, createRipple, etc.)
         function showStatus(message, type = 'info') {
             const statusMessageEl = document.getElementById('statusMessage');
+            if (!statusMessageEl) {
+                 console.warn("Status message element not found.");
+                 return;
+            }
             if (statusMessageTimeout) clearTimeout(statusMessageTimeout);
             statusMessageEl.textContent = message.toUpperCase();
             statusMessageEl.className = 'status-message ' + type;
@@ -1509,6 +1464,7 @@
             menuIsOpen = true;
             const overlay = document.getElementById('overlay');
             const optionsMenu = document.getElementById('optionsMenu');
+            if (!overlay || !optionsMenu) return;
             overlay.classList.remove('fade-out');
             optionsMenu.classList.remove('fade-out');
             overlay.style.display = 'block';
@@ -1522,6 +1478,7 @@
             menuIsOpen = false;
             const overlay = document.getElementById('overlay');
             const optionsMenu = document.getElementById('optionsMenu');
+             if (!overlay || !optionsMenu) return;
             overlay.classList.remove('fade-in');
             optionsMenu.classList.remove('fade-in');
             overlay.classList.add('fade-out');
@@ -1534,20 +1491,12 @@
             }, 300);
         }
 
-        function closeDeleteModal() {
-            const deleteModal = document.getElementById('deletePlaylistModal');
-            deleteModal.classList.remove('show');
-            deleteModal.classList.add('fade-out');
-            setTimeout(() => {
-                deleteModal.style.display = 'none';
-                deleteModal.classList.remove('fade-out');
-            }, 300);
-        }
 
         function createRipple(event, buttonElement) {
             if (isRippling) return;
             isRippling = true;
-            const rippleContainer = buttonElement.querySelector('.ripple-container');
+            // Find the ripple container within the specific button element
+            const rippleContainer = buttonElement ? buttonElement.querySelector('.ripple-container') : null;
             if (!rippleContainer) {
                 isRippling = false;
                 return;
@@ -1559,12 +1508,12 @@
             ripple.classList.add('ripple');
             ripple.style.left = x + 'px';
             ripple.style.top = y + 'px';
-            rippleContainer.innerHTML = '';
+            rippleContainer.innerHTML = ''; // Clear previous ripples
             rippleContainer.appendChild(ripple);
             setTimeout(() => {
                 ripple.remove();
                 isRippling = false;
-            }, 600);
+            }, 600); // Ripple animation duration
         }
 
         function muteAllSounds() {
@@ -1575,9 +1524,9 @@
 
         function stopAllAudios(delay = 0) {
             if (playingAudios.length === 0) return;
-            const audiosToStop = [...playingAudios];
+            const audiosToStop = [...playingAudios]; // Work on a copy
             if (delay > 0) {
-                muteAllSounds();
+                muteAllSounds(); // Mute immediately
                 setTimeout(() => {
                     audiosToStop.forEach(audio => {
                         if (audio && typeof audio.pause === 'function') {
@@ -1585,6 +1534,7 @@
                             audio.currentTime = 0;
                         }
                     });
+                    // Filter out the audios that were stopped
                     playingAudios = playingAudios.filter(audio => !audiosToStop.includes(audio));
                 }, delay);
             } else {
@@ -1594,32 +1544,37 @@
                         audio.currentTime = 0;
                     }
                 });
-                playingAudios = playingAudios.filter(audio => !audiosToStop.includes(audio));
+                 playingAudios = playingAudios.filter(audio => !audiosToStop.includes(audio));
             }
         }
+
 
         function clearAllSounds(instantMute = false) {
             const wasPlaying = playingAudios.length > 0;
             if (wasPlaying) {
                 if (instantMute) {
                     muteAllSounds();
-                    stopAllAudios(100);
-                    showStatus('ALL SOUNDS MUTED AND CLEARED', 'success');
+                    stopAllAudios(100); // Small delay for mute to take effect before stopping
+                    showStatus('ALL SOUNDS MUTED AND CLEARED', 'success'); // Uppercase status
                 } else {
                     stopAllAudios();
-                    showStatus('ALL SOUNDS STOPPED', 'success');
+                    showStatus('ALL SOUNDS STOPPED', 'success'); // Uppercase status
                 }
             } else if (!instantMute) {
-                showStatus('NO SOUNDS TO CLEAR', 'info');
+                showStatus('NO SOUNDS TO CLEAR', 'info'); // Uppercase status
             }
-            if (instantMute) closeOptionsMenu();
+            if (instantMute) closeOptionsMenu(); // Close menu on clear shortcut
         }
 
-        // Modified autoclicker logic
+        // Modified autoclicker logic - Combined requestAnimationFrame and setInterval
         function autoClickerLoop() {
-            if (currentlyHoveredButton && document.getElementById('autoClickerCheckbox').checked) {
+             const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
+             const autoClickDelayInput = document.getElementById('autoClickDelay');
+
+            if (currentlyHoveredButton && autoClickerCheckbox && autoClickerCheckbox.checked) {
                 currentlyHoveredButton.click();
-                const delay = parseInt(document.getElementById('autoClickDelay').value, 10) || 0;
+                const delay = parseInt(autoClickDelayInput ? autoClickDelayInput.value : '0', 10) || 0;
+
                 if (delay === 0) {
                     requestAnimationFrameId = requestAnimationFrame(autoClickerLoop);
                 } else {
@@ -1632,16 +1587,11 @@
 
         function startAutoClicker() {
             stopAutoClicker(); // Clear any existing timers/animation frames
-            const delay = parseInt(document.getElementById('autoClickDelay').value, 10) || 0;
-            if (!document.getElementById('autoClickerCheckbox').checked || !currentlyHoveredButton) return;
+             const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
+            if (!currentlyHoveredButton || !autoClickerCheckbox || !autoClickerCheckbox.checked) return;
 
-            if (delay === 0) {
-                // Use requestAnimationFrame for fastest clicking
-                requestAnimationFrameId = requestAnimationFrame(autoClickerLoop);
-            } else {
-                // Use setTimeout for delayed clicking
-                autoClickInterval = setTimeout(autoClickerLoop, delay);
-            }
+            // Start the loop
+            autoClickerLoop();
         }
 
         function stopAutoClicker() {
@@ -1655,21 +1605,30 @@
             }
         }
 
-
         function applyAutoClickerDelay() {
-            const delay = parseInt(document.getElementById('autoClickDelay').value, 10);
             const autoClickDelayInput = document.getElementById('autoClickDelay');
-            if (isNaN(delay) || delay < 0) autoClickDelayInput.value = 0;
+            if (!autoClickDelayInput) return;
+            const delay = parseInt(autoClickDelayInput.value, 10);
+            if (isNaN(delay) || delay < 0) {
+                autoClickDelayInput.value = 0; // Reset to 0 if invalid
+            }
             localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
+             const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
             // Restart autoclicker with new delay if it was active and hovering
-            if (document.getElementById('autoClickerCheckbox').checked && currentlyHoveredButton) startAutoClicker();
-            else if (document.getElementById('autoClickerCheckbox').checked) stopAutoClicker(); // Stop if checkbox is checked but not hovering
-            showStatus(`AUTO CLICK DELAY SET TO ${autoClickDelayInput.value}MS`, 'info');
+            if (autoClickerCheckbox && autoClickerCheckbox.checked && currentlyHoveredButton) {
+                startAutoClicker();
+            } else if (autoClickerCheckbox && autoClickerCheckbox.checked) {
+                 // If checkbox is checked but not hovering, just stop any lingering intervals/frames
+                 stopAutoClicker();
+            }
+            showStatus(`AUTO CLICK DELAY SET TO ${autoClickDelayInput.value}MS`, 'info'); // Uppercase status
         }
 
 
         function applyPlaybackSpeedToAudio(audioElement) {
-            if (audioElement) audioElement.playbackRate = currentPlaybackSpeed;
+            if (audioElement) {
+                audioElement.playbackRate = currentPlaybackSpeed;
+            }
         }
 
         function loadUserPreferences() {
@@ -1695,11 +1654,19 @@
                     currentPlaybackSpeed = parseFloat(savedPlaybackSpeed);
                     playbackSpeedSelect.value = currentPlaybackSpeed.toString();
                 } else {
-                    playbackSpeedSelect.value = "1";
+                    playbackSpeedSelect.value = "1"; // Default to 1x if nothing saved
                     currentPlaybackSpeed = 1.0;
                 }
             }
+            // Apply loaded speed to any currently playing audios (though none should be on initial load)
+             playingAudios.forEach(applyPlaybackSpeedToAudio);
         }
+
+        // Initial preference loading when script runs
+        // This ensures the UI reflects saved preferences even before playlist data loads
+        loadUserPreferences();
+
+
     </script>
 </body>
 
