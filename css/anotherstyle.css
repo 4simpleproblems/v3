@@ -1,0 +1,124 @@
+body {
+  /* background: url('../storage/images/bg.gif') repeat center center fixed;*/
+  background-color: black;
+  background-size: 100%;
+  font-family: Arial, sans-serif;
+  margin: 0;
+}
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  color: white;
+  z-index: 1000;
+  overflow-x: auto;
+}
+
+.nav-buttons a {
+  color: white;
+  margin-left: 15px;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.logo-text img {
+  height: 40px;
+  margin-right: 10px;
+}
+.game-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px 0;
+}
+.game-button {
+  position: relative;
+  border-radius: 10px;
+  width: 150px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+.game-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  transition: opacity 0.3s ease;
+}
+.game-button:hover img {
+  opacity: 0.3;
+}
+.overlay-text {
+  position: absolute;
+  color: white;
+  font-family: "Comfortaa", sans-serif;
+  font-size: 18px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+  width: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.game-button:hover .overlay-text {
+  opacity: 1;
+}
+.game-title {
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  font-size: 36px;
+  margin: 20px 0 10px 0;
+}
+.games-title {
+  text-align: center;
+  color: white;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+a {
+  text-decoration: none;
+}
+.search-bar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto;
+  width: 100%;
+}
+.search-bar {
+  width: 50%;
+  max-width: 600px;
+  padding: 10px;
+  border-radius: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+.search-bar::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+.search-bar:focus {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.5);
+}
