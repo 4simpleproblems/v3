@@ -284,7 +284,7 @@
         <div class="nav-buttons">
             <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
             <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
-            <a href="playlist-create.html" class="btn secondary btn-with-arrow">Create Playlist</a>
+            <a href="create-playlists.html" class="btn secondary btn-with-arrow">Create Playlist</a>
             <button id="logoutBtn" class="btn secondary">Log Out</button>
         </div>
     </nav>
@@ -320,7 +320,7 @@
             if (grid) grid.innerHTML = '<p style="color: var(--error-color); text-align: center; grid-column: 1 / -1;">FIREBASE SERVICES NOT AVAILABLE.</p>';
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) logoutBtn.style.display = 'none';
-            const createPlaylistBtn = document.querySelector('a[href="playlist-create.html"]');
+            const createPlaylistBtn = document.querySelector('a[href="create-playlists.html"]');
             if (createPlaylistBtn) createPlaylistBtn.style.display = 'none';
              const loadingMessage = document.getElementById('loadingMessage');
             if (loadingMessage) loadingMessage.style.display = 'none';
@@ -348,7 +348,7 @@
 
             if (createTile) {
                 createTile.addEventListener('click', () => {
-                    window.location.href = 'playlist-create.html';
+                    window.location.href = 'create-playlists.html';
                 });
             }
 
