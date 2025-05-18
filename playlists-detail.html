@@ -650,7 +650,7 @@
 
 
         @keyframes buttonPop {
-            0% {
+            from {
                 transform: scale(1);
             }
 
@@ -663,7 +663,7 @@
                 transform: scale(0.98);
             }
 
-            100% {
+            to {
                 transform: scale(1);
             }
         }
@@ -1079,7 +1079,7 @@
                                 <option value="1.75">1.75x</option>
                                 <option value="2">2x</option>
                                 <option value="2.25">2.25x</option>
-                                <option value="2.5">2.5x</option>
+                                <option value="2.5">2.25x</option>
                                 <option value="2.75">2.75x</option>
                                 <option value="3">3x</option>
                             </select>
@@ -1263,7 +1263,7 @@
                 if (plDescEl) plDescEl.textContent = data.description || 'No Description';
                 if (playlistSoundsTitle) playlistSoundsTitle.textContent = `${data.name || 'PLAYLIST'} SOUNDS`;
                 if (mainTitleEl) mainTitleEl.textContent = `${data.name || 'PLAYLIST'} SOUNDBOARD`;
-                 if (mainDescriptionEl) mainDescriptionEl.textContent = `Click the buttons to play sounds from "${data.name || 'this playlist'}".`;
+                if (mainDescriptionEl) mainDescriptionEl.textContent = `Click the buttons to play sounds from "${data.name || 'this playlist'}".`;
 
 
                 renderSoundButtons(data.items || []);
