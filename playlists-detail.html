@@ -1113,8 +1113,8 @@
 
     <main>
         <div class="container">
-             <h1>Playlist Soundboard</h1>
-            <p>Click the buttons to play a sound from the playlist.</p>
+            <h1 id="mainTitle">Playlist Soundboard</h1>
+            <p id="mainDescription">Click the buttons to play a sound from the playlist.</p>
 
             <div class="status-message" id="statusMessage"></div>
             <div class="overlay" id="overlay"></div>
@@ -1159,21 +1159,21 @@
                     const btn = document.getElementById(id);
                     if (btn) btn.style.display = 'none';
                 });
-                 // Hide options that require advanced features if no firebase
-                 const optionsButton = document.querySelector('.options-button');
-                 if(optionsButton) optionsButton.style.display = 'none';
+                // Hide options that require advanced features if no firebase
+                const optionsButton = document.querySelector('.options-button');
+                if (optionsButton) optionsButton.style.display = 'none';
             }
         } catch (e) {
             console.error("Firebase initialization error:", e);
             // Handle error
-             const soundGrid = document.getElementById('soundGrid');
-             if(soundGrid) soundGrid.innerHTML = '<p style="color: var(--error-color);">FIREBASE INITIALIZATION ERROR.</p>';
-              ['logoutBtn', 'deletePlaylistBtn', 'saveBtn'].forEach(id => {
-                 const btn = document.getElementById(id);
-                 if(btn) btn.style.display = 'none';
-             });
-              const optionsButton = document.querySelector('.options-button');
-              if(optionsButton) optionsButton.style.display = 'none';
+            const soundGrid = document.getElementById('soundGrid');
+            if (soundGrid) soundGrid.innerHTML = '<p style="color: var(--error-color);">FIREBASE INITIALIZATION ERROR.</p>';
+            ['logoutBtn', 'deletePlaylistBtn', 'saveBtn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) btn.style.display = 'none';
+            });
+            const optionsButton = document.querySelector('.options-button');
+            if (optionsButton) optionsButton.style.display = 'none';
         }
 
 
@@ -1216,17 +1216,19 @@
             const plDescEl = document.getElementById('plDesc');
             const soundGrid = document.getElementById('soundGrid');
             const playlistSoundsTitle = document.getElementById('playlistSoundsTitle');
+            const mainTitleEl = document.getElementById('mainTitle');
+            const mainDescriptionEl = document.getElementById('mainDescription');
 
 
             if (!playlistId) {
                 console.error("No playlist ID provided.");
                 if (soundGrid) soundGrid.innerHTML = '<p style="color: var(--error-color);">PLAYLIST ID MISSING.</p>';
                 if (playlistSoundsTitle) playlistSoundsTitle.textContent = 'ERROR';
-                 showStatus('PLAYLIST ID MISSING.', 'error');
+                showStatus('PLAYLIST ID MISSING.', 'error');
                 return;
             }
             if (soundGrid) soundGrid.innerHTML = '<p style="color: var(--text-color);">LOADING PLAYLIST SOUNDS...</p>';
-             if (playlistSoundsTitle) playlistSoundsTitle.textContent = 'LOADING...';
+            if (playlistSoundsTitle) playlistSoundsTitle.textContent = 'LOADING...';
 
 
             try {
@@ -1252,14 +1254,16 @@
                     console.warn("Playlist data not found after loading attempt.");
                     if (soundGrid) soundGrid.innerHTML = '<p style="color: var(--error-color);">PLAYLIST DATA NOT FOUND.</p>';
                     if (playlistSoundsTitle) playlistSoundsTitle.textContent = 'ERROR';
-                     showStatus('PLAYLIST DATA NOT FOUND.', 'error');
+                    showStatus('PLAYLIST DATA NOT FOUND.', 'error');
                     return;
                 }
 
                 // Update playlist name and description in the header
-                plNameEl.textContent = data.name || 'Unnamed Playlist';
-                plDescEl.textContent = data.description || 'No Description';
+                if (plNameEl) plNameEl.textContent = data.name || 'Unnamed Playlist';
+                if (plDescEl) plDescEl.textContent = data.description || 'No Description';
                 if (playlistSoundsTitle) playlistSoundsTitle.textContent = `${data.name || 'PLAYLIST'} SOUNDS`;
+                if (mainTitleEl) mainTitleEl.textContent = `${data.name || 'PLAYLIST'} SOUNDBOARD`;
+                 if (mainDescriptionEl) mainDescriptionEl.textContent = `Click the buttons to play sounds from "${data.name || 'this playlist'}".`;
 
 
                 renderSoundButtons(data.items || []);
@@ -1270,7 +1274,7 @@
                 console.error("Error loading playlist data:", error);
                 if (soundGrid) soundGrid.innerHTML = `<p style="color: var(--error-color);">ERROR LOADING: ${error.message.toUpperCase()}</p>`;
                 if (playlistSoundsTitle) playlistSoundsTitle.textContent = 'ERROR';
-                 showStatus(`ERROR LOADING PLAYLIST: ${error.message.toUpperCase()}`, 'error');
+                showStatus(`ERROR LOADING PLAYLIST: ${error.message.toUpperCase()}`, 'error');
             }
         }
 
@@ -1302,16 +1306,16 @@
                 const soundUrl = item.url || (item.folder && item.fileName ? `${item.folder}/${item.fileName}` : null);
 
                 if (!soundUrl) {
-                     console.warn(`Skipping sound button for item with no valid URL: ${label}`);
-                     // Optionally show a placeholder or error state button
-                     const errorBtn = document.createElement('div'); // Use a div since it's not clickable
-                     errorBtn.classList.add('sound-button'); // Keep styling
-                     errorBtn.style.backgroundColor = 'var(--status-error-bg)'; // Indicate error
-                     errorBtn.style.borderColor = 'var(--status-error-border)';
-                     errorBtn.style.color = 'var(--status-error-color)';
-                     errorBtn.textContent = `${btn.textContent} (Error)`;
-                     grid.appendChild(errorBtn);
-                     return; // Skip this item
+                    console.warn(`Skipping sound button for item with no valid URL: ${label}`);
+                    // Optionally show a placeholder or error state button
+                    const errorBtn = document.createElement('div'); // Use a div since it's not clickable
+                    errorBtn.classList.add('sound-button'); // Keep styling
+                    errorBtn.style.backgroundColor = 'var(--status-error-bg)'; // Indicate error
+                    errorBtn.style.borderColor = 'var(--status-error-border)';
+                    errorBtn.style.color = 'var(--status-error-color)';
+                    errorBtn.textContent = `${btn.textContent} (Error)`;
+                    grid.appendChild(errorBtn);
+                    return; // Skip this item
                 }
 
 
@@ -1428,7 +1432,7 @@
                 if (e.shiftKey && (e.key.toLowerCase() === 'c' || e.code.toLowerCase() === 'keyc') &&
                     document.activeElement.tagName !== 'INPUT' &&
                     document.activeElement.tagName !== 'TEXTAREA' &&
-                     !optionsMenu.contains(document.activeElement)) { // Check if not inside options menu inputs
+                    optionsMenu && !optionsMenu.contains(document.activeElement)) { // Check if not inside options menu inputs
                     e.preventDefault();
                     clearAllSounds(true);
                     closeOptionsMenu(); // Close menu on clear shortcut
@@ -1440,8 +1444,8 @@
         function showStatus(message, type = 'info') {
             const statusMessageEl = document.getElementById('statusMessage');
             if (!statusMessageEl) {
-                 console.warn("Status message element not found.");
-                 return;
+                console.warn("Status message element not found.");
+                return;
             }
             if (statusMessageTimeout) clearTimeout(statusMessageTimeout);
             statusMessageEl.textContent = message.toUpperCase();
@@ -1478,7 +1482,7 @@
             menuIsOpen = false;
             const overlay = document.getElementById('overlay');
             const optionsMenu = document.getElementById('optionsMenu');
-             if (!overlay || !optionsMenu) return;
+            if (!overlay || !optionsMenu) return;
             overlay.classList.remove('fade-in');
             optionsMenu.classList.remove('fade-in');
             overlay.classList.add('fade-out');
@@ -1544,7 +1548,7 @@
                         audio.currentTime = 0;
                     }
                 });
-                 playingAudios = playingAudios.filter(audio => !audiosToStop.includes(audio));
+                playingAudios = playingAudios.filter(audio => !audiosToStop.includes(audio));
             }
         }
 
@@ -1568,8 +1572,8 @@
 
         // Modified autoclicker logic - Combined requestAnimationFrame and setInterval
         function autoClickerLoop() {
-             const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
-             const autoClickDelayInput = document.getElementById('autoClickDelay');
+            const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
+            const autoClickDelayInput = document.getElementById('autoClickDelay');
 
             if (currentlyHoveredButton && autoClickerCheckbox && autoClickerCheckbox.checked) {
                 currentlyHoveredButton.click();
@@ -1587,7 +1591,7 @@
 
         function startAutoClicker() {
             stopAutoClicker(); // Clear any existing timers/animation frames
-             const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
+            const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
             if (!currentlyHoveredButton || !autoClickerCheckbox || !autoClickerCheckbox.checked) return;
 
             // Start the loop
@@ -1613,13 +1617,13 @@
                 autoClickDelayInput.value = 0; // Reset to 0 if invalid
             }
             localStorage.setItem('autoClickDelay', autoClickDelayInput.value);
-             const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
+            const autoClickerCheckbox = document.getElementById('autoClickerCheckbox');
             // Restart autoclicker with new delay if it was active and hovering
             if (autoClickerCheckbox && autoClickerCheckbox.checked && currentlyHoveredButton) {
                 startAutoClicker();
             } else if (autoClickerCheckbox && autoClickerCheckbox.checked) {
-                 // If checkbox is checked but not hovering, just stop any lingering intervals/frames
-                 stopAutoClicker();
+                // If checkbox is checked but not hovering, just stop any lingering intervals/frames
+                stopAutoClicker();
             }
             showStatus(`AUTO CLICK DELAY SET TO ${autoClickDelayInput.value}MS`, 'info'); // Uppercase status
         }
@@ -1659,14 +1663,12 @@
                 }
             }
             // Apply loaded speed to any currently playing audios (though none should be on initial load)
-             playingAudios.forEach(applyPlaybackSpeedToAudio);
+            playingAudios.forEach(applyPlaybackSpeedToAudio);
         }
 
         // Initial preference loading when script runs
         // This ensures the UI reflects saved preferences even before playlist data loads
         loadUserPreferences();
-
-
     </script>
 </body>
 
