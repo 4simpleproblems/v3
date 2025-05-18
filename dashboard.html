@@ -10,7 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
 
-
     <style>
         :root {
             --bg-color: #ffffff; /* Light background */
@@ -366,6 +365,17 @@
         }
 
     </style>
+
+    <script>
+        // Function to load AdSense script
+        function loadAdsense() {
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6659160370587814";
+            script.crossorigin = "anonymous";
+            document.head.appendChild(script);
+        }
+    </script>
 </head>
 <body>
     <nav class="navbar">
@@ -391,7 +401,7 @@
                         </div>
                         <div class="tile-frame"></div>
                     </a>
-                    <a href="playlists.html" class="dashboard-tile">
+                    <a href="playlist.html" class="dashboard-tile">
                         <div class="tile-content">
                             <h3>Playlists (Beta)</h3>
                             <p>Access and store sounds you like.</p>
@@ -591,6 +601,11 @@
                 } else {
                     subAdminHeader.classList.add('hidden');
                     subAdminSection.classList.add('hidden');
+                }
+
+                // Load AdSense only if the user is not an admin or sub-admin
+                if (!adminEmails.includes(user.email) && !subAdminEmails.includes(user.email)) {
+                    loadAdsense();
                 }
 
             } else {
