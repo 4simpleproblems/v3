@@ -270,7 +270,7 @@
         <div class="nav-buttons">
             <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
             <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
-            <a href="playlist.html" class="btn secondary btn-with-arrow">Your Playlists</a>
+            <a href="playlists.html" class="btn secondary btn-with-arrow">Your Playlists</a>
             <button id="logoutBtn" class="btn secondary">Log Out</button>
         </div>
     </nav>
@@ -309,7 +309,7 @@
         <p>&copy; <span id="currentYear"></span> 4SP</p>
     </footer>
 
-    <div id="notification">YOUR PLAYLIST HAS BEEN CREATED! <a href="playlist.html">VIEW PLAYLISTS</a></div>
+    <div id="notification">YOUR PLAYLIST HAS BEEN CREATED! <a href="playlists.html">VIEW PLAYLISTS</a></div>
 
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
@@ -459,7 +459,7 @@
 
                 if (notification) {
                     const viewLink = notification.querySelector('a');
-                    if (viewLink) viewLink.href = 'playlist.html'; // Ensure link is correct
+                    if (viewLink) viewLink.href = 'playlists.html'; // Ensure link is correct
                     notification.style.display = 'block';
                     setTimeout(() => {
                         if (notification) notification.style.display = 'none';
