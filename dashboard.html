@@ -10,6 +10,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
 
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6659160370587814"
+         crossorigin="anonymous"></script>
+
     <style>
         :root {
             --bg-color: #ffffff; /* Light background */
@@ -263,6 +266,12 @@
             border-color: rgba(51, 51, 51, 0.2); /* Inner border darker on hover */
         }
 
+        /* Ad container styling */
+        .ad-container {
+            margin: 30px 0; /* Add some space around the ad */
+            text-align: center; /* Center the ad within its container */
+        }
+
 
         /* Footer */
         footer {
@@ -365,17 +374,6 @@
         }
 
     </style>
-
-    <script>
-        // Function to load AdSense script
-        function loadAdsense() {
-            const script = document.createElement('script');
-            script.async = true;
-            script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6659160370587814";
-            script.crossorigin = "anonymous";
-            document.head.appendChild(script);
-        }
-    </script>
 </head>
 <body>
     <nav class="navbar">
@@ -431,6 +429,9 @@
                     </a>
                 </div>
 
+                <div class="ad-container" id="adUnit1">
+                     </div>
+
                 <h2 class="section-header web-access-header">Web Access</h2>
                 <div class="dashboard-grid">
                     <a href="vern.html" class="dashboard-tile">
@@ -448,6 +449,9 @@
                         <div class="tile-frame"></div>
                     </a>
                 </div>
+
+                 <div class="ad-container" id="adUnit2">
+                     </div>
 
                 <h2 class="section-header user-interaction-header">User Interaction</h2>
                 <div class="dashboard-grid">
@@ -562,6 +566,12 @@
             const subAdminHeader  = document.getElementById('subAdminSectionHeader');
             const subAdminSection = document.getElementById('subAdminSection');
 
+            // Ad containers to potentially hide
+            const adContainers = [
+                document.getElementById('adUnit1'), // Add IDs for your ad containers here
+                document.getElementById('adUnit2')  // Add more if you have multiple ad units
+            ];
+
             // Full‑admin emails
             const adminEmails = [
                 '4simpleproblems@gmail.com',
@@ -603,9 +613,21 @@
                     subAdminSection.classList.add('hidden');
                 }
 
-                // Load AdSense only if the user is not an admin or sub-admin
-                if (!adminEmails.includes(user.email) && !subAdminEmails.includes(user.email)) {
-                    loadAdsense();
+                // Hide ad containers if the user is an admin or sub-admin
+                if (adminEmails.includes(user.email) || subAdminEmails.includes(user.email)) {
+                    adContainers.forEach(container => {
+                         if (container) { // Check if container exists
+                            container.classList.add('hidden');
+                         }
+                    });
+                } else {
+                     // Ensure ads are visible for non-admins/sub-admins (they are visible by default)
+                     // This else block is mainly for clarity; the default state is visible.
+                     adContainers.forEach(container => {
+                         if (container) { // Check if container exists
+                            container.classList.remove('hidden');
+                         }
+                    });
                 }
 
             } else {
