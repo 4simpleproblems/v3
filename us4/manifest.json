@@ -1,0 +1,36 @@
+{
+  "name": "US4",
+  "short_name": "US4",
+  "start_url": "/",
+  "display": "standalone",
+  "description": "US4 is an unblocked site made by Voucan. Our site is completely ad free and runs off free services and domain/subdomain donations.",
+  "background_color": "#0d0d0d",
+  "theme_color": "#0d0d0d",
+  "icons": [
+    {
+      "src": "storage/images/72x72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "storage/images/96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "storage/images/128x128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "storage/images/192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "storage/images/512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

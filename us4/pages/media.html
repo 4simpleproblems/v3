@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-K8CCSDNPV3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-K8CCSDNPV3');
+    </script>
+    <meta property="og:title" content="US4 | Media">
+    <meta property="og:description" content="Media: Movies, Series, Live News">
+    <meta property="og:image" content="/storage/images/logo.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="icon" href="../storage/images/googleclassroom.png" type="image/png">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../storage/css/extra.css">
+    <link rel="stylesheet" href="../storage/css/style.css">
+</head>
+<body>
+
+<script src="/particles.js"></script>
+  <script src="/app.js"></script>
+<div id="particles-js"></div>
+
+<div class="navbar">
+    <div class="left-side">
+        <a href="/">
+            <img src="/storage/images/logo.png" alt="logo">
+        </a>
+    </div>
+<div class="right-side">
+     <script type="text/javascript" src="/storage/js/nav.js"></script>
+</div>
+</div>
+    <div class="container">
+        <button onclick="window.open('/pages/prox?link=https://heartive-us4.pages.dev', '_blank')">Prօxied</button>
+        <button onclick="window.open('https://heartive-us4.pages.dev', '_blank')">Cloudflare (Main)</button>
+        <button onclick="window.open('https://salsa-guy.global.ssl.fastly.net', '_blank')">Fastly</button>
+        <div class="tip">
+            All content is provided by non-affiliated third parties. We are not responsible for any malicious ads that are shown.
+        </div>
+    </div>
+    <script type="text/javascript" src="/storage/js/settings-1.js"></script>
+    <script type="text/javascript" src="/storage/js/notify.js"></script>
+    <script type="text/javascript" src="/storage/js/background.js"></script>
+    <script type="text/javascript" src="/storage/js/cheese-algorithm.js"></script>
+
+<!-- Ultraviolet -->
+    <script src="/static/uv/uv.bundle.js" defer></script>
+    <script src="/static/uv/uv.config.js" defer></script>
+    <script src="/static/register-sw.js" defer></script>
+    <script src="/static/search.js" defer></script>
+    <script src="/static/index.js" defer></script>
+
+    <script>
+    async function regsw(){
+        await navigator.serviceWorker.register("/static/uv-sw.js", {
+            scope: "/static/",
+        });
+    }
+
+    regsw();
+    </script>
+<!-- Ultraviolet -->
+
+</body>
+</html>

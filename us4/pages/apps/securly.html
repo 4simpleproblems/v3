@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 0;
+            margin: 0;
+            height: 100vh;
+            color: white;
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 500px;
+            padding: 20px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background-color: #222;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+            width: 100%;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"], input[type="url"], input[type="submit"], select {
+            width: 96%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #444;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background-color: #555;
+            color: white;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #666;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Securly Checker</h2>
+        <form id="blockedSiteForm">
+            <label for="schoolDomain">Enter your school's domain:</label>
+            <input type="text" id="schoolDomain" placeholder="mit.edu" required="">
+
+            <label for="url">Enter URL to Check:</label>
+            <input type="url" id="url" placeholder="https://example.com" required="">
+
+            <label for="region">Select your Region:</label>
+            <select id="region">
+                <option value="useast-www.securly.com">USEAST</option>
+                <option value="useast2-www.securly.com">USEAST2</option>
+                <option value="www.securly.com">USWEST</option>
+                <option value="uk-www.securly.com">UK</option>
+                <option value="euwest-www.securly.com">EUWEST</option>
+                <option value="ca-www.securly.com">CANADA</option>
+                <option value="apse-www.securly.com">APSE</option>
+            </select>
+
+            <input type="submit" value="Check URL">
+        </form>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('blockedSiteForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const schoolDomain = document.getElementById('schoolDomain').value;
+            const url = document.getElementById('url').value;
+            const region = document.getElementById('region').value;
+
+            const userEmail = `voucan@${schoolDomain}`;
+
+            const encodedURL = btoa(url);
+            const securly = `https://${region}/blocked?useremail=${encodeURIComponent(userEmail)}&reason=domainblockedforuser&catagoryid=33554440&policyid=2&keyword=&url=${encodedURL}`;
+
+            const proxyUrl = `/static/load/hvtrs8%2F-ari%2Ccmdgtcbq.aoo%2Ft1-ppozy-?quest=${encodeURIComponent(securly)}`;
+
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = proxyUrl;
+            document.body.appendChild(iframe);
+
+            iframe.onload = function() {
+                const doc = iframe.contentWindow.document.body.textContent || iframe.contentWindow.document.body.innerText;
+                if (doc.includes('Category:')) {
+                    document.getElementById('result').innerHTML = 'Status: Blocked';
+                } else {
+                    document.getElementById('result').innerHTML = "Status: Likely Unblocked/School Not Found";
+                }
+                document.body.removeChild(iframe);
+            };
+
+            iframe.onerror = function() {
+                document.getElementById('result').innerHTML = "Failed to check URL.";
+                document.body.removeChild(iframe);
+            };
+        });
+    </script>
+
+</body>
+</html>

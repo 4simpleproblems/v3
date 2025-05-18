@@ -1,0 +1,352 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Calculator</title>
+    <style>
+body {
+    background-color: #121212;
+    color: white;
+    font-family: 'Comfortaa', sans-serif;
+    font-weight: bold;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#tabs {
+    display: flex;
+    background-color: #222;
+    padding: 10px;
+    width: 100%;
+    overflow-x: auto;
+}
+
+.tab {
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+    margin-right: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.tab.active {
+    background-color: gold;
+    color: black;
+}
+
+.add-btn {
+    padding: 10px;
+    background-color: gold;
+    color: black;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    width: 40px;
+}
+
+.close-btn {
+    margin-left: 10px;
+    background-color: transparent;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#content {
+    flex: 1;
+    width: 100%;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.class-container {
+    margin-bottom: 20px;
+}
+
+.section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+input {
+    padding: 8px;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    background-color: #2a2a2a;
+    color: white;
+    width: 200px;
+}
+
+.remove-btn, .add-item-btn, .add-section-btn, .confirm-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: gold;
+    color: black;
+    transition: background-color 0.3s ease;
+    margin: 0 5px;
+}
+
+.remove-btn {
+    background-color: gold;
+}
+
+.remove-btn:hover, .add-item-btn:hover, .add-section-btn:hover, .confirm-btn:hover {
+    background-color: #e5b800;
+}
+
+.item-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.add-item-btn {
+    padding: 8px 16px;
+    background-color: gold;
+    color: black;
+    font-size: 14px;
+    border-radius: 8px;
+    margin-left: 5px;
+    flex-shrink: 0;
+}
+
+.add-section-btn {
+    background-color: gold;
+    color: black;
+    font-size: 16px;
+    border-radius: 8px;
+    margin-right: 10px;
+}
+
+.add-section-btn:hover {
+    background-color: #e5b800;
+}
+
+.total-grade {
+    color: gold;
+    font-weight: bold;
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+label {
+    font-size: 14px;
+    margin-right: 5px;
+}
+    </style>
+</head>
+<body>
+    <div id="tabs">
+        <button class="add-btn" onclick="addClass()">+</button>
+    </div>
+    <div id="content"></div>
+
+    <script>
+        const tabs = document.getElementById('tabs');
+        const content = document.getElementById('content');
+
+        let classes = JSON.parse(localStorage.getItem('classes')) || [{ name: '', sections: [], total: 0 }];
+        let activeTab = 0;
+
+        function saveData() {
+            localStorage.setItem('classes', JSON.stringify(classes));
+        }
+
+        function renderTabs() {
+            tabs.innerHTML = '<button class="add-btn" onclick="addClass()">+</button>';
+            classes.forEach((cls, index) => {
+                const tab = document.createElement('div');
+                tab.className = `tab ${index === activeTab ? 'active' : ''}`;
+                tab.textContent = cls.name || `Class ${index + 1}`;
+                tab.onclick = () => {
+                    activeTab = index;
+                    render();
+                };
+
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'close-btn';
+                closeBtn.textContent = '×';
+                closeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (confirm(`Are you sure you want to delete "${cls.name || `Class ${index + 1}`}"?`)) {
+                        classes.splice(index, 1);
+                        activeTab = Math.max(0, activeTab - 1);
+                        if (classes.length === 0) addClass();
+                        render();
+                        saveData();
+                    }
+                };
+
+                tab.appendChild(closeBtn);
+                tabs.appendChild(tab);
+            });
+        }
+
+        function renderContent() {
+            content.innerHTML = '';
+            if (classes.length === 0) return;
+
+            const cls = classes[activeTab];
+            const container = document.createElement('div');
+            container.className = 'class-container';
+
+            const nameInput = document.createElement('input');
+            nameInput.value = cls.name || '';
+            nameInput.placeholder = 'Class Name (Optional)';
+            nameInput.oninput = () => {
+                cls.name = nameInput.value;
+                renderTabs();
+                saveData();
+            };
+            container.appendChild(nameInput);
+
+            if (cls.sections.length === 0) {
+                const addSectionBtn = document.createElement('button');
+                addSectionBtn.className = 'add-section-btn';
+                addSectionBtn.textContent = '+';
+                addSectionBtn.onclick = () => {
+                    cls.sections.push({ name: '', grade: 0, weight: 0 });
+                    render();
+                    saveData();
+                };
+                container.appendChild(addSectionBtn);
+            }
+
+            cls.sections.forEach((section, index) => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'section';
+
+                const gradeNameInput = document.createElement('input');
+                gradeNameInput.value = section.name || '';
+                gradeNameInput.placeholder = 'Item Name (Optional)';
+                gradeNameInput.oninput = () => {
+                    section.name = gradeNameInput.value;
+                    saveData();
+                };
+
+                const gradeLabel = document.createElement('label');
+                gradeLabel.textContent = 'Grade (%):';
+
+                const gradeInput = document.createElement('input');
+                gradeInput.type = 'number';
+                gradeInput.value = section.grade;
+                gradeInput.placeholder = 'Grade (%)';
+                gradeInput.oninput = () => {
+                    section.grade = parseFloat(gradeInput.value) || 0;
+                    calculateGrade(cls);
+                    saveData();
+                };
+
+                const weightLabel = document.createElement('label');
+                weightLabel.textContent = 'Weight (%):';
+
+                const weightInput = document.createElement('input');
+                weightInput.type = 'number';
+                weightInput.value = section.weight;
+                weightInput.placeholder = 'Weight (%)';
+                weightInput.oninput = () => {
+                    section.weight = parseFloat(weightInput.value) || 0;
+                    calculateGrade(cls);
+                    saveData();
+                };
+
+                const itemControls = document.createElement('div');
+                itemControls.className = 'item-controls';
+
+                const addItemBtn = document.createElement('button');
+                addItemBtn.className = 'add-item-btn';
+                addItemBtn.textContent = 'Add Item';
+                addItemBtn.onclick = () => {
+                    cls.sections.push({ name: '', grade: 0, weight: 0 });
+                    render();
+                    saveData();
+                };
+
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = 'confirm-btn';
+                confirmBtn.textContent = 'Confirm';
+                confirmBtn.onclick = () => {
+                    calculateGrade(cls);
+                    render();
+                    saveData();
+                };
+                itemControls.appendChild(confirmBtn);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-btn';
+                removeBtn.textContent = 'Remove';
+                removeBtn.onclick = () => {
+                    cls.sections.splice(index, 1);
+                    calculateGrade(cls);
+                    render();
+                    saveData();
+                };
+                itemControls.appendChild(removeBtn);
+
+                sectionDiv.appendChild(gradeNameInput);
+                sectionDiv.appendChild(gradeLabel);
+                sectionDiv.appendChild(gradeInput);
+                sectionDiv.appendChild(weightLabel);
+                sectionDiv.appendChild(weightInput);
+                sectionDiv.appendChild(addItemBtn);
+                sectionDiv.appendChild(itemControls);
+
+                container.appendChild(sectionDiv);
+            });
+
+            const totalDiv = document.createElement('div');
+            totalDiv.textContent = `Total Grade: ${cls.total.toFixed(2)}%`;
+            totalDiv.className = 'total-grade';
+            container.appendChild(totalDiv);
+
+            content.appendChild(container);
+        }
+
+        function calculateGrade(cls) {
+            const totalWeight = cls.sections.reduce((sum, sec) => sum + sec.weight, 0);
+            if (totalWeight === 0) {
+                cls.total = 0;
+                return;
+            }
+            cls.total = cls.sections.reduce((sum, sec) => sum + (sec.grade * sec.weight), 0) / totalWeight;
+        }
+
+        function addClass() {
+            classes.push({ name: '', sections: [], total: 0 });
+            activeTab = classes.length - 1;
+            render();
+            saveData();
+        }
+
+        function render() {
+            renderTabs();
+            renderContent();
+        }
+
+        render();
+    </script>
+</body>
+</html>

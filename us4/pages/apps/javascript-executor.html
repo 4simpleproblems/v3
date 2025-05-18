@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta property="og:title" content="Javascript Executor">
+    <meta property="og:description" content="pineapple">
+    <meta property="og:image" content="/logo.png">
+    <meta name="keywords" content="US4">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Javascript Executor</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: 'Comfortaa', sans-serif;
+            font-weight: bold;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #executor {
+            border: 2px solid #444;
+            height: 350px;
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            margin-top: 25px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background-color: #222;
+            color: gold;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+        }
+        h1 {
+            text-align: center;
+            color: gold;
+            margin-top: 20px;
+        }
+        #output {
+            background-color: #2a2a2a;
+            color: #d4d4d4;
+            padding: 10px;
+            border-radius: 5px;
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        #codeInput {
+            width: calc(100% - 80px);
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            background-color: #2a2a2a;
+            color: white;
+        }
+        #sendButton {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #3a3a3a;
+            color: white;
+            cursor: pointer;
+        }
+        #sendButton:hover {
+            background-color: #4a4a4a;
+        }
+    </style>
+</head>
+<body>
+    <div id="executor">
+        <h1>Javascript Executor</h1>
+        <div id="output"></div>
+        <div style="display: flex;">
+            <input id="codeInput" type="text" placeholder="Enter Code">
+            <button id="sendButton">Send</button>
+        </div>
+    </div>
+    <script>
+        const output = document.getElementById('output');
+        const codeInput = document.getElementById('codeInput');
+        const sendButton = document.getElementById('sendButton');
+
+        sendButton.addEventListener('click', () => {
+            const code = codeInput.value;
+            try {
+                const result = eval(code);
+                output.textContent += `> ${code}\n${result ?? 'undefined'}\n\n`;
+            } catch (error) {
+                output.textContent += `> ${code}\nError: ${error.message}\n\n`;
+            }
+            output.scrollTop = output.scrollHeight;
+            codeInput.value = '';
+        });
+
+        codeInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+    </script>
+</body>
+</html>

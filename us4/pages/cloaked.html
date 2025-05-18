@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-K8CCSDNPV3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-K8CCSDNPV3');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="icon" href="../storage/images/googleclassroom.png" type="image/png">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="../storage/css/prox.css" rel="stylesheet">
+</head>
+<body>
+
+<script src="/particles.js"></script>
+  <script src="/app.js"></script>
+<div id="particles-js"></div>
+
+    <div class="tabs" id="tabs">
+        <div class="tab active" onclick="selectTab(this)">New Tab <span class="close-button" onclick="closeTab(event, this)">×</span></div>
+        <button class="add-tab-button" onclick="addTab()">+</button>
+    </div>
+    <div class="navbar" id="navbar">
+        <div class="navbar-left">
+            <button onclick="home()">
+                <i class="fa fa-home"></i>
+            </button>
+            <button onclick="document.querySelector('.tab-iframe.active').contentWindow.history.back()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button onclick="document.querySelector('.tab-iframe.active').contentWindow.history.forward()">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <button onclick="document.querySelector('.tab-iframe.active').contentWindow.location.reload()">
+                <i class="fas fa-redo"></i>
+            </button>
+            <button onclick="inspect()">
+                <i class="fa fa-code"></i>
+            </button>
+            <button onclick="toggleFullscreen()">
+                <i class="fas fa-expand"></i>
+            </button>
+            <button onclick="settings()">
+                <i class="fa fa-cog"></i>
+            </button>
+        </div>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Search or enter a URL" onkeydown="if(event.key === 'Enter') search()">
+            <button onclick="search()">
+                SEARCH <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+    <div class="content-wrapper" id="content-wrapper">
+        <iframe class="tab-iframe active" src="/static/index.html" id="iframe-1"></iframe>
+    </div>
+
+<script>
+    let tabCount = 1;
+
+    function selectTab(tabElement) {
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-iframe').forEach(iframe => iframe.classList.remove('active'));
+        tabElement.classList.add('active');
+        const tabIndex = [...tabElement.parentElement.children].indexOf(tabElement);
+        const iframe = document.querySelectorAll('.tab-iframe')[tabIndex];
+        iframe.classList.add('active');
+        updateTabName(iframe, tabElement);
+    }
+
+    function addTab() {
+        tabCount++;
+        const tabsContainer = document.getElementById('tabs');
+        const newTab = document.createElement('div');
+        newTab.classList.add('tab');
+        newTab.textContent = `New Tab`;
+        newTab.innerHTML += ' <span class="close-button" onclick="closeTab(event, this)">×</span>';
+        newTab.onclick = () => selectTab(newTab);
+        tabsContainer.insertBefore(newTab, document.querySelector('.add-tab-button'));
+        const iframe = document.createElement('iframe');
+        iframe.classList.add('tab-iframe');
+        iframe.id = `iframe-${tabCount}`;
+        iframe.src = '/static/index.html';
+        document.getElementById('content-wrapper').appendChild(iframe);
+        resizeTabs();
+    }
+
+    function closeTab(event, closeButton) {
+        event.stopPropagation();
+        const tab = closeButton.parentElement;
+        const tabsContainer = document.getElementById('tabs');
+        if (tab.classList.contains('active')) {
+            const nextTab = tab.nextElementSibling || tab.previousElementSibling;
+            if (nextTab && nextTab.classList.contains('tab')) {
+                selectTab(nextTab);
+            }
+        }
+        tabsContainer.removeChild(tab);
+        const iframe = document.getElementById(`iframe-${tabCount}`);
+        document.getElementById('content-wrapper').removeChild(iframe);
+        tabCount--;
+        resizeTabs();
+    }
+
+    function resizeTabs() {
+        const tabs = document.querySelectorAll('.tab');
+        const tabWidth = Math.min(500, 450 / tabs.length + '%');
+        tabs.forEach(tab => tab.style.maxWidth = tabWidth);
+    }
+
+    function updateTabName(iframe, tabElement) {
+        iframe.onload = () => {
+            const title = iframe.contentDocument ? iframe.contentDocument.title : 'New Tab';
+            tabElement.textContent = title.substring(0, 10);
+            tabElement.innerHTML += ' <span class="close-button" onclick="closeTab(event, this)">×</span>';
+        };
+    }
+
+    function search() {
+        const input = document.getElementById('search-input').value.trim();
+        const iframe = document.querySelector('.tab-iframe.active');
+        if (input) {
+            const url = input.startsWith('http') ? input : `https://google.com/search?q=${encodeURIComponent(input)}`;
+            iframe.src = `/static/embed#${url}`;
+        }
+    }
+
+    function home() {
+ 	   const iframe = document.querySelector('.tab-iframe.active');
+	    iframe.src = '/static/index';
+	    const activeTab = document.querySelector('.tab.active');
+		activeTab.textContent = 'New Tab';
+		activeTab.innerHTML += ' <span class="close-button" onclick="closeTab(event, this)">×</span>';
+    }
+
+	function settings() {
+ 	   const iframe = document.querySelector('.tab-iframe.active');
+	    iframe.src = 'settings';
+	    const activeTab = document.querySelector('.tab.active');
+		activeTab.textContent = 'Settings';
+		activeTab.innerHTML += ' <span class="close-button" onclick="closeTab(event, this)">×</span>';
+}
+
+	function toggleFullscreen() {
+		const iframe = document.querySelector('.tab-iframe.active');
+		if (iframe.requestFullscreen) {
+		iframe.requestFullscreen();
+			} else if (iframe.mozRequestFullScreen) {
+		iframe.mozRequestFullScreen();
+			} else if (iframe.webkitRequestFullscreen) {
+		iframe.webkitRequestFullscreen();
+			} else if (iframe.msRequestFullscreen) {
+		iframe.msRequestFullscreen();
+	}
+}
+ function inspect() {
+window.location.href = "javascript: (function() { fetch('/storage/js/eruda.js') .then(response => { if (!response.ok) throw new Error('Network response was not ok'); return response.text(); }) .then(scriptText => eval(scriptText)) .catch(error => console.error('Error fetching or executing the script:', error)); })();"
+    }
+</script>
+	<script src="/storage/js/prox-settings2.js"></script>
+    <script type="text/javascript" src="/storage/js/notify.js"></script>
+</body>
+</html>
