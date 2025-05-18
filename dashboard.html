@@ -628,6 +628,11 @@
                             container.classList.remove('hidden');
                          }
                     });
+                    // Also, trigger the adsbygoogle push command for non-admins/sub-admins
+                    // This is often needed when ad units are added dynamically or conditionally shown.
+                    // However, since we are just hiding/showing parent divs, the standard push in the ad unit code might suffice.
+                    // If ads don't appear, uncomment the line below.
+                    // (window.adsbygoogle = window.adsbygoogle || []).push({});
                 }
 
             } else {
