@@ -13,6 +13,106 @@
     <link rel="stylesheet" href="../storage/css/evenmorestyles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="../storage/css/static.css">
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; /* Simple system font stack */
+            margin: 0;
+            padding: 20px; /* Add some padding around the content */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center content horizontally */
+            justify-content: center; /* Center content vertically */
+            min-height: 100vh; /* Ensure body takes at least full viewport height */
+            background-color: #f0f0f0; /* Simple light background */
+            color: #333; /* Default text color */
+        }
+
+        h1 {
+            color: #555; /* Slightly darker heading color */
+            margin-bottom: 10px;
+        }
+
+        p#dynamicParagraph {
+            color: #666; /* Slightly lighter paragraph color */
+            margin-bottom: 20px;
+        }
+
+        #search-container {
+            background-color: #fff; /* White background for the search container */
+            padding: 20px;
+            border-radius: 20px; /* Rounded corners for the container */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%; /* Make it responsive */
+            max-width: 600px; /* Max width for larger screens */
+        }
+
+        #uv-form {
+            display: flex;
+            width: 100%; /* Form takes full width of container */
+            gap: 10px; /* Space between input and button */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        .search-bar-home {
+            flex-grow: 1; /* Input takes available space */
+            padding: 12px 15px;
+            border: 1px solid #ccc; /* Simple border */
+            border-radius: 25px; /* Make it rounded */
+            font-size: 1rem;
+            outline: none; /* Remove default outline */
+            transition: border-color 0.3s ease; /* Smooth transition on focus */
+        }
+
+        .search-bar-home:focus {
+            border-color: #007bff; /* Highlight color on focus */
+        }
+
+        #search-button {
+            padding: 12px 20px;
+            background-color: #007bff; /* Blue background */
+            color: white;
+            border: none;
+            border-radius: 25px; /* Make it rounded */
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s ease; /* Smooth transition on hover */
+        }
+
+        #search-button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .desc {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #777;
+            text-align: center; /* Center error messages */
+        }
+
+        #uv-error, #uv-error-code {
+            color: #dc3545; /* Red color for errors */
+            margin: 5px 0;
+        }
+
+        /* Particles JS container to ensure it's behind content */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Place behind other content */
+        }
+
+    </style>
+
 </head>
 <body>
 
