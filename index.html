@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4SP | HOME</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6659160370587814"
+         crossorigin="anonymous"></script>
+
     <style>
         :root {
             --bg-color: #ffffff; /* Light background */
@@ -33,6 +37,10 @@
             text-align: center; /* Center all text by default */
             position: relative;
              overflow-x: hidden;
+            display: flex; /* Use flex to push footer to bottom */
+            flex-direction: column; /* Arrange content and footer vertically */
+            min-height: 100vh; /* Make body at least viewport height */
+
 
             /* Grid Background */
             background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
@@ -51,6 +59,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+             flex-grow: 1; /* Allow container to take up available space */
         }
 
         /* Navbar */
@@ -122,9 +131,9 @@
             border-color: var(--hover-bg);
         }
          .btn.google:hover {
-            background-color: darken(#4285F4, 10%);
+             background-color: darken(#4285F4, 10%);
              border-color: darken(#4285F4, 10%);
-        }
+         }
 
         /* Button with Arrow */
         .btn-with-arrow::before {
@@ -141,7 +150,7 @@
             justify-content: center;
             align-items: center;
             text-align: center; /* Ensure hero section text is centered */
-            min-height: calc(100vh - 140px);
+            min-height: calc(100vh - 140px); /* Adjust min-height considering navbar and footer */
             padding: 40px 20px;
             background-color: transparent; /* Make hero background transparent to see grid */
             color: var(--text-color);
@@ -176,6 +185,13 @@
             min-width: 150px;
         }
 
+         /* Ad container styling */
+        .ad-container {
+            margin: 30px auto; /* Add some space around the ad and center it */
+            text-align: center; /* Center the ad within its container */
+            max-width: 728px; /* Example max width, adjust as needed */
+        }
+
 
         /* Footer */
         footer {
@@ -186,12 +202,26 @@
             background-color: var(--footer-bg);
             text-transform: uppercase;
             width: 100%;
+            margin-top: auto; /* Push footer to the bottom */
         }
 
         /* Hide elements utility */
         .hidden {
-            display: none;
+            display: none !important; /* Use !important to ensure it overrides other styles */
         }
+
+         /* Typing Effect Cursor */
+         .hero-subtitle::after {
+            content: '|';
+            animation: blink-caret .75s step-end infinite;
+             color: var(--text-color); /* Cursor color matches text */
+         }
+
+         @keyframes blink-caret {
+             from, to { color: transparent }
+             50% { color: var(--text-color); }
+         }
+
 
          /* Responsive adjustments */
         @media (max-width: 768px) {
@@ -222,6 +252,10 @@
                  width: 100%;
                  min-width: unset;
             }
+
+             .ad-container {
+                 margin: 20px auto; /* Adjust margin for smaller screens */
+             }
         }
 
          @media (max-width: 480px) {
@@ -239,31 +273,19 @@
             .btn {
                  padding: 8px 15px;
                  font-size: 12px;
+            }
+
+             .hero-section {
+                 padding: 30px 10px;
              }
 
-            .hero-section {
-                padding: 30px 10px;
-            }
+             .hero-title {
+                 font-size: 30px;
+             }
 
-            .hero-title {
-                font-size: 30px;
-            }
-
-            .hero-subtitle {
-                font-size: 14px;
-            }
-        }
-
-         /* Typing Effect Cursor */
-         .hero-subtitle::after {
-            content: '|';
-            animation: blink-caret .75s step-end infinite;
-             color: var(--text-color); /* Cursor color matches text */
-         }
-
-         @keyframes blink-caret {
-            from, to { color: transparent }
-            50% { color: var(--text-color); }
+             .hero-subtitle {
+                 font-size: 14px;
+             }
          }
 
     </style>
@@ -281,14 +303,21 @@
     </nav>
 
     <main>
-        <section class="hero-section">
-            <h1 class="hero-title">4SP</h1>
-            <p class="hero-subtitle" id="randomQuote"></p> <div class="hero-cta-buttons">
-                <a href="signup.html" class="btn primary btn-with-arrow" id="getStartedBtn">Get Started</a>
-                <a href="login.html" class="btn secondary btn-with-arrow" id="loginCtaBtn">Login</a>
-                <a href="dashboard.html" class="btn primary btn-with-arrow hidden" id="goToDashboardBtn">Go to Dashboard</a>
-            </div>
-        </section>
+        <div class="container">
+            <section class="hero-section">
+                <h1 class="hero-title">4SP</h1>
+                <p class="hero-subtitle" id="randomQuote"></p>
+                <div class="hero-cta-buttons">
+                    <a href="signup.html" class="btn primary btn-with-arrow" id="getStartedBtn">Get Started</a>
+                    <a href="login.html" class="btn secondary btn-with-arrow" id="loginCtaBtn">Login</a>
+                    <a href="dashboard.html" class="btn primary btn-with-arrow hidden" id="goToDashboardBtn">Go to Dashboard</a>
+                </div>
+            </section>
+
+            <div class="ad-container" id="indexAdUnit1">
+                 </div>
+
+        </div>
     </main>
 
     <footer>
@@ -351,7 +380,7 @@
             "GIMME A SMOOCH💀",
             "YES KINGGG",
             "RESTYLED VERN PRO TO VERN MAX",
-            
+
         ];
 
         // Typing effect function
@@ -390,6 +419,31 @@
             const logoutNavBtn = document.getElementById('logoutNavBtn');
             const goToDashboardBtn = document.getElementById('goToDashboardBtn');
 
+            // Ad containers to potentially hide
+             const adContainers = [
+                document.getElementById('indexAdUnit1') // Add IDs for your ad containers here
+                 // Add more if you have multiple ad units on this page
+            ];
+
+            // Full‑admin emails (Copy these from your dashboard.html script)
+            const adminEmails = [
+                '4simpleproblems@gmail.com',
+                'belkwy30@minerva.sparcc.org'
+            ];
+
+            // Sub‑admin emails (Copy these from your dashboard.html script)
+            const subAdminEmails = [
+                '4simpleproblems@gmail.com',
+                'alleda30@minerva.sparcc.org',
+                'bellja27@minerva.sparcc.org',
+                'belkwy30@minerva.sparcc.org',
+                'otweno30@minerva.sparcc.org',
+                'ludwza30@minerva.sparcc.org',
+                'roseza30@minerva.sparcc.org',
+                'kernai30@minerva.sparcc.org',
+            ];
+
+
             if (user) {
                 loginNavBtn.classList.add('hidden');
                 signupNavBtn.classList.add('hidden');
@@ -398,6 +452,27 @@
                 dashboardNavBtn.classList.remove('hidden');
                 logoutNavBtn.classList.remove('hidden');
                 goToDashboardBtn.classList.remove('hidden');
+
+                 // Hide ad containers if the user is an admin or sub-admin
+                if (adminEmails.includes(user.email) || subAdminEmails.includes(user.email)) {
+                    adContainers.forEach(container => {
+                         if (container) { // Check if container exists
+                            container.classList.add('hidden');
+                         }
+                    });
+                } else {
+                     // Ensure ads are visible for non-admins/sub-admins (they are visible by default)
+                     adContainers.forEach(container => {
+                         if (container) { // Check if container exists
+                            container.classList.remove('hidden');
+                         }
+                    });
+                     // Trigger adsbygoogle push for non-admins/sub-admins
+                     // This is often needed when ad units are dynamically added or conditionally shown.
+                     (window.adsbygoogle = window.adsbygoogle || []).push({});
+                }
+
+
             } else {
                 loginNavBtn.classList.remove('hidden');
                 signupNavBtn.classList.remove('hidden');
@@ -406,6 +481,15 @@
                 dashboardNavBtn.classList.add('hidden');
                 logoutNavBtn.classList.add('hidden');
                 goToDashboardBtn.classList.add('hidden');
+
+                 // Ensure ads are visible when no user is logged in (they are visible by default)
+                 adContainers.forEach(container => {
+                     if (container) { // Check if container exists
+                        container.classList.remove('hidden');
+                     }
+                });
+                 // Trigger adsbygoogle push when no user is logged in
+                 (window.adsbygoogle = window.adsbygoogle || []).push({});
             }
         }
 
@@ -413,20 +497,20 @@
             try {
                 const auth = firebase.auth();
                 auth.onAuthStateChanged(user => {
-                    toggleAuthUI(user);
-                    const logoutButton = document.getElementById('logoutNavBtn');
-                    // Ensure the element exists before adding a listener
-                    if (logoutButton) {
+                     toggleAuthUI(user); // Call toggleAuthUI first to handle UI visibility based on auth state
+                     const logoutButton = document.getElementById('logoutNavBtn');
+                     // Ensure the element exists before adding a listener
+                     if (logoutButton) {
                          // Remove any existing listeners before adding a new one to prevent duplicates
-                        const newLogoutButton = logoutButton.cloneNode(true);
-                        logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
+                         const newLogoutButton = logoutButton.cloneNode(true);
+                         logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
 
-                        newLogoutButton.addEventListener('click', () => {
-                            auth.signOut().catch(error => {
-                                console.error("Logout error:", error);
-                            });
-                        });
-                    }
+                         newLogoutButton.addEventListener('click', () => {
+                             auth.signOut().catch(error => {
+                                 console.error("Logout error:", error);
+                             });
+                         });
+                     }
                 });
             } catch (error) {
                 console.error("Auth initialization error:", error);
@@ -435,27 +519,28 @@
             }
         }
 
-        /*
-         Initialize Firebase Auth after Firebase scripts are loaded.
-         The Firebase scripts are placed at the end of the body for better performance,
-         so we should wait for the window load event or place the initAuth call after scripts.
-         Placing scripts at the end of the body is standard practice.
-         We'll rely on the DOMContentLoaded listener within initAuth.
-        */
+         /*
+          Initialize Firebase Auth after Firebase scripts are loaded.
+          The Firebase scripts are placed at the end of the body for better performance,
+          so we should wait for the window load event or place the initAuth call after scripts.
+          Placing scripts at the end of the body is standard practice.
+          We'll rely on the DOMContentLoaded listener within initAuth.
+         */
 
     </script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="firebase-config.js"></script>
-     <script>
-        // Call initAuth after Firebase scripts are guaranteed to be loaded
-        if (typeof firebase !== 'undefined') {
-            initAuth();
-        } else {
-            console.error("Firebase is not loaded after script inclusion.");
-            // Fallback UI toggle if Firebase is still undefined
-            document.addEventListener('DOMContentLoaded', () => toggleAuthUI(null));
-        }
+     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+     <script src="firebase-config.js"></script>
+      <script>
+         // Call initAuth after Firebase scripts are guaranteed to be loaded
+         // This section ensures initAuth is called regardless of script placement/loading order
+         if (typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined') {
+             initAuth();
+         } else {
+             console.error("Firebase SDK or Auth not loaded.");
+             // Fallback UI toggle if Firebase is still undefined
+              document.addEventListener('DOMContentLoaded', () => toggleAuthUI(null));
+         }
      </script>
 </body>
 </html>
