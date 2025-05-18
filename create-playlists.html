@@ -5,59 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>4SP | CREATE PLAYLIST</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
-
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-     <script src="firebase-config.js"></script>
+    <script src="firebase-config.js"></script>
 
     <style>
-        /* Root and base */
         :root {
-            --bg-color: #ffffff; /* Light background */
-            --text-color: #333333; /* Dark text */
-            --primary-color: #333333; /* Dark primary for contrast on light */
-            --secondary-border-color: #cccccc; /* Medium gray border */
-            --navbar-bg: #f0f0f0; /* Light gray for navbar */
-            --footer-bg: #f0f0f0; /* Light gray for footer */
-            --hover-bg: #e0e0e0; /* Lighter gray on hover */
-            --grid-line-color: #f0f0f0; /* Light gray grid lines */
-            --accent-color: #333333; /* Dark accent color */
-
-            /* Sound Button Colors (adapted for light theme) */
-            --sound-button-bg: #f8f8f8; /* Very light gray */
-            --sound-button-border: #cccccc; /* Medium gray */
-            --sound-button-text: #333333; /* Dark text */
-            --sound-button-hover-bg: #e0e0e0; /* Lighter gray */
-
-            /* Selected sound button colors (adapted for light theme) */
-             --btn-bg-selected: var(--primary-color); /* Dark primary */
-             --btn-border-selected: var(--primary-color); /* Dark primary */
-             --btn-color-selected: var(--bg-color); /* White */
-
-            /* Selected button hover colors */
-             --btn-bg-selected-hover: var(--hover-bg); /* Light hover */
-             --btn-border-selected-hover: var(--hover-bg); /* Light hover */
-             --btn-color-selected-hover: var(--text-color); /* Dark text */
-
-
-            /* Notification Colors (adapted for light theme) */
-             --notification-bg: var(--navbar-bg);
-             --notification-color: var(--text-color);
-             --notification-border: var(--secondary-border-color);
-             --notification-link-color: var(--accent-color); /* Accent color for link */
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --primary-color: #333333;
+            --secondary-border-color: #cccccc;
+            --navbar-bg: #f0f0f0;
+            --footer-bg: #f0f0f0;
+            --hover-bg: #e0e0e0;
+            --grid-line-color: #f0f0f0;
+            --accent-color: #333333;
+            --sound-button-bg: #f8f8f8;
+            --sound-button-border: #cccccc;
+            --sound-button-text: #333333;
+            --sound-button-hover-bg: #e0e0e0;
+            --btn-bg-selected: var(--primary-color);
+            --btn-border-selected: var(--primary-color);
+            --btn-color-selected: var(--bg-color);
+            --btn-bg-selected-hover: var(--hover-bg);
+            --btn-border-selected-hover: var(--hover-bg);
+            --btn-color-selected-hover: var(--text-color);
+            --notification-bg: var(--navbar-bg);
+            --notification-color: var(--text-color);
+            --notification-border: var(--secondary-border-color);
+            --notification-link-color: var(--accent-color);
         }
 
         * {
-             /* Removed font-family !important */
             font-family: 'Outfit', sans-serif;
             box-sizing: border-box;
         }
 
         body {
-            background: var(--bg-color); /* Light background */
+            background: var(--bg-color);
             margin: 0;
-            color: var(--text-color); /* Dark text */
+            color: var(--text-color);
             line-height: 1.6;
             text-transform: uppercase;
             position: relative;
@@ -65,129 +53,76 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-
-             /* Grid Background */
             background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
                               repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
-            background-size: 20px 20px; /* Size of each grid cell */
+            background-size: 20px 20px;
         }
 
-         /* Remove triangular gradients */
-        body::before, body::after {
-            content: none;
-        }
+        body::before, body::after { content: none; }
+        a { color: var(--text-color); text-decoration: none; }
 
-
-        a {
-             /* Inherit color or set theme color, text decoration handled by specific classes */
-             color: var(--text-color);
-             text-decoration: none;
-         }
-
-        /* Navbar - consistent with other pages */
         .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 20px; /* Adjusted padding */
-            background-color: var(--navbar-bg); /* Light gray */
-            color: var(--text-color); /* Dark text */
-             text-align: left; /* Override center for navbar layout */
-             width: 100%;
-        }
-        .logo {
-            font-size: 24px; /* Consistent logo size */
-            font-weight: 900;
-             color: var(--text-color);
-        }
-        .nav-buttons {
-            display: flex;
-            gap: 15px; /* Adjusted gap */
-            align-items: center;
-             text-align: left; /* Ensure text in buttons is not affected by body center */
+            padding: 20px 20px;
+            background-color: var(--navbar-bg);
+            color: var(--text-color);
+            text-align: left;
+            width: 100%;
         }
 
-        /* Buttons (Base Styles) */
+        .logo { font-size: 24px; font-weight: 900; color: var(--text-color); }
+        .nav-buttons { display: flex; gap: 15px; align-items: center; text-align: left; }
+
         .btn {
-            display: inline-flex; /* Use inline-flex */
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 10px 20px; /* Adjusted padding */
+            padding: 10px 20px;
             min-height: 40px;
-            border-radius: 5px; /* Less rounded */
+            border-radius: 5px;
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             border: none;
             font-family: 'Outfit', sans-serif;
-            text-transform: uppercase; /* All caps */
+            text-transform: uppercase;
             font-size: 14px;
             text-align: center;
-             /* Removed !important transition override */
         }
 
-        .btn.primary {
-            background-color: var(--primary-color);
-            color: var(--bg-color); /* White text on dark primary */
-            border: 1px solid var(--primary-color);
-        }
+        .btn.primary { background-color: var(--primary-color); color: var(--bg-color); border: 1px solid var(--primary-color); }
+        .btn.secondary { background-color: transparent; color: var(--text-color); border: 1px solid var(--secondary-border-color); }
+        .btn.primary:hover { background-color: var(--hover-bg); color: var(--text-color); border-color: var(--hover-bg); }
+        .btn.secondary:hover { background-color: var(--hover-bg); border-color: var(--hover-bg); }
 
-        .btn.secondary {
-            background-color: transparent;
-            color: var(--text-color); /* Dark text on light secondary */
-            border: 1px solid var(--secondary-border-color);
-        }
-         /* Removed .btn.big specific padding/font-size */
-
-
-        .btn.primary:hover {
-            background-color: var(--hover-bg);
-             color: var(--text-color);
-             border-color: var(--hover-bg);
-         }
-
-        .btn.secondary:hover {
-            background-color: var(--hover-bg);
-             border-color: var(--hover-bg);
-        }
-
-         /* Button with Arrow */
-        .btn-with-arrow::before {
-            content: '\2192'; /* Right arrow character */
-            margin-right: 8px; /* Space between arrow and text */
-            font-weight: bold; /* Make arrow slightly bolder */
-             color: var(--accent-color); /* Dark accent color for arrow */
-        }
-
-
-        /* Container */
         .form-container {
             max-width: 1000px;
-            /* wider to fit buttons */
             margin: 2rem auto;
             padding: 2rem;
-            background: var(--navbar-bg); /* Light gray background */
-            border-radius: 10px; /* Less rounded */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle shadow */
-             border: 1px solid var(--secondary-border-color); /* Subtle border */
+            background: var(--navbar-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--secondary-border-color);
         }
 
         h1 {
             margin-bottom: 1.5rem;
-            font-size: 2.5rem; /* Consistent heading size */
+            font-size: 2.5rem;
             color: var(--text-color);
-             font-weight: 900;
-             text-align: center;
+            font-weight: 900;
+            text-align: center;
         }
 
         label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 600; /* Bolder */
-             color: var(--text-color);
-             text-transform: uppercase; /* All caps */
-             font-size: 0.9rem; /* Smaller label size */
+            font-weight: 600;
+            color: var(--text-color);
+            text-transform: uppercase;
+            font-size: 0.9rem;
         }
 
         input[type="text"],
@@ -195,286 +130,138 @@
             width: 100%;
             padding: 1rem;
             margin-bottom: 1.5rem;
-            border: 1px solid var(--secondary-border-color); /* Medium gray border */
-            border-radius: 5px; /* Less rounded */
+            border: 1px solid var(--secondary-border-color);
+            border-radius: 5px;
             font-size: 1rem;
-            background: var(--bg-color); /* White background */
-             color: var(--text-color); /* Dark text */
+            background: var(--bg-color);
+            color: var(--text-color);
             resize: vertical;
-             font-family: 'Outfit', sans-serif;
-             text-transform: none; /* Prevent uppercase for input */
-             outline: none;
-             transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            font-family: 'Outfit', sans-serif;
+            text-transform: none;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-         input[type="text"]:focus, textarea:focus {
-             border-color: var(--accent-color);
-             box-shadow: 0 0 5px rgba(51, 51, 51, 0.2);
-         }
-
-
-        /* Sound sections */
-        .sound-section {
-            margin-bottom: 2rem; /* Adjusted margin */
-             text-align: left; /* Align section content left */
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px rgba(51, 51, 51, 0.2);
         }
 
+        .sound-section { margin-bottom: 2rem; text-align: left; }
         .sound-section h2 {
             margin-bottom: 0.5rem;
             font-size: 1.5rem;
-             padding-bottom: 0.25rem;
-             border-bottom: 2px solid var(--secondary-border-color);
-             color: var(--text-color);
-             width: 100%;
-             text-transform: uppercase; /* All caps */
+            padding-bottom: 0.25rem;
+            border-bottom: 2px solid var(--secondary-border-color);
+            color: var(--text-color);
+            width: 100%;
+            text-transform: uppercase;
         }
 
-        /* Sound buttons container using flex-wrap */
         .soundButtonsContainer {
             display: flex;
             flex-wrap: wrap;
             justify-content: flex-start;
-            padding: 1rem 0; /* Adjusted padding */
-            gap: 15px; /* Adjusted gap */
+            padding: 1rem 0;
+            gap: 15px;
             width: 100%;
         }
 
-        /* Sound button styles with customizable colors */
         .sound-btn {
             min-width: 100px;
             height: 100px;
-            border-radius: 20px; /* Less rounded */
-            background-color: var(--sound-button-bg); /* Use sound button background */
-            color: var(--sound-button-text); /* Use sound button text color */
-            border: 2px solid var(--sound-button-border); /* Use sound button border */
+            border-radius: 20px;
+            background-color: var(--sound-button-bg);
+            color: var(--sound-button-text);
+            border: 2px solid var(--sound-button-border);
             cursor: pointer;
             font-size: 0.85rem;
-            font-weight: 600; /* Bolder */
+            font-weight: 600;
             padding: 0 1.5rem;
-            transition:
-                background-color 0.3s ease,
-                transform 0.1s ease,
-                color 0.3s ease,
-                border-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.1s ease, color 0.3s ease, border-color 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
             line-height: 1.2;
-             max-width: 150px; /* Constrain width slightly */
-            word-wrap: break-word; /* Allow word breaks */
+            max-width: 150px;
+            word-wrap: break-word;
             hyphens: auto;
-            text-transform: uppercase; /* All caps */
-             /* Removed original white-space, overflow-wrap, word-break overrides */
+            text-transform: uppercase;
         }
 
-        .sound-btn.short-text {
-            /* Adapt short text buttons - remove circular */
-             width: auto; /* Auto width based on content */
-             height: 100px;
-             border-radius: 20px;
-             padding: 0 1.5rem;
-             /* Removed original padding/white-space overrides */
-        }
-
+        .sound-btn.short-text { width: auto; height: 100px; border-radius: 20px; padding: 0 1.5rem; }
         .sound-btn.selected {
             background-color: var(--btn-bg-selected);
             border-color: var(--btn-border-selected);
             color: var(--btn-color-selected);
         }
-
-        /* Hover for unselected buttons */
-        .sound-btn:hover {
-            background-color: var(--sound-button-hover-bg); /* Use sound button hover background */
-             border-color: var(--accent-color); /* Accent border on hover */
-        }
-
-        /* Hover for selected buttons - darker shade for readability */
+        .sound-btn:hover { background-color: var(--sound-button-hover-bg); border-color: var(--accent-color); }
         .sound-btn.selected:hover {
             background-color: var(--btn-bg-selected-hover);
             border-color: var(--btn-border-selected-hover);
             color: var(--btn-color-selected-hover);
         }
-        .sound-btn:active {
-            transform: scale(0.95);
-        }
+        .sound-btn:active { transform: scale(0.95); }
 
-        /* Primary button (Create Playlist) */
-        .btn.primary {
-             /* Already styled above in base .btn.primary */
-        }
-
-        /* Notification */
         #notification {
             position: fixed;
-            bottom: 20px; /* Adjusted bottom padding */
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: var(--notification-bg); /* Light notification background */
-            color: var(--notification-color); /* Dark notification text */
+            background: var(--notification-bg);
+            color: var(--notification-color);
             padding: 0.75rem 1.5rem;
-            border-radius: 5px; /* Less rounded */
-            border: 1px solid var(--notification-border); /* Notification border */
+            border-radius: 5px;
+            border: 1px solid var(--notification-border);
             display: none;
             z-index: 1000;
-             font-size: 0.9rem;
-             text-transform: none; /* Prevent uppercase for readability */
-             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            font-size: 0.9rem;
+            text-transform: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-        #notification a {
-             color: var(--notification-link-color); /* Accent color for link */
-             text-decoration: underline;
-             font-weight: 600;
-        }
+        #notification a { color: var(--notification-link-color); text-decoration: underline; font-weight: 600; }
 
-         /* Footer */
         footer {
             text-align: center;
-            padding: 20px; /* Adjusted padding */
-            color: rgba(51, 51, 51, 0.6); /* Slightly lighter dark color for footer text */
+            padding: 20px;
+            color: rgba(51, 51, 51, 0.6);
             font-size: 14px;
-            background-color: var(--footer-bg); /* Light gray */
+            background-color: var(--footer-bg);
             text-transform: uppercase;
             width: 100%;
-             margin-top: auto; /* Push footer to the bottom */
+            margin-top: auto;
         }
 
-
-         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .nav-buttons {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-             .form-container {
-                 padding: 1.5rem;
-                 margin: 1.5rem auto;
-             }
-             h1 {
-                 font-size: 1.8rem;
-                 margin-bottom: 1rem;
-             }
-             label {
-                 font-size: 0.85rem;
-             }
-             input[type="text"], textarea {
-                 padding: 0.8rem;
-                 font-size: 0.9rem;
-             }
-
-             .sound-section {
-                 margin-bottom: 1.5rem;
-             }
-              .sound-section h2 {
-                 font-size: 1.3rem;
-             }
-
-             .soundButtonsContainer {
-                 gap: 10px;
-                 padding: 0.5rem 0;
-             }
-             .sound-btn {
-                 min-width: 80px;
-                 height: 80px;
-                 font-size: 0.75rem;
-                 padding: 0 1rem;
-                 border-radius: 15px;
-             }
-              .sound-btn.short-text {
-                  width: auto;
-                  height: 80px;
-                  border-radius: 15px;
-                  padding: 0 1rem;
-              }
-
-             #notification {
-                 bottom: 10px; /* Adjust bottom */
-                 padding: 0.6rem 1.2rem;
-                 font-size: 0.8rem;
-             }
+            .navbar { flex-direction: column; gap: 10px; }
+            .nav-buttons { flex-direction: column; gap: 10px; }
+            .form-container { padding: 1.5rem; margin: 1.5rem auto; }
+            h1 { font-size: 1.8rem; margin-bottom: 1rem; }
+            label { font-size: 0.85rem; }
+            input[type="text"], textarea { padding: 0.8rem; font-size: 0.9rem; }
+            .sound-section { margin-bottom: 1.5rem; }
+            .sound-section h2 { font-size: 1.3rem; }
+            .soundButtonsContainer { gap: 10px; padding: 0.5rem 0; }
+            .sound-btn, .sound-btn.short-text { min-width: 80px; height: 80px; font-size: 0.75rem; padding: 0 1rem; border-radius: 15px; }
+            #notification { bottom: 10px; padding: 0.6rem 1.2rem; font-size: 0.8rem; }
         }
 
-         @media (max-width: 480px) {
-            .navbar {
-                 padding: 15px 10px;
-             }
-             .logo {
-                font-size: 20px;
-             }
-
-            .nav-buttons {
-                 gap: 8px;
-             }
-
-            .btn {
-                 padding: 8px 15px;
-                 font-size: 12px;
-            }
-
-             .form-container {
-                 padding: 1rem;
-                 margin: 1rem auto;
-             }
-              h1 {
-                 font-size: 1.5rem;
-                 margin-bottom: 0.8rem;
-             }
-
-             label {
-                 font-size: 0.8rem;
-                 margin-bottom: 0.3rem;
-             }
-             input[type="text"], textarea {
-                 padding: 0.6rem;
-                 font-size: 0.8rem;
-                 margin-bottom: 1rem;
-             }
-             textarea {
-                 min-height: 100px;
-             }
-
-             .sound-section {
-                 margin-bottom: 1rem;
-             }
-             .sound-section h2 {
-                 font-size: 1.1rem;
-             }
-
-             .soundButtonsContainer {
-                 gap: 8px;
-                 padding: 0.3rem 0;
-             }
-
-             .sound-btn {
-                 min-width: 70px;
-                 height: 70px;
-                 font-size: 0.7rem;
-                 padding: 0 0.5rem;
-                 border-radius: 10px;
-             }
-              .sound-btn.short-text {
-                 width: auto;
-                 height: 70px;
-                 border-radius: 10px;
-                 padding: 0 0.5rem;
-             }
-
-             #notification {
-                 bottom: 5px; /* Adjust bottom */
-                 padding: 0.5rem 1rem;
-                 font-size: 0.7rem;
-             }
+        @media (max-width: 480px) {
+            .navbar { padding: 15px 10px; }
+            .logo { font-size: 20px; }
+            .nav-buttons { gap: 8px; }
+            .btn { padding: 8px 15px; font-size: 12px; }
+            .form-container { padding: 1rem; margin: 1rem auto; }
+            h1 { font-size: 1.5rem; margin-bottom: 0.8rem; }
+            label { font-size: 0.8rem; margin-bottom: 0.3rem; }
+            input[type="text"], textarea { padding: 0.6rem; font-size: 0.8rem; margin-bottom: 1rem; }
+            textarea { min-height: 100px; }
+            .sound-section { margin-bottom: 1rem; }
+            .sound-section h2 { font-size: 1.1rem; }
+            .soundButtonsContainer { gap: 8px; padding: 0.3rem 0; }
+            .sound-btn, .sound-btn.short-text { min-width: 70px; height: 70px; font-size: 0.7rem; padding: 0 0.5rem; border-radius: 10px; }
+            #notification { bottom: 5px; padding: 0.5rem 1rem; font-size: 0.7rem; }
         }
-
-         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
-        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
-        /* function darken(color, percent) { ... } */
-
     </style>
 </head>
 <body>
@@ -483,7 +270,7 @@
         <div class="nav-buttons">
             <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
             <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
-             <a href="collections.html" class="btn secondary btn-with-arrow">Collections</a>
+            <a href="playlist.html" class="btn secondary btn-with-arrow">Your Playlists</a>
             <button id="logoutBtn" class="btn secondary">Log Out</button>
         </div>
     </nav>
@@ -495,12 +282,16 @@
             <form id="createForm">
                 <div id="normalSection" class="sound-section">
                     <h2>Normal Sounds</h2>
-                    <div id="normalGrid" class="soundButtonsContainer"></div>
+                    <div id="normalGrid" class="soundButtonsContainer">
+                        <p style="color: var(--text-color);">LOADING NORMAL SOUNDS...</p>
+                    </div>
                 </div>
 
                 <div id="explicitSection" class="sound-section">
                     <h2>Explicit Sounds</h2>
-                    <div id="explicitGrid" class="soundButtonsContainer"></div>
+                    <div id="explicitGrid" class="soundButtonsContainer">
+                        <p style="color: var(--text-color);">LOADING EXPLICIT SOUNDS...</p>
+                    </div>
                 </div>
 
                 <label for="name">Playlist Name</label>
@@ -514,305 +305,174 @@
         </div>
     </main>
 
-     <footer>
+    <footer>
         <p>&copy; <span id="currentYear"></span> 4SP</p>
     </footer>
 
     <div id="notification">YOUR PLAYLIST HAS BEEN CREATED! <a href="playlist.html">VIEW PLAYLISTS</a></div>
 
     <script>
-         // Display current year in footer
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-
-        // const auth = firebase.auth(); // Keep auth for user check
-        // const db = firebase.firestore(); // Keep db for potential future use or other features
         let auth, db;
-         // Check if firebaseConfig is defined and firebase is not already initialized
-         if (typeof firebaseConfig !== 'undefined' && firebase.apps.length === 0) {
-             firebase.initializeApp(firebaseConfig);
-         }
-         // Ensure auth and db are initialized regardless of previous check if firebase is available
-         if (typeof firebase !== 'undefined') {
-              if (typeof firebase.auth !== 'undefined') auth = firebase.auth();
-              if (typeof firebase.firestore !== 'undefined') db = firebase.firestore(); // Initialize db
-         } else {
-             console.warn("Firebase SDK not available. Auth and Firestore features will be disabled.");
-             // Potentially disable form elements or show message if Firebase is critical
-         }
-
+        if (typeof firebaseConfig !== 'undefined' && firebase.apps.length === 0) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        if (typeof firebase !== 'undefined') {
+            if (typeof firebase.auth !== 'undefined') auth = firebase.auth();
+            if (typeof firebase.firestore !== 'undefined') db = firebase.firestore();
+        } else {
+            console.warn("Firebase SDK not available.");
+        }
 
         const normalGrid = document.getElementById('normalGrid');
         const explicitGrid = document.getElementById('explicitGrid');
         const form = document.getElementById('createForm');
         const notification = document.getElementById('notification');
-        const logoutButton = document.getElementById('logoutBtn'); // Renamed to avoid conflict
+        const logoutButton = document.getElementById('logoutBtn');
+        let selections = [];
 
-        let selections = []; // Array to store selected sound objects
-
-        // Auth state change listener
-        if (auth) { // Only attach if auth is initialized
+        if (auth) {
             auth.onAuthStateChanged(user => {
                 if (!user) {
-                     console.log("No user logged in. Redirecting to index.html");
-                     window.location.href = 'index.html'; // Redirect if not authenticated
+                    window.location.href = 'index.html';
                 } else {
-                     console.log("User logged in:", user.email);
-                     loadSoundButtons(); // Load sounds once authenticated
+                    loadSoundButtons();
                 }
             });
         } else {
-             console.warn("Firebase Auth not available. Cannot perform auth check or load sounds.");
-              // Display error message on the page if Firebase is not available
-              if (normalGrid) normalGrid.innerHTML = '<p style="color: var(--error-color);">FIREBASE AUTH NOT AVAILABLE. CANNOT LOAD SOUNDS.</p>';
-              if (explicitGrid) explicitGrid.innerHTML = ''; // Clear explicit grid if needed
+            console.warn("Firebase Auth not available.");
+            if(normalGrid) normalGrid.innerHTML = '<p style="color: var(--error-color);">FIREBASE AUTH NOT AVAILABLE.</p>';
+            if(explicitGrid) explicitGrid.innerHTML = '';
         }
 
-
-        // Navigation button listeners (assuming they exist in the HTML)
-        // Dashboard button listener
-        const dashboardBtn = document.querySelector('a[href="dashboard.html"]'); // Use selector for consistency
-        if (dashboardBtn) {
-            dashboardBtn.addEventListener('click', (e) => {
-                 // Prevent default anchor behavior if needed, but likely not for navigation links
-                 // e.preventDefault();
-                 // window.location.href = 'dashboard.html';
-            });
-        } else {
-             console.error("Dashboard button not found.");
-        }
-
-        // Logout button listener
         if (logoutButton) {
-             logoutButton.addEventListener('click', () => {
-                 if (auth) { // Check if auth is initialized
-                      auth.signOut().then(() => {
-                          console.log("User signed out.");
-                          window.location.href = 'index.html'; // Redirect to index after logout
-                      }).catch(error => {
-                          console.error("Logout Error:", error);
-                          alert("Error logging out. Please try again."); // Keeping alert for simplicity
-                      });
-                 } else {
-                      console.error("Firebase Auth not available for logout.");
-                      alert("Logout failed. Firebase services not available.");
-                 }
-             });
-        } else {
-             console.error("Logout button not found.");
+            logoutButton.addEventListener('click', () => {
+                if (auth) {
+                    auth.signOut().then(() => {
+                        window.location.href = 'index.html';
+                    }).catch(error => console.error("Logout Error:", error));
+                }
+            });
         }
 
-
-        // Function to load sound buttons from JSON
         function loadSoundButtons() {
-             // Display loading messages initially
-             if (normalGrid) normalGrid.innerHTML = '<p style="color: var(--text-color);">LOADING NORMAL SOUNDS...</p>';
-             if (explicitGrid) explicitGrid.innerHTML = '<p style="color: var(--text-color);">LOADING EXPLICIT SOUNDS...</p>';
-
             fetch('SoundboardSN.json')
                 .then(res => {
-                    if (!res.ok) {
-                        throw new Error(`HTTP error! status: ${res.status}`);
-                    }
+                    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                     return res.json();
                 })
                 .then(data => {
-                    // Clear loading messages
                     if (normalGrid) normalGrid.innerHTML = '';
                     if (explicitGrid) explicitGrid.innerHTML = '';
 
                     const normalSounds = (data.NormalSounds || []).sort();
                     const explicitSounds = (data.ExplicitSounds || []).sort();
 
-                    if (normalGrid) {
-                         normalSounds.forEach(file => createBtn('NormalSounds', file, normalGrid));
-                    }
-                     if (explicitGrid) {
-                         explicitSounds.forEach(file => createBtn('ExplicitSounds', file, explicitGrid));
-                     }
-
+                    if (normalGrid) normalSounds.forEach(file => createBtn('NormalSounds', file, normalGrid));
+                    if (explicitGrid) explicitSounds.forEach(file => createBtn('ExplicitSounds', file, explicitGrid));
 
                     if (normalSounds.length === 0 && explicitSounds.length === 0) {
-                         console.log("No sounds found in SoundboardSN.json");
-                         if (normalGrid) normalGrid.innerHTML = '<p style="color: var(--text-color);">NO NORMAL SOUNDS FOUND.</p>';
-                         if (explicitGrid) explicitGrid.innerHTML = '<p style="color: var(--text-color);">NO EXPLICIT SOUNDS FOUND.</p>';
+                        if (normalGrid) normalGrid.innerHTML = '<p style="color: var(--text-color);">NO NORMAL SOUNDS FOUND.</p>';
+                        if (explicitGrid) explicitGrid.innerHTML = '<p style="color: var(--text-color);">NO EXPLICIT SOUNDS FOUND.</p>';
                     }
                 })
                 .catch(err => {
                     console.error('Failed to load sound buttons:', err);
-                     if (normalGrid) normalGrid.innerHTML = '<p style="color: var(--error-color);">ERROR LOADING SOUNDS.</p>';
-                     if (explicitGrid) explicitGrid.innerHTML = '<p style="color: var(--error-color);">ERROR LOADING SOUNDS.</p>';
+                    if (normalGrid) normalGrid.innerHTML = '<p style="color: var(--error-color);">ERROR LOADING SOUNDS.</p>';
+                    if (explicitGrid) explicitGrid.innerHTML = '<p style="color: var(--error-color);">ERROR LOADING SOUNDS.</p>';
                 });
         }
 
-        // Function to create a sound button
         function createBtn(folder, fileName, container) {
             const label = fileName.replace(/\.(mp3|wav)$/i, '').replace(/_/g, ' ');
-            const btn = document.createElement('button'); // Use button element for semantic correctness
+            const btn = document.createElement('button');
+            btn.type = 'button'; // Prevent form submission
             btn.className = 'sound-btn';
             btn.textContent = label;
-             // Adjust short-text class logic based on new styling approach
-            if (label.length < 10) btn.classList.add('short-text'); // Keep class for potential minor styling
-
-
-            // Store sound info in a data attribute for easy access
+            if (label.length < 10) btn.classList.add('short-text');
             btn.dataset.folder = folder;
             btn.dataset.fileName = fileName;
             btn.dataset.label = label;
-
             btn.addEventListener('click', () => toggleSelection(btn));
             container.appendChild(btn);
         }
 
-        // Function to toggle sound selection
         function toggleSelection(btn) {
-             const folder = btn.dataset.folder;
-             const fileName = btn.dataset.fileName;
-             const label = btn.dataset.label;
-
-             const item = { folder, fileName, label };
-
+            const item = { folder: btn.dataset.folder, fileName: btn.dataset.fileName, label: btn.dataset.label };
             const idx = selections.findIndex(i => i.fileName === item.fileName && i.folder === item.folder);
-
             if (idx > -1) {
                 selections.splice(idx, 1);
                 btn.classList.remove('selected');
             } else {
-                 // Add sound to selections
                 selections.push(item);
                 btn.classList.add('selected');
             }
-             console.log("Current Selections:", selections); // Log current selections
         }
 
-        // Form submission handling
         form.addEventListener('submit', async e => {
             e.preventDefault();
-
-             // Commented out playlist creation logic as requested
-             console.log("Form submitted, but playlist creation is disabled.");
-
-             const nameInput = document.getElementById('name');
-             const descriptionInput = document.getElementById('description');
-
-             const name = nameInput.value.trim();
-             const desc = descriptionInput.value.trim();
-
-             console.log("Attempted to create playlist with:");
-             console.log("Name:", name);
-             console.log("Description:", desc);
-             console.log("Selected Sounds:", selections);
-
-
-             // Optional: Provide feedback to the user that creation is disabled
-              if (notification) {
-                  notification.textContent = 'PLAYLIST CREATION IS CURRENTLY DISABLED.';
-                  notification.style.display = 'block';
-                   setTimeout(() => {
-                       if (notification) notification.style.display = 'none'; // Hide after 5 seconds
-                   }, 5000);
-              } else {
-                   alert("Playlist creation is currently disabled."); // Fallback alert
-              }
-
-             // You can keep the form reset and selection clearing if you want
-            // form.reset();
-            // selections = [];
-            // document.querySelectorAll('.sound-btn.selected').forEach(b => b.classList.remove('selected'));
-
-
-            
-            // Original Firebase Playlist Creation Logic (commented out)
             const user = auth.currentUser;
-             if (!user) {
-                 console.error("User not authenticated for form submission.");
-                 // Optionally redirect or show error message
-                 return;
-             }
-
+            if (!user) {
+                alert("User not authenticated.");
+                return;
+            }
             const nameInput = document.getElementById('name');
             const descriptionInput = document.getElementById('description');
-
             const name = nameInput.value.trim();
             const desc = descriptionInput.value.trim();
-            const type = 'normal'; // always normal for now
-
+            const type = 'normal';
 
             if (!name || !desc) {
-                 // Show an error message to the user
-                 alert("Playlist name and description are required."); // Simple alert for missing fields
-                 return;
+                alert("Playlist name and description are required.");
+                return;
+            }
+            if (selections.length === 0) {
+                alert("Please select at least one sound.");
+                return;
             }
 
-             if (selections.length === 0) {
-                 alert("Please select at least one sound for your playlist."); // Alert for no sounds
-                 return;
-             }
+            if (!db) {
+                alert("Database service is not available.");
+                return;
+            }
 
-
-             // Check playlist limit before creating
-             try {
-                 const snap = await db.collection('playlists')
+            try {
+                const snap = await db.collection('playlists')
                     .where('owner', '==', user.uid)
                     .where('type', '==', 'normal')
                     .get();
+                const maxPlaylists = 10;
+                if (snap.size >= maxPlaylists) {
+                    alert(`You have reached the maximum of ${maxPlaylists} normal playlists.`);
+                    return;
+                }
 
-                 const maxPlaylists = 10;
-                 if (snap.size >= maxPlaylists) {
-                     alert(`You have reached the maximum of ${maxPlaylists} normal playlists.`);
-                     return; // Stop submission
-                 }
-             } catch (error) {
-                 console.error("Error checking playlist count:", error);
-                 alert("Error checking playlist limit. Please try again.");
-                 return; // Stop submission on error
-             }
-
-
-            try {
                 await db.collection('playlists').add({
                     owner: user.uid,
                     type: type,
                     name: name,
                     description: desc,
-                    items: selections,
+                    items: selections, // These are the selected sound objects
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                 // Show success notification
                 if (notification) {
-                     notification.textContent = 'YOUR PLAYLIST HAS BEEN CREATED! VIEW PLAYLISTS';
-                     const viewLink = document.createElement('a');
-                     viewLink.href = 'playlist.html';
-                     viewLink.textContent = 'VIEW PLAYLISTS';
-                     // Style the link if necessary (already done in CSS)
-                     notification.innerHTML = 'YOUR PLAYLIST HAS BEEN CREATED! ';
-                      notification.appendChild(viewLink);
-
-
+                    const viewLink = notification.querySelector('a');
+                    if (viewLink) viewLink.href = 'playlist.html'; // Ensure link is correct
                     notification.style.display = 'block';
                     setTimeout(() => {
-                         if (notification) notification.style.display = 'none'; // Hide after 5 seconds
+                        if (notification) notification.style.display = 'none';
                     }, 5000);
-                } else {
-                     console.log("Playlist created successfully, but notification element not found.");
                 }
-
-
-                // Reset form and selections
                 form.reset();
                 selections = [];
-                // Remove selected style from buttons
                 document.querySelectorAll('.sound-btn.selected').forEach(b => b.classList.remove('selected'));
-
-                 console.log("Playlist created successfully.");
-
             } catch (err) {
                 console.error('Error creating playlist:', err);
-                 alert('Error creating playlist: ' + err.message); // Show error message to user
+                alert('Error creating playlist: ' + err.message);
             }
-        
         });
     </script>
-     </body>
+</body>
 </html>
