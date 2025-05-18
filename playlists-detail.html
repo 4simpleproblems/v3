@@ -31,6 +31,11 @@
             /* Light gray grid lines */
             --accent-color: #333333;
             /* Dark accent color */
+            --danger-action: #dc3545;
+            /* Red for danger actions */
+            --danger-action-hover: #c82333;
+            /* Darker red on hover */
+
 
             /* Message box colors for light theme */
             --success-bg: #d4edda;
@@ -221,6 +226,12 @@
             border: 1px solid var(--secondary-border-color);
         }
 
+        .btn.danger-btn {
+            background-color: var(--danger-action);
+            color: var(--bg-color);
+            border: 1px solid var(--danger-action);
+        }
+
         .btn.primary:hover {
             background-color: var(--hover-bg);
             color: var(--text-color);
@@ -232,6 +243,12 @@
             background-color: var(--hover-bg);
             border-color: var(--hover-bg);
         }
+
+        .btn.danger-btn:hover {
+            background-color: var(--danger-action-hover);
+            border-color: var(--danger-action-hover);
+        }
+
 
         /* Button with Arrow */
         .btn-with-arrow::before {
@@ -628,19 +645,19 @@
             border-color: var(--accent-color);
         }
 
-        #clearAllSoundsBtn {
+        #clearAllSoundsBtn,
+        #deletePlaylistBtn {
             width: 100%;
             margin-top: 0.5rem;
-            background-color: var(--hover-bg);
-            /* Light gray background */
-            color: var(--text-color);
-            /* Dark text */
-            border: 1px solid var(--secondary-border-color);
-            /* Medium gray border */
             position: relative;
             overflow: hidden;
             border-radius: 5px;
-            /* Less rounded */
+        }
+
+        #clearAllSoundsBtn {
+            background-color: var(--hover-bg);
+            color: var(--text-color);
+            border: 1px solid var(--secondary-border-color);
         }
 
         #clearAllSoundsBtn:hover {
@@ -648,6 +665,16 @@
             border-color: var(--accent-color);
         }
 
+        #deletePlaylistBtn {
+            background-color: var(--danger-action);
+            color: var(--bg-color);
+            border: 1px solid var(--danger-action);
+        }
+
+        #deletePlaylistBtn:hover {
+            background-color: var(--danger-action-hover);
+            border-color: var(--danger-action-hover);
+        }
 
         @keyframes buttonPop {
             from {
@@ -680,15 +707,9 @@
             }
         }
 
-        #clearAllSoundsBtn.active {
-            animation: none;
-            /* Remove pop animation */
-            background-color: var(--error-bg);
-            /* Error background color */
-            border-color: var(--error-color);
-            /* Error border color */
-            color: var(--error-color);
-            /* Error text color */
+        #clearAllSoundsBtn.active,
+        #deletePlaylistBtn.active {
+            animation: buttonPop 0.4s ease-in-out;
         }
 
         .ripple-container {
@@ -705,8 +726,7 @@
         .ripple {
             position: absolute;
             border-radius: 50%;
-            background-color: rgba(255, 0, 0, 0.4);
-            /* Reddish ripple for clear button */
+            background-color: rgba(255, 255, 255, 0.4);
             width: 100px;
             height: 100px;
             margin-top: -50px;
@@ -834,6 +854,127 @@
             color: var(--status-info-color);
             border-color: var(--status-info-border);
         }
+
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .modal.fade-out {
+            display: flex;
+            animation: fadeOut 0.3s ease forwards;
+        }
+
+        .modal-content {
+            background-color: var(--navbar-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 500px;
+            color: var(--text-color);
+            position: relative;
+            border: 1px solid var(--secondary-border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            text-align: left;
+            text-transform: none;
+        }
+
+        .modal h3 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            text-transform: uppercase;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: var(--text-color);
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .close:hover {
+            color: var(--danger-action);
+        }
+
+        .delete-form {
+            margin-top: 1.5rem;
+        }
+
+        .delete-form input {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 5px;
+            border: 1px solid var(--secondary-border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            text-transform: none;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .delete-form input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px rgba(51, 51, 51, 0.2);
+        }
+
+        .delete-form button {
+            width: 100%;
+            padding: 10px 20px;
+            min-height: 40px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--danger-action);
+            color: var(--bg-color);
+            border: 1px solid var(--danger-action);
+        }
+
+        .delete-form button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: var(--secondary-border-color);
+            color: rgba(51, 51, 51, 0.6);
+            border-color: var(--secondary-border-color);
+        }
+
+        .delete-form button:hover:not(:disabled) {
+            background-color: var(--danger-action-hover);
+            border-color: var(--danger-action-hover);
+        }
+
 
         /* Footer */
         footer {
@@ -1098,6 +1239,9 @@
                             Clear All Sounds
                             <div class="ripple-container"></div>
                         </button>
+                        <button id="deletePlaylistBtn" class="btn secondary danger-btn">
+                            Delete Playlist <div class="ripple-container"></div>
+                        </button>
                     </div>
                     <div class="keyboard-shortcuts">
                         <p><strong>Keyboard Shortcuts:</strong></p>
@@ -1113,9 +1257,6 @@
 
     <main>
         <div class="container">
-            <h1 id="mainTitle">Playlist Soundboard</h1>
-            <p id="mainDescription">Click the buttons to play a sound from the playlist.</p>
-
             <div class="status-message" id="statusMessage"></div>
             <div class="overlay" id="overlay"></div>
 
@@ -1132,6 +1273,19 @@
     <footer>
         <p>&copy; <span id="currentYear"></span> 4SP</p>
     </footer>
+
+    <div id="deletePlaylistModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Delete Playlist</h3>
+            <p>ARE YOU SURE YOU WANT TO DELETE THIS PLAYLIST? THIS ACTION CANNOT BE UNDONE.</p>
+            <p>PLEASE TYPE <strong id="confirmPlaylistNameText"></strong> TO CONFIRM:</p>
+            <div class="delete-form">
+                <input type="text" id="confirmPlaylistInput" placeholder="TYPE PLAYLIST NAME">
+                <button id="confirmDeleteBtn" class="btn danger-btn" disabled>Delete</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Display current year in footer
@@ -1151,7 +1305,7 @@
                 initAuthAndLoadPlaylist(); // Start the process
             } else {
                 console.error("Firebase SDK not available.");
-                // Handle error, maybe redirect to a static error page or show message
+                // Handle error, maybe show message in the sound grid area
                 const soundGrid = document.getElementById('soundGrid');
                 if (soundGrid) soundGrid.innerHTML = '<p style="color: var(--error-color);">FIREBASE SERVICES NOT AVAILABLE.</p>';
                 // Hide elements that require auth or firestore
@@ -1202,6 +1356,7 @@
         let menuIsOpen = false;
         let isRippling = false;
         let currentPlaybackSpeed = 1.0;
+        let originalPlaylistData = {}; // Added back for delete functionality
 
 
         async function loadPlaylistData(user) {
@@ -1216,8 +1371,7 @@
             const plDescEl = document.getElementById('plDesc');
             const soundGrid = document.getElementById('soundGrid');
             const playlistSoundsTitle = document.getElementById('playlistSoundsTitle');
-            const mainTitleEl = document.getElementById('mainTitle');
-            const mainDescriptionEl = document.getElementById('mainDescription');
+            // Removed references to mainTitleEl and mainDescriptionEl
 
 
             if (!playlistId) {
@@ -1258,12 +1412,13 @@
                     return;
                 }
 
+                originalPlaylistData = JSON.parse(JSON.stringify(data)); // Deep copy for delete logic
+
                 // Update playlist name and description in the header
                 if (plNameEl) plNameEl.textContent = data.name || 'Unnamed Playlist';
                 if (plDescEl) plDescEl.textContent = data.description || 'No Description';
                 if (playlistSoundsTitle) playlistSoundsTitle.textContent = `${data.name || 'PLAYLIST'} SOUNDS`;
-                if (mainTitleEl) mainTitleEl.textContent = `${data.name || 'PLAYLIST'} SOUNDBOARD`;
-                if (mainDescriptionEl) mainDescriptionEl.textContent = `Click the buttons to play sounds from "${data.name || 'this playlist'}".`;
+                // Removed updating mainTitleEl and mainDescriptionEl
 
 
                 renderSoundButtons(data.items || []);
@@ -1272,7 +1427,7 @@
 
             } catch (error) {
                 console.error("Error loading playlist data:", error);
-                if (soundGrid) soundGrid.innerHTML = `<p style="color: var(--error-color);">ERROR LOADING: ${error.message.toUpperCase()}</p>`;
+                if (soundGrid) soundGrid.innerHTML = `<p style="color: var(--error-error);">ERROR LOADING: ${error.message.toUpperCase()}</p>`;
                 if (playlistSoundsTitle) playlistSoundsTitle.textContent = 'ERROR';
                 showStatus(`ERROR LOADING PLAYLIST: ${error.message.toUpperCase()}`, 'error');
             }
@@ -1375,6 +1530,15 @@
             const logoutBtn = document.getElementById('logoutBtn');
             const backBtn = document.getElementById('backBtn');
 
+            // Elements for deleting - Added back
+            const deletePlaylistBtn = document.getElementById('deletePlaylistBtn');
+            const deletePlaylistModal = document.getElementById('deletePlaylistModal');
+            const confirmPlaylistNameText = document.getElementById('confirmPlaylistNameText');
+            const confirmPlaylistInput = document.getElementById('confirmPlaylistInput');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const closeModalBtn = deletePlaylistModal ? deletePlaylistModal.querySelector('.close') : null;
+
+
             // Options Menu
             if (optionsButton) optionsButton.onclick = (e) => {
                 e.stopPropagation();
@@ -1421,6 +1585,60 @@
                 clearAllSounds();
             };
 
+             // Delete Playlist Logic - Added back
+            if (deletePlaylistBtn && deletePlaylistModal && confirmPlaylistNameText && confirmPlaylistInput && confirmDeleteBtn) {
+                deletePlaylistBtn.onclick = (e) => {
+                    createRipple(e, deletePlaylistBtn);
+                    confirmPlaylistNameText.textContent = playlistData.name || 'this playlist';
+                    confirmPlaylistInput.value = '';
+                    confirmDeleteBtn.disabled = true;
+                    deletePlaylistModal.classList.remove('fade-out');
+                    deletePlaylistModal.style.display = 'flex';
+                    deletePlaylistModal.classList.add('show');
+                    closeOptionsMenu(); // Close options menu when modal opens
+                };
+
+                if (closeModalBtn) closeModalBtn.onclick = closeDeleteModal;
+                window.onclick = (e) => {
+                    if (e.target === deletePlaylistModal) closeDeleteModal();
+                };
+
+                confirmPlaylistInput.oninput = () => {
+                    confirmDeleteBtn.disabled = confirmPlaylistInput.value.trim().toLowerCase() !== (playlistData.name || '').toLowerCase();
+                };
+
+                confirmDeleteBtn.onclick = async () => {
+                    if (confirmPlaylistInput.value.trim().toLowerCase() === (playlistData.name || '').toLowerCase()) {
+                        try {
+                            stopAllAudios(); // Stop any playing sounds before deleting
+                            if (isLocal) {
+                                let playlists = JSON.parse(localStorage.getItem('localPlaylists') || '[]');
+                                localStorage.setItem('localPlaylists', JSON.stringify(playlists.filter(p => p.id !== playlistId)));
+                            } else {
+                                if (!db) throw new Error("Firestore not available.");
+                                await db.collection('playlists').doc(playlistId).delete();
+                            }
+                            showStatus('PLAYLIST DELETED.', 'success');
+                            closeDeleteModal();
+                            setTimeout(() => {
+                                location.href = 'playlists.html'; // Redirect after successful deletion
+                            }, 1000);
+                        } catch (error) {
+                            console.error('Error deleting playlist:', error);
+                            showStatus(`DELETE FAILED: ${error.message.toUpperCase()}`, 'error');
+                            closeDeleteModal(); // Close modal even on failure
+                        }
+                    } else {
+                        showStatus('NAME DOES NOT MATCH.', 'info');
+                    }
+                };
+            } else if (deletePlaylistBtn) {
+                // If delete elements are missing but button exists, maybe hide it or disable
+                 console.warn("Delete playlist modal elements not found, hiding delete button.");
+                 deletePlaylistBtn.style.display = 'none';
+            }
+
+
             // Navigation
             if (backBtn) backBtn.onclick = () => location.href = 'playlists.html';
             if (logoutBtn && auth) logoutBtn.onclick = () => {
@@ -1432,10 +1650,12 @@
                 if (e.shiftKey && (e.key.toLowerCase() === 'c' || e.code.toLowerCase() === 'keyc') &&
                     document.activeElement.tagName !== 'INPUT' &&
                     document.activeElement.tagName !== 'TEXTAREA' &&
-                    optionsMenu && !optionsMenu.contains(document.activeElement)) { // Check if not inside options menu inputs
+                    optionsMenu && !optionsMenu.contains(document.activeElement) && // Check if not inside options menu inputs
+                    !deletePlaylistModal.contains(document.activeElement)) { // Check if not inside modal inputs
                     e.preventDefault();
                     clearAllSounds(true);
                     closeOptionsMenu(); // Close menu on clear shortcut
+                     closeDeleteModal(); // Also close delete modal on clear shortcut
                 }
             };
         }
@@ -1448,8 +1668,8 @@
                 return;
             }
             if (statusMessageTimeout) clearTimeout(statusMessageTimeout);
-            statusMessageEl.textContent = message.toUpperCase();
-            statusMessageEl.className = 'status-message ' + type;
+            statusMessageEl.textContent = message.toUpperCase(); // Ensure uppercase
+            statusMessageEl.className = 'status-message ' + type; // Apply type class
             statusMessageEl.style.display = 'block';
             statusMessageEl.classList.remove('fade-out');
             statusMessageEl.classList.add('fade-in');
@@ -1492,6 +1712,18 @@
                 overlay.classList.remove('fade-out');
                 optionsMenu.style.display = 'none';
                 optionsMenu.classList.remove('fade-out');
+            }, 300);
+        }
+
+        // Close Delete Modal function - Added back
+        function closeDeleteModal() {
+            const deleteModal = document.getElementById('deletePlaylistModal');
+            if (!deleteModal) return;
+            deleteModal.classList.remove('show');
+            deleteModal.classList.add('fade-out');
+            setTimeout(() => {
+                deleteModal.style.display = 'none';
+                deleteModal.classList.remove('fade-out');
             }, 300);
         }
 
@@ -1559,13 +1791,13 @@
                 if (instantMute) {
                     muteAllSounds();
                     stopAllAudios(100); // Small delay for mute to take effect before stopping
-                    showStatus('ALL SOUNDS MUTED AND CLEARED', 'success'); // Uppercase status
+                    showStatus('ALL SOUNDS MUTED AND CLEARED', 'success'); // Ensure uppercase status
                 } else {
                     stopAllAudios();
-                    showStatus('ALL SOUNDS STOPPED', 'success'); // Uppercase status
+                    showStatus('ALL SOUNDS STOPPED', 'success'); // Ensure uppercase status
                 }
             } else if (!instantMute) {
-                showStatus('NO SOUNDS TO CLEAR', 'info'); // Uppercase status
+                showStatus('NO SOUNDS TO CLEAR', 'info'); // Ensure uppercase status
             }
             if (instantMute) closeOptionsMenu(); // Close menu on clear shortcut
         }
@@ -1625,7 +1857,7 @@
                 // If checkbox is checked but not hovering, just stop any lingering intervals/frames
                 stopAutoClicker();
             }
-            showStatus(`AUTO CLICK DELAY SET TO ${autoClickDelayInput.value}MS`, 'info'); // Uppercase status
+            showStatus(`AUTO CLICK DELAY SET TO ${autoClickDelayInput.value}MS`, 'info'); // Ensure uppercase status
         }
 
 
