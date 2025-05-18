@@ -1,0 +1,168 @@
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+        }
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .tabs {
+            display: flex;
+            align-items: center;
+            background-color: #222;
+            border-bottom: 2px solid #FFD700;
+            overflow: hidden;
+            white-space: nowrap;
+            transition: transform 0.5s ease-in-out;
+        }
+        .tab {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            color: #ccc;
+            cursor: pointer;
+            position: relative;
+            background-color: #333;
+            border-right: 1px solid #555;
+            transition: background-color 0.3s;
+            flex-shrink: 1;
+            max-width: 150px;
+            overflow: hidden;
+            border-radius: 5px;
+            text-overflow: ellipsis;
+        }
+        .tab.active {
+            background-color: #444;
+            color: #FFD700;
+        }
+        .tab:hover {
+            background-color: #555;
+        }
+        .tab .close-button {
+            margin-left: 5px;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .tab .close-button:hover {
+            color: #262626;
+        }
+        .add-tab-button {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #333;
+            color: #FFD700;
+            border: none;
+            outline: none;
+            font-size: 20px;
+        }
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #333;
+            padding: 10px;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 2px solid #FFD700;
+            transition: transform 0.5s ease-in-out;
+        }
+        .navbar-left {
+            display: flex;
+            gap: 10px;
+        }
+        .navbar button {
+            background: transparent;
+            border: none;
+            color: #FFD700;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .navbar button:hover {
+            color: #fff;
+        }
+        .search-bar {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            border-radius: 25px;
+            background-color: #000;
+            border: 2px solid #FFD700;
+            overflow: hidden;
+            height: 30px;
+          margin-left: 20px;
+        }
+        .search-bar input {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            background-color: transparent;
+            color: #ccc;
+            font-size: 16px;
+        }
+        .search-bar input:focus {
+            outline: none;
+        }
+        .search-bar button {
+            background-color: #FFD700;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #000;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-radius: 0 25px 25px 0;
+        }
+        .search-bar button i {
+            margin-left: 5px;
+        }
+        .content-wrapper {
+            flex-grow: 1;
+            overflow: hidden;
+            position: relative;
+            height: 100%;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+        }
+        iframe.active {
+            display: block;
+        }
+        .hide-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            border: none;
+            font-size: 30px;
+            color: #FFD700;
+            cursor: pointer;
+            z-index: 1001;
+        }
+		.navbar.hidden, .tabs.hidden {
+			transform: translateY(-200%);
+        }
+        .show-navbar-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            border: none;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+            display: none;
+            z-index: 2000;
+        }
+        .show-navbar-button i {
+            color: gold;
+        }

@@ -1,0 +1,28 @@
+        body {
+       /*     background: url('/bg.gif') repeat center center fixed; */
+            background-color: black;
+            background-size: 100%;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            text-align: center;
+            margin-top: 100px;
+        }
+        button {
+            background-color: #ccc;
+            color: black;
+            padding: 15px 30px;
+            margin: 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #bbb;
+        }
+        .tip {
+            color: white;
+            font-size: 16px;
+            margin-top: 20px;
+        }
