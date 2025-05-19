@@ -11,6 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
 
+
     <style>
         :root {
             --bg-color: #ffffff;
@@ -35,7 +36,6 @@
             /* Red for danger actions */
             --danger-action-hover: #c82333;
             /* Darker red on hover */
-
 
             /* Message box colors for light theme */
             --success-bg: #d4edda;
@@ -101,6 +101,7 @@
             /* Adjusted for fixed navbar */
             padding-bottom: 60px;
             /* Adjusted for fixed footer */
+
 
             /* Grid Background */
             background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
@@ -264,20 +265,7 @@
 
 
         /* Soundboard specific styles */
-        main h1 {
-            text-align: center;
-            /* Center main title */
-            margin-top: 20px;
-            margin-bottom: 10px;
-        }
-
-        main p {
-            text-align: center;
-            /* Center intro paragraph */
-            margin-bottom: 30px;
-            color: rgba(51, 51, 51, 0.8);
-        }
-
+        /* Removed main h1 and main p as playlist title/description is in navbar */
 
         .sound-section {
             margin-bottom: 2rem;
@@ -299,22 +287,20 @@
         }
 
         .soundButtonsContainer {
-            display: grid;
-            /* Use grid for better control over layout */
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            /* Responsive grid */
-            gap: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
             padding: 1rem 0;
             /* Adjusted padding */
+            gap: 15px;
+            /* Adjusted gap */
             width: 100%;
         }
 
         .sound-button {
-            /* Removed width: 100%; to allow button to size based on content */
-            /* Removed aspect-ratio: 1 / 1; to allow height to adjust based on content */
-            height: 100px; /* Set fixed height */
-            border-radius: 20px;
-            /* Adjusted border-radius */
+            min-width: 100px;
+            height: 100px;
+            border-radius: 20px; /* Adjusted border-radius */
             background-color: var(--sound-button-bg);
             /* Light background */
             color: var(--sound-button-text);
@@ -325,29 +311,27 @@
             font-size: 0.85rem;
             font-weight: 600;
             /* Bolder */
-            padding: 0 1.5rem; /* Added padding */
+            padding: 0 1.5rem;
             transition: background-color 0.3s ease, transform 0.1s ease, border-color 0.3s ease;
-            display: inline-flex;
-            /* Changed to inline-flex so buttons don't take full grid cell width inherently */
+            display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            /* Kept text-align for centering multi-line text */
             line-height: 1.2;
-            max-width: 500px;
-            /* Keep max-width to prevent excessively wide buttons */
-
-            /* --- Changes to allow text stretching and prevent cutting off --- */
-            white-space: nowrap; /* Prevent text from wrapping onto multiple lines */
-            overflow: hidden; /* Hide text that overflows the button's width */
-            text-overflow: ellipsis; /* Add an ellipsis (...) to truncated text */
-            /* --- End changes --- */
-
-            /* word-wrap: break-word; Removed as nowrap prevents wrapping */
-            /* hyphens: auto; Removed as nowrap prevents wrapping */
+            max-width: 300px;
+            /* Constrain width slightly */
+            word-wrap: break-word; /* Allow text to wrap within words */
+            hyphens: auto; /* Allow hyphenation */
             text-transform: uppercase;
             /* All caps */
+            /* Removed white-space: nowrap, overflow: hidden, text-overflow: ellipsis */
         }
+
+        /* Removed specific short-text styling as all buttons will have the same border-radius */
+         .sound-button.short-text {
+             /* Removed border-radius: 50%; and width/height overrides */
+         }
+
 
         .sound-button:hover {
             background-color: var(--sound-button-hover-bg);
@@ -386,6 +370,13 @@
             align-items: center;
             justify-content: center;
         }
+         /* Add arrow to options button? */
+         /* .options-button.btn-with-arrow::before {
+             content: '\2192';
+             margin-right: 8px;
+             font-weight: bold;
+             color: var(--accent-color);
+         } */
 
 
         @keyframes fadeIn {
@@ -394,7 +385,6 @@
                 transform: translateY(-10px);
                 /* Subtle animation */
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -406,7 +396,6 @@
                 opacity: 1;
                 transform: translateY(0);
             }
-
             to {
                 opacity: 0;
                 transform: translateY(-10px);
