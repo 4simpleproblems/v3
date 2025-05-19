@@ -1,601 +1,858 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4SP | VERN PRO</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap"
-    rel="stylesheet"
-  />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4SP | VERN</title>
+    <link id="dynamic-favicon" rel="icon" type="image/x-icon" href="https://vern.surge.sh/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="firebase-config.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
 
-  <style>
-    /* 1) Ensure html/body span full viewport */
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
+    <style>
+        :root {
+            --bg-color: #000000;
+            /* Dark background */
+            --text-color: #ffffff;
+            /* Light text */
+            --primary-color: #ffffff;
+            /* Light primary for contrast on dark */
+            --secondary-border-color: #ffffff;
+            /* Light gray border */
+            --navbar-bg: #000000;
+            /* Dark gray for navbar */
+            --footer-bg: #000000;
+            /* Dark gray for footer */
+            --hover-bg: #1a1a1a;
+            /* Slightly lighter dark on hover */
+            --grid-line-color: #1a1a1a;
+            /* Darker gray grid lines */
+            --accent-color: #ffffff;
+            /* Light accent color */
 
-    :root {
-      --bg-color: #000000;
-      --text-color: #ffffff;
-      --primary-color: #ffffff;
-      --secondary-border-color: #ffffff;
-      --navbar-bg: #000000;
-      --footer-bg: #000000;
-      --hover-bg: #000000;
-      --grid-line-color: #000;
-      --accent-color: #000;
-      --denied-bg: rgba(255, 255, 255, 0.9);
-      --denied-text: var(--text-color);
-      --status-bg: rgba(0, 0, 0, 0.6);
-      --status-text: var(--bg-color);
-      --status-error-color: #dc3545;
-    }
+            /* Cloaking Modal Colors (adapted for dark theme) */
+             --modal-bg: #1a1a1a; /* Darker background for modal */
+             --modal-border: #333; /* Border for modal */
+             --input-bg: #333; /* Dark background for input */
+             --input-border: #555; /* Border for input */
+             --input-text: #eee; /* Light text for input */
+             --button-hover-bg-dark: #444; /* Darker hover for buttons in dark modal */
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Outfit', sans-serif;
-    }
-
-    body {
-      font-family: 'Outfit', sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      line-height: 1.6;
-      text-transform: uppercase;
-      text-align: center;
-      position: relative;
-      overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
-      /* removed padding-top and padding-bottom here */
-      /* grid background */
-      background-image: repeating-linear-gradient(
-          0deg,
-          var(--grid-line-color),
-          var(--grid-line-color) 1px,
-          transparent 1px,
-          transparent 20px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          var(--grid-line-color),
-          var(--grid-line-color) 1px,
-          transparent 1px,
-          transparent 20px
-        );
-      background-size: 20px 20px;
-    }
-
-    a {
-      color: var(--text-color);
-      text-decoration: none;
-    }
-
-    /* Navbar */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px;
-      background-color: var(--navbar-bg);
-      color: var(--text-color);
-      text-align: left;
-      width: 100%;
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 80px; /* explicit height */
-      z-index: 100;
-    }
-
-    .logo {
-      font-size: 24px;
-      font-weight: 900;
-      color: var(--text-color);
-    }
-
-    .nav-buttons {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-      margin-left: auto;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 20px;
-      min-height: 40px;
-      border-radius: 5px;
-      text-decoration: none;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: none;
-      font-family: 'Outfit', sans-serif;
-      text-transform: uppercase;
-      font-size: 14px;
-      text-align: center;
-    }
-
-    .btn.primary {
-      background-color: var(--primary-color);
-      color: var(--bg-color);
-      border: 1px solid var(--primary-color);
-    }
-
-    .btn.secondary {
-      background-color: transparent;
-      color: var(--text-color);
-      border: 1px solid var(--secondary-border-color);
-    }
-
-    .btn.primary:hover {
-      background-color: var(--hover-bg);
-      color: var(--text-color);
-      border-color: var(--hover-bg);
-    }
-
-    .btn.secondary:hover {
-      background-color: var(--hover-bg);
-      border-color: var(--hover-bg);
-    }
-
-    .btn-with-arrow::before {
-      content: '\2192';
-      margin-right: 8px;
-      font-weight: bold;
-      color: var(--accent-color);
-    }
-
-    /* Main & iFrame */
-    main {
-      flex: 1;
-      margin-top: 80px; /* push down below navbar */
-    }
-
-    .iframe-container {
-      height: calc(100vh - 80px);
-      width: 100%;
-    }
-
-    .iframe-container iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
-    }
-
-    /* Access Denied */
-    #access-denied {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: var(--denied-bg);
-      color: var(--denied-text);
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 150;
-      text-transform: uppercase;
-      padding-top: 80px;
-      padding-bottom: 60px;
-    }
-
-    #access-denied h2 {
-      margin-bottom: 20px;
-      font-size: 2.5rem;
-      font-weight: 900;
-      color: var(--status-error-color);
-    }
-
-    #access-denied p {
-      font-size: 1.2rem;
-      text-transform: none;
-      margin-bottom: 10px;
-      color: var(--denied-text);
-      opacity: 0.9;
-    }
-
-    #access-denied p:last-child {
-      margin-bottom: 0;
-      font-size: 1rem;
-      opacity: 0.7;
-    }
-
-    /* Status Message */
-    .status-message {
-      display: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      font-size: 0.9rem;
-      background-color: var(--status-bg);
-      color: var(--status-text);
-      text-align: center;
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 200;
-      pointer-events: none;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-
-    .status-message.shown {
-      display: block;
-      animation: fadeInOut 2s ease forwards;
-    }
-
-    @keyframes fadeInOut {
-      0% {
-        opacity: 0;
-      }
-      20% {
-        opacity: 1;
-      }
-      80% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-      }
-    }
-
-    #logoutBtn {
-      display: none;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .navbar {
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
-      }
-
-      .nav-buttons {
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
-        width: 100%;
-      }
-
-      main {
-        margin-top: 120px;
-        margin-bottom: 80px;
-      }
-
-      #access-denied {
-        padding-top: 120px;
-        padding-bottom: 80px;
-      }
-
-      #access-denied h2 {
-        font-size: 2rem;
-        margin-bottom: 15px;
-      }
-
-      #access-denied p {
-        font-size: 1rem;
-        margin-bottom: 8px;
-      }
-
-      #access-denied p:last-child {
-        font-size: 0.9rem;
-      }
-
-      .status-message {
-        padding: 8px 15px;
-        font-size: 0.8rem;
-        bottom: 15px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .navbar {
-        padding: 15px 10px;
-      }
-
-      .logo {
-        font-size: 20px;
-      }
-
-      .nav-buttons {
-        gap: 8px;
-      }
-
-      .btn {
-        padding: 8px 15px;
-        font-size: 12px;
-      }
-
-      main {
-        margin-top: 150px;
-        margin-bottom: 100px;
-      }
-
-      #access-denied {
-        padding-top: 150px;
-        padding-bottom: 100px;
-      }
-
-      #access-denied h2 {
-        font-size: 1.5rem;
-        margin-bottom: 10px;
-      }
-
-      #access-denied p {
-        font-size: 0.9rem;
-        margin-bottom: 6px;
-      }
-
-      #access-denied p:last-child {
-        font-size: 0.8rem;
-      }
-
-      .status-message {
-        padding: 6px 12px;
-        font-size: 0.7rem;
-        bottom: 10px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <nav class="navbar">
-    <div class="logo">4SP</div>
-    <div class="nav-buttons">
-      <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
-      <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
-      <button id="logoutBtn" class="btn secondary">Log Out</button>
-    </div>
-  </nav>
-
-  <div id="access-denied">
-    <h2>Access Denied</h2>
-    <p>YOU DO NOT HAVE PERMISSION TO ACCESS THIS PAGE.</p>
-    <p>REDIRECTING TO HOME PAGE...</p>
-  </div>
-
-  <main>
-    <div class="iframe-container">
-      <iframe
-        src="vernpro.html"
-        allowfullscreen
-        id="mainIframe"
-        tabindex="0"
-        title="Vern Pro Display"
-        loading="lazy"
-      ></iframe>
-    </div>
-  </main>
-
-  <div class="status-message" id="statusMessage"></div>
-
-  <script>
-    document.getElementById('currentYear').textContent =
-      new Date().getFullYear();
-
-    let auth;
-    let db;
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const logoutButton = document.getElementById('logoutBtn');
-      if (logoutButton) logoutButton.classList.add('hidden');
-
-      if (typeof firebase !== 'undefined') {
-        if (
-          firebase.apps.length === 0 &&
-          typeof firebaseConfig !== 'undefined'
-        ) {
-          try {
-            firebase.initializeApp(firebaseConfig);
-          } catch (error) {
-            console.error('Firebase initialization error:', error);
-            showAccessDenied();
-            if (logoutButton) logoutButton.disabled = true;
-            return;
-          }
         }
-        auth = firebase.auth();
-        if (typeof firebase.firestore !== 'undefined') {
-          db = firebase.firestore();
-        } else {
-          console.warn('Firestore SDK not available.');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
         }
-        auth.onAuthStateChanged((user) => handleAuthState(user));
-      } else {
-        console.error('Firebase SDK not available.');
-        showAccessDenied();
-        if (logoutButton) logoutButton.disabled = true;
-      }
-    });
 
-    const AUTHORIZED_EMAILS = [
-      '4simpleproblems@gmail.com',
-      'belkwy30@minerva.sparcc.org',
-      'belkja27@minerva.sparcc.org',
-      'alleda30@minerva.sparcc.org',
-      'otweno30@minerva.sparcc.org',
-      'ludwza30@minerva.sparcc.org',
-      'roseza30@minerva.sparcc.org',
-      'kernai30@minerva.sparcc.org'
-    ];
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            text-transform: uppercase;
+            /* Apply uppercase to body text */
+            text-align: center;
+            /* Center content by default */
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
 
-    function handleAuthState(user) {
-      const logoutButton = document.getElementById('logoutBtn');
-      const accessDenied = document.getElementById('access-denied');
-      const mainIframe = document.getElementById('mainIframe');
+            /* Grid Background */
+            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px;
+            /* Size of each grid cell */
 
-      if (user) {
-        if (logoutButton) {
-          logoutButton.classList.remove('hidden');
-          setupLogoutListener();
+            /* Add padding to account for fixed navbar */
+            padding-top: 80px;
+            /* Default padding for fixed navbar */
         }
-        if (AUTHORIZED_EMAILS.includes(user.email)) {
-          if (accessDenied) accessDenied.style.display = 'none';
-          showStatus('WELCOME, HUMAN');
-        } else {
-          showAccessDenied();
-          showStatus('ACCESS DENIED - UNAUTHORIZED USER');
-          console.log('Unauthorized access attempt by:', user.email);
+
+        /* Remove triangular gradients */
+        body::before,
+        body::after {
+            content: none;
         }
-      } else {
-        showAccessDenied();
-        showStatus('ACCESS DENIED - NOT AUTHENTICATED');
-        console.log('User not authenticated. Redirecting to index.html');
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 3000);
-      }
-    }
 
-    function showAccessDenied() {
-      const accessDenied = document.getElementById('access-denied');
-      const mainIframe = document.getElementById('mainIframe');
-      if (accessDenied) accessDenied.style.display = 'flex';
-      if (mainIframe) mainIframe.src = 'about:blank';
-    }
-
-    function setupLogoutListener() {
-      const logoutButton = document.getElementById('logoutBtn');
-      if (logoutButton && auth) {
-        const newBtn = logoutButton.cloneNode(true);
-        logoutButton.parentNode.replaceChild(newBtn, logoutButton);
-        newBtn.addEventListener('click', () => {
-          auth
-            .signOut()
-            .then(() => {
-              showStatus('LOGGED OUT SUCCESSFULLY');
-              setTimeout(() => {
-                window.location.href = 'index.html';
-              }, 1000);
-            })
-            .catch((error) => {
-              showStatus(
-                'ERROR LOGGING OUT: ' + error.message.toUpperCase()
-              );
-            });
-        });
-      }
-    }
-
-    function showStatus(message) {
-      const el = document.getElementById('statusMessage');
-      if (!el) return;
-      el.classList.remove('shown');
-      el.textContent = message;
-      void el.offsetWidth;
-      el.classList.add('shown');
-    }
-
-    document.addEventListener('keydown', (e) => {
-      const iframe = document.getElementById('mainIframe');
-      if (!iframe) return;
-      const k = e.key.toLowerCase();
-
-      if (e.ctrlKey && e.shiftKey) {
-        if (k === 'x') {
-          window.location = 'dashboard.html';
-          e.preventDefault();
+        a {
+            color: var(--text-color);
+            text-decoration: none;
         }
-        if (k === 'i') {
-          iframe.focus();
-          showStatus('IFRAME FOCUSED! PRESS ENTER TO INTERACT.');
-          e.preventDefault();
+
+        /* Navbar - consistent with other pages */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 20px;
+            /* Adjusted padding */
+            background-color: var(--navbar-bg);
+            /* Dark gray */
+            color: var(--text-color);
+            /* Light text */
+            text-align: left;
+            /* Override center for navbar layout */
+            width: 100%;
+            position: fixed;
+            /* Ensure navbar is fixed */
+            top: 0;
+            left: 0;
+            z-index: 100;
         }
-      }
 
-      if (e.key === 'Escape' && document.activeElement === iframe) {
-        iframe.blur();
-        window.focus();
-        showStatus('FOCUS RETURNED TO PARENT PAGE.');
-        e.preventDefault();
-      }
-    });
-
-    const mainIframe = document.getElementById('mainIframe');
-    if (mainIframe) {
-      mainIframe.addEventListener('focus', () =>
-        showStatus('YOU ARE NOW INSIDE THE IFRAME. PRESS ESC TO RETURN.')
-      );
-      mainIframe.addEventListener('blur', () =>
-        showStatus('YOU LEFT THE IFRAME.')
-      );
-      mainIframe.style.outline = '2px solid transparent';
-      mainIframe.addEventListener('focus', () => {
-        mainIframe.style.outlineColor = 'var(--accent-color)';
-      });
-      mainIframe.addEventListener('blur', () => {
-        mainIframe.style.outlineColor = 'transparent';
-      });
-
-      mainIframe.addEventListener('load', () => {
-        try {
-          if (
-            mainIframe.contentDocument &&
-            mainIframe.contentWindow
-          ) {
-            mainIframe.contentWindow.eval(`
-              (function(){
-                const realAlert = window.alert;
-                window.alert = function(msg){
-                  window.parent.postMessage({ type: 'relayAlert', message: msg }, '*');
-                  return true;
-                };
-                window.addEventListener('message', ev => {
-                  if (ev.data && ev.data.type === 'relayAlertResponse') {
-                    console.log('Iframe received alert response:', ev.data.accepted);
-                  }
-                  if (ev.data && ev.data.type === 'executeFunction' && typeof window[ev.data.functionName] === 'function') {
-                    window[ev.data.functionName](...ev.data.args);
-                  }
-                }, false);
-              })();
-            `);
-          }
-        } catch (err) {
-          console.warn('Could not inject alert-override into iframe:', err);
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-color);
         }
-      });
 
-      window.addEventListener(
-        'message',
-        (ev) => {
-          const d = ev.data;
-          if (d && d.type === 'relayAlert') {
-            const ok = confirm(d.message);
-            if (ev.source) {
-              ev.source.postMessage(
-                { type: 'relayAlertResponse', accepted: ok },
-                ev.origin || '*'
-              );
-              showStatus('POPUP HANDLED: ' + (ok ? 'OK' : 'CANCEL'));
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            /* Adjusted gap */
+            align-items: center;
+            text-align: left;
+            /* Ensure text in buttons is not affected by body center */
+            margin-left: auto;
+            /* Pushes the nav-buttons group to the right */
+        }
+
+        /* Buttons (Base Styles) */
+        .btn {
+            display: inline-flex;
+            /* Use inline-flex */
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            /* Adjusted padding */
+            min-height: 40px;
+            border-radius: 5px;
+            /* Less rounded */
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .btn.primary {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            /* Dark text on light primary */
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            color: var(--text-color);
+            /* Light text on dark secondary */
+            border: 1px solid var(--secondary-border-color);
+        }
+
+        .btn.primary:hover {
+            background-color: var(--hover-bg);
+            color: var(--text-color);
+            /* Light text on dark hover */
+            border-color: var(--hover-bg);
+        }
+
+        .btn.secondary:hover {
+            background-color: var(--hover-bg);
+            border-color: var(--hover-bg);
+             color: var(--accent-color); /* Match accent color on hover */
+        }
+
+        /* Button with Arrow */
+        .btn-with-arrow::before {
+            content: '\2192';
+            /* Right arrow character */
+            margin-right: 8px;
+            /* Space between arrow and text */
+            font-weight: bold;
+            /* Make arrow slightly bolder */
+            color: var(--accent-color);
+            /* Light accent color for arrow */
+        }
+
+        main {
+            flex: 1;
+            /* Allow main content area to grow */
+            width: 100%;
+            /* Ensure main takes full width */
+            display: flex;
+            /* Use flex to manage iframe */
+            flex-direction: column;
+            /* Stack items in main (only iframe) */
+        }
+
+        /* Iframe */
+        iframe {
+            width: 100%;
+            height: 100%;
+            /* Iframe fills the main container */
+            border: none;
+            display: block;
+            /* Ensure iframe is block-level */
+            flex-grow: 1;
+            /* Allow iframe to grow and fill vertical space */
+        }
+
+        .hidden {
+            display: none !important;
+            /* Use !important to ensure it overrides other display properties */
+        }
+
+        /* --- Cloaking Menu Styles --- */
+        .cloaking-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            /* Dim the background */
+            z-index: 101;
+            /* Above navbar */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            /* Add padding around the overlay content */
+
+            /* Animation */
+            opacity: 0;
+            /* Start hidden */
+            transition: opacity 0.3s ease-in-out;
+            /* Add transition */
+            pointer-events: none; /* Prevent interaction when hidden */
+        }
+
+         .cloaking-menu-overlay:not(.hidden) {
+             opacity: 1; /* Fade in when not hidden */
+             pointer-events: auto; /* Allow interaction when visible */
+         }
+
+
+        .cloaking-menu {
+            background-color: var(--modal-bg);
+            color: var(--text-color);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+            width: 100%; /* Use 100% width within the padded overlay */
+            text-align: left;
+            position: relative;
+            /* Needed for close button positioning */
+            text-transform: none;
+            /* Don't uppercase modal content */
+            /* Animation - Optional subtle transform */
+             transform: scale(0.95);
+             transition: transform 0.3s ease-in-out;
+        }
+
+         .cloaking-menu-overlay:not(.hidden) .cloaking-menu {
+             transform: scale(1); /* Scale back to normal when visible */
+         }
+
+
+        .cloaking-menu h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: center;
+            text-transform: uppercase;
+            /* Keep heading uppercase */
+        }
+
+        .cloaking-options {
+            margin-bottom: 20px;
+        }
+
+        .cloaking-options label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .cloaking-options input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1em;
+        }
+
+        .cloaking-menu .btn {
+            width: 100%;
+            margin-bottom: 10px;
+            /* Space between buttons */
+            text-transform: uppercase;
+            /* Keep button text uppercase */
+            justify-content: center;
+            /* Center button text */
+            font-size: 1em;
+        }
+
+        .cloaking-menu .btn.secondary:hover {
+            background-color: var(--button-hover-bg-dark);
+            /* Darker hover for dark modal */
+            border-color: var(--button-hover-bg-dark);
+             color: var(--text-color); /* Keep text color light in dark modal hover */
+        }
+
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+            line-height: 1;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--primary-color);
+            /* Highlight color on hover */
+        }
+
+        /* --- End Cloaking Menu Styles --- */
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
             }
-          }
-          if (typeof d === 'string') {
-            showStatus('RECEIVED FROM IFRAME: ' + d.toUpperCase());
-          }
-        },
-        false
-      );
-    }
-  </script>
-</body>
-</html>
 
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+                margin-left: 0;
+                width: 100%;
+            }
+
+            body {
+                padding-top: 120px;
+                /* Adjust padding for stacked navbar */
+            }
+
+            .cloaking-menu-overlay {
+                padding: 15px; /* Reduce padding on smaller screens */
+            }
+
+            .cloaking-menu {
+                padding: 20px;
+            }
+
+            .cloaking-menu h3 {
+                font-size: 1.3em;
+                margin-bottom: 15px;
+            }
+
+            .cloaking-options input[type="text"] {
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 15px 10px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .nav-buttons {
+                gap: 8px;
+            }
+
+            .btn {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+
+            body {
+                padding-top: 150px;
+                /* Adjust padding for stacked navbar */
+            }
+
+             .cloaking-menu-overlay {
+                padding: 10px; /* Further reduce padding on very small screens */
+            }
+
+            .cloaking-menu {
+                padding: 15px;
+            }
+
+            .cloaking-menu h3 {
+                font-size: 1.1em;
+                margin-bottom: 10px;
+            }
+
+            .cloaking-menu .btn {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo">4SP</div>
+        <div class="nav-buttons">
+            <button id="cloakBtn" class="btn secondary">Cloak Tab</button>
+            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+            <button id="logoutBtn" class="btn secondary">Log Out</button>
+        </div>
+    </nav>
+
+    <div id="cloakingMenuOverlay" class="cloaking-menu-overlay hidden">
+        <div class="cloaking-menu">
+            <button class="close-btn" id="closeCloakingMenu">&times;</button>
+            <h3>Tab Cloaking</h3>
+
+            <div class="cloaking-options">
+                <h4>Presets</h4>
+                <button id="presetClassroom" class="btn secondary">Google Classroom</button>
+                <button id="presetWikipedia" class="btn secondary">Wikipedia</button>
+                </div>
+
+            <div class="cloaking-options">
+                <h4>Custom</h4>
+                <label for="customTitleInput">Tab Title:</label>
+                <input type="text" id="customTitleInput" placeholder="Enter custom title">
+
+                <label for="customFaviconInput">Favicon URL:</label>
+                <input type="text" id="customFaviconInput"
+                    placeholder="Enter favicon URL (e.g., https://example.com/favicon.ico)">
+
+                <button id="applyCustomCloak" class="btn primary">Apply Custom</button>
+            </div>
+
+            <div class="cloaking-options">
+                <button id="resetCloak" class="btn secondary">Reset to Original</button>
+            </div>
+        </div>
+    </div>
+
+
+    <main>
+        <iframe id="viewer" src="https://vern.surge.sh/" title="https://vern.surge.sh/" allowfullscreen="true"
+            allow="fullscreen; payment; geolocation" referrerpolicy="origin">
+        </iframe>
+    </main>
+
+    <footer>
+        <p>&copy; <span id="currentYear"></span> 4SP</p>
+    </footer>
+
+
+    <script>
+        // Display current year in footer (This depends on a footer with id="currentYear" existing)
+        const currentYearSpan = document.getElementById('currentYear');
+        if (currentYearSpan) {
+             currentYearSpan.textContent = new Date().getFullYear();
+        } else {
+             console.warn("Element with id 'currentYear' not found for footer.");
+        }
+
+
+        // --- Tab Cloaking Logic ---
+        let originalTitle = document.title;
+        let originalFaviconUrl = getFaviconUrl(); // Function to get current favicon URL
+
+        // Function to get the current favicon URL
+        function getFaviconUrl() {
+            // Try to find our dynamic link first, then any standard icon link
+            const faviconLink = document.getElementById('dynamic-favicon') || document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
+            if (faviconLink) {
+                // Use .href to get the full, resolved URL
+                return faviconLink.href;
+            }
+            // Return a default tiny transparent PNG if no favicon link found
+            // This prevents the default browser favicon from showing if the original was blank or missing
+            console.log("No existing favicon link found, using transparent default.");
+            return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+        }
+
+        // Function to set the favicon
+        function setFavicon(url) {
+            let faviconLink = document.getElementById('dynamic-favicon');
+
+            if (!faviconLink) {
+                // If our dynamic link doesn't exist, try to find an existing one
+                faviconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
+                if (faviconLink) {
+                    // If found, give it our ID for easier future access
+                    faviconLink.id = 'dynamic-favicon';
+                     console.log("Found existing favicon link, assigned ID 'dynamic-favicon'.");
+                } else {
+                    // If still not found, create a new one
+                    faviconLink = document.createElement('link');
+                    faviconLink.id = 'dynamic-favicon';
+                    faviconLink.rel = 'icon';
+                    // Set initial type, will likely be ignored by browser based on URL but good practice
+                    const fileExtension = url.split('.').pop().toLowerCase();
+                    if (fileExtension === 'png') faviconLink.type = 'image/png';
+                    else if (fileExtension === 'gif') faviconLink.type = 'image/gif';
+                    else faviconLink.type = 'image/x-icon'; // Default
+                    document.head.appendChild(faviconLink);
+                     console.log("Created new favicon link and added to head.");
+                }
+            }
+
+            // Set the new URL
+            faviconLink.href = url;
+             console.log("Set favicon to:", url);
+
+            // Optional: Save to localStorage
+            try {
+                 localStorage.setItem('cachedFaviconUrl', url);
+            } catch (e) {
+                 console.warn("localStorage not available or full, cannot save favicon.");
+            }
+        }
+
+        // Function to apply title and favicon
+        function applyCloak(title, faviconUrl) {
+            if (title !== null) {
+                 document.title = title;
+                 console.log("Set title to:", title);
+                 try {
+                     localStorage.setItem('cachedTitle', title);
+                 } catch (e) {
+                     console.warn("localStorage not available or full, cannot save title.");
+                 }
+            }
+            // Only set favicon if a valid URL is provided (not null/undefined/empty, but allow the transparent one)
+            if (faviconUrl) {
+                 setFavicon(faviconUrl);
+            } else {
+                 console.warn("Attempted to set favicon with empty URL.");
+            }
+        }
+
+        // Get DOM elements for cloaking
+        const cloakBtn = document.getElementById('cloakBtn');
+        const cloakingMenuOverlay = document.getElementById('cloakingMenuOverlay');
+        const closeCloakingMenuBtn = document.getElementById('closeCloakingMenu');
+        const presetClassroomBtn = document.getElementById('presetClassroom');
+        const presetWikipediaBtn = document.getElementById('presetWikipedia');
+        const customTitleInput = document.getElementById('customTitleInput');
+        const customFaviconInput = document.getElementById('customFaviconInput');
+        const applyCustomCloakBtn = document.getElementById('applyCustomCloak');
+        const resetCloakBtn = document.getElementById('resetCloak');
+
+        // Function to show the menu with fade-in
+        function showCloakMenu() {
+             if (cloakingMenuOverlay) {
+                 cloakingMenuOverlay.classList.remove('hidden');
+                 console.log("Cloaking menu shown.");
+                 // The opacity transition is handled by the CSS :not(.hidden) rule
+             }
+        }
+
+        // Function to hide the menu with fade-out
+        function hideCloakMenu() {
+            if (cloakingMenuOverlay) {
+                // Start the fade-out transition by removing the state that sets opacity to 1
+                cloakingMenuOverlay.classList.add('hidden'); // This also sets opacity to 0 via CSS
+                console.log("Cloaking menu hidden.");
+            }
+        }
+
+        // Function to toggle menu visibility
+        function toggleCloakMenu() {
+            if (cloakingMenuOverlay && cloakingMenuOverlay.classList.contains('hidden')) {
+                showCloakMenu();
+            } else if (cloakingMenuOverlay) { // Added check for cloakingMenuOverlay
+                hideCloakMenu();
+            }
+        }
+
+
+        // Event listener to open the menu button
+        // The check "if (cloakBtn)" ensures this only runs if the button exists.
+        document.addEventListener('DOMContentLoaded', () => {
+            if (cloakBtn) {
+                cloakBtn.addEventListener('click', () => {
+                    console.log("Cloak Tab button clicked.");
+                    toggleCloakMenu();
+                });
+                console.log("Cloak Tab button listener attached.");
+            } else {
+                console.warn("Cloak Tab button (#cloakBtn) not found.");
+            }
+
+            // Event listener to close the menu button
+            if (closeCloakingMenuBtn) {
+                closeCloakingMenuBtn.addEventListener('click', () => {
+                     console.log("Close Cloak Menu button clicked.");
+                    hideCloakMenu();
+                });
+                 console.log("Close Cloak Menu button listener attached.");
+            } else {
+                 console.warn("Close Cloak Menu button (#closeCloakingMenuBtn) not found.");
+            }
+
+             // Close menu if clicking outside the modal content
+            if (cloakingMenuOverlay) {
+                cloakingMenuOverlay.addEventListener('click', (event) => {
+                    // Check if the click target is the overlay itself, not the menu content
+                    if (event.target === cloakingMenuOverlay) {
+                         console.log("Clicked outside cloaking menu.");
+                         hideCloakMenu();
+                    }
+                });
+                 console.log("Cloaking menu overlay click-outside listener attached.");
+            } else {
+                 console.warn("Cloaking menu overlay (#cloakingMenuOverlay) not found.");
+            }
+
+            // Preset event listeners
+            if (presetClassroomBtn) {
+                presetClassroomBtn.addEventListener('click', () => {
+                    console.log("Classroom preset clicked.");
+                    applyCloak('Google Classroom', 'https://ssl.gstatic.com/classroom/favicon.ico');
+                    hideCloakMenu();
+                });
+                console.log("Classroom preset listener attached.");
+            } else { console.warn("Classroom preset button not found."); }
+
+
+            if (presetWikipediaBtn) {
+                presetWikipediaBtn.addEventListener('click', () => {
+                     console.log("Wikipedia preset clicked.");
+                    applyCloak('Wikipedia', 'https://en.wikipedia.org/static/favicon/wikipedia.ico');
+                     hideCloakMenu();
+                });
+                 console.log("Wikipedia preset listener attached.");
+            } else { console.warn("Wikipedia preset button not found."); }
+
+
+            // Apply custom cloaking listener
+            if (applyCustomCloakBtn) {
+                applyCustomCloakBtn.addEventListener('click', () => {
+                     console.log("Apply Custom button clicked.");
+                    const customTitle = customTitleInput ? customTitleInput.value : '';
+                    const customFavicon = customFaviconInput ? customFaviconInput.value : '';
+                    if (customTitle || customFavicon) { // Apply only if at least one field has a value
+                        applyCloak(customTitle || document.title, customFavicon || getFaviconUrl()); // Use existing if field is empty
+                         hideClocloakMenu();
+                    } else {
+                        alert("Please enter a title or favicon URL for custom cloaking.");
+                    }
+                });
+                 console.log("Apply Custom button listener attached.");
+            } else { console.warn("Apply Custom button not found."); }
+
+
+             // Reset cloaking listener
+             if (resetCloakBtn) {
+                resetCloakBtn.addEventListener('click', () => {
+                     console.log("Reset Cloak button clicked.");
+                    applyCloak(originalTitle, originalFaviconUrl);
+                     hideCloakMenu();
+                     // Optional: Clear localStorage items
+                    try {
+                        localStorage.removeItem('cachedTitle');
+                        localStorage.removeItem('cachedFaviconUrl');
+                        console.log("Cleared cached cloaking from localStorage.");
+                    } catch (e) {
+                        console.warn("localStorage not available, cannot clear cached cloaking.");
+                    }
+                });
+                 console.log("Reset Cloak button listener attached.");
+             } else { console.warn("Reset Cloak button not found."); }
+
+
+             // Load saved cloaking state from localStorage on page load
+             try {
+                const cachedTitle = localStorage.getItem('cachedTitle');
+                const cachedFaviconUrl = localStorage.getItem('cachedFaviconUrl');
+
+                 // Store original values *before* potentially loading from cache
+                 // Read from the link tag after it's potentially updated by caching
+                 originalTitle = document.title;
+                 originalFaviconUrl = getFaviconUrl();
+                 console.log("Original Title:", originalTitle, "Original Favicon:", originalFaviconUrl);
+
+
+                if (cachedTitle !== null || cachedFaviconUrl !== null) {
+                    console.log("Found cached cloaking state. Applying...");
+                    // Apply cached settings, using original if cache is null for one
+                    // Use the originalTitle/FaviconUrl captured *before* this block
+                    applyCloak(cachedTitle !== null ? cachedTitle : originalTitle,
+                               cachedFaviconUrl !== null ? cachedFaviconUrl : originalFaviconUrl);
+
+                    // Re-capture original after applying cache, in case reset is pressed later
+                     originalTitle = document.title;
+                     originalFaviconUrl = getFaviconUrl();
+                     console.log("Current Title (after cache):", originalTitle, "Current Favicon (after cache):", originalFaviconUrl);
+
+                } else {
+                    console.log("No cached cloaking state found.");
+                }
+             } catch (e) {
+                console.warn("localStorage not available, cannot load cached cloaking.");
+             }
+
+
+            // --- Firebase Auth Listener & Logout ---
+            let auth; // Declare auth variable
+
+            // Initially hide logout button until user is confirmed authenticated
+            const logoutButton = document.getElementById('logoutBtn');
+            if (logoutButton) logoutButton.classList.add('hidden');
+
+            // Check if Firebase SDK and Auth are available on DOM load
+            if (typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined') {
+                // Initialize Auth
+                try {
+                    // Initialize Firebase app if not already initialized
+                    if (firebase.apps.length === 0 && typeof firebaseConfig !== 'undefined') {
+                        firebase.initializeApp(firebaseConfig);
+                        console.log("Firebase app initialized.");
+                    }
+                    auth = firebase.auth(); // Assign auth instance
+                     console.log("Firebase Auth initialized.");
+
+                    // Set up auth state change listener
+                    auth.onAuthStateChanged(user => handleAuthState(user));
+                     console.log("Firebase auth state listener attached.");
+
+                } catch (error) {
+                    console.error('Firebase initialization or Auth init error:', error);
+                    // Handle Firebase initialization error
+                    if (logoutButton) logoutButton.classList.add('hidden'); // Ensure logout is hidden
+                }
+
+            } else {
+                console.error("Firebase SDK or Auth not available on DOM load. Check script tags.");
+                // Handle case where Firebase script failed to load
+                if (logoutButton) logoutButton.classList.add('hidden'); // Ensure logout is hidden
+            }
+             // --- End Firebase Auth Listener & Logout ---
+
+         }); // End DOMContentLoaded
+
+        // Function to handle authentication state changes
+        function handleAuthState(user) {
+            const logoutButton = document.getElementById('logoutBtn');
+
+            if (user) {
+                console.log("User is logged in:", user.email);
+                // User is logged in, show logout button and setup listener
+                if (logoutButton) {
+                     logoutButton.classList.remove('hidden');
+                     setupLogoutListener(); // Setup logout listener only if authenticated and button exists
+                     console.log("Logout button shown.");
+                } else {
+                     console.warn("User logged in, but logout button not found to show.");
+                }
+
+
+            } else {
+                console.log("No user logged in.");
+                // No user logged in, hide logout button
+                 if (logoutButton) {
+                    logoutButton.classList.add('hidden');
+                    // Remove listener if user logs out to clean up
+                    logoutButton.removeEventListener('click', handleLogoutClick);
+                    console.log("Logout button hidden and listener removed.");
+                 } else {
+                     console.warn("No user logged in, but logout button not found to hide.");
+                 }
+            }
+        }
+
+        // Setup logout button listener
+        function setupLogoutListener() {
+            const logoutButton = document.getElementById('logoutBtn');
+            // Add listener only if button exists and auth is initialized
+            if (logoutButton && auth) {
+                 // Remove existing listener to prevent duplicates before adding the new one
+                 logoutButton.removeEventListener('click', handleLogoutClick);
+                 logoutButton.addEventListener('click', handleLogoutClick);
+                 console.log("Logout button click listener attached.");
+
+            } else {
+                 console.warn("Logout button or Firebase Auth not available for listener setup.");
+            }
+        }
+
+        // Separate logout click handler to facilitate removal/re-adding
+        function handleLogoutClick() {
+             console.log("Logout button clicked.");
+             if (auth) { // Ensure auth object is available
+                auth.signOut().then(() => {
+                    console.log("User signed out successfully.");
+                    // Redirect to index after logout
+                    // Using window.location.replace is slightly better than href for logout
+                    window.location.replace('index.html');
+                }).catch(error => {
+                    console.error("Logout Error:", error);
+                    alert("Error logging out. Please try again.");
+                });
+             } else {
+                 console.error("Firebase Auth not initialized for logout.");
+                 alert("Logout functionality not available.");
+             }
+        }
+        // --- End Firebase Auth Listener & Logout ---
+
+
+        // Handle messages from the iframe for potential redirect requests
+        window.addEventListener('message', function(event) {
+            // You can add origin checking for security if needed, although referrerpolicy="origin" helps
+            // if (event.origin !== "https://vern.surge.sh") return; // Example origin check
+
+            if (event.data && event.data.type === 'redirect') {
+                if (event.data.url) {
+                    console.log("Redirect message received from iframe:", event.data.url);
+                    // Optionally add a check to only allow redirects to trusted origins
+                    // if (event.data.url.startsWith('https://youralloweddomain.com')) {
+                    window.location.href = event.data.url;
+                    // } else {
+                    //    console.warn("Blocked untrusted redirect request from iframe:", event.data.url);
+                    // }
+                } else {
+                    console.warn("Received redirect message from iframe but no URL provided.");
+                }
+            }
+        });
+
+         // The keyboard shortcut listeners have been removed as requested in previous steps.
+    </script>
+</body>
+
+</html>
