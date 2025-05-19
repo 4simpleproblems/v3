@@ -705,12 +705,40 @@
 
     // Firebase Auth & messaging
     firebase.initializeApp(firebaseConfig);
+
+    // Define authorized email lists
+    const adminEmails = [
+        '4simpleproblems@gmail.com',
+        'belkwy30@minerva.sparcc.org'
+    ];
+    const subAdminEmails = [
+        '4simpleproblems@gmail.com',
+        'alleda30@minerva.sparcc.org',
+        'belkja27@minerva.sparcc.org',
+        'belkwy30@minerva.sparcc.org',
+        'otweno30@minerva.sparcc.org',
+        'ludwza30@minerva.sparcc.org',
+        'roseza30@minerva.sparcc.org',
+        'kernai30@minerva.sparcc.org'
+    ];
+
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
-        document.getElementById('logoutBtn').onclick = () => {
-          firebase.auth().signOut().then(() => location.href = 'login.html');
-        };
+        // Check if the user's email is in the authorized lists
+        const userEmail = user.email;
+        if (adminEmails.includes(userEmail) || subAdminEmails.includes(userEmail)) {
+          // User is authorized
+          console.log('User authorized:', userEmail);
+          document.getElementById('logoutBtn').onclick = () => {
+            firebase.auth().signOut().then(() => location.href = 'login.html');
+          };
+        } else {
+          // User is not authorized, redirect to dashboard.html
+          console.log('User not authorized:', userEmail, '. Redirecting to dashboard.html');
+          location.href = 'dashboard.html';
+        }
       } else {
+        // No user is signed in, redirect to login.html
         location.href = 'login.html';
       }
     });
