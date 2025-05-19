@@ -309,44 +309,50 @@
             width: 100%;
         }
 
-.sound-button {
-    width: 100%;
-    /* Make buttons fill grid cell */
-    aspect-ratio: 1 / 1;
-    /* Maintain square aspect ratio */
-    border-radius: 20px;
-    /* Adjusted border-radius */
-    background-color: var(--sound-button-bg);
-    /* Light background */
-    color: var(--sound-button-text);
-    /* Dark text */
-    border: 2px solid var(--sound-button-border);
-    /* Medium gray border */
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 600;
-    /* Bolder */
-    padding: 0 1.5rem;
-    transition: background-color 0.3s ease, transform 0.1s ease, border-color 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* text-align: center; Removed as flexbox handles centering */
-    /* line-height: 1.2; Can be kept or adjusted based on desired vertical spacing */
-    max-width: 500px;
-    /* Constrain width slightly */
+        .sound-button {
+            /* Removed width: 100%; to allow button to size based on content */
+            /* Removed aspect-ratio: 1 / 1; to allow height to adjust based on content */
+            border-radius: 20px;
+            /* Adjusted border-radius */
+            background-color: var(--sound-button-bg);
+            /* Light background */
+            color: var(--sound-button-text);
+            /* Dark text */
+            border: 2px solid var(--sound-button-border);
+            /* Medium gray border */
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            /* Bolder */
+            padding: 1rem 1.5rem;
+            /* Adjusted padding to give more space around text */
+            transition: background-color 0.3s ease, transform 0.1s ease, border-color 0.3s ease;
+            display: inline-flex;
+            /* Changed to inline-flex so buttons don't take full grid cell width inherently */
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            /* Kept text-align for centering multi-line text */
+            line-height: 1.2;
+            max-width: 500px;
+            /* Keep max-width to prevent excessively wide buttons */
 
-    /* --- Changes for one-line text --- */
-    white-space: nowrap; /* Prevent text from wrapping onto multiple lines */
-    overflow: hidden; /* Hide text that overflows the button's width */
-    text-overflow: ellipsis; /* Add an ellipsis (...) to truncated text */
-    /* --- End changes --- */
+            /* --- Changes to allow text stretching and prevent cutting off --- */
+            white-space: normal;
+            /* Allow text to wrap */
+            overflow: visible;
+            /* Allow content to overflow if necessary (though wrapping should prevent this) */
+            text-overflow: clip;
+            /* Prevent ellipsis when text wraps */
+            word-wrap: break-word;
+            /* Allow long words to break and wrap */
+            hyphens: auto;
+            /* Allow hyphenation for better text wrapping */
+            /* --- End changes --- */
 
-    /* word-wrap: break-word; Removed as nowrap prevents wrapping */
-    /* hyphens: auto; Removed as nowrap prevents wrapping */
-    text-transform: uppercase;
-    /* All caps */
-}
+            text-transform: uppercase;
+            /* All caps */
+        }
 
         .sound-button:hover {
             background-color: var(--sound-button-hover-bg);
@@ -1068,10 +1074,11 @@
             }
 
             .sound-button {
-                min-width: 80px;
-                height: 80px;
+                /* min-width: 80px; Removed min-width here, let grid control min size */
+                /* height: 80px; Removed fixed height, let content determine height */
                 font-size: 0.75rem;
-                padding: 0 1rem;
+                padding: 0.75rem 1rem;
+                /* Adjusted padding for smaller screens */
                 border-radius: 15px;
                 /* Adjusted for smaller screens */
                 max-width: 100%;
@@ -1268,7 +1275,7 @@
                 </div>
             </section>
 
-            </div>
+        </div>
     </main>
 
     <footer>
@@ -1586,7 +1593,7 @@
                 clearAllSounds();
             };
 
-             // Delete Playlist Logic - Added back
+            // Delete Playlist Logic - Added back
             if (deletePlaylistBtn && deletePlaylistModal && confirmPlaylistNameText && confirmPlaylistInput && confirmDeleteBtn) {
                 deletePlaylistBtn.onclick = (e) => {
                     createRipple(e, deletePlaylistBtn);
@@ -1635,8 +1642,8 @@
                 };
             } else if (deletePlaylistBtn) {
                 // If delete elements are missing but button exists, maybe hide it or disable
-                 console.warn("Delete playlist modal elements not found, hiding delete button.");
-                 deletePlaylistBtn.style.display = 'none';
+                console.warn("Delete playlist modal elements not found, hiding delete button.");
+                deletePlaylistBtn.style.display = 'none';
             }
 
 
@@ -1656,7 +1663,7 @@
                     e.preventDefault();
                     clearAllSounds(true);
                     closeOptionsMenu(); // Close menu on clear shortcut
-                     closeDeleteModal(); // Also close delete modal on clear shortcut
+                    closeDeleteModal(); // Also close delete modal on clear shortcut
                 }
             };
         }
