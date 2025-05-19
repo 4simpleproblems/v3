@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>4SP | VERN MAX</title>
+  <title>4SP | VERN</title>
   <link id="dynamic-favicon" rel="icon" type="image/x-icon" href="https://vern.surge.sh/favicon.ico" />
   <link
     href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap"
@@ -523,7 +523,7 @@
       try { localStorage.setItem('cachedFaviconUrl', url); } catch {}
     }
 
-    function applyCloak(title, faviconUrl) {
+    function applyCloak(title, faviconUrl, displayName = null) {
       if (title !== null) {
         document.title = title;
         try { localStorage.setItem('cachedTitle', title); } catch {}
@@ -531,7 +531,53 @@
       if (faviconUrl) {
         setFavicon(faviconUrl);
       }
+      // Update the displayed name in the menu
+      const cloakedWebsiteNameSpan = document.getElementById('cloakedWebsiteName');
+      if (cloakedWebsiteNameSpan) {
+          cloakedWebsiteNameSpan.textContent = displayName || title || ''; // Use display name if provided, otherwise title, otherwise clear
+      }
     }
+
+    // Function to attempt to extract a friendly name from a URL
+    function getFriendlySiteName(url) {
+        try {
+            const urlObj = new URL(url);
+            const pathSegments = urlObj.pathname.split('/').filter(segment => segment !== '');
+
+            // Simple heuristic: check path segments for common site names
+            const commonNames = {
+                'youtube.com': 'YouTube',
+                'reddit.com': 'Reddit',
+                'twitter.com': 'Twitter', // Or X
+                'facebook.com': 'Facebook',
+                'instagram.com': 'Instagram',
+                'netflix.com': 'Netflix',
+                'discord.com': 'Discord',
+                'google.com': 'Google',
+                'classroom.google.com': 'Google Classroom',
+                'wikipedia.org': 'Wikipedia'
+                // Add more common sites here
+            };
+
+            for (const segment of pathSegments) {
+                for (const domain in commonNames) {
+                    if (segment.includes(domain)) {
+                        return commonNames[domain];
+                    }
+                }
+            }
+
+            // Fallback to hostname if no common name found in path
+            let hostname = urlObj.hostname;
+             // Remove www. and TLD (.com, .org, etc.) for a cleaner name
+            hostname = hostname.replace(/^www\./, '').split('.')[0];
+            return hostname.charAt(0).toUpperCase() + hostname.slice(1); // Capitalize first letter
+        } catch (e) {
+            console.error("Error parsing URL for friendly name:", e);
+            return null; // Return null if URL is invalid
+        }
+    }
+
 
     // Modal controls
     const overlay = document.getElementById('cloakingMenuOverlay');
@@ -561,13 +607,11 @@
 
     // Presets
     document.getElementById('presetClassroom').onclick = () => {
-      applyCloak('Google Classroom', 'https://ssl.gstatic.com/classroom/favicon.ico');
-      cloakedWebsiteNameSpan.textContent = 'Google Classroom'; // Update the span
+      applyCloak('Google Classroom', 'https://ssl.gstatic.com/classroom/favicon.ico', 'Google Classroom');
       hideOverlay();
     };
     document.getElementById('presetWikipedia').onclick = () => {
-      applyCloak('Wikipedia', 'https://en.wikipedia.org/static/favicon/wikipedia.ico');
-      cloakedWebsiteNameSpan.textContent = 'Wikipedia'; // Update the span
+      applyCloak('Wikipedia', 'https://en.wikipedia.org/static/favicon/wikipedia.ico', 'Wikipedia');
       hideOverlay();
     };
 
@@ -581,10 +625,11 @@
       } catch {
         return alert('Invalid URL.');
       }
-      const host = url.hostname;
-      const favicon = 'https://www.google.com/s2/favicons?domain=' + host;
-      applyCloak(host, favicon);
-      cloakedWebsiteNameSpan.textContent = host; // Update the span with the hostname
+
+      const friendlyName = getFriendlySiteName(url.href); // Get the friendly name
+      const favicon = 'https://www.google.com/s2/favicons?domain=' + url.hostname; // Still use original hostname for favicon
+
+      applyCloak(friendlyName || url.hostname, favicon, friendlyName); // Use friendly name for title and display if found
       hideOverlay();
     };
 
@@ -593,16 +638,13 @@
       const t = document.getElementById('customTitleInput').value.trim();
       const f = document.getElementById('customFaviconInput').value.trim();
       if (!t && !f) return alert('Enter a title or favicon URL.');
-      applyCloak(t || document.title, f || originalFaviconUrl);
-       // Clear the cloaked website name span for custom cloak
-      cloakedWebsiteNameSpan.textContent = '';
+      applyCloak(t || document.title, f || originalFaviconUrl, t || document.title); // Pass custom title as display name
       hideOverlay();
     };
 
     // Reset
-    document.getElementById('resetCloak').onclick = () => {
-      applyClocloak(originalTitle, originalFaviconUrl);
-      cloakedWebsiteNameSpan.textContent = ''; // Clear the span on reset
+    document.getElementById('resetClocloak').onclick = () => {
+      applyCloak(originalTitle, originalFaviconUrl, originalTitle); // Reset with original title as display name
       hideOverlay();
       try {
         localStorage.removeItem('cachedTitle');
@@ -616,13 +658,19 @@
         const ct = localStorage.getItem('cachedTitle');
         const cf = localStorage.getItem('cachedFaviconUrl');
         if (ct !== null || cf !== null) {
+           // Attempt to get a friendly name from the cached title if it looks like a hostname
+            let cachedDisplayName = ct !== null && ct !== originalTitle ? getFriendlySiteName('http://' + ct) : '';
+            // If getFriendlySiteName returned a cleaned hostname, use that. Otherwise, use the raw cached title if it exists.
+             cachedDisplayName = cachedDisplayName && cachedDisplayName !== 'Http' ? cachedDisplayName : (ct !== null && ct !== originalTitle ? ct : '');
+
+
           applyCloak(ct !== null ? ct : originalTitle,
-            cf !== null ? cf : originalFaviconUrl);
-             // Attempt to set cloaked name from cached title if it exists and wasn't original
-            if (ct !== null && ct !== originalTitle) {
-                 cloakedWebsiteNameSpan.textContent = ct;
-             } else {
-                 cloakedWebsiteNameSpan.textContent = ''; // Clear if cached title is original or null
+            cf !== null ? cf : originalFaviconUrl, cachedDisplayName);
+        } else {
+             // If no cached cloak, ensure the displayed name is clear
+            const cloakedWebsiteNameSpan = document.getElementById('cloakedWebsiteName');
+             if (cloakedWebsiteNameSpan) {
+                 cloakedWebsiteNameSpan.textContent = '';
              }
         }
       } catch {}
