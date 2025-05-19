@@ -1092,7 +1092,7 @@
     <main>
         <div class="container">
             <h1>Account Information</h1>
-             <h1 class="hidden" id="authNotice">PLEASE LOGIN TO ACCESS YOUR ACCOUNT SETTINGS</h1>
+            <h1 class="hidden" id="authNotice">PLEASE LOGIN TO ACCESS YOUR ACCOUNT SETTINGS</h1>
             <div class="account-grid">
                 <div class="account-info">
                     <h2>User Details</h2>
@@ -1382,8 +1382,10 @@
                 if (lastSignInElement) lastSignInElement.textContent = `Last Sign-in: ${user.metadata.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleString() : 'Error Loading'}`;
                 if (userUIDElement) userUIDElement.textContent = `User ID: ${user.uid || 'Error Loading'}`;
                 if (userPhotoElement) {
-                     userPhotoElement.src = user.photoURL || defaultPhotoURL; // Fallback to Auth photo or default
-                     userPhotoElement.onerror = () => { if(userPhotoElement) userPhotoElement.src = defaultPhotoURL; }; // Ensure error handler is present
+                    userPhotoElement.src = user.photoURL || defaultPhotoURL; // Fallback to Auth photo or default
+                    userPhotoElement.onerror = () => {
+                        if (userPhotoElement) userPhotoElement.src = defaultPhotoURL;
+                    }; // Ensure error handler is present
                 }
 
             }
@@ -1404,9 +1406,9 @@
                 if (isGoogleUser) {
                     if (authProviderElement) authProviderElement.innerHTML = `Sign-in Method: <span class="provider-badge google">Google</span>`;
                     if (changePasswordBtn) {
-                         changePasswordBtn.disabled = true; // Disable password change button
-                         changePasswordBtn.title = "Password is managed by your Google account";
-                         changePasswordBtn.style.cursor = 'not-allowed'; // Explicitly set cursor
+                        changePasswordBtn.disabled = true; // Disable password change button
+                        changePasswordBtn.title = "Password is managed by your Google account";
+                        changePasswordBtn.style.cursor = 'not-allowed'; // Explicitly set cursor
                     }
 
 
@@ -1463,7 +1465,7 @@
             if (authNotice) authNotice.classList.add('hidden');
             if (accountGrid) accountGrid.classList.remove('hidden'); // Assuming you want to show the grid
 
-             // Show the logout button in the navbar if element exists
+            // Show the logout button in the navbar if element exists
             if (logoutBtn) logoutBtn.classList.remove('hidden');
 
 
@@ -1471,413 +1473,424 @@
 
             // Close Modal Buttons
             if (closeModalButtons) {
-                 closeModalButtons.forEach(button => {
-                     // Remove existing listener before adding to prevent duplicates
-                     const newButton = button.cloneNode(true);
-                     button.parentNode.replaceChild(newButton, button);
+                closeModalButtons.forEach(button => {
+                    // Remove existing listener before adding to prevent duplicates
+                    const newButton = button.cloneNode(true);
+                    button.parentNode.replaceChild(newButton, button);
 
-                     newButton.addEventListener('click', () => {
-                         const modalId = newButton.dataset.modalId;
-                         if (modalId) closeModal(modalId);
-                         else closeModal(newButton.closest('.modal'));
-                     });
-                 });
+                    newButton.addEventListener('click', () => {
+                        const modalId = newButton.dataset.modalId;
+                        if (modalId) closeModal(modalId);
+                        else closeModal(newButton.closest('.modal'));
+                    });
+                });
             }
 
 
             // Close Modals by clicking outside
-             // Remove existing listener before adding to prevent duplicates
-             const oldWindowClickListener = window.onclick;
-             window.onclick = (event) => {
-                 if (oldWindowClickListener) oldWindowClickListener(event); // Preserve existing click behavior
-                 // Check if the click target is a modal overlay and it's currently visible
-                 if (event.target.classList.contains('modal') && event.target.classList.contains('show')) {
-                     closeModal(event.target);
-                 }
-             };
+            // Remove existing listener before adding to prevent duplicates
+            // Using a flag to prevent double event listener attachment
+            if (!window.closeModalClickListenerInitialized) {
+                 window.closeModalClickListenerInitialized = true;
+                 window.addEventListener('click', (event) => {
+                     // Check if the click target is a modal overlay and it's currently visible
+                     if (event.target.classList.contains('modal') && event.target.classList.contains('show')) {
+                         closeModal(event.target);
+                     }
+                 });
+            }
 
 
             // Edit Profile Button
             if (editProfileBtn) {
-                 const newEditProfileBtn = editProfileBtn.cloneNode(true);
-                 editProfileBtn.parentNode.replaceChild(newEditProfileBtn, editProfileBtn);
+                // Remove existing listener before adding to prevent duplicates
+                const newEditProfileBtn = editProfileBtn.cloneNode(true);
+                editProfileBtn.parentNode.replaceChild(newEditProfileBtn, editProfileBtn);
 
-                 newEditProfileBtn.addEventListener('click', () => {
-                     if (currentUser) {
-                         // Pre-fill logic is done in loadUserProfile and updated when modal opens
-                         // Ensure inputs are populated from current state before opening modal
-                         const currentName = userDisplayNameElement ? userDisplayNameElement.textContent.replace('Name: ', '').trim() : '';
-                         const currentPhoto = userPhotoElement ? userPhotoElement.src : '';
+                newEditProfileBtn.addEventListener('click', () => {
+                    if (currentUser) {
+                        // Pre-fill logic is done in loadUserProfile and updated when modal opens
+                        // Ensure inputs are populated from current state before opening modal
+                        const currentName = userDisplayNameElement ? userDisplayNameElement.textContent.replace('Name: ', '').trim() : '';
+                        const currentPhoto = userPhotoElement ? userPhotoElement.src : '';
 
-                         if (profileDisplayNameInput) profileDisplayNameInput.value = (currentName === 'Not Set' || currentName === 'Error Loading') ? '' : currentName;
-                         // Check if photo URL is default SVG or invalid before pre-filling (if inputs exist)
-                         if (profilePhotoURLInput) profilePhotoURLInput.value = (currentPhoto === defaultPhotoURL || !currentPhoto || currentPhoto.startsWith('data:')) ? '' : currentPhoto;
+                        if (profileDisplayNameInput) profileDisplayNameInput.value = (currentName === 'Not Set' || currentName === 'Error Loading') ? '' : currentName;
+                        // Check if photo URL is default SVG or invalid before pre-filling (if inputs exist)
+                        if (profilePhotoURLInput) profilePhotoURLInput.value = (currentPhoto === defaultPhotoURL || !currentPhoto || currentPhoto.startsWith('data:')) ? '' : currentPhoto;
 
 
-                         openModal(editProfileModal);
-                     } else {
-                         alert("Please wait, user data is loading."); // Or show a status message
-                     }
-                 });
+                        openModal(editProfileModal);
+                    } else {
+                        alert("Please wait, user data is loading."); // Or show a status message
+                    }
+                });
             }
 
 
             // Edit Profile Form Submit
             if (editProfileForm && profileDisplayNameInput && profilePhotoURLInput && currentUser) {
-                 // Remove existing listener before adding to prevent duplicates
-                 const newEditProfileForm = editProfileForm.cloneNode(true);
-                 editProfileForm.parentNode.replaceChild(newEditProfileForm, editProfileForm);
+                // Remove existing listener before adding to prevent duplicates
+                const newEditProfileForm = editProfileForm.cloneNode(true);
+                editProfileForm.parentNode.replaceChild(newEditProfileForm, editProfileForm);
 
-                 newEditProfileForm.addEventListener('submit', async (e) => {
-                     e.preventDefault();
-                     const newDisplayName = profileDisplayNameInput.value.trim() || ''; // Use empty string if trimmed input is empty
-                     const newPhotoURL = profilePhotoURLInput.value.trim();
+                newEditProfileForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const newDisplayName = profileDisplayNameInput.value.trim() || ''; // Use empty string if trimmed input is empty
+                    const newPhotoURL = profilePhotoURLInput.value.trim();
 
-                     if (!currentUser) {
-                         alert('User not available. Please try again.');
-                         return;
-                     }
+                    if (!currentUser) {
+                        alert('User not available. Please try again.');
+                        return;
+                    }
 
-                     const saveButton = newEditProfileForm.querySelector('button[type="submit"]');
-                     const originalButtonContent = saveButton.innerHTML; // Save innerHTML for spinner
-                     saveButton.innerHTML = '<div class="spinner"></div> SAVING...'; // Uppercase spinner text
-                     saveButton.disabled = true;
+                    const saveButton = newEditProfileForm.querySelector('button[type="submit"]');
+                    const originalButtonContent = saveButton.innerHTML; // Save innerHTML for spinner
+                    saveButton.innerHTML = '<div class="spinner"></div> SAVING...'; // Uppercase spinner text
+                    saveButton.disabled = true;
 
-                     try {
-                          // Validate photo URL if provided
-                          if (newPhotoURL) {
-                              try {
-                                   new URL(newPhotoURL); // Check if it's a valid URL format
-                              } catch (e) {
-                                   alert('Invalid photo URL format.');
-                                   return; // Stop submission if URL is invalid
-                              }
-                          }
+                    try {
+                        // Validate photo URL if provided
+                        if (newPhotoURL) {
+                            try {
+                                new URL(newPhotoURL); // Check if it's a valid URL format
+                            } catch (e) {
+                                alert('Invalid photo URL format.');
+                                return; // Stop submission if URL is invalid
+                            }
+                        }
 
-                         // Update Auth profile
-                          // Set displayName to null or empty string if user clears it, so Auth doesn't keep old value
-                         await currentUser.updateProfile({
-                             displayName: newDisplayName || null,
-                             photoURL: newPhotoURL || null, // Set to null if empty string
-                         });
+                        // Update Auth profile
+                        // Set displayName to null or empty string if user clears it, so Auth doesn't keep old value
+                        await currentUser.updateProfile({
+                            displayName: newDisplayName || null,
+                            photoURL: newPhotoURL || null, // Set to null if empty string
+                        });
 
-                         // Update Firestore document
-                         if(db) { // Check if db is initialized
-                             const userDocRef = db.collection('users').doc(currentUser.uid);
-                             await userDocRef.set({
-                                 displayName: newDisplayName || '', // Use empty string for consistency in Firestore
-                                 photoURL: newPhotoURL || '',
-                                 email: currentUser.email || '' // Ensure email is saved if available
-                             }, { merge: true }); // Use merge to avoid overwriting other potential fields
-                         }
-
-
-                         // Update displayed information on the page (if elements exist)
-                         if (userDisplayNameElement) userDisplayNameElement.textContent = `Name: ${newDisplayName || 'Not Set'}`;
-                         if (userPhotoElement) {
-                             userPhotoElement.src = newPhotoURL || defaultPhotoURL;
-                             userPhotoElement.onerror = () => { if(userPhotoElement) userPhotoElement.src = defaultPhotoURL; }; // Re-add error handler
-                         }
+                        // Update Firestore document
+                        if (db) { // Check if db is initialized
+                            const userDocRef = db.collection('users').doc(currentUser.uid);
+                            await userDocRef.set({
+                                displayName: newDisplayName || '', // Use empty string for consistency in Firestore
+                                photoURL: newPhotoURL || '',
+                                email: currentUser.email || '' // Ensure email is saved if available
+                            }, {
+                                merge: true
+                            }); // Use merge to avoid overwriting other potential fields
+                        }
 
 
-                         alert('PROFILE UPDATED SUCCESSFULLY!'); // Uppercase alert
-                         closeModal(editProfileModal);
+                        // Update displayed information on the page (if elements exist)
+                        if (userDisplayNameElement) userDisplayNameElement.textContent = `Name: ${newDisplayName || 'Not Set'}`;
+                        if (userPhotoElement) {
+                            userPhotoElement.src = newPhotoURL || defaultPhotoURL;
+                            userPhotoElement.onerror = () => {
+                                if (userPhotoElement) userPhotoElement.src = defaultPhotoURL;
+                            }; // Re-add error handler
+                        }
 
-                     } catch (error) {
-                         console.error('Error updating profile:', error);
-                         alert('FAILED TO UPDATE PROFILE: ' + error.message.toUpperCase()); // Uppercase alert and error message
-                     } finally {
-                         saveButton.innerHTML = originalButtonContent; // Restore button content
-                         saveButton.disabled = false;
-                     }
-                 });
+
+                        alert('PROFILE UPDATED SUCCESSFULLY!'); // Uppercase alert
+                        closeModal(editProfileModal);
+
+                    } catch (error) {
+                        console.error('Error updating profile:', error);
+                        alert('FAILED TO UPDATE PROFILE: ' + error.message.toUpperCase()); // Uppercase alert and error message
+                    } finally {
+                        saveButton.innerHTML = originalButtonContent; // Restore button content
+                        saveButton.disabled = false;
+                    }
+                });
             } else {
-                 console.error("Edit profile form or inputs not found or user not available when setting up listener.");
+                console.warn("Edit profile form or inputs not found or user not available when setting up listener.");
             }
 
 
             // Change Password Button
             if (changePasswordBtn) {
-                 const newChangePasswordBtn = changePasswordBtn.cloneNode(true);
-                 changePasswordBtn.parentNode.replaceChild(newChangePasswordBtn, changePasswordBtn);
+                // Remove existing listener before adding to prevent duplicates
+                const newChangePasswordBtn = changePasswordBtn.cloneNode(true);
+                changePasswordBtn.parentNode.replaceChild(newChangePasswordBtn, changePasswordBtn);
 
-                 newChangePasswordBtn.addEventListener('click', () => {
-                     if (currentUser) {
-                         if (!isGoogleUser) {
-                             openModal(changePasswordModal);
-                         } else {
-                             // This should be handled by the disabled state, but good to have a fallback
-                             alert("PASSWORD IS MANAGED THROUGH YOUR GOOGLE ACCOUNT."); // Uppercase alert
-                         }
-                     } else {
-                         alert("USER NOT LOADED YET."); // Uppercase alert
-                     }
-                 });
+                newChangePasswordBtn.addEventListener('click', () => {
+                    if (currentUser) {
+                        if (!isGoogleUser) {
+                            openModal(changePasswordModal);
+                        } else {
+                            // This should be handled by the disabled state, but good to have a fallback
+                            alert("PASSWORD IS MANAGED THROUGH YOUR GOOGLE ACCOUNT."); // Uppercase alert
+                        }
+                    } else {
+                        alert("USER NOT LOADED YET."); // Uppercase alert
+                    }
+                });
             }
 
 
             // Confirm Current Password Form Submit (for email/password users)
             if (confirmPasswordForm && currentPasswordInput && changePasswordMessage && newPasswordForm && currentUser && !isGoogleUser) {
-                 // Remove existing listener before adding to prevent duplicates
-                 const newConfirmPasswordForm = confirmPasswordForm.cloneNode(true);
-                 confirmPasswordForm.parentNode.replaceChild(newConfirmPasswordForm, confirmPasswordForm);
+                // Remove existing listener before adding to prevent duplicates
+                const newConfirmPasswordForm = confirmPasswordForm.cloneNode(true);
+                confirmPasswordForm.parentNode.replaceChild(newConfirmPasswordForm, confirmPasswordForm);
 
-                 newConfirmPasswordForm.addEventListener('submit', async (e) => {
-                     e.preventDefault();
-                     const password = currentPasswordInput.value;
-                      // Safety check
-                     if (!currentUser || isGoogleUser) {
-                         console.warn("Confirm password attempted by non-email/password user or user not loaded.");
-                         return;
-                     }
-
-
-                     const confirmButton = newConfirmPasswordForm.querySelector('button[type="submit"]');
-                     const originalButtonContent = confirmButton.innerHTML;
-                     confirmButton.innerHTML = '<div class="spinner"></div> CONFIRMING...'; // Uppercase spinner text
-                     confirmButton.disabled = true;
-
-                     try {
-                         const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
-                         await currentUser.reauthenticateWithCredential(credential);
-
-                          // Transition to new password form (if elements exist)
-                         if (confirmPasswordForm) confirmPasswordForm.style.display = "none";
-                         if (changePasswordMessage) changePasswordMessage.style.display = "block";
-                         if (newPasswordForm) newPasswordForm.style.display = "block";
+                newConfirmPasswordForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const password = currentPasswordInput.value;
+                    // Safety check
+                    if (!currentUser || isGoogleUser) {
+                        console.warn("Confirm password attempted by non-email/password user or user not loaded.");
+                        return;
+                    }
 
 
-                         if (currentPasswordInput) currentPasswordInput.value = ''; // Clear the current password input
+                    const confirmButton = newConfirmPasswordForm.querySelector('button[type="submit"]');
+                    const originalButtonContent = confirmButton.innerHTML;
+                    confirmButton.innerHTML = '<div class="spinner"></div> CONFIRMING...'; // Uppercase spinner text
+                    confirmButton.disabled = true;
 
-                     } catch (error) {
-                         console.error('Error reauthenticating:', error);
-                         alert('INCORRECT PASSWORD. PLEASE TRY AGAIN. ' + error.message.toUpperCase()); // Uppercase alert and error message
-                     } finally {
-                         confirmButton.innerHTML = originalButtonContent;
-                         confirmButton.disabled = false;
-                     }
-                 });
+                    try {
+                        const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
+                        await currentUser.reauthenticateWithCredential(credential);
+
+                        // Transition to new password form (if elements exist)
+                        if (confirmPasswordForm) confirmPasswordForm.style.display = "none";
+                        if (changePasswordMessage) changePasswordMessage.style.display = "block";
+                        if (newPasswordForm) newPasswordForm.style.display = "block";
+
+
+                        if (currentPasswordInput) currentPasswordInput.value = ''; // Clear the current password input
+
+                    } catch (error) {
+                        console.error('Error reauthenticating:', error);
+                        alert('INCORRECT PASSWORD. PLEASE TRY AGAIN. ' + error.message.toUpperCase()); // Uppercase alert and error message
+                    } finally {
+                        confirmButton.innerHTML = originalButtonContent;
+                        confirmButton.disabled = false;
+                    }
+                });
             } else {
-                 console.warn("Confirm password form or related elements not found or user is Google user when setting up listener.");
+                console.warn("Confirm password form or related elements not found or user is Google user when setting up listener.");
             }
 
 
             // New Password Form Submit (for email/password users)
             if (newPasswordForm && newPasswordInput && confirmNewPasswordInput && confirmPasswordForm && changePasswordMessage && currentUser && !isGoogleUser) {
-                 // Remove existing listener before adding to prevent duplicates
-                 const newNewPasswordForm = newPasswordForm.cloneNode(true);
-                 newPasswordForm.parentNode.replaceChild(newNewPasswordForm, newPasswordForm);
+                // Remove existing listener before adding to prevent duplicates
+                const newNewPasswordForm = newPasswordForm.cloneNode(true);
+                newPasswordForm.parentNode.replaceChild(newNewPasswordForm, newPasswordForm);
 
-                 newNewPasswordForm.addEventListener('submit', async (e) => {
-                     e.preventDefault();
-                     const newPass = newPasswordInput.value;
-                     const confirmNewPass = confirmNewPasswordInput.value;
+                newNewPasswordForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const newPass = newPasswordInput.value;
+                    const confirmNewPass = confirmNewPasswordInput.value;
 
-                     if (newPass !== confirmNewPass) {
-                         alert("NEW PASSWORDS DO NOT MATCH."); // Uppercase alert
-                         return;
-                     }
-                     if (newPass.length < 6) {
-                         alert("PASSWORD MUST BE AT LEAST 6 CHARACTERS."); // Uppercase alert
-                         return;
-                     }
-                      // Safety check
-                     if (!currentUser || isGoogleUser) {
-                          console.warn("New password change attempted by non-email/password user or user not loaded.");
-                          return;
-                     }
-
-
-                     const changeButton = newNewPasswordForm.querySelector('button[type="submit"]');
-                     const originalButtonContent = changeButton.innerHTML;
-                     changeButton.innerHTML = '<div class="spinner"></div> CHANGING...'; // Uppercase spinner text
-                     changeButton.disabled = true;
-
-                     try {
-                         await currentUser.updatePassword(newPass);
-                         alert('PASSWORD UPDATED SUCCESSFULLY!'); // Uppercase alert
-
-                          // Reset forms and close modal (if elements exist)
-                         if (newPasswordInput) newPasswordInput.value = '';
-                         if (confirmNewPasswordInput) confirmNewPasswordInput.value = '';
-                         closeModal(changePasswordModal);
-
-                          // Reset modal state for next time it opens (if elements exist)
-                         if (confirmPasswordForm) confirmPasswordForm.style.display = "block";
-                         if (changePasswordMessage) changePasswordMessage.style.display = "none";
-                         if (newPasswordForm) newPasswordForm.style.display = "none";
+                    if (newPass !== confirmNewPass) {
+                        alert("NEW PASSWORDS DO NOT MATCH."); // Uppercase alert
+                        return;
+                    }
+                    if (newPass.length < 6) {
+                        alert("PASSWORD MUST BE AT LEAST 6 CHARACTERS."); // Uppercase alert
+                        return;
+                    }
+                    // Safety check
+                    if (!currentUser || isGoogleUser) {
+                        console.warn("New password change attempted by non-email/password user or user not loaded.");
+                        return;
+                    }
 
 
-                     } catch (error) {
-                         console.error('Error updating password:', error);
-                         alert('FAILED TO UPDATE PASSWORD: ' + error.message.toUpperCase()); // Uppercase alert and error message
-                          // Reset modal state on error if preferred, or keep open for user to try again
-                          // closeModal(changePasswordModal); // Optional: close on error
-                     } finally {
-                         changeButton.innerHTML = originalButtonContent;
-                         changeButton.disabled = false;
-                     }
-                 });
+                    const changeButton = newNewPasswordForm.querySelector('button[type="submit"]');
+                    const originalButtonContent = changeButton.innerHTML;
+                    changeButton.innerHTML = '<div class="spinner"></div> CHANGING...'; // Uppercase spinner text
+                    changeButton.disabled = true;
+
+                    try {
+                        await currentUser.updatePassword(newPass);
+                        alert('PASSWORD UPDATED SUCCESSFULLY!'); // Uppercase alert
+
+                        // Reset forms and close modal (if elements exist)
+                        if (newPasswordInput) newPasswordInput.value = '';
+                        if (confirmNewPasswordInput) confirmNewPasswordInput.value = '';
+                        closeModal(changePasswordModal);
+
+                        // Reset modal state for next time it opens (if elements exist)
+                        if (confirmPasswordForm) confirmPasswordForm.style.display = "block";
+                        if (changePasswordMessage) changePasswordMessage.style.display = "none";
+                        if (newPasswordForm) newPasswordForm.style.display = "none";
+
+
+                    } catch (error) {
+                        console.error('Error updating password:', error);
+                        alert('FAILED TO UPDATE PASSWORD: ' + error.message.toUpperCase()); // Uppercase alert and error message
+                        // Reset modal state on error if preferred, or keep open for user to try again
+                        // closeModal(changePasswordModal); // Optional: close on error
+                    } finally {
+                        changeButton.innerHTML = originalButtonContent;
+                        changeButton.disabled = false;
+                    }
+                });
             } else {
-                 console.warn("New password form or related elements not found or user is Google user when setting up listener.");
+                console.warn("New password form or related elements not found or user is Google user when setting up listener.");
             }
 
 
             // Delete Account Button
             if (deleteAccountBtn) {
-                 const newDeleteAccountBtn = deleteAccountBtn.cloneNode(true);
-                 deleteAccountBtn.parentNode.replaceChild(newDeleteAccountBtn, deleteAccountBtn);
+                // Remove existing listener before adding to prevent duplicates
+                const newDeleteAccountBtn = deleteAccountBtn.cloneNode(true);
+                deleteAccountBtn.parentNode.replaceChild(newDeleteAccountBtn, deleteAccountBtn);
 
-                 newDeleteAccountBtn.addEventListener('click', () => {
-                     if (currentUser) {
-                         // The checkAuthProvider function (called by loadUserProfile) determines which delete content to show
-                         // Simply open the modal here. The content within the modal handles the provider specifics.
-                         openModal(deleteAccountModal);
+                newDeleteAccountBtn.addEventListener('click', () => {
+                    if (currentUser) {
+                        // The checkAuthProvider function (called by loadUserProfile) determines which delete content to show
+                        // Simply open the modal here. The content within the modal handles the provider specifics.
+                        openModal(deleteAccountModal);
 
-                     } else {
-                         alert("USER NOT LOADED YET."); // Uppercase alert
-                     }
-                 });
+                    } else {
+                        alert("USER NOT LOADED YET."); // Uppercase alert
+                    }
+                });
             }
 
 
             // Delete Account Form Submit (for email/password users)
             if (deleteAccountForm && deletePasswordInput && googleDeleteContent && currentUser && !isGoogleUser) {
-                 // Remove existing listener before adding to prevent duplicates
-                 const newDeleteAccountForm = deleteAccountForm.cloneNode(true);
-                 deleteAccountForm.parentNode.replaceChild(newDeleteAccountForm, deleteAccountForm);
+                // Remove existing listener before adding to prevent duplicates
+                const newDeleteAccountForm = deleteAccountForm.cloneNode(true);
+                deleteAccountForm.parentNode.replaceChild(newDeleteAccountForm, deleteAccountForm);
 
-                 newDeleteAccountForm.addEventListener('submit', async (e) => {
-                     e.preventDefault();
-                     const password = deletePasswordInput.value;
-                      // Safety check
-                     if (!currentUser || isGoogleUser) {
-                         console.warn("Email/Password delete attempted by non-email/password user or user not loaded.");
-                         return;
-                     }
+                newDeleteAccountForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const password = deletePasswordInput.value;
+                    // Safety check
+                    if (!currentUser || isGoogleUser) {
+                        console.warn("Email/Password delete attempted by non-email/password user or user not loaded.");
+                        return;
+                    }
 
-                     const deleteButton = newDeleteAccountForm.querySelector('button[type="submit"]');
-                     const originalButtonContent = deleteButton.innerHTML;
-                     deleteButton.innerHTML = '<div class="spinner"></div> DELETING...'; // Uppercase spinner text
-                     deleteButton.disabled = true;
+                    const deleteButton = newDeleteAccountForm.querySelector('button[type="submit"]');
+                    const originalButtonContent = deleteButton.innerHTML;
+                    deleteButton.innerHTML = '<div class="spinner"></div> DELETING...'; // Uppercase spinner text
+                    deleteButton.disabled = true;
 
-                     try {
-                         const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
-                         await currentUser.reauthenticateWithCredential(credential);
+                    try {
+                        const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
+                        await currentUser.reauthenticateWithCredential(credential);
 
-                          // User reauthenticated, now delete the account
-                         await currentUser.delete();
+                        // User reauthenticated, now delete the account
+                        await currentUser.delete();
 
-                          // Optionally, delete user data from Firestore
-                          if (db) { // Check if db is initialized
-                              // Note: Deleting user data in Firestore upon account deletion is good practice
-                              // but requires careful implementation and security rules to prevent abuse.
-                              // This example shows how you *could* delete, but production apps might use Cloud Functions.
-                              const userDocRef = db.collection('users').doc(currentUser.uid);
-                              userDocRef.delete().catch(err => console.error("Error deleting user Firestore doc:", err));
+                        // Optionally, delete user data from Firestore
+                        if (db) { // Check if db is initialized
+                            // Note: Deleting user data in Firestore upon account deletion is good practice
+                            // but requires careful implementation and security rules to prevent abuse.
+                            // This example shows how you *could* delete, but production apps might use Cloud Functions.
+                            const userDocRef = db.collection('users').doc(currentUser.uid);
+                            userDocRef.delete().catch(err => console.error("Error deleting user Firestore doc:", err));
 
-                               // Also consider deleting playlists, etc., associated with the user ID
-                               // This often requires complex queries and potential Cloud Functions.
-                          }
+                            // Also consider deleting playlists, etc., associated with the user ID
+                            // This often requires complex queries and potential Cloud Functions.
+                        }
 
 
-                         alert('ACCOUNT DELETED SUCCESSFULLY.'); // Uppercase alert
-                         closeModal(deleteAccountModal);
-                         // Redirect to index or a confirmation page after deletion
-                         window.location.href = 'index.html'; // Redirect after successful deletion
+                        alert('ACCOUNT DELETED SUCCESSFULLY.'); // Uppercase alert
+                        closeModal(deleteAccountModal);
+                        // Redirect to login.html after deletion
+                        window.location.href = 'login.html';
 
-                     } catch (error) {
-                         console.error('Error deleting account:', error);
-                         alert('FAILED TO DELETE ACCOUNT: ' + error.message.toUpperCase()); // Uppercase alert and error message
-                         // Handle specific errors like 'auth/requires-recent-login'
-                         if (error.code === 'auth/requires-recent-login' && !isGoogleUser) {
-                             alert('Please log in again to delete your account.'); // More specific message
-                             if (auth) auth.signOut(); // Log out user
-                             window.location.href = 'index.html'; // Redirect to login
-                         }
-                     } finally {
-                         deleteButton.innerHTML = originalButtonContent;
-                         deleteButton.disabled = false;
-                         if (deletePasswordInput) deletePasswordInput.value = ''; // Clear password input
-                     }
-                 });
+                    } catch (error) {
+                        console.error('Error deleting account:', error);
+                        alert('FAILED TO DELETE ACCOUNT: ' + error.message.toUpperCase()); // Uppercase alert and error message
+                        // Handle specific errors like 'auth/requires-recent-login'
+                        if (error.code === 'auth/requires-recent-login' && !isGoogleUser) {
+                            alert('Please log in again to delete your account.'); // More specific message
+                            if (auth) auth.signOut(); // Log out user
+                            window.location.href = 'login.html'; // Redirect to login
+                        }
+                    } finally {
+                        deleteButton.innerHTML = originalButtonContent;
+                        deleteButton.disabled = false;
+                        if (deletePasswordInput) deletePasswordInput.value = ''; // Clear password input
+                    }
+                });
             } else {
-                 console.warn("Delete account form or related elements not found or user is Google user when setting up listener.");
+                console.warn("Delete account form or related elements not found or user is Google user when setting up listener.");
             }
 
 
             // Google Reauthentication Button (for Google users deleting account)
             if (googleReauthButton && deleteAccountModal && googleDeleteContent && currentUser && isGoogleUser) {
-                 // Remove existing listener before adding to prevent duplicates
-                 const newGoogleReauthButton = googleReauthButton.cloneNode(true);
-                 googleReauthButton.parentNode.replaceChild(newGoogleReauthButton, googleReauthButton);
+                // Remove existing listener before adding to prevent duplicates
+                const newGoogleReauthButton = googleReauthButton.cloneNode(true);
+                googleReauthButton.parentNode.replaceChild(newGoogleReauthButton, googleReauthButton);
 
-                 newGoogleReauthButton.addEventListener('click', async () => {
-                      // Safety check
-                     if (!currentUser || !isGoogleUser) {
-                         console.warn("Google reauth attempted by non-Google user or user not loaded.");
-                         return;
-                     }
-
-
-                     // Re-authenticate with Google provider
-                     const provider = new firebase.auth.GoogleAuthProvider();
-                     const deleteButton = newGoogleReauthButton; // Use the Google button for spinner/state
-                     const originalButtonContent = deleteButton.innerHTML;
-                     deleteButton.innerHTML = '<div class="spinner"></div> REAUTHENTICATING...'; // Uppercase spinner text
-                     deleteButton.disabled = true;
-
-                     try {
-                         // This will likely open a pop-up or redirect
-                         // For deletion, reauthenticateWithPopup is generally preferred for better UX flow.
-                         await currentUser.reauthenticateWithPopup(provider);
-                         console.log("Google reauthentication successful.");
-
-                          // After successful reauthentication, proceed to delete the account
-                         try {
-                             await currentUser.delete();
-
-                              // Optionally, delete user data from Firestore (see comments in email/password delete)
-                              if (db) { // Check if db is initialized
-                                   const userDocRef = db.collection('users').doc(currentUser.uid);
-                                   userDocRef.delete().catch(err => console.error("Error deleting user Firestore doc after Google reauth:", err));
-                              }
+                newGoogleReauthButton.addEventListener('click', async () => {
+                    // Safety check
+                    if (!currentUser || !isGoogleUser) {
+                        console.warn("Google reauth attempted by non-Google user or user not loaded.");
+                        return;
+                    }
 
 
-                             alert('ACCOUNT DELETED SUCCESSFULLY.'); // Uppercase alert
-                             closeModal(deleteAccountModal);
-                             window.location.href = 'index.html'; // Redirect after successful deletion
+                    // Re-authenticate with Google provider
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    const deleteButton = newGoogleReauthButton; // Use the Google button for spinner/state
+                    const originalButtonContent = deleteButton.innerHTML;
+                    deleteButton.innerHTML = '<div class="spinner"></div> REAUTHENTICATING...'; // Uppercase spinner text
+                    deleteButton.disabled = true;
 
-                         } catch (deleteError) {
-                             console.error('Error deleting account after reauth:', deleteError);
-                             alert('FAILED TO DELETE ACCOUNT AFTER REAUTHENTICATION: ' + deleteError.message.toUpperCase()); // Uppercase alert and error message
-                              // Handle specific errors after reauth if necessary
-                         }
+                    try {
+                        // This will likely open a pop-up or redirect
+                        // For deletion, reauthenticateWithPopup is generally preferred for better UX flow.
+                        await currentUser.reauthenticateWithPopup(provider);
+                        console.log("Google reauthentication successful.");
+
+                        // After successful reauthentication, proceed to delete the account
+                        try {
+                            await currentUser.delete();
+
+                            // Optionally, delete user data from Firestore (see comments in email/password delete)
+                            if (db) { // Check if db is initialized
+                                const userDocRef = db.collection('users').doc(currentUser.uid);
+                                userDocRef.delete().catch(err => console.error("Error deleting user Firestore doc after Google reauth:", err));
+                            }
 
 
-                     } catch (reauthError) {
-                         console.error('Error during Google reauthentication:', reauthError);
-                          // Handle specific reauthentication errors (e.g., user cancels)
-                         alert('GOOGLE REAUTHENTICATION FAILED: ' + reauthError.message.toUpperCase()); // Uppercase alert and error message
-                     } finally {
-                         deleteButton.innerHTML = originalButtonContent;
-                         deleteButton.disabled = false;
-                     }
-                 });
+                            alert('ACCOUNT DELETED SUCCESSFULLY.'); // Uppercase alert
+                            closeModal(deleteAccountModal);
+                            // Redirect to login.html after successful deletion
+                            window.location.href = 'login.html';
+
+                        } catch (deleteError) {
+                            console.error('Error deleting account after reauth:', deleteError);
+                            alert('FAILED TO DELETE ACCOUNT AFTER REAUTHENTICATION: ' + deleteError.message.toUpperCase()); // Uppercase alert and error message
+                            // Handle specific errors after reauth if necessary
+                        }
+
+
+                    } catch (reauthError) {
+                        console.error('Error during Google reauthentication:', reauthError);
+                        // Handle specific reauthentication errors (e.g., user cancels)
+                        alert('GOOGLE REAUTHENTICATION FAILED: ' + reauthError.message.toUpperCase()); // Uppercase alert and error message
+                    } finally {
+                        deleteButton.innerHTML = originalButtonContent;
+                        deleteButton.disabled = false;
+                    }
+                });
             } else {
-                 console.warn("Google reauth button or related elements not found or user is not Google user when setting up listener.");
+                console.warn("Google reauth button or related elements not found or user is not Google user when setting up listener.");
             }
 
 
-             // Manage Subscriptions Button (if implemented)
-             if (manageSubscriptionsBtn) {
-                 const newManageSubscriptionsBtn = manageSubscriptionsBtn.cloneNode(true);
-                 manageSubscriptionsBtn.parentNode.replaceChild(newManageSubscriptionsBtn, manageSubscriptionsBtn);
+            // Manage Subscriptions Button (if implemented)
+            if (manageSubscriptionsBtn) {
+                // Remove existing listener before adding to prevent duplicates
+                const newManageSubscriptionsBtn = manageSubscriptionsBtn.cloneNode(true);
+                manageSubscriptionsBtn.parentNode.replaceChild(newManageSubscriptionsBtn, manageSubscriptionsBtn);
 
-                 newManageSubscriptionsBtn.addEventListener('click', () => {
-                      // Implement subscription management logic (e.g., redirect to Stripe portal)
-                      alert("Manage Subscriptions clicked (Feature not fully implemented)");
-                 });
+                newManageSubscriptionsBtn.addEventListener('click', () => {
+                    // Implement subscription management logic (e.g., redirect to Stripe portal)
+                    alert("Manage Subscriptions clicked (Feature not fully implemented)");
+                });
             }
 
 
@@ -1898,20 +1911,20 @@
                 setupAuthenticatedUIAndListeners(); // Setup UI elements and listeners that require auth
 
             } else {
-                console.log("No user logged in. Redirecting to index.html");
+                console.log("No user logged in. Redirecting to login.html");
                 currentUser = null; // Clear currentUser variable
 
                 // Hide account details and show auth notice if elements exist
                 if (accountGrid) accountGrid.classList.add('hidden');
                 if (authNotice) authNotice.classList.remove('hidden');
 
-                 // Hide logout button in the navbar if element exists
+                // Hide logout button in the navbar if element exists
                 if (logoutBtn) logoutBtn.classList.add('hidden');
 
                 // Redirect if not authenticated
-                // Only redirect if we are NOT already on the index.html page to avoid infinite redirects
-                if (window.location.pathname !== '/index.html' && window.location.pathname !== '/') {
-                     window.location.href = 'index.html';
+                // Only redirect if we are NOT already on the login.html page to avoid infinite redirects
+                if (!window.location.pathname.includes('/login.html')) {
+                    window.location.href = 'login.html';
                 }
                  // Optional: Clear profile info if user logs out while on the page (less likely with redirect)
                  if (userDisplayNameElement) userDisplayNameElement.textContent = 'Name: ---';
@@ -1938,16 +1951,16 @@
                         console.error("Firebase initialization error:", error);
                         // Handle initialization error - show message on the page
                         if (authNotice) {
-                             authNotice.textContent = 'ERROR INITIALIZING FIREBASE. PLEASE CHECK YOUR CONNECTION AND firebase-config.js.';
-                             authNotice.classList.remove('hidden');
+                            authNotice.textContent = 'ERROR INITIALIZING FIREBASE. PLEASE CHECK YOUR CONNECTION AND firebase-config.js.';
+                            authNotice.classList.remove('hidden');
                         }
-                         const accountGrid = document.querySelector('.account-grid');
-                         if (accountGrid) accountGrid.classList.add('hidden');
+                        const accountGrid = document.querySelector('.account-grid');
+                        if (accountGrid) accountGrid.classList.add('hidden');
 
-                         // Disable buttons or hide sections that rely on Firebase
-                         document.querySelectorAll('.account-buttons button').forEach(btn => btn.disabled = true);
-                         if (logoutBtn) logoutBtn.disabled = true;
-                         return; // Stop script execution if Firebase fails to initialize
+                        // Disable buttons or hide sections that rely on Firebase
+                        document.querySelectorAll('.account-buttons button').forEach(btn => btn.disabled = true);
+                        if (logoutBtn) logoutBtn.disabled = true;
+                        return; // Stop script execution if Firebase fails to initialize
                     }
                 }
                 // Assign auth and db instances
@@ -1958,44 +1971,44 @@
                 auth.onAuthStateChanged(handleAuthState);
 
 
-                 // Add Logout button listener here as it's always in the navbar
-                 const logoutButton = document.getElementById('logoutBtn');
-                 if (logoutButton) {
-                     // Remove any existing listeners before adding a new one to prevent duplicates
-                     const newLogoutButton = logoutButton.cloneNode(true);
-                     logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
+                // Add Logout button listener here as it's always in the navbar
+                const logoutButton = document.getElementById('logoutBtn');
+                if (logoutButton) {
+                    // Remove any existing listeners before adding to prevent duplicates
+                    const newLogoutButton = logoutButton.cloneNode(true);
+                    logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
 
-                     newLogoutButton.addEventListener('click', e => {
-                         e.preventDefault();
-                          if (auth) { // Ensure auth is available
-                              auth.signOut().then(() => {
-                                  console.log("User signed out.");
-                                  window.location.href = 'index.html'; // Redirect to index after logout
-                              }).catch(error => {
-                                  console.error("Logout Error:", error);
-                                  alert("Error logging out. Please try again.");
-                              });
-                          } else {
-                              console.error("Firebase Auth not available for logout.");
-                              alert("Logout failed. Firebase services not available.");
-                          }
-                     });
-                 }
+                    newLogoutButton.addEventListener('click', e => {
+                        e.preventDefault();
+                        if (auth) { // Ensure auth is available
+                            auth.signOut().then(() => {
+                                console.log("User signed out.");
+                                window.location.href = 'login.html'; // Redirect to login.html after logout
+                            }).catch(error => {
+                                console.error("Logout Error:", error);
+                                alert("Error logging out. Please try again.");
+                            });
+                        } else {
+                            console.error("Firebase Auth not available for logout.");
+                            alert("Logout failed. Firebase services not available.");
+                        }
+                    });
+                }
 
 
             } else {
                 console.error("Firebase SDK not available.");
                 // Handle case where Firebase script failed to load - show message
-                 if (authNotice) {
-                     authNotice.textContent = 'FIREBASE SDK NOT LOADED. PLEASE CHECK YOUR INTERNET CONNECTION.';
-                     authNotice.classList.remove('hidden');
-                 }
-                 const accountGrid = document.querySelector('.account-grid');
-                 if (accountGrid) accountGrid.classList.add('hidden');
+                if (authNotice) {
+                    authNotice.textContent = 'FIREBASE SDK NOT LOADED. PLEASE CHECK YOUR INTERNET CONNECTION.';
+                    authNotice.classList.remove('hidden');
+                }
+                const accountGrid = document.querySelector('.account-grid');
+                if (accountGrid) accountGrid.classList.add('hidden');
 
-                 // Disable buttons or hide sections that rely on Firebase
-                 document.querySelectorAll('.account-buttons button').forEach(btn => btn.disabled = true);
-                 if (logoutBtn) logoutBtn.disabled = true;
+                // Disable buttons or hide sections that rely on Firebase
+                document.querySelectorAll('.account-buttons button').forEach(btn => btn.disabled = true);
+                if (logoutBtn) logoutBtn.disabled = true;
 
             }
         }
