@@ -672,6 +672,7 @@
 
     .password-form button.delete:hover {
       background-color: var(--danger-action-hover);
+      /* Darker red on hover */
       border-color: var(--danger-action-hover);
     }
 
@@ -1198,736 +1199,788 @@
   </div>
 
   <script>
-    // Display current year in footer
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    document.addEventListener('DOMContentLoaded', () => {
+      // Firebase Initialization
+      let auth; // Declare auth
+      let db; // Declare db
 
-    // Variables declared in wider scope for access by various functions
-    let auth;
-    let db;
-    let currentUser = null;
-    let isGoogleUser = false;
-
-    // Default photo URL using Outfit font
-    const defaultPhotoURL = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23eee%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22Outfit%22%20font-size%3D%2210px%22%20fill%3D%22%23aaa%22%3ENO%20PHOTO%3C/text%3E%3C/svg%3E';
-
-    // Get DOM Elements - User Details
-    const userDisplayNameElement = document.getElementById('userDisplayName');
-    const userPhotoElement = document.getElementById('userPhoto');
-    const userEmailElement = document.getElementById('userEmail');
-    const authProviderElement = document.getElementById('authProvider');
-    const creationTimeElement = document.getElementById('creationTime');
-    const lastSignInElement = document.getElementById('lastSignIn');
-    const userUIDElement = document.getElementById('userUID');
-
-    // Buttons
-    const changePasswordBtn = document.getElementById('changePasswordBtn');
-    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const editProfileBtn = document.getElementById('editProfileBtn');
-    const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn'); // Assuming this exists
-
-    // Modals
-    const editProfileModal = document.getElementById('editProfileModal');
-    const changePasswordModal = document.getElementById('changePasswordModal');
-    const deleteAccountModal = document.getElementById('deleteAccountModal');
-
-    // Forms & Inputs - Edit Profile
-    const editProfileForm = document.getElementById('editProfileForm');
-    const profileDisplayNameInput = document.getElementById('profileDisplayName');
-    const profilePhotoURLInput = document.getElementById('profilePhotoURL');
-
-    // Forms & Inputs - Change Password
-    const confirmPasswordForm = document.getElementById('confirmPasswordForm');
-    const newPasswordForm = document.getElementById('newPasswordForm');
-    const currentPasswordInput = document.getElementById('currentPassword');
-    const newPasswordInput = document.getElementById('newPassword');
-    const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
-    const changePasswordMessage = document.getElementById('change-password-message');
-
-    // Forms & Inputs - Delete Account
-    const deleteAccountForm = document.getElementById('deleteAccountForm');
-    const deletePasswordInput = document.getElementById('deletePassword');
-
-    // Close Modal Buttons
-    const closeModalButtons = document.querySelectorAll('.close');
-
-    // Google Auth Specific Elements
-    const emailAuthContent = document.getElementById('emailAuthContent');
-    const googleAuthContent = document.getElementById('googleAuthContent');
-    const googleDeleteContent = document.getElementById('googleDeleteContent');
-    const googleReauthButton = document.getElementById('googleReauthButton');
-
-
-    // --- Modal Helper Functions ---
-    const openModal = (modal) => {
-      if (modal) {
-        modal.style.display = 'flex';
-        void modal.offsetWidth; // Trigger reflow
-        modal.classList.add('show');
-      }
-    };
-
-    const closeModal = (modalOrId) => {
-      const modal = typeof modalOrId === 'string' ? document.getElementById(modalOrId) : modalOrId;
-      if (modal) {
-        modal.classList.remove('show');
-        setTimeout(() => {
-          modal.style.display = 'none';
-          // Reset forms and password modal state after closing
-          const forms = modal.querySelectorAll('form');
-          forms.forEach(form => form.reset());
-
-          // Reset password modal state
-          if (modal.id === 'changePasswordModal' && confirmPasswordForm && changePasswordMessage && newPasswordForm) {
-            confirmPasswordForm.style.display = "block";
-            changePasswordMessage.style.display = "none";
-            newPasswordForm.style.display = "none";
-          }
-
-        }, 300); // Match CSS transition duration
-      }
-    };
-
-
-    // --- User Profile Functions ---
-    const loadUserProfile = async (user) => {
-      if (!user || !db) {
-        console.error("User or Firestore not available for loading profile.");
-        // Display error messages on the page elements (if elements exist)
-        if (userDisplayNameElement) userDisplayNameElement.textContent = 'Name: Error Loading';
-        if (userEmailElement) userEmailElement.textContent = 'Email: Error Loading';
-        if (authProviderElement) authProviderElement.textContent = 'Sign-in Method: Error Loading';
-        if (creationTimeElement) creationTimeElement.textContent = 'Created: Error Loading';
-        if (lastSignInElement) lastSignInElement.textContent = 'Last Sign-in: Error Loading';
-        if (userUIDElement) userUIDElement.textContent = 'User ID: Error Loading';
-        if (userPhotoElement) {
-          userPhotoElement.src = defaultPhotoURL; // Set default photo on error
-          userPhotoElement.onerror = null; // Prevent infinite error loop
-        }
-        return;
-      }
-
-      // Display loading state initially if elements exist
-      if (userDisplayNameElement) userDisplayNameElement.textContent = 'Name: Loading...';
-      if (userEmailElement) userEmailElement.textContent = 'Email: Loading...';
-      if (authProviderElement) authProviderElement.textContent = 'Sign-in Method: Loading...';
-      if (creationTimeElement) creationTimeElement.textContent = 'Created: Loading...';
-      if (lastSignInElement) lastSignInElement.textContent = 'Last Sign-in: Loading...';
-      if (userUIDElement) userUIDElement.textContent = 'User ID: Loading...';
-      if (userPhotoElement) {
-        userPhotoElement.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23ddd%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22Outfit%22%20font-size%3D%2210px%22%20fill%3D%22%23777%22%3ELoading%3C/text%3E%3C/svg%3E'; // Loading SVG
-        userPhotoElement.onerror = null; // Temporarily remove error handler
-      }
-
-
-      try {
-        // Set basic auth info that doesn't rely on Firestore first (if elements exist)
-        if (userEmailElement) userEmailElement.textContent = `Email: ${user.email || 'N/A'}`;
-        if (creationTimeElement) creationTimeElement.textContent = `Created: ${user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'N/A'}`;
-        if (lastSignInElement) lastSignInElement.textContent = `Last Sign-in: ${user.metadata.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleString() : 'N/A'}`;
-        if (userUIDElement) userUIDElement.textContent = `User ID: ${user.uid}`;
-
-
-        const userDocRef = db.collection('users').doc(user.uid);
-        const docSnap = await userDocRef.get();
-
-        let displayNameToSet = user.displayName || 'Not Set';
-        let photoURLToSet = user.photoURL || defaultPhotoURL;
-
-
-        if (docSnap.exists()) {
-          const profileData = docSnap.data();
-          displayNameToSet = profileData.displayName || displayNameToSet; // Prioritize Firestore data
-          photoURLToSet = profileData.photoURL || photoURLToSet; // Prioritize Firestore data
-        } else {
-          // If Firestore document doesn't exist, create it with initial Auth data
-          if (user.displayName || user.photoURL || user.email) { // Only create if there's some data
-            await userDocRef.set({
-              displayName: user.displayName || 'Not Set',
-              photoURL: user.photoURL || '', // Use empty string if null to avoid issues
-              email: user.email || ''
-            }, {
-              merge: true
-            });
-            console.log("Created new user profile document in Firestore.");
+      // Check if Firebase SDK is available and initialized
+      if (typeof firebase !== 'undefined') {
+        // Initialize Firebase app if not already initialized
+        if (firebase.apps.length === 0 && typeof firebaseConfig !== 'undefined') {
+          try {
+            firebase.initializeApp(firebaseConfig);
+          } catch (error) {
+            console.error("Firebase initialization error:", error);
+            // Handle initialization error - show a message on the page
+            const container = document.querySelector('.container');
+            if (container) {
+              container.innerHTML = '<h1 style="color: var(--status-error-color); font-size: 1.5rem;">ERROR INITIALIZING FIREBASE. PLEASE CHECK YOUR CONNECTION AND firebase-config.js.</h1>';
+            }
+            // Disable buttons or hide sections that rely on Firebase
+            document.querySelectorAll('.account-buttons button').forEach(btn => btn.disabled = true);
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) logoutBtn.disabled = true;
+            return; // Stop script execution if Firebase fails to initialize
           }
         }
+        // Assign auth and db instances
+        auth = firebase.auth();
+        db = firebase.firestore();
 
-        // Update displayed information on the page (if elements exist)
-        if (userDisplayNameElement) userDisplayNameElement.textContent = `Name: ${displayNameToSet}`;
-        if (userPhotoElement) {
-          userPhotoElement.src = photoURLToSet;
-          // Add error handler back after setting the source
-          userPhotoElement.onerror = () => {
-            if (userPhotoElement) userPhotoElement.src = defaultPhotoURL;
-          };
-        }
+        // Set up auth state change listener
+        auth.onAuthStateChanged(user => handleAuthState(user));
 
 
-        // For edit modal prefill - populate input values (if inputs exist)
-        if (profileDisplayNameInput) profileDisplayNameInput.value = (displayNameToSet === 'Not Set' || displayNameToSet === 'Error') ? '' : displayNameToSet;
-        if (profilePhotoURLInput) profilePhotoURLInput.value = (photoURLToSet === defaultPhotoURL || !photoURLToSet || photoURLToSet.startsWith('data:')) ? '' : photoURLToSet;
-
-
-      } catch (error) {
-        console.error("Error loading user profile:", error);
-        // Display error messages on the page elements (if elements exist)
-        if (userDisplayNameElement) userDisplayNameElement.textContent = `Name: ${user.displayName || 'Error Loading'}`;
-        if (userEmailElement) userEmailElement.textContent = `Email: ${user.email || 'Error Loading'}`;
-        if (authProviderElement) authProviderElement.textContent = 'Sign-in Method: Error Loading';
-        if (creationTimeElement) creationTimeElement.textContent = `Created: ${user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'Error Loading'}`;
-        if (lastSignInElement) lastSignInElement.textContent = `Last Sign-in: ${user.metadata.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleString() : 'Error Loading'}`;
-        if (userUIDElement) userUIDElement.textContent = `User ID: ${user.uid || 'Error Loading'}`;
-        if (userPhotoElement) {
-          userPhotoElement.src = user.photoURL || defaultPhotoURL; // Fallback to Auth photo or default
-          userPhotoElement.onerror = () => {
-            if (userPhotoElement) userPhotoElement.src = defaultPhotoURL;
-          }; // Ensure error handler is present
-        }
-
-      }
-
-      // After loading profile, check auth provider to update modal content visibility
-      checkAuthProvider(user);
-
-    };
-
-
-    // --- Auth Provider Check ---
-    const checkAuthProvider = (user) => {
-      // Check if user and all required elements exist
-      if (user && user.providerData && changePasswordBtn && emailAuthContent && googleAuthContent && deleteAccountForm && googleDeleteContent) {
-        const googleProvider = user.providerData.find(p => p.providerId === 'google.com');
-        isGoogleUser = !!googleProvider;
-
-        if (isGoogleUser) {
-          if (authProviderElement) authProviderElement.innerHTML = `Sign-in Method: <span class="provider-badge google">Google</span>`;
-          if (changePasswordBtn) {
-            changePasswordBtn.disabled = true; // Disable password change button
-            changePasswordBtn.title = "Password is managed by your Google account";
-            changePasswordBtn.style.cursor = 'not-allowed'; // Explicitly set cursor
-          }
-
-
-          // Show/Hide content in change password modal (if elements exist)
-          if (emailAuthContent) emailAuthContent.style.display = 'none';
-          if (googleAuthContent) googleAuthContent.style.display = 'block';
-
-          // Show/Hide content in delete account modal (if elements exist)
-          if (deleteAccountForm) deleteAccountForm.style.display = 'none';
-          if (googleDeleteContent) googleDeleteContent.style.display = 'block';
-
-
-        } else {
-          if (authProviderElement) authProviderElement.innerHTML = `Sign-in Method: <span class="provider-badge email">Email</span>`;
-          if (changePasswordBtn) {
-            changePasswordBtn.disabled = false; // Enable password change button
-            changePasswordBtn.title = "";
-            changePasswordBtn.style.cursor = 'pointer'; // Reset cursor
-          }
-
-          // Show/Hide content in change password modal (if elements exist)
-          if (emailAuthContent) emailAuthContent.style.display = 'block';
-          if (googleAuthContent) googleAuthContent.style.display = 'none';
-
-          // Show/Hide content in delete account modal (if elements exist)
-          if (deleteAccountForm) deleteAccountForm.style.display = 'block';
-          if (googleDeleteContent) googleDeleteContent.style.display = 'none';
-        }
       } else {
-        // Handle case where user or required elements are missing
-        if (authProviderElement) authProviderElement.textContent = 'Sign-in Method: Unknown';
-        if (changePasswordBtn) changePasswordBtn.disabled = true;
-        if (emailAuthContent) emailAuthContent.style.display = 'none';
-        if (googleAuthContent) googleAuthContent.style.display = 'none';
-        if (deleteAccountForm) deleteAccountForm.style.display = 'none';
-        if (googleDeleteContent) googleDeleteContent.style.display = 'none';
-        console.warn("Could not check auth provider: User or required elements missing.");
+        console.error("Firebase SDK not available.");
+        // Handle case where Firebase script failed to load
+        const container = document.querySelector('.container');
+        if (container) {
+          container.innerHTML = '<h1 style="color: var(--status-error-color); font-size: 1.5rem;">FIREBASE SDK NOT LOADED. PLEASE CHECK YOUR INTERNET CONNECTION.</h1>';
+        }
+        // Disable buttons or hide sections that rely on Firebase
+        document.querySelectorAll('.account-buttons button').forEach(btn => btn.disabled = true);
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) logoutBtn.disabled = true;
       }
-    };
 
 
-    // --- Setup Authentication Dependent Listeners and UI ---
-    // This function is called when a user is logged in.
-    const setupAuthenticatedUIAndListeners = () => {
+      // Get DOM Elements - User Details
+      const userDisplayNameElement = document.getElementById('userDisplayName');
+      const userPhotoElement = document.getElementById('userPhoto');
+      const userEmailElement = document.getElementById('userEmail');
+      const authProviderElement = document.getElementById('authProvider');
+      const creationTimeElement = document.getElementById('creationTime');
+      const lastSignInElement = document.getElementById('lastSignIn');
+      const userUIDElement = document.getElementById('userUID');
 
-      // Ensure listeners are only added once
-      if (setupAuthenticatedUIAndListeners.initialized) return;
-      setupAuthenticatedUIAndListeners.initialized = true;
+      // Buttons
+      const changePasswordBtn = document.getElementById('changePasswordBtn');
+      const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const editProfileBtn = document.getElementById('editProfileBtn');
+      const manageSubscriptionsBtn = document.getElementById('manageSubscriptionsBtn'); // Assuming this exists
 
-      // Get the account grid element
-      const accountGrid = document.querySelector('.account-grid');
+      // Modals
+      const editProfileModal = document.getElementById('editProfileModal');
+      const changePasswordModal = document.getElementById('changePasswordModal');
+      const deleteAccountModal = document.getElementById('deleteAccountModal');
 
-      // Show account details if elements exist
-      if (accountGrid) accountGrid.classList.remove('hidden'); // Assuming you want to show the grid
+      // Forms & Inputs - Edit Profile
+      const editProfileForm = document.getElementById('editProfileForm');
+      const profileDisplayNameInput = document.getElementById('profileDisplayName');
+      const profilePhotoURLInput = document.getElementById('profilePhotoURL');
 
-      // Show the logout button in the navbar if element exists
-      if (logoutBtn) logoutBtn.classList.remove('hidden');
+      // Forms & Inputs - Change Password
+      const confirmPasswordForm = document.getElementById('confirmPasswordForm');
+      const newPasswordForm = document.getElementById('newPasswordForm');
+      const currentPasswordInput = document.getElementById('currentPassword');
+      const newPasswordInput = document.getElementById('newPassword');
+      const confirmNewPasswordInput = document.getElementById('confirmNewPassword');
+      const changePasswordMessage = document.getElementById('change-password-message');
 
-
-      // --- Event Listeners for Modals and Actions ---
+      // Forms & Inputs - Delete Account
+      const deleteAccountForm = document.getElementById('deleteAccountForm');
+      const deletePasswordInput = document.getElementById('deletePassword');
 
       // Close Modal Buttons
-      if (closeModalButtons) {
-        closeModalButtons.forEach(button => {
-          // Remove existing listener before adding to prevent duplicates
-          const newButton = button.cloneNode(true);
-          button.parentNode.replaceChild(newButton, button);
+      const closeModalButtons = document.querySelectorAll('.close');
 
-          newButton.addEventListener('click', () => {
-            const modalId = newButton.dataset.modalId;
-            if (modalId) closeModal(modalId);
-            else closeModal(newButton.closest('.modal'));
-          });
-        });
-      }
+      // Google Auth Specific Elements
+      const emailAuthContent = document.getElementById('emailAuthContent');
+      const googleAuthContent = document.getElementById('googleAuthContent');
+      const googleDeleteContent = document.getElementById('googleDeleteContent');
+      const googleReauthButton = document.getElementById('googleReauthButton');
+
+      let isGoogleUser = false;
+      let currentUser = null;
+
+      // Use Outfit font in the default SVG to match theme
+      const defaultPhotoURL = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23eee%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22Outfit%22%20font-size%3D%2210px%22%20fill%3D%22%23aaa%22%3ENO%20PHOTO%3C/text%3E%3C/svg%3E';
 
 
-      // Close Modals by clicking outside
-      // Using a flag to prevent double event listener attachment
-      if (!window.closeModalClickListenerInitialized) {
-        window.closeModalClickListenerInitialized = true;
-        window.addEventListener('click', (event) => {
-          // Check if the click target is a modal overlay and it's currently visible
-          if (event.target.classList.contains('modal') && event.target.classList.contains('show')) {
-            closeModal(event.target);
+      // --- Auth State Change Handler ---
+      const handleAuthState = async (user) => { // Added async here
+        currentUser = user; // Update currentUser variable
+
+        const accountGrid = document.querySelector('.account-grid'); // Get account grid here
+
+        if (user) {
+          console.log("User is logged in:", user.email);
+          // User is logged in, load profile, check provider, setup listeners
+          if (accountGrid) accountGrid.classList.remove('hidden'); // Show account grid if logged in
+          await loadUserProfile(user); // Load profile details - Use await
+          checkAuthProvider(user); // Check provider for UI adjustments
+          setupAuthDependentListeners(); // Setup listeners that require authenticated user
+
+          // Show logout button if authenticated
+          if (logoutBtn) logoutBtn.classList.remove('hidden');
+
+        } else {
+          console.log("No user signed in. Redirecting to login.html");
+          currentUser = null; // Clear currentUser variable
+
+          // Hide account details if element exists
+          if (accountGrid) accountGrid.classList.add('hidden');
+
+          // Redirect if not authenticated
+          // Only redirect if we are NOT already on the login.html page to avoid infinite redirects
+          if (!window.location.pathname.includes('/login.html')) {
+            window.location.href = 'login.html';
           }
-        });
-      }
+          // Optional: Clear profile info if user logs out while on the page (less likely with redirect)
+          if (userDisplayNameElement) userDisplayNameElement.textContent = 'Name: ---';
+          if (userEmailElement) userEmailElement.textContent = 'Email: ---';
+          if (authProviderElement) authProviderElement.textContent = 'Sign-in Method: ---';
+          if (creationTimeElement) creationTimeElement.textContent = 'Created: ---';
+          if (lastSignInElement) lastSignInElement.textContent = 'Last Sign-in: ---';
+          if (userUIDElement) userUIDElement.textContent = 'User ID: ---';
+          if (userPhotoElement) userPhotoElement.src = defaultPhotoURL;
+        }
+      };
 
 
-      // Edit Profile Button
-      if (editProfileBtn) {
-        // Remove existing listener before adding to prevent duplicates
-        const newEditProfileBtn = editProfileBtn.cloneNode(true);
-        editProfileBtn.parentNode.replaceChild(newEditProfileBtn, editProfileBtn);
+      // --- Setup Auth-Dependent Listeners ---
+      const setupAuthDependentListeners = () => {
 
-        newEditProfileBtn.addEventListener('click', () => {
-          if (currentUser) {
-            // Pre-fill logic is done in loadUserProfile and updated when modal opens
-            // Ensure inputs are populated from current state before opening modal
-            const currentName = userDisplayNameElement ? userDisplayNameElement.textContent.replace('Name: ', '').trim() : '';
-            const currentPhoto = userPhotoElement ? userPhotoElement.src : '';
+        // Ensure listeners are only added once
+        if (setupAuthDependentListeners.initialized) return;
+        setupAuthDependentListeners.initialized = true;
 
-            if (profileDisplayNameInput) profileDisplayNameInput.value = (currentName === 'Not Set' || currentName === 'Error Loading') ? '' : currentName;
-            // Check if photo URL is default SVG or invalid before pre-filling (if inputs exist)
-            if (profilePhotoURLInput) profilePhotoURLInput.value = (currentPhoto === defaultPhotoURL || !currentPhoto || currentPhoto.startsWith('data:')) ? '' : currentPhoto;
-
-
-            openModal(editProfileModal);
-          } else {
-            alert("Please wait, user data is loading."); // Or show a status message
+        // --- Modal Helper Functions (defined within this scope) ---
+        const openModal = (modal) => {
+          if (modal) {
+            modal.style.display = 'flex'; // Use flex to center
+            // Force a reflow to ensure transition works
+            void modal.offsetWidth;
+            modal.classList.add('show');
           }
-        });
-      }
+        };
+
+        const closeModal = (modalOrId) => {
+          const modal = typeof modalOrId === 'string' ? document.getElementById(modalOrId) : modalOrId;
+          if (modal) {
+            modal.classList.remove('show');
+            // Use a timeout to hide the modal after the fade-out transition
+            setTimeout(() => {
+              modal.style.display = 'none';
+              // Reset forms and password modal state after closing
+              const forms = modal.querySelectorAll('form');
+              forms.forEach(form => form.reset());
+
+              // Reset password modal state
+              if (modal.id === 'changePasswordModal' && confirmPasswordForm && changePasswordMessage && newPasswordForm) {
+                confirmPasswordForm.style.display = "block";
+                changePasswordMessage.style.display = "none";
+                newPasswordForm.style.display = "none";
+              }
+
+            }, 300); // Match CSS transition duration
+          }
+        };
 
 
-      // Edit Profile Form Submit
-      if (editProfileForm && profileDisplayNameInput && profilePhotoURLInput && currentUser) {
-        // Remove existing listener before adding to prevent duplicates
-        const newEditProfileForm = editProfileForm.cloneNode(true);
-        editProfileForm.parentNode.replaceChild(newEditProfileForm, editProfileForm);
-
-        newEditProfileForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const newDisplayName = profileDisplayNameInput.value.trim() || ''; // Use empty string if trimmed input is empty
-          const newPhotoURL = profilePhotoURLInput.value.trim();
-
-          if (!currentUser) {
-            alert('User not available. Please try again.');
+        // --- User Profile Functions (defined within this scope) ---
+        const loadUserProfile = async (user) => {
+          if (!user || !db) {
+            console.error("User or Firestore not available for loading profile.");
+            // Display error messages on the page elements (if elements exist)
+            if (userDisplayNameElement) userDisplayNameElement.textContent = 'Name: Error Loading';
+            if (userEmailElement) userEmailElement.textContent = 'Email: Error Loading';
+            if (authProviderElement) authProviderElement.textContent = 'Sign-in Method: Error Loading';
+            if (creationTimeElement) creationTimeElement.textContent = 'Created: Error Loading';
+            if (lastSignInElement) lastSignInElement.textContent = 'Last Sign-in: Error Loading';
+            if (userUIDElement) userUIDElement.textContent = 'User ID: Error Loading';
+            if (userPhotoElement) {
+              userPhotoElement.src = defaultPhotoURL; // Set default photo on error
+              userPhotoElement.onerror = null; // Prevent infinite error loop
+            }
             return;
           }
 
-          const saveButton = newEditProfileForm.querySelector('button[type="submit"]');
-          const originalButtonContent = saveButton.innerHTML; // Save innerHTML for spinner
-          saveButton.innerHTML = '<div class="spinner"></div> SAVING...'; // Uppercase spinner text
-          saveButton.disabled = true;
+          // Display loading state initially if elements exist
+          if (userDisplayNameElement) userDisplayNameElement.textContent = 'Name: Loading...';
+          if (userEmailElement) userEmailElement.textContent = 'Email: Loading...';
+          if (authProviderElement) authProviderElement.textContent = 'Sign-in Method: Loading...';
+          if (creationTimeElement) creationTimeElement.textContent = `Created: ${user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'Loading...'}`; // Use Loading... initially
+          if (lastSignInElement) lastSignInElement.textContent = `Last Sign-in: ${user.metadata.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleString() : 'Loading...'}`; // Use Loading... initially
+          if (userUIDElement) userUIDElement.textContent = `User ID: ${user.uid}`;
+          if (userPhotoElement) {
+            userPhotoElement.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23ddd%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22Outfit%22%20font-size%3D%2210px%22%20fill%3D%22%23777%22%3ELoading%3C/text%3E%3C/svg%3E'; // Loading SVG
+            userPhotoElement.onerror = null; // Temporarily remove error handler
+          }
+
 
           try {
-            // Validate photo URL if provided
-            if (newPhotoURL) {
-              try {
-                new URL(newPhotoURL); // Check if it's a valid URL format
-              } catch (e) {
-                alert('Invalid photo URL format.');
-                return; // Stop submission if URL is invalid
+            // Set basic auth info that doesn't rely on Firestore first (if elements exist)
+            if (userEmailElement) userEmailElement.textContent = `Email: ${user.email || 'N/A'}`;
+            if (creationTimeElement) creationTimeElement.textContent = `Created: ${user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'N/A'}`;
+            if (lastSignInElement) lastSignInElement.textContent = `Last Sign-in: ${user.metadata.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleString() : 'N/A'}`;
+            if (userUIDElement) userUIDElement.textContent = `User ID: ${user.uid}`;
+
+
+            const userDocRef = db.collection('users').doc(user.uid);
+            const docSnap = await userDocRef.get();
+
+            let displayNameToSet = user.displayName || 'Not Set';
+            let photoURLToSet = user.photoURL || defaultPhotoURL;
+
+
+            if (docSnap.exists()) {
+              const profileData = docSnap.data();
+              displayNameToSet = profileData.displayName || displayNameToSet; // Prioritize Firestore data
+              photoURLToSet = profileData.photoURL || photoURLToSet; // Prioritize Firestore data
+            } else {
+              // If Firestore document doesn't exist, create it with initial Auth data
+              if (user.displayName || user.photoURL || user.email) { // Only create if there's some data
+                await userDocRef.set({
+                  displayName: user.displayName || 'Not Set',
+                  photoURL: user.photoURL || '', // Use empty string if null to avoid issues
+                  email: user.email || ''
+                }, {
+                  merge: true
+                });
+                console.log("Created new user profile document in Firestore.");
               }
             }
 
-            // Update Auth profile
-            // Set displayName to null or empty string if user clears it, so Auth doesn't keep old value
-            await currentUser.updateProfile({
-              displayName: newDisplayName || null,
-              photoURL: newPhotoURL || null, // Set to null if empty string
-            });
-
-            // Update Firestore document
-            if (db) { // Check if db is initialized
-              const userDocRef = db.collection('users').doc(currentUser.uid);
-              await userDocRef.set({
-                displayName: newDisplayName || '', // Use empty string for consistency in Firestore
-                photoURL: newPhotoURL || '',
-                email: currentUser.email || '' // Ensure email is saved if available
-              }, {
-                merge: true
-              }); // Use merge to avoid overwriting other potential fields
-            }
-
-
             // Update displayed information on the page (if elements exist)
-            if (userDisplayNameElement) userDisplayNameElement.textContent = `Name: ${newDisplayName || 'Not Set'}`;
+            if (userDisplayNameElement) userDisplayNameElement.textContent = `Name: ${displayNameToSet}`;
             if (userPhotoElement) {
-              userPhotoElement.src = newPhotoURL || defaultPhotoURL;
+              userPhotoElement.src = photoURLToSet;
+              // Add error handler back after setting the source
               userPhotoElement.onerror = () => {
                 if (userPhotoElement) userPhotoElement.src = defaultPhotoURL;
-              }; // Re-add error handler
+              };
             }
 
 
-            alert('PROFILE UPDATED SUCCESSFULLY!'); // Uppercase alert
-            closeModal(editProfileModal);
+            // For edit modal prefill - populate input values (if inputs exist)
+            if (profileDisplayNameInput) profileDisplayNameInput.value = (displayNameToSet === 'Not Set' || displayNameToSet === 'Error') ? '' : displayNameToSet;
+            if (profilePhotoURLInput) profilePhotoURLInput.value = (photoURLToSet === defaultPhotoURL || !photoURLToSet || photoURLToSet.startsWith('data:')) ? '' : photoURLToSet;
+
 
           } catch (error) {
-            console.error('Error updating profile:', error);
-            alert('FAILED TO UPDATE PROFILE: ' + error.message.toUpperCase()); // Uppercase alert and error message
-          } finally {
-            saveButton.innerHTML = originalButtonContent; // Restore button content
-            saveButton.disabled = false;
+            console.error("Error loading user profile:", error);
+            // Display error messages on the page elements (if elements exist)
+            if (userDisplayNameElement) userDisplayNameElement.textContent = `Name: ${user.displayName || 'Error Loading'}`;
+            if (userEmailElement) userEmailElement.textContent = `Email: ${user.email || 'Error Loading'}`;
+            if (authProviderElement) authProviderElement.textContent = 'Sign-in Method: Error Loading';
+            if (creationTimeElement) creationTimeElement.textContent = `Created: ${user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'Error Loading'}`;
+            if (lastSignInElement) lastSignInElement.textContent = `Last Sign-in: ${user.metadata.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleString() : 'Error Loading'}`;
+            if (userUIDElement) userUIDElement.textContent = `User ID: ${user.uid || 'Error Loading'}`;
+            if (userPhotoElement) {
+              userPhotoElement.src = user.photoURL || defaultPhotoURL; // Fallback to Auth photo or default
+              userPhotoElement.onerror = () => {
+                if (userPhotoElement) userPhotoElement.src = defaultPhotoURL;
+              }; // Ensure error handler is present
+            }
+
           }
-        });
-      } else {
-        console.warn("Edit profile form or inputs not found or user not available when setting up listener.");
-      }
+
+          // After loading profile, check auth provider to update modal content visibility
+          checkAuthProvider(user);
+
+        };
 
 
-      // Change Password Button
-      if (changePasswordBtn) {
-        // Remove existing listener before adding to prevent duplicates
-        const newChangePasswordBtn = changePasswordBtn.cloneNode(true);
-        changePasswordBtn.parentNode.replaceChild(newChangePasswordBtn, changePasswordBtn);
+        // --- Auth Provider Check (defined within this scope) ---
+        const checkAuthProvider = (user) => {
+          // Check if user and all required elements exist
+          if (user && user.providerData && changePasswordBtn && emailAuthContent && googleAuthContent && deleteAccountForm && googleDeleteContent) {
+            const googleProvider = user.providerData.find(p => p.providerId === 'google.com');
+            isGoogleUser = !!googleProvider;
 
-        newChangePasswordBtn.addEventListener('click', () => {
-          if (currentUser) {
-            if (!isGoogleUser) {
-              openModal(changePasswordModal);
+            if (isGoogleUser) {
+              if (authProviderElement) authProviderElement.innerHTML = `Sign-in Method: <span class="provider-badge google">Google</span>`;
+              if (changePasswordBtn) {
+                changePasswordBtn.disabled = true; // Disable password change button
+                changePasswordBtn.title = "Password is managed by your Google account";
+                changePasswordBtn.style.cursor = 'not-allowed'; // Explicitly set cursor
+              }
+
+
+              // Show/Hide content in change password modal (if elements exist)
+              if (emailAuthContent) emailAuthContent.style.display = 'none';
+              if (googleAuthContent) googleAuthContent.style.display = 'block';
+
+              // Show/Hide content in delete account modal (if elements exist)
+              if (deleteAccountForm) deleteAccountForm.style.display = 'none';
+              if (googleDeleteContent) googleDeleteContent.style.display = 'block';
+
+
             } else {
-              // This should be handled by the disabled state, but good to have a fallback
-              alert("PASSWORD IS MANAGED THROUGH YOUR GOOGLE ACCOUNT."); // Uppercase alert
+              if (authProviderElement) authProviderElement.innerHTML = `Sign-in Method: <span class="provider-badge email">Email</span>`;
+              if (changePasswordBtn) {
+                changePasswordBtn.disabled = false; // Enable password change button
+                changePasswordBtn.title = "";
+                changePasswordBtn.style.cursor = 'pointer'; // Reset cursor
+              }
+
+              // Show/Hide content in change password modal (if elements exist)
+              if (emailAuthContent) emailAuthContent.style.display = 'block';
+              if (googleAuthContent) googleAuthContent.style.display = 'none';
+
+              // Show/Hide content in delete account modal (if elements exist)
+              if (deleteAccountForm) deleteAccountForm.style.display = 'block';
+              if (googleDeleteContent) googleDeleteContent.style.display = 'none';
             }
           } else {
-            alert("USER NOT LOADED YET."); // Uppercase alert
+            // Handle case where user or required elements are missing
+            if (authProviderElement) authProviderElement.textContent = 'Sign-in Method: Unknown';
+            if (changePasswordBtn) changePasswordBtn.disabled = true;
+            if (emailAuthContent) emailAuthContent.style.display = 'none';
+            if (googleAuthContent) googleAuthContent.style.display = 'none';
+            if (deleteAccountForm) deleteAccountForm.style.display = 'none';
+            if (googleDeleteContent) googleDeleteContent.style.display = 'none';
+            console.warn("Could not check auth provider: User or required elements missing.");
           }
-        });
-      }
+        };
 
 
-      // Confirm Current Password Form Submit (for email/password users)
-      if (confirmPasswordForm && currentPasswordInput && changePasswordMessage && newPasswordForm && currentUser) { // Removed !isGoogleUser from condition here, handled internally
-        // Remove existing listener before adding to prevent duplicates
-        const newConfirmPasswordForm = confirmPasswordForm.cloneNode(true);
-        confirmPasswordForm.parentNode.replaceChild(newConfirmPasswordForm, confirmPasswordForm);
+        // --- Event Listeners ---
+        // Close Modal Buttons
+        if (closeModalButtons) {
+          closeModalButtons.forEach(button => {
+            // Remove existing listener before adding to prevent duplicates
+            const newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
 
-        newConfirmPasswordForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const password = currentPasswordInput.value;
-          // Safety check
-          if (!currentUser || isGoogleUser) {
-            console.warn("Confirm password attempted by non-email/password user or user not loaded.");
-            return;
-          }
-
-
-          const confirmButton = newConfirmPasswordForm.querySelector('button[type="submit"]');
-          const originalButtonContent = confirmButton.innerHTML;
-          confirmButton.innerHTML = '<div class="spinner"></div> CONFIRMING...'; // Uppercase spinner text
-          confirmButton.disabled = true;
-
-          try {
-            const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
-            await currentUser.reauthenticateWithCredential(credential);
-
-            // Transition to new password form (if elements exist)
-            if (confirmPasswordForm) confirmPasswordForm.style.display = "none";
-            if (changePasswordMessage) changePasswordMessage.style.display = "block";
-            if (newPasswordForm) newPasswordForm.style.display = "block";
+            newButton.addEventListener('click', () => {
+              const modalId = newButton.dataset.modalId;
+              if (modalId) closeModal(modalId);
+              else closeModal(newButton.closest('.modal'));
+            });
+          });
+        }
 
 
-            if (currentPasswordInput) currentPasswordInput.value = ''; // Clear the current password input
-
-          } catch (error) {
-            console.error('Error reauthenticating:', error);
-            alert('INCORRECT PASSWORD. PLEASE TRY AGAIN. ' + error.message.toUpperCase()); // Uppercase alert and error message
-          } finally {
-            confirmButton.innerHTML = originalButtonContent;
-            confirmButton.disabled = false;
-          }
-        });
-      } else {
-        console.warn("Confirm password form or related elements not found or user is Google user when setting up listener.");
-      }
+        // Close Modals by clicking outside
+        // Using a flag to prevent double event listener attachment
+        if (!window.closeModalClickListenerInitialized) {
+          window.closeModalClickListenerInitialized = true;
+          window.addEventListener('click', (event) => {
+            // Check if the click target is a modal overlay and it's currently visible
+            if (event.target.classList.contains('modal') && event.target.classList.contains('show')) {
+              closeModal(event.target);
+            }
+          });
+        }
 
 
-      // New Password Form Submit (for email/password users)
-      if (newPasswordForm && newPasswordInput && confirmNewPasswordInput && confirmPasswordForm && changePasswordMessage && currentUser) { // Removed !isGoogleUser from condition here, handled internally
-        // Remove existing listener before adding to prevent duplicates
-        const newNewPasswordForm = newPasswordForm.cloneNode(true);
-        newPasswordForm.parentNode.replaceChild(newNewPasswordForm, newPasswordForm);
+        // Edit Profile Button
+        if (editProfileBtn) {
+          // Remove existing listener before adding to prevent duplicates
+          const newEditProfileBtn = editProfileBtn.cloneNode(true);
+          editProfileBtn.parentNode.replaceChild(newEditProfileBtn, editProfileBtn);
 
-        newNewPasswordForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const newPass = newPasswordInput.value;
-          const confirmNewPass = confirmNewPasswordInput.value;
+          newEditProfileBtn.addEventListener('click', () => {
+            if (currentUser) {
+              // Pre-fill logic is done in loadUserProfile and updated when modal opens
+              // Ensure inputs are populated from current state before opening modal
+              const currentName = userDisplayNameElement ? userDisplayNameElement.textContent.replace('Name: ', '').trim() : '';
+              const currentPhoto = userPhotoElement ? userPhotoElement.src : '';
 
-          if (newPass !== confirmNewPass) {
-            alert("NEW PASSWORDS DO NOT MATCH."); // Uppercase alert
-            return;
-          }
-          if (newPass.length < 6) {
-            alert("PASSWORD MUST BE AT LEAST 6 CHARACTERS."); // Uppercase alert
-            return;
-          }
-          // Safety check
-          if (!currentUser || isGoogleUser) {
-            console.warn("New password change attempted by non-email/password user or user not loaded.");
-            return;
-          }
+              if (profileDisplayNameInput) profileDisplayNameInput.value = (currentName === 'Not Set' || currentName === 'Error Loading') ? '' : currentName;
+              // Check if photo URL is default SVG or invalid before pre-filling (if inputs exist)
+              if (profilePhotoURLInput) profilePhotoURLInput.value = (currentPhoto === defaultPhotoURL || !currentPhoto || currentPhoto.startsWith('data:')) ? '' : currentPhoto;
 
 
-          const changeButton = newNewPasswordForm.querySelector('button[type="submit"]');
-          const originalButtonContent = changeButton.innerHTML;
-          changeButton.innerHTML = '<div class="spinner"></div> CHANGING...'; // Uppercase spinner text
-          changeButton.disabled = true;
-
-          try {
-            await currentUser.updatePassword(newPass);
-            alert('PASSWORD UPDATED SUCCESSFULLY!'); // Uppercase alert
-
-            // Reset forms and close modal (if elements exist)
-            if (newPasswordInput) newPasswordInput.value = '';
-            if (confirmNewPasswordInput) confirmNewPasswordInput.value = '';
-            closeModal(changePasswordModal);
-
-            // Reset modal state for next time it opens (if elements exist)
-            if (confirmPasswordForm) confirmPasswordForm.style.display = "block";
-            if (changePasswordMessage) changePasswordMessage.style.display = "none";
-            if (newPasswordForm) newPasswordForm.style.display = "none";
-
-
-          } catch (error) {
-            console.error('Error updating password:', error);
-            alert('FAILED TO UPDATE PASSWORD: ' + error.message.toUpperCase()); // Uppercase alert and error message
-            // Reset modal state on error if preferred, or keep open for user to try again
-            // closeModal(changePasswordModal); // Optional: close on error
-          } finally {
-            changeButton.innerHTML = originalButtonContent;
-            changeButton.disabled = false;
-          }
-        });
-      } else {
-        console.warn("New password form or related elements not found or user is Google user when setting up listener.");
-      }
-
-
-      // Delete Account Button
-      if (deleteAccountBtn) {
-        // Remove existing listener before adding to prevent duplicates
-        const newDeleteAccountBtn = deleteAccountBtn.cloneNode(true);
-        deleteAccountBtn.parentNode.replaceChild(newDeleteAccountBtn, deleteAccountBtn);
-
-        newDeleteAccountBtn.addEventListener('click', () => {
-          if (currentUser) {
-            if (!isGoogleUser) {
-              openModal(deleteAccountModal);
+              openModal(editProfileModal);
             } else {
-              // This should be handled by the checkAuthProvider logic showing Google delete content
-              // But good to have a fallback
-              console.warn("Google user attempting email/password delete path.");
-              // The UI should prevent this path for Google users.
+              alert("Please wait, user data is loading."); // Or show a status message
             }
-          } else {
-            alert("USER NOT LOADED YET."); // Uppercase alert
-          }
-        });
-      }
+          });
+        }
 
 
-      // Delete Account Form Submit (for email/password users)
-      if (deleteAccountForm && deletePasswordInput && googleDeleteContent && currentUser) { // Removed !isGoogleUser from condition here, handled internally
-        // Remove existing listener before adding to prevent duplicates
-        const newDeleteAccountForm = deleteAccountForm.cloneNode(true);
-        deleteAccountForm.parentNode.replaceChild(newDeleteAccountForm, deleteAccountForm);
+        // Edit Profile Form Submit
+        if (editProfileForm && profileDisplayNameInput && profilePhotoURLInput && currentUser) {
+          // Remove existing listener before adding to prevent duplicates
+          const newEditProfileForm = editProfileForm.cloneNode(true);
+          editProfileForm.parentNode.replaceChild(newEditProfileForm, editProfileForm);
 
-        newDeleteAccountForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const password = deletePasswordInput.value;
-          if (!currentUser || isGoogleUser) { // Safety check
-            console.warn("Email/Password delete attempted by non-email/password user or user not loaded.");
-            return;
-          }
+          newEditProfileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newDisplayName = profileDisplayNameInput.value.trim() || ''; // Use empty string if trimmed input is empty
+            const newPhotoURL = profilePhotoURLInput.value.trim();
 
-          const deleteButton = newDeleteAccountForm.querySelector('button[type="submit"]');
-          const originalButtonContent = deleteButton.innerHTML;
-          deleteButton.innerHTML = '<div class="spinner"></div> DELETING...'; // Uppercase spinner text
-          deleteButton.disabled = true;
-
-          try {
-            const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
-            await currentUser.reauthenticateWithCredential(credential);
-
-            // User reauthenticated, now delete the account
-            await currentUser.delete();
-
-            // Optionally, delete user data from Firestore
-            if (db) { // Check if db is initialized
-              // Note: Deleting user data in Firestore upon account deletion is good practice
-              // but requires careful implementation and security rules to prevent abuse.
-              // This example shows how you *could* delete, but production apps might use Cloud Functions.
-              const userDocRef = db.collection('users').doc(currentUser.uid);
-              userDocRef.delete().catch(err => console.error("Error deleting user Firestore doc:", err));
-
-              // Also consider deleting playlists, etc., associated with the user ID
-              // This often requires complex queries and potential Cloud Functions.
+            if (!currentUser) {
+              alert('User not available. Please try again.');
+              return;
             }
 
+            const saveButton = newEditProfileForm.querySelector('button[type="submit"]');
+            const originalButtonContent = saveButton.innerHTML; // Save innerHTML for spinner
+            saveButton.innerHTML = '<div class="spinner"></div> SAVING...'; // Uppercase spinner text
+            saveButton.disabled = true;
 
-            alert('ACCOUNT DELETED SUCCESSFULLY.'); // Uppercase alert
-            closeModal(deleteAccountModal);
-            // Redirect to login.html after deletion
-            window.location.href = 'login.html';
-
-          } catch (error) {
-            console.error('Error deleting account:', error);
-            alert('FAILED TO DELETE ACCOUNT: ' + error.message.toUpperCase()); // Uppercase alert and error message
-            // Handle specific errors like 'auth/requires-recent-login'
-            if (error.code === 'auth/requires-recent-login' && !isGoogleUser) {
-              alert('Please log in again to delete your account.'); // More specific message
-              if (auth) auth.signOut(); // Log out user
-              window.location.href = 'login.html'; // Redirect to login
-            }
-          } finally {
-            deleteButton.innerHTML = originalButtonContent;
-            deleteButton.disabled = false;
-            if (deletePasswordInput) deletePasswordInput.value = ''; // Clear password input
-          }
-        });
-      } else {
-        console.warn("Delete account form or related elements not found or user is Google user when setting up listener.");
-      }
-
-
-      // Google Reauthentication Button (for Google users deleting account)
-      if (googleReauthButton && deleteAccountModal && googleDeleteContent && currentUser) { // Removed isGoogleUser from condition here, handled internally
-        // Remove existing listener before adding to prevent duplicates
-        const newGoogleReauthButton = googleReauthButton.cloneNode(true);
-        googleReauthButton.parentNode.replaceChild(newGoogleReauthButton, googleReauthButton);
-
-        newGoogleReauthButton.addEventListener('click', async () => {
-          // Safety check
-          if (!currentUser || !isGoogleUser) {
-            console.warn("Google reauth attempted by non-Google user or user not loaded.");
-            return;
-          }
-
-
-          // Re-authenticate with Google provider
-          const provider = new firebase.auth.GoogleAuthProvider();
-          const deleteButton = newGoogleReauthButton; // Use the Google button for spinner/state
-          const originalButtonContent = deleteButton.innerHTML;
-          deleteButton.innerHTML = '<div class="spinner"></div> REAUTHENTICATING...'; // Uppercase spinner text
-          deleteButton.disabled = true;
-
-          try {
-            // This will likely open a pop-up or redirect
-            await currentUser.reauthenticateWithPopup(provider);
-            console.log("Google reauthentication successful.");
-
-            // After successful reauthentication, proceed to delete the account
             try {
-              await currentUser.delete();
+              // Validate photo URL if provided
+              if (newPhotoURL) {
+                try {
+                  new URL(newPhotoURL); // Check if it's a valid URL format
+                } catch (e) {
+                  alert('Invalid photo URL format.');
+                  return; // Stop submission if URL is invalid
+                }
+              }
 
-              // Optionally, delete user data from Firestore (see comments in email/password delete)
+              // Update Auth profile
+              // Set displayName to null or empty string if user clears it, so Auth doesn't keep old value
+              await currentUser.updateProfile({
+                displayName: newDisplayName || null,
+                photoURL: newPhotoURL || null, // Set to null if empty string
+              });
+
+              // Update Firestore document
               if (db) { // Check if db is initialized
                 const userDocRef = db.collection('users').doc(currentUser.uid);
-                userDocRef.delete().catch(err => console.error("Error deleting user Firestore doc after Google reauth:", err));
+                await userDocRef.set({
+                  displayName: newDisplayName || '', // Use empty string for consistency in Firestore
+                  photoURL: newPhotoURL || '',
+                  email: currentUser.email || '' // Ensure email is saved if available
+                }, {
+                  merge: true
+                }); // Use merge to avoid overwriting other potential fields
+              }
+
+
+              // Update displayed information on the page (if elements exist)
+              if (userDisplayNameElement) userDisplayNameElement.textContent = `Name: ${newDisplayName || 'Not Set'}`;
+              if (userPhotoElement) {
+                userPhotoElement.src = newPhotoURL || defaultPhotoURL;
+                userPhotoElement.onerror = () => {
+                  if (userPhotoElement) userPhotoElement.src = defaultPhotoURL;
+                }; // Re-add error handler
+              }
+
+
+              alert('PROFILE UPDATED SUCCESSFULLY!'); // Uppercase alert
+              closeModal(editProfileModal);
+
+            } catch (error) {
+              console.error('Error updating profile:', error);
+              alert('FAILED TO UPDATE PROFILE: ' + error.message.toUpperCase()); // Uppercase alert and error message
+            } finally {
+              saveButton.innerHTML = originalButtonContent; // Restore button content
+              saveButton.disabled = false;
+            }
+          });
+        } else {
+          console.warn("Edit profile form or inputs not found or user not available when setting up listener.");
+        }
+
+
+        // Change Password Button
+        if (changePasswordBtn) {
+          // Remove existing listener before adding to prevent duplicates
+          const newChangePasswordBtn = changePasswordBtn.cloneNode(true);
+          changePasswordBtn.parentNode.replaceChild(newChangePasswordBtn, changePasswordBtn);
+
+          newChangePasswordBtn.addEventListener('click', () => {
+            if (currentUser) {
+              if (!isGoogleUser) {
+                openModal(changePasswordModal);
+              } else {
+                // This should be handled by the disabled state, but good to have a fallback
+                alert("PASSWORD IS MANAGED THROUGH YOUR GOOGLE ACCOUNT."); // Uppercase alert
+              }
+            } else {
+              alert("USER NOT LOADED YET."); // Uppercase alert
+            }
+          });
+        }
+
+
+        // Confirm Current Password Form Submit (for email/password users)
+        if (confirmPasswordForm && currentPasswordInput && changePasswordMessage && newPasswordForm && currentUser) { // Removed !isGoogleUser from condition here, handled internally
+          // Remove existing listener before adding to prevent duplicates
+          const newConfirmPasswordForm = confirmPasswordForm.cloneNode(true);
+          confirmPasswordForm.parentNode.replaceChild(newConfirmPasswordForm, confirmPasswordForm);
+
+          newConfirmPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = currentPasswordInput.value;
+            // Safety check
+            if (!currentUser || isGoogleUser) {
+              console.warn("Confirm password attempted by non-email/password user or user not loaded.");
+              return;
+            }
+
+
+            const confirmButton = newConfirmPasswordForm.querySelector('button[type="submit"]');
+            const originalButtonContent = confirmButton.innerHTML;
+            confirmButton.innerHTML = '<div class="spinner"></div> CONFIRMING...'; // Uppercase spinner text
+            confirmButton.disabled = true;
+
+            try {
+              const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
+              await currentUser.reauthenticateWithCredential(credential);
+
+              // Transition to new password form (if elements exist)
+              if (confirmPasswordForm) confirmPasswordForm.style.display = "none";
+              if (changePasswordMessage) changePasswordMessage.style.display = "block";
+              if (newPasswordForm) newPasswordForm.style.display = "block";
+
+
+              if (currentPasswordInput) currentPasswordInput.value = ''; // Clear the current password input
+
+            } catch (error) {
+              console.error('Error reauthenticating:', error);
+              alert('INCORRECT PASSWORD. PLEASE TRY AGAIN. ' + error.message.toUpperCase()); // Uppercase alert and error message
+            } finally {
+              confirmButton.innerHTML = originalButtonContent;
+              confirmButton.disabled = false;
+            }
+          });
+        } else {
+          console.warn("Confirm password form or related elements not found or user is Google user when setting up listener.");
+        }
+
+
+        // New Password Form Submit (for email/password users)
+        if (newPasswordForm && newPasswordInput && confirmNewPasswordInput && confirmPasswordForm && changePasswordMessage && currentUser) { // Removed !isGoogleUser from condition here, handled internally
+          // Remove existing listener before adding to prevent duplicates
+          const newNewPasswordForm = newPasswordForm.cloneNode(true);
+          newPasswordForm.parentNode.replaceChild(newNewPasswordForm, newPasswordForm);
+
+          newNewPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPass = newPasswordInput.value;
+            const confirmNewPass = confirmNewPasswordInput.value;
+
+            if (newPass !== confirmNewPass) {
+              alert("NEW PASSWORDS DO NOT MATCH."); // Uppercase alert
+              return;
+            }
+            if (newPass.length < 6) {
+              alert("PASSWORD MUST BE AT LEAST 6 CHARACTERS."); // Uppercase alert
+              return;
+            }
+            // Safety check
+            if (!currentUser || isGoogleUser) {
+              console.warn("New password change attempted by non-email/password user or user not loaded.");
+              return;
+            }
+
+
+            const changeButton = newNewPasswordForm.querySelector('button[type="submit"]');
+            const originalButtonContent = changeButton.innerHTML;
+            changeButton.innerHTML = '<div class="spinner"></div> CHANGING...'; // Uppercase spinner text
+            changeButton.disabled = true;
+
+            try {
+              await currentUser.updatePassword(newPass);
+              alert('PASSWORD UPDATED SUCCESSFULLY!'); // Uppercase alert
+
+              // Reset forms and close modal (if elements exist)
+              if (newPasswordInput) newPasswordInput.value = '';
+              if (confirmNewPasswordInput) confirmNewPasswordInput.value = '';
+              closeModal(changePasswordModal);
+
+              // Reset modal state for next time it opens (if elements exist)
+              if (confirmPasswordForm) confirmPasswordForm.style.display = "block";
+              if (changePasswordMessage) changePasswordMessage.style.display = "none";
+              if (newPasswordForm) newPasswordForm.style.display = "none";
+
+
+            } catch (error) {
+              console.error('Error updating password:', error);
+              alert('FAILED TO UPDATE PASSWORD: ' + error.message.toUpperCase()); // Uppercase alert and error message
+              // Reset modal state on error if preferred, or keep open for user to try again
+              // closeModal(changePasswordModal); // Optional: close on error
+            } finally {
+              changeButton.innerHTML = originalButtonContent;
+              changeButton.disabled = false;
+            }
+          });
+        } else {
+          console.warn("New password form or related elements not found or user is Google user when setting up listener.");
+        }
+
+
+        // Delete Account Button
+        if (deleteAccountBtn) {
+          // Remove existing listener before adding to prevent duplicates
+          const newDeleteAccountBtn = deleteAccountBtn.cloneNode(true);
+          deleteAccountBtn.parentNode.replaceChild(newDeleteAccountBtn, deleteAccountBtn);
+
+          newDeleteAccountBtn.addEventListener('click', () => {
+            if (currentUser) {
+              if (!isGoogleUser) {
+                openModal(deleteAccountModal);
+              } else {
+                // This should be handled by the checkAuthProvider logic showing Google delete content
+                // But good to have a fallback
+                console.warn("Google user attempting email/password delete path.");
+                // The UI should prevent this path for Google users.
+              }
+            } else {
+              alert("USER NOT LOADED YET."); // Uppercase alert
+            }
+          });
+        }
+
+
+        // Delete Account Form Submit (for email/password users)
+        if (deleteAccountForm && deletePasswordInput && googleDeleteContent && currentUser) { // Removed !isGoogleUser from condition here, handled internally
+          // Remove existing listener before adding to prevent duplicates
+          const newDeleteAccountForm = deleteAccountForm.cloneNode(true);
+          deleteAccountForm.parentNode.replaceChild(newDeleteAccountForm, deleteAccountForm);
+
+          newDeleteAccountForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = deletePasswordInput.value;
+            if (!currentUser || isGoogleUser) { // Safety check
+              console.warn("Email/Password delete attempted by non-email/password user or user not loaded.");
+              return;
+            }
+
+            const deleteButton = newDeleteAccountForm.querySelector('button[type="submit"]');
+            const originalButtonContent = deleteButton.innerHTML;
+            deleteButton.innerHTML = '<div class="spinner"></div> DELETING...'; // Uppercase spinner text
+            deleteButton.disabled = true;
+
+            try {
+              const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, password);
+              await currentUser.reauthenticateWithCredential(credential);
+
+              // User reauthenticated, now delete the account
+              await currentUser.delete();
+
+              // Optionally, delete user data from Firestore
+              if (db) { // Check if db is initialized
+                // Note: Deleting user data in Firestore upon account deletion is good practice
+                // but requires careful implementation and security rules to prevent abuse.
+                // This example shows how you *could* delete, but production apps might use Cloud Functions.
+                const userDocRef = db.collection('users').doc(currentUser.uid);
+                userDocRef.delete().catch(err => console.error("Error deleting user Firestore doc:", err));
+
+                // Also consider deleting playlists, etc., associated with the user ID
+                // This often requires complex queries and potential Cloud Functions.
               }
 
 
               alert('ACCOUNT DELETED SUCCESSFULLY.'); // Uppercase alert
               closeModal(deleteAccountModal);
-              window.location.href = 'login.html'; // Redirect to login.html after successful deletion
+              // Redirect to login.html after deletion
+              window.location.href = 'login.html';
 
-            } catch (deleteError) {
-              console.error('Error deleting account after reauth:', deleteError);
-              alert('FAILED TO DELETE ACCOUNT AFTER REAUTHENTICATION: ' + deleteError.message.toUpperCase()); // Uppercase alert and error message
-              // Handle specific errors after reauth if necessary
+            } catch (error) {
+              console.error('Error deleting account:', error);
+              alert('FAILED TO DELETE ACCOUNT: ' + error.message.toUpperCase()); // Uppercase alert and error message
+              // Handle specific errors like 'auth/requires-recent-login'
+              if (error.code === 'auth/requires-recent-login' && !isGoogleUser) {
+                alert('Please log in again to delete your account.'); // More specific message
+                if (auth) auth.signOut(); // Log out user
+                window.location.href = 'login.html'; // Redirect to login
+              }
+            } finally {
+              deleteButton.innerHTML = originalButtonContent;
+              deleteButton.disabled = false;
+              if (deletePasswordInput) deletePasswordInput.value = ''; // Clear password input
+            }
+          });
+        } else {
+          console.warn("Delete account form or related elements not found or user is Google user when setting up listener.");
+        }
+
+
+        // Google Reauthentication Button (for Google users deleting account)
+        if (googleReauthButton && deleteAccountModal && googleDeleteContent && currentUser) { // Removed isGoogleUser from condition here, handled internally
+          // Remove existing listener before adding to prevent duplicates
+          const newGoogleReauthButton = googleReauthButton.cloneNode(true);
+          googleReauthButton.parentNode.replaceChild(newGoogleReauthButton, googleReauthButton);
+
+          newGoogleReauthButton.addEventListener('click', async () => {
+            // Safety check
+            if (!currentUser || !isGoogleUser) {
+              console.warn("Google reauth attempted by non-Google user or user not loaded.");
+              return;
             }
 
 
-          } catch (reauthError) {
-            console.error('Error during Google reauthentication:', reauthError);
-            // Handle specific reauthentication errors (e.g., user cancels)
-            alert('GOOGLE REAUTHENTICATION FAILED: ' + reauthError.message.toUpperCase()); // Uppercase alert and error message
-          } finally {
-            deleteButton.innerHTML = originalButtonContent;
-            deleteButton.disabled = false;
-          }
-        });
-      } else {
-        console.warn("Google reauth button or related elements not found or user is not Google user when setting up listener.");
-      }
+            // Re-authenticate with Google provider
+            const provider = new firebase.auth.GoogleAuthProvider();
+            const deleteButton = newGoogleReauthButton; // Use the Google button for spinner/state
+            const originalButtonContent = deleteButton.innerHTML;
+            deleteButton.innerHTML = '<div class="spinner"></div> REAUTHENTICATING...'; // Uppercase spinner text
+            deleteButton.disabled = true;
+
+            try {
+              // This will likely open a pop-up or redirect
+              await currentUser.reauthenticateWithPopup(provider);
+              console.log("Google reauthentication successful.");
+
+              // After successful reauthentication, proceed to delete the account
+              try {
+                await currentUser.delete();
+
+                // Optionally, delete user data from Firestore (see comments in email/password delete)
+                if (db) { // Check if db is initialized
+                  const userDocRef = db.collection('users').doc(currentUser.uid);
+                  userDocRef.delete().catch(err => console.error("Error deleting user Firestore doc after Google reauth:", err));
+                }
 
 
-      // Manage Subscriptions Button (if implemented)
-      if (manageSubscriptionsBtn) {
-        // Remove existing listener before adding to prevent duplicates
-        const newManageSubscriptionsBtn = manageSubscriptionsBtn.cloneNode(true);
-        manageSubscriptionsBtn.parentNode.replaceChild(newManageSubscriptionsBtn, manageSubscriptionsBtn);
+                alert('ACCOUNT DELETED SUCCESSFULLY.'); // Uppercase alert
+                closeModal(deleteAccountModal);
+                window.location.href = 'login.html'; // Redirect to login.html after successful deletion
 
-        newManageSubscriptionsBtn.addEventListener('click', () => {
-          // Implement subscription management logic (e.g., redirect to Stripe portal)
-          alert("Manage Subscriptions clicked (Feature not fully implemented)");
-        });
-      }
+              } catch (deleteError) {
+                console.error('Error deleting account after reauth:', deleteError);
+                alert('FAILED TO DELETE ACCOUNT AFTER REAUTHENTICATION: ' + deleteError.message.toUpperCase()); // Uppercase alert and error message
+                // Handle specific errors after reauth if necessary
+              }
 
 
-    }; // End of setupAuthenticatedUIAndListeners
-
-
-    // --- Handle Authentication State Changes ---
-    // This function is called by auth.onAuthStateChanged
-    auth.onAuthStateChanged(async user => {
-      const accountGrid = document.querySelector('.account-grid'); // Get account grid here
-
-      if (user) {
-        console.log("User is logged in:", user.email);
-        currentUser = user; // Update currentUser variable
-        // User is logged in, load profile, check provider, setup listeners and UI
-        await loadUserProfile(user); // Load profile details - Use await
-        checkAuthProvider(user); // Check provider for UI adjustments
-        setupAuthenticatedUIAndListeners(); // Setup UI elements and listeners that require auth
-
-      } else {
-        console.log("No user signed in. Redirecting to login.html");
-        currentUser = null; // Clear currentUser variable
-
-        // Hide account details if element exists
-        if (accountGrid) accountGrid.classList.add('hidden');
-
-        // Redirect if not authenticated
-        // Only redirect if we are NOT already on the login.html page to avoid infinite redirects
-        if (!window.location.pathname.includes('/login.html')) {
-          window.location.href = 'login.html';
+            } catch (reauthError) {
+              console.error('Error during Google reauthentication:', reauthError);
+              // Handle specific reauthentication errors (e.g., user cancels)
+              alert('GOOGLE REAUTHENTICATION FAILED: ' + reauthError.message.toUpperCase()); // Uppercase alert and error message
+            } finally {
+              deleteButton.innerHTML = originalButtonContent;
+              deleteButton.disabled = false;
+            }
+          });
+        } else {
+          console.warn("Google reauth button or related elements not found or user is not Google user when setting up listener.");
         }
-        // Optional: Clear profile info if user logs out while on the page (less likely with redirect)
-        if (userDisplayNameElement) userDisplayNameElement.textContent = 'Name: ---';
-        if (userEmailElement) userEmailElement.textContent = 'Email: ---';
-        if (authProviderElement) authProviderElement.textContent = 'Sign-in Method: ---';
-        if (creationTimeElement) creationTimeElement.textContent = 'Created: ---';
-        if (lastSignInElement) lastSignInElement.textContent = 'Last Sign-in: ---';
-        if (userUIDElement) userUIDElement.textContent = 'User ID: ---';
-        if (userPhotoElement) userPhotoElement.src = defaultPhotoURL;
-      }
-    });
+
+
+        // Logout Button (in navbar)
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', () => {
+            if (auth) { // Ensure auth is available
+              auth.signOut().then(() => {
+                console.log("User signed out.");
+                window.location.href = 'login.html'; // Redirect to login.html after logout
+              }).catch(error => {
+                console.error("Logout Error:", error);
+                alert("Error logging out. Please try again.");
+              });
+            } else {
+              console.error("Firebase Auth not available for logout.");
+              alert("Logout failed. Firebase services not available.");
+            }
+          });
+        } else {
+          console.error("Logout button not found in setupAuthDependentListeners.");
+        }
+
+
+        // Manage Subscriptions Button (if implemented)
+        if (manageSubscriptionsBtn) {
+          manageSubscriptionsBtn.addEventListener('click', () => {
+            // Implement subscription management logic (e.g., redirect to Stripe portal)
+            alert("Manage Subscriptions clicked (Feature not fully implemented)");
+          });
+        }
+
+
+      }; // End of setupAuthDependentListeners
 
     }); // End of DOMContentLoaded
   </script>
