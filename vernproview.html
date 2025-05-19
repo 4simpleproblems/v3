@@ -451,7 +451,7 @@
   <nav class="navbar">
     <div class="logo">4SP</div>
     <div class="nav-buttons">
-      <button id="cloakBtn" class="btn secondary">Cloak Tab</button>
+      <button id="blankTabBtn" class="btn secondary">Open in About:blank</button> <button id="cloakBtn" class="btn secondary">Cloak Tab</button>
       <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
       <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
       <button id="logoutBtn" class="btn secondary">Log Out</button>
@@ -460,7 +460,7 @@
 
   <div id="cloakingMenuOverlay" class="cloaking-menu-overlay">
     <div class="cloaking-menu">
-      <button class="close-btn" id="closeCloakingMenu">&times;</button>
+      <button class="close-btn" id="closeCloakingMenu">×</button>
       <h3>Tab Cloaking</h3>
 
       <div class="cloaking-options">
@@ -604,6 +604,33 @@
     document.getElementById('closeCloakingMenu').onclick = hideOverlay;
     overlay.onclick = e => { if (e.target === overlay) hideOverlay(); };
 
+    // New functionality for the 'Open in Blank Tab' button
+    document.getElementById('blankTabBtn').onclick = () => {
+      const iframe = document.getElementById('mainIframe');
+      if (iframe && iframe.src) {
+        const currentUrl = iframe.src;
+        const blankWindow = window.open('about:blank', '_blank');
+        if (blankWindow) {
+          const doc = blankWindow.document;
+          doc.open();
+          doc.write(`
+            <!DOCTYPE html>
+            <html style="margin: 0; padding: 0; overflow: hidden;">
+            <head>
+              <title>${document.title}</title> <link rel="icon" type="image/x-icon" href="${document.getElementById('dynamic-favicon').href}"> </head>
+            <body style="margin: 0; padding: 0; overflow: hidden;">
+              <iframe src="${currentUrl}" style="border: none; width: 100vw; height: 100vh;"></iframe>
+            </body>
+            </html>
+          `);
+          doc.close();
+        } else {
+          alert('Please allow pop-ups for this site to open in a blank tab.');
+        }
+      } else {
+        alert('Could not determine the current page URL.');
+      }
+    };
 
     // Presets
     document.getElementById('presetClassroom').onclick = () => {
@@ -643,7 +670,7 @@
     };
 
     // Reset
-    document.getElementById('resetClocloak').onclick = () => {
+    document.getElementById('resetCloak').onclick = () => {
       applyCloak(originalTitle, originalFaviconUrl, originalTitle); // Reset with original title as display name
       hideOverlay();
       try {
