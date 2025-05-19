@@ -668,13 +668,6 @@
             }
         });
 
-        // Add keyboard shortcut for fullscreen (F key functionality) (Existing Code)
-        document.addEventListener('keydown', function(e) {
-            // Check for 'f' key or keyCode 70 (for compatibility, though key is preferred)
-            if (e.key === 'f' || e.keyCode === 70) {
-                // Prevent default browser action for 'f' if it exists and you don't want it
-                e.preventDefault();
-
                 const iframe = document.getElementById('viewer');
                 if (iframe) { // Ensure iframe element exists
                     // Check if iframe's contentDocument is available and try to request fullscreen on it
