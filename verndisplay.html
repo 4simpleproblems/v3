@@ -491,7 +491,8 @@
                 return faviconLink.href;
             }
             // Return a default or empty string if no favicon link found
-            return '';
+            // Using a blank image URL prevents the default browser favicon from showing
+            return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
         }
 
         // Function to set the favicon
@@ -509,7 +510,8 @@
                     faviconLink = document.createElement('link');
                     faviconLink.id = 'dynamic-favicon';
                     faviconLink.rel = 'icon';
-                    faviconLink.type = 'image/x-icon'; // Assume default type, could be png etc.
+                    // Set initial type, will likely be ignored by browser based on URL but good practice
+                    faviconLink.type = url.endsWith('.png') ? 'image/png' : url.endsWith('.gif') ? 'image/gif' : 'image/x-icon';
                     document.head.appendChild(faviconLink);
                 }
             }
@@ -560,9 +562,9 @@
         // Function to toggle menu visibility
         function toggleCloakMenu() {
             if (cloakingMenuOverlay.classList.contains('hidden')) {
-                showCloakMenu();
+                showCloakMenu(); // CORRECTED: Call the defined function
             } else {
-                hideCloakMenu();
+                hideCloakMenu(); // CORRECTED: Call the defined function
             }
         }
 
@@ -570,7 +572,7 @@
         // Event listener to open the menu button - This is now the ONLY way to open via user interaction (besides page load persistence)
         // The check "if (cloakBtn)" ensures this only runs if the button exists.
         if (cloakBtn) {
-            cloakBtn.addEventListener('click', toggleCloakingMenu); // Corrected function name
+            cloakBtn.addEventListener('click', toggleCloakMenu); // CORRECTED: Call the correct toggle function
         }
 
         // Event listener to close the menu button
@@ -603,7 +605,7 @@
 
         if (presetWikipediaBtn) {
             presetWikipediaBtn.addEventListener('click', () => {
-                applyCloak('Wikipedia', 'https://en.wikipedia.org/static/favicon/wikipedia.ico');
+                applyCloak('Wikipedia', 'https://en.wikipedia.org/static/favicon/wikipedia.ico'); // CORRECTED: Call applyCloak
                  hideCloakMenu();
             });
         }
@@ -638,15 +640,22 @@
             const cachedTitle = localStorage.getItem('cachedTitle');
             const cachedFaviconUrl = localStorage.getItem('cachedFaviconUrl');
 
-            // Store original values *after* potentially loading from cache
+             // Store original values *before* potentially loading from cache
+             // Read from the link tag after it's potentially updated by caching
              originalTitle = document.title;
              originalFaviconUrl = getFaviconUrl();
 
 
             if (cachedTitle !== null || cachedFaviconUrl !== null) {
                 // Apply cached settings, using original if cache is null for one
+                // Use the originalTitle/FaviconUrl captured *before* this block
                 applyCloak(cachedTitle !== null ? cachedTitle : originalTitle,
                            cachedFaviconUrl !== null ? cachedFaviconUrl : originalFaviconUrl);
+
+                // Re-capture original after applying cache, in case reset is pressed later
+                 originalTitle = document.title;
+                 originalFaviconUrl = getFaviconUrl();
+
             }
 
 
@@ -692,12 +701,14 @@
             if (user) {
                 console.log("User is logged in:", user.email);
                 // User is logged in, show logout button and setup listener
+                // Ensure logoutButton exists before trying to remove class
                 if (logoutButton) logoutButton.classList.remove('hidden');
                 setupLogoutListener(); // Setup logout listener only if authenticated
 
             } else {
                 console.log("No user logged in.");
                 // No user logged in, hide logout button
+                // Ensure logoutButton exists before trying to add class
                 if (logoutButton) logoutButton.classList.add('hidden');
                 // No redirect on this page if not authenticated, just hide auth-dependent elements
             }
@@ -707,24 +718,41 @@
         function setupLogoutListener() {
             const logoutButton = document.getElementById('logoutBtn');
             // Add listener only if button exists and auth is initialized
+            // This check is crucial for "always work" logic
             if (logoutButton && auth) {
-                // Remove any existing listener to prevent duplicates
-                const newLogoutButton = logoutButton.cloneNode(true);
-                logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
-                const currentLogoutButton = newLogoutButton; // Use the new button instance
+                // Remove any existing listener to prevent duplicates before adding the new one
+                // This is a common pattern but might not be strictly necessary here
+                // if listeners are only added once based on auth state.
+                // For simplicity, we can remove the clone/replace logic if we are
+                // confident setupLogoutListener is only called when needed.
+                 // Let's simplify by just adding the listener directly.
+                 // First, ensure no previous listeners on click (safer).
+                 logoutButton.removeEventListener('click', handleLogoutClick); // Remove by specific handler
+                 logoutButton.addEventListener('click', handleLogoutClick); // Add the handler
 
-                currentLogoutButton.addEventListener('click', () => {
-                    auth.signOut().then(() => {
-                        console.log("User signed out.");
-                        window.location.href = 'index.html'; // Redirect to index after logout
-                    }).catch(error => {
-                        console.error("Logout Error:", error);
-                        alert("Error logging out. Please try again.");
-                    });
-                });
             } else {
                 console.warn("Logout button or Firebase Auth not available for listener setup.");
+                 // If the button doesn't exist when auth state changes to logged in,
+                 // there's a structural issue in the HTML/CSS making it unavailable.
             }
+        }
+
+        // Separate logout click handler to facilitate removal/re-adding
+        function handleLogoutClick() {
+             if (auth) { // Ensure auth object is available
+                auth.signOut().then(() => {
+                    console.log("User signed out.");
+                    // Redirect to index after logout
+                    // Using window.location.replace is slightly better than href for logout
+                    window.location.replace('index.html');
+                }).catch(error => {
+                    console.error("Logout Error:", error);
+                    alert("Error logging out. Please try again.");
+                });
+             } else {
+                 console.error("Firebase Auth not initialized for logout.");
+                 alert("Logout functionality not available.");
+             }
         }
         // --- End Firebase Auth Listener & Logout (Existing Code) ---
 
@@ -747,7 +775,7 @@
             }
         });
 
-         // The previous keyboard shortcut listeners have been removed as requested.
+         // The keyboard shortcut listeners have been removed as requested.
     </script>
 </body>
 
