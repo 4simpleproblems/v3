@@ -2,17 +2,19 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4SP | VERN</title>
-    <link id="dynamic-favicon" rel="icon" type="image/x-icon" href="https://vern.surge.sh/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4SP | VERN</title>
+  <link id="dynamic-favicon" rel="icon" type="image/x-icon" href="https://vern.surge.sh/favicon.ico" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap"
+    rel="stylesheet" />
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
 
-    <style>
+<style>
         :root {
             --bg-color: #000000;
             /* Dark background */
@@ -35,9 +37,9 @@
 
             /* Cloaking Modal Colors (adapted for dark theme) */
              --modal-bg: #1a1a1a; /* Darker background for modal */
-             --modal-border: #333; /* Border for modal */
-             --input-bg: #333; /* Dark background for input */
-             --input-border: #555; /* Border for input */
+             --modal-border: #000; /* Border for modal */
+             --input-bg: #000; /* Dark background for input */
+             --input-border: #333; /* Border for input */
              --input-text: #eee; /* Light text for input */
              --button-hover-bg-dark: #444; /* Darker hover for buttons in dark modal */
 
@@ -134,7 +136,7 @@
             padding: 10px 20px;
             /* Adjusted padding */
             min-height: 40px;
-            border-radius: 5px;
+            border-radius: 8px;
             /* Less rounded */
             text-decoration: none;
             font-weight: 600;
@@ -226,6 +228,7 @@
             z-index: 101;
             /* Above navbar */
             display: flex;
+            /* Centered horizontally */
             justify-content: center;
             align-items: center;
             padding: 20px;
@@ -237,11 +240,14 @@
             transition: opacity 0.3s ease-in-out;
             /* Add transition */
             pointer-events: none; /* Prevent interaction when hidden */
+             /* Initially hide using display to prevent layout issues before fade-in */
+             display: none;
         }
 
-         .cloaking-menu-overlay:not(.hidden) {
-             opacity: 1; /* Fade in when not hidden */
+         .cloaking-menu-overlay.visible {
+             opacity: 1; /* Fade in when visible */
              pointer-events: auto; /* Allow interaction when visible */
+             display: flex; /* Show the flex container for centering */
          }
 
 
@@ -249,27 +255,31 @@
             background-color: var(--modal-bg);
             color: var(--text-color);
             padding: 30px;
-            border-radius: 8px;
+            border-radius: 24px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            max-width: 400px;
-            width: 100%; /* Use 100% width within the padded overlay */
+            padding: 20px;
+            /* Reduced max-width to make it smaller */
+            max-width: 700px;
+            width: 100%; /* Use 100% width within the padded
+            overlay */
+
             text-align: left;
             position: relative;
             /* Needed for close button positioning */
             text-transform: none;
             /* Don't uppercase modal content */
             /* Animation - Optional subtle transform */
-             transform: scale(0.95);
+             transform: scale(0.9);
              transition: transform 0.3s ease-in-out;
         }
 
-         .cloaking-menu-overlay:not(.hidden) .cloaking-menu {
-             transform: scale(1); /* Scale back to normal when visible */
+         .cloaking-menu-overlay.visible .cloaking-menu {
+             transform: scale(0.9); /* Scale to normal when visible */
          }
 
 
         .cloaking-menu h3 {
-            margin-top: 0;
+            margin-top: 20px;
             margin-bottom: 20px;
             font-size: 1.5em;
             text-align: center;
@@ -293,11 +303,11 @@
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid var(--input-border);
-            border-radius: 4px;
+            border-radius: 8px;
             background-color: var(--input-bg);
             color: var(--input-text);
             font-family: 'Outfit', sans-serif;
-            font-size: 1em;
+            font-size: 0.8em;
         }
 
         .cloaking-menu .btn {
@@ -308,7 +318,7 @@
             /* Keep button text uppercase */
             justify-content: center;
             /* Center button text */
-            font-size: 1em;
+            font-size: 0.9em;
         }
 
         .cloaking-menu .btn.secondary:hover {
@@ -337,6 +347,15 @@
             color: var(--primary-color);
             /* Highlight color on hover */
         }
+
+        /* Added style for displaying cloaked website name */
+        #cloakedWebsiteName {
+            font-size: 0.9em;
+            margin-top: 10px;
+            text-align: center;
+            word-break: break-all; /* Prevent long URLs from overflowing */
+        }
+
 
         /* --- End Cloaking Menu Styles --- */
 
@@ -368,6 +387,8 @@
 
             .cloaking-menu {
                 padding: 20px;
+                 /* Reduced max-width for smaller screens */
+                max-width: 90%;
             }
 
             .cloaking-menu h3 {
@@ -409,6 +430,8 @@
 
             .cloaking-menu {
                 padding: 15px;
+                 /* Reduced max-width for very small screens */
+                max-width: 95%;
             }
 
             .cloaking-menu h3 {
@@ -421,438 +444,281 @@
             }
         }
     </style>
+
 </head>
 
 <body>
-
-    <nav class="navbar">
-        <div class="logo">4SP</div>
-        <div class="nav-buttons">
-            <button id="cloakBtn" class="btn secondary">Cloak Tab</button>
-            <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
-            <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
-            <button id="logoutBtn" class="btn secondary">Log Out</button>
-        </div>
-    </nav>
-
-    <div id="cloakingMenuOverlay" class="cloaking-menu-overlay hidden">
-        <div class="cloaking-menu">
-            <button class="close-btn" id="closeCloakingMenu">&times;</button>
-            <h3>Tab Cloaking</h3>
-
-            <div class="cloaking-options">
-                <h4>Presets</h4>
-                <button id="presetClassroom" class="btn secondary">Google Classroom</button>
-                <button id="presetWikipedia" class="btn secondary">Wikipedia</button>
-                </div>
-
-            <div class="cloaking-options">
-                <h4>Custom</h4>
-                <label for="customTitleInput">Tab Title:</label>
-                <input type="text" id="customTitleInput" placeholder="Enter custom title">
-
-                <label for="customFaviconInput">Favicon URL:</label>
-                <input type="text" id="customFaviconInput"
-                    placeholder="Enter favicon URL (e.g., https://example.com/favicon.ico)">
-
-                <button id="applyCustomCloak" class="btn primary">Apply Custom</button>
-            </div>
-
-            <div class="cloaking-options">
-                <button id="resetCloak" class="btn secondary">Reset to Original</button>
-            </div>
-        </div>
+  <nav class="navbar">
+    <div class="logo">4SP</div>
+    <div class="nav-buttons">
+      <button id="blankTabBtn" class="btn secondary">Open in About:blank</button> <button id="cloakBtn" class="btn secondary">Cloak Tab</button>
+      <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
+      <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
+      <button id="logoutBtn" class="btn secondary">Log Out</button>
     </div>
+  </nav>
 
+  <div id="cloakingMenuOverlay" class="cloaking-menu-overlay">
+    <div class="cloaking-menu">
+      <button class="close-btn" id="closeCloakingMenu">×</button>
+      <h3>Tab Cloaking</h3>
 
-    <main>
-        <iframe id="viewer" src="https://vern.surge.sh/" title="https://vern.surge.sh/" allowfullscreen="true"
+      <div class="cloaking-options">
+        <h4>Presets</h4>
+        <button id="presetClassroom" class="btn secondary">Google Classroom</button>
+        <button id="presetWikipedia" class="btn secondary">Wikipedia</button>
+      </div>
+
+      <div class="cloaking-options">
+        <h4>By Website</h4>
+        <label for="websiteUrlInput">Website URL:</label>
+        <input type="text" id="websiteUrlInput" placeholder="https://example.com" />
+        <button id="applyWebsiteCloak" class="btn primary">Cloak Website</button>
+        <span id="cloakedWebsiteName"></span> </div>
+
+      <div class="cloaking-options">
+        <h4>Custom</h4>
+        <label for="customTitleInput">Tab Title:</label>
+        <input type="text" id="customTitleInput" placeholder="Enter custom title" />
+
+        <label for="customFaviconInput">Favicon URL:</label>
+        <input type="text" id="customFaviconInput"
+          placeholder="Enter favicon URL (e.g. https://example.com/favicon.ico)" />
+
+        <button id="applyCustomCloak" class="btn primary">Apply Custom</button>
+      </div>
+
+      <div class="cloaking-options">
+        <button id="resetCloak" class="btn secondary">Reset to Original</button>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <iframe id="viewer" src="https://vern.surge.sh/" title="https://vern.surge.sh/" allowfullscreen="true"
             allow="fullscreen; payment; geolocation" referrerpolicy="origin">
         </iframe>
-    </main>
+  </main>
 
-    <footer>
-        <p>&copy; <span id="currentYear"></span> 4SP</p>
-    </footer>
+  <script>
+    // Save originals
+    let originalTitle = document.title;
+    let originalFaviconUrl = (function() {
+      const link = document.getElementById('dynamic-favicon') ||
+        document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
+      return link ? link.href : '';
+    })();
 
+    function setFavicon(url) {
+      let link = document.getElementById('dynamic-favicon') ||
+        document.createElement('link');
+      link.rel = 'icon';
+      link.id = 'dynamic-favicon';
+      link.href = url;
+      document.head.appendChild(link);
+      try { localStorage.setItem('cachedFaviconUrl', url); } catch {}
+    }
 
-    <script>
-        // Display current year in footer (This depends on a footer with id="currentYear" existing)
-        const currentYearSpan = document.getElementById('currentYear');
-        if (currentYearSpan) {
-             currentYearSpan.textContent = new Date().getFullYear();
-        } else {
-             console.warn("Element with id 'currentYear' not found for footer.");
-        }
+    function applyCloak(title, faviconUrl, displayName = null) {
+      if (title !== null) {
+        document.title = title;
+        try { localStorage.setItem('cachedTitle', title); } catch {}
+      }
+      if (faviconUrl) {
+        setFavicon(faviconUrl);
+      }
+      // Update the displayed name in the menu
+      const cloakedWebsiteNameSpan = document.getElementById('cloakedWebsiteName');
+      if (cloakedWebsiteNameSpan) {
+          cloakedWebsiteNameSpan.textContent = displayName || title || ''; // Use display name if provided, otherwise title, otherwise clear
+      }
+    }
 
+    // Function to attempt to extract a friendly name from a URL
+    function getFriendlySiteName(url) {
+        try {
+            const urlObj = new URL(url);
+            const pathSegments = urlObj.pathname.split('/').filter(segment => segment !== '');
 
-        // --- Tab Cloaking Logic ---
-        let originalTitle = document.title;
-        let originalFaviconUrl = getFaviconUrl(); // Function to get current favicon URL
+            // Simple heuristic: check path segments for common site names
+            const commonNames = {
+                'youtube.com': 'YouTube',
+                'reddit.com': 'Reddit',
+                'twitter.com': 'Twitter', // Or X
+                'facebook.com': 'Facebook',
+                'instagram.com': 'Instagram',
+                'netflix.com': 'Netflix',
+                'discord.com': 'Discord',
+                'google.com': 'Google',
+                'classroom.google.com': 'Google Classroom',
+                'wikipedia.org': 'Wikipedia'
+                // Add more common sites here
+            };
 
-        // Function to get the current favicon URL
-        function getFaviconUrl() {
-            // Try to find our dynamic link first, then any standard icon link
-            const faviconLink = document.getElementById('dynamic-favicon') || document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
-            if (faviconLink) {
-                // Use .href to get the full, resolved URL
-                return faviconLink.href;
-            }
-            // Return a default tiny transparent PNG if no favicon link found
-            // This prevents the default browser favicon from showing if the original was blank or missing
-            console.log("No existing favicon link found, using transparent default.");
-            return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
-        }
-
-        // Function to set the favicon
-        function setFavicon(url) {
-            let faviconLink = document.getElementById('dynamic-favicon');
-
-            if (!faviconLink) {
-                // If our dynamic link doesn't exist, try to find an existing one
-                faviconLink = document.querySelector('link[rel="icon"], link[rel="shortcut icon"]');
-                if (faviconLink) {
-                    // If found, give it our ID for easier future access
-                    faviconLink.id = 'dynamic-favicon';
-                     console.log("Found existing favicon link, assigned ID 'dynamic-favicon'.");
-                } else {
-                    // If still not found, create a new one
-                    faviconLink = document.createElement('link');
-                    faviconLink.id = 'dynamic-favicon';
-                    faviconLink.rel = 'icon';
-                    // Set initial type, will likely be ignored by browser based on URL but good practice
-                    const fileExtension = url.split('.').pop().toLowerCase();
-                    if (fileExtension === 'png') faviconLink.type = 'image/png';
-                    else if (fileExtension === 'gif') faviconLink.type = 'image/gif';
-                    else faviconLink.type = 'image/x-icon'; // Default
-                    document.head.appendChild(faviconLink);
-                     console.log("Created new favicon link and added to head.");
-                }
-            }
-
-            // Set the new URL
-            faviconLink.href = url;
-             console.log("Set favicon to:", url);
-
-            // Optional: Save to localStorage
-            try {
-                 localStorage.setItem('cachedFaviconUrl', url);
-            } catch (e) {
-                 console.warn("localStorage not available or full, cannot save favicon.");
-            }
-        }
-
-        // Function to apply title and favicon
-        function applyCloak(title, faviconUrl) {
-            if (title !== null) {
-                 document.title = title;
-                 console.log("Set title to:", title);
-                 try {
-                     localStorage.setItem('cachedTitle', title);
-                 } catch (e) {
-                     console.warn("localStorage not available or full, cannot save title.");
-                 }
-            }
-            // Only set favicon if a valid URL is provided (not null/undefined/empty, but allow the transparent one)
-            if (faviconUrl) {
-                 setFavicon(faviconUrl);
-            } else {
-                 console.warn("Attempted to set favicon with empty URL.");
-            }
-        }
-
-        // Get DOM elements for cloaking
-        const cloakBtn = document.getElementById('cloakBtn');
-        const cloakingMenuOverlay = document.getElementById('cloakingMenuOverlay');
-        const closeCloakingMenuBtn = document.getElementById('closeCloakingMenu');
-        const presetClassroomBtn = document.getElementById('presetClassroom');
-        const presetWikipediaBtn = document.getElementById('presetWikipedia');
-        const customTitleInput = document.getElementById('customTitleInput');
-        const customFaviconInput = document.getElementById('customFaviconInput');
-        const applyCustomCloakBtn = document.getElementById('applyCustomCloak');
-        const resetCloakBtn = document.getElementById('resetCloak');
-
-        // Function to show the menu with fade-in
-        function showCloakMenu() {
-             if (cloakingMenuOverlay) {
-                 cloakingMenuOverlay.classList.remove('hidden');
-                 console.log("Cloaking menu shown.");
-                 // The opacity transition is handled by the CSS :not(.hidden) rule
-             }
-        }
-
-        // Function to hide the menu with fade-out
-        function hideCloakMenu() {
-            if (cloakingMenuOverlay) {
-                // Start the fade-out transition by removing the state that sets opacity to 1
-                cloakingMenuOverlay.classList.add('hidden'); // This also sets opacity to 0 via CSS
-                console.log("Cloaking menu hidden.");
-            }
-        }
-
-        // Function to toggle menu visibility
-        function toggleCloakMenu() {
-            if (cloakingMenuOverlay && cloakingMenuOverlay.classList.contains('hidden')) {
-                showCloakMenu();
-            } else if (cloakingMenuOverlay) { // Added check for cloakingMenuOverlay
-                hideCloakMenu();
-            }
-        }
-
-
-        // Event listener to open the menu button
-        // The check "if (cloakBtn)" ensures this only runs if the button exists.
-        document.addEventListener('DOMContentLoaded', () => {
-            if (cloakBtn) {
-                cloakBtn.addEventListener('click', () => {
-                    console.log("Cloak Tab button clicked.");
-                    toggleCloakMenu();
-                });
-                console.log("Cloak Tab button listener attached.");
-            } else {
-                console.warn("Cloak Tab button (#cloakBtn) not found.");
-            }
-
-            // Event listener to close the menu button
-            if (closeCloakingMenuBtn) {
-                closeCloakingMenuBtn.addEventListener('click', () => {
-                     console.log("Close Cloak Menu button clicked.");
-                    hideCloakMenu();
-                });
-                 console.log("Close Cloak Menu button listener attached.");
-            } else {
-                 console.warn("Close Cloak Menu button (#closeCloakingMenuBtn) not found.");
-            }
-
-             // Close menu if clicking outside the modal content
-            if (cloakingMenuOverlay) {
-                cloakingMenuOverlay.addEventListener('click', (event) => {
-                    // Check if the click target is the overlay itself, not the menu content
-                    if (event.target === cloakingMenuOverlay) {
-                         console.log("Clicked outside cloaking menu.");
-                         hideCloakMenu();
+            for (const segment of pathSegments) {
+                for (const domain in commonNames) {
+                    if (segment.includes(domain)) {
+                        return commonNames[domain];
                     }
-                });
-                 console.log("Cloaking menu overlay click-outside listener attached.");
-            } else {
-                 console.warn("Cloaking menu overlay (#cloakingMenuOverlay) not found.");
+                }
             }
 
-            // Preset event listeners
-            if (presetClassroomBtn) {
-                presetClassroomBtn.addEventListener('click', () => {
-                    console.log("Classroom preset clicked.");
-                    applyCloak('Google Classroom', 'https://ssl.gstatic.com/classroom/favicon.ico');
-                    hideCloakMenu();
-                });
-                console.log("Classroom preset listener attached.");
-            } else { console.warn("Classroom preset button not found."); }
-
-
-            if (presetWikipediaBtn) {
-                presetWikipediaBtn.addEventListener('click', () => {
-                     console.log("Wikipedia preset clicked.");
-                    applyCloak('Wikipedia', 'https://en.wikipedia.org/static/favicon/wikipedia.ico');
-                     hideCloakMenu();
-                });
-                 console.log("Wikipedia preset listener attached.");
-            } else { console.warn("Wikipedia preset button not found."); }
-
-
-            // Apply custom cloaking listener
-            if (applyCustomCloakBtn) {
-                applyCustomCloakBtn.addEventListener('click', () => {
-                     console.log("Apply Custom button clicked.");
-                    const customTitle = customTitleInput ? customTitleInput.value : '';
-                    const customFavicon = customFaviconInput ? customFaviconInput.value : '';
-                    if (customTitle || customFavicon) { // Apply only if at least one field has a value
-                        applyCloak(customTitle || document.title, customFavicon || getFaviconUrl()); // Use existing if field is empty
-                         hideClocloakMenu();
-                    } else {
-                        alert("Please enter a title or favicon URL for custom cloaking.");
-                    }
-                });
-                 console.log("Apply Custom button listener attached.");
-            } else { console.warn("Apply Custom button not found."); }
-
-
-             // Reset cloaking listener
-             if (resetCloakBtn) {
-                resetCloakBtn.addEventListener('click', () => {
-                     console.log("Reset Cloak button clicked.");
-                    applyCloak(originalTitle, originalFaviconUrl);
-                     hideCloakMenu();
-                     // Optional: Clear localStorage items
-                    try {
-                        localStorage.removeItem('cachedTitle');
-                        localStorage.removeItem('cachedFaviconUrl');
-                        console.log("Cleared cached cloaking from localStorage.");
-                    } catch (e) {
-                        console.warn("localStorage not available, cannot clear cached cloaking.");
-                    }
-                });
-                 console.log("Reset Cloak button listener attached.");
-             } else { console.warn("Reset Cloak button not found."); }
-
-
-             // Load saved cloaking state from localStorage on page load
-             try {
-                const cachedTitle = localStorage.getItem('cachedTitle');
-                const cachedFaviconUrl = localStorage.getItem('cachedFaviconUrl');
-
-                 // Store original values *before* potentially loading from cache
-                 // Read from the link tag after it's potentially updated by caching
-                 originalTitle = document.title;
-                 originalFaviconUrl = getFaviconUrl();
-                 console.log("Original Title:", originalTitle, "Original Favicon:", originalFaviconUrl);
-
-
-                if (cachedTitle !== null || cachedFaviconUrl !== null) {
-                    console.log("Found cached cloaking state. Applying...");
-                    // Apply cached settings, using original if cache is null for one
-                    // Use the originalTitle/FaviconUrl captured *before* this block
-                    applyCloak(cachedTitle !== null ? cachedTitle : originalTitle,
-                               cachedFaviconUrl !== null ? cachedFaviconUrl : originalFaviconUrl);
-
-                    // Re-capture original after applying cache, in case reset is pressed later
-                     originalTitle = document.title;
-                     originalFaviconUrl = getFaviconUrl();
-                     console.log("Current Title (after cache):", originalTitle, "Current Favicon (after cache):", originalFaviconUrl);
-
-                } else {
-                    console.log("No cached cloaking state found.");
-                }
-             } catch (e) {
-                console.warn("localStorage not available, cannot load cached cloaking.");
-             }
-
-
-            // --- Firebase Auth Listener & Logout ---
-            let auth; // Declare auth variable
-
-            // Initially hide logout button until user is confirmed authenticated
-            const logoutButton = document.getElementById('logoutBtn');
-            if (logoutButton) logoutButton.classList.add('hidden');
-
-            // Check if Firebase SDK and Auth are available on DOM load
-            if (typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined') {
-                // Initialize Auth
-                try {
-                    // Initialize Firebase app if not already initialized
-                    if (firebase.apps.length === 0 && typeof firebaseConfig !== 'undefined') {
-                        firebase.initializeApp(firebaseConfig);
-                        console.log("Firebase app initialized.");
-                    }
-                    auth = firebase.auth(); // Assign auth instance
-                     console.log("Firebase Auth initialized.");
-
-                    // Set up auth state change listener
-                    auth.onAuthStateChanged(user => handleAuthState(user));
-                     console.log("Firebase auth state listener attached.");
-
-                } catch (error) {
-                    console.error('Firebase initialization or Auth init error:', error);
-                    // Handle Firebase initialization error
-                    if (logoutButton) logoutButton.classList.add('hidden'); // Ensure logout is hidden
-                }
-
-            } else {
-                console.error("Firebase SDK or Auth not available on DOM load. Check script tags.");
-                // Handle case where Firebase script failed to load
-                if (logoutButton) logoutButton.classList.add('hidden'); // Ensure logout is hidden
-            }
-             // --- End Firebase Auth Listener & Logout ---
-
-         }); // End DOMContentLoaded
-
-        // Function to handle authentication state changes
-        function handleAuthState(user) {
-            const logoutButton = document.getElementById('logoutBtn');
-
-            if (user) {
-                console.log("User is logged in:", user.email);
-                // User is logged in, show logout button and setup listener
-                if (logoutButton) {
-                     logoutButton.classList.remove('hidden');
-                     setupLogoutListener(); // Setup logout listener only if authenticated and button exists
-                     console.log("Logout button shown.");
-                } else {
-                     console.warn("User logged in, but logout button not found to show.");
-                }
-
-
-            } else {
-                console.log("No user logged in.");
-                // No user logged in, hide logout button
-                 if (logoutButton) {
-                    logoutButton.classList.add('hidden');
-                    // Remove listener if user logs out to clean up
-                    logoutButton.removeEventListener('click', handleLogoutClick);
-                    console.log("Logout button hidden and listener removed.");
-                 } else {
-                     console.warn("No user logged in, but logout button not found to hide.");
-                 }
-            }
+            // Fallback to hostname if no common name found in path
+            let hostname = urlObj.hostname;
+             // Remove www. and TLD (.com, .org, etc.) for a cleaner name
+            hostname = hostname.replace(/^www\./, '').split('.')[0];
+            return hostname.charAt(0).toUpperCase() + hostname.slice(1); // Capitalize first letter
+        } catch (e) {
+            console.error("Error parsing URL for friendly name:", e);
+            return null; // Return null if URL is invalid
         }
-
-        // Setup logout button listener
-        function setupLogoutListener() {
-            const logoutButton = document.getElementById('logoutBtn');
-            // Add listener only if button exists and auth is initialized
-            if (logoutButton && auth) {
-                 // Remove existing listener to prevent duplicates before adding the new one
-                 logoutButton.removeEventListener('click', handleLogoutClick);
-                 logoutButton.addEventListener('click', handleLogoutClick);
-                 console.log("Logout button click listener attached.");
-
-            } else {
-                 console.warn("Logout button or Firebase Auth not available for listener setup.");
-            }
-        }
-
-        // Separate logout click handler to facilitate removal/re-adding
-        function handleLogoutClick() {
-             console.log("Logout button clicked.");
-             if (auth) { // Ensure auth object is available
-                auth.signOut().then(() => {
-                    console.log("User signed out successfully.");
-                    // Redirect to index after logout
-                    // Using window.location.replace is slightly better than href for logout
-                    window.location.replace('index.html');
-                }).catch(error => {
-                    console.error("Logout Error:", error);
-                    alert("Error logging out. Please try again.");
-                });
-             } else {
-                 console.error("Firebase Auth not initialized for logout.");
-                 alert("Logout functionality not available.");
-             }
-        }
-        // --- End Firebase Auth Listener & Logout ---
+    }
 
 
-        // Handle messages from the iframe for potential redirect requests
-        window.addEventListener('message', function(event) {
-            // You can add origin checking for security if needed, although referrerpolicy="origin" helps
-            // if (event.origin !== "https://vern.surge.sh") return; // Example origin check
+    // Modal controls
+    const overlay = document.getElementById('cloakingMenuOverlay');
+    const cloakedWebsiteNameSpan = document.getElementById('cloakedWebsiteName'); // Get the new span element
 
-            if (event.data && event.data.type === 'redirect') {
-                if (event.data.url) {
-                    console.log("Redirect message received from iframe:", event.data.url);
-                    // Optionally add a check to only allow redirects to trusted origins
-                    // if (event.data.url.startsWith('https://youralloweddomain.com')) {
-                    window.location.href = event.data.url;
-                    // } else {
-                    //    console.warn("Blocked untrusted redirect request from iframe:", event.data.url);
-                    // }
-                } else {
-                    console.warn("Received redirect message from iframe but no URL provided.");
-                }
-            }
+    // Function to show the overlay with fade-in
+    function showOverlay() {
+        overlay.style.display = 'flex'; // Make it visible to start the transition
+        setTimeout(() => {
+            overlay.classList.add('visible');
+        }, 10); // Small delay to allow display change to register before transition
+    }
+
+    // Function to hide the overlay with fade-out
+    function hideOverlay() {
+        overlay.classList.remove('visible');
+        overlay.addEventListener('transitionend', function handler() {
+            overlay.style.display = 'none'; // Hide completely after transition
+            overlay.removeEventListener('transitionend', handler); // Clean up listener
         });
+    }
 
-         // The keyboard shortcut listeners have been removed as requested in previous steps.
-    </script>
+    document.getElementById('cloakBtn').onclick = showOverlay;
+    document.getElementById('closeCloakingMenu').onclick = hideOverlay;
+    overlay.onclick = e => { if (e.target === overlay) hideOverlay(); };
+
+    // New functionality for the 'Open in Blank Tab' button
+    document.getElementById('blankTabBtn').onclick = () => {
+      const iframe = document.getElementById('mainIframe');
+      if (iframe && iframe.src) {
+        const currentUrl = iframe.src;
+        const blankWindow = window.open('about:blank', '_blank');
+        if (blankWindow) {
+          const doc = blankWindow.document;
+          doc.open();
+          doc.write(`
+            <!DOCTYPE html>
+            <html style="margin: 0; padding: 0; overflow: hidden;">
+            <head>
+              <title>${document.title}</title> <link rel="icon" type="image/x-icon" href="${document.getElementById('dynamic-favicon').href}"> </head>
+            <body style="margin: 0; padding: 0; overflow: hidden;">
+              <iframe src="${currentUrl}" style="border: none; width: 100vw; height: 100vh;"></iframe>
+            </body>
+            </html>
+          `);
+          doc.close();
+        } else {
+          alert('Please allow pop-ups for this site to open in a blank tab.');
+        }
+      } else {
+        alert('Could not determine the current page URL.');
+      }
+    };
+
+    // Presets
+    document.getElementById('presetClassroom').onclick = () => {
+      applyCloak('Google Classroom', 'https://ssl.gstatic.com/classroom/favicon.ico', 'Google Classroom');
+      hideOverlay();
+    };
+    document.getElementById('presetWikipedia').onclick = () => {
+      applyCloak('Wikipedia', 'https://en.wikipedia.org/static/favicon/wikipedia.ico', 'Wikipedia');
+      hideOverlay();
+    };
+
+    // By Website
+    document.getElementById('applyWebsiteCloak').onclick = () => {
+      const raw = document.getElementById('websiteUrlInput').value.trim();
+      if (!raw) return alert('Please enter a website URL.');
+      let url;
+      try {
+        url = new URL(raw.startsWith('http') ? raw : 'https://' + raw);
+      } catch {
+        return alert('Invalid URL.');
+      }
+
+      const friendlyName = getFriendlySiteName(url.href); // Get the friendly name
+      const favicon = 'https://www.google.com/s2/favicons?domain=' + url.hostname; // Still use original hostname for favicon
+
+      applyCloak(friendlyName || url.hostname, favicon, friendlyName); // Use friendly name for title and display if found
+      hideOverlay();
+    };
+
+    // Custom
+    document.getElementById('applyCustomCloak').onclick = () => {
+      const t = document.getElementById('customTitleInput').value.trim();
+      const f = document.getElementById('customFaviconInput').value.trim();
+      if (!t && !f) return alert('Enter a title or favicon URL.');
+      applyCloak(t || document.title, f || originalFaviconUrl, t || document.title); // Pass custom title as display name
+      hideOverlay();
+    };
+
+    // Reset
+    document.getElementById('resetCloak').onclick = () => {
+      applyCloak(originalTitle, originalFaviconUrl, originalTitle); // Reset with original title as display name
+      hideOverlay();
+      try {
+        localStorage.removeItem('cachedTitle');
+        localStorage.removeItem('cachedFaviconUrl');
+      } catch {}
+    };
+
+    // Load from localStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const ct = localStorage.getItem('cachedTitle');
+        const cf = localStorage.getItem('cachedFaviconUrl');
+        if (ct !== null || cf !== null) {
+           // Attempt to get a friendly name from the cached title if it looks like a hostname
+            let cachedDisplayName = ct !== null && ct !== originalTitle ? getFriendlySiteName('http://' + ct) : '';
+            // If getFriendlySiteName returned a cleaned hostname, use that. Otherwise, use the raw cached title if it exists.
+             cachedDisplayName = cachedDisplayName && cachedDisplayName !== 'Http' ? cachedDisplayName : (ct !== null && ct !== originalTitle ? ct : '');
+
+
+          applyCloak(ct !== null ? ct : originalTitle,
+            cf !== null ? cf : originalFaviconUrl, cachedDisplayName);
+        } else {
+             // If no cached cloak, ensure the displayed name is clear
+            const cloakedWebsiteNameSpan = document.getElementById('cloakedWebsiteName');
+             if (cloakedWebsiteNameSpan) {
+                 cloakedWebsiteNameSpan.textContent = '';
+             }
+        }
+      } catch {}
+    });
+
+    // Firebase Auth & messaging
+    firebase.initializeApp(firebaseConfig);
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById('logoutBtn').onclick = () => {
+          firebase.auth().signOut().then(() => location.href = 'login.html');
+        };
+      } else {
+        location.href = 'login.html';
+      }
+    });
+
+    window.addEventListener('message', event => {
+      const iframe = document.getElementById('mainIframe');
+      const origin = new URL(iframe.src).origin;
+      if (event.origin === origin && event.data?.url) {
+        window.location.href = event.data.url;
+      }
+    });
+  </script>
 </body>
 
 </html>
