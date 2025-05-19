@@ -492,16 +492,16 @@
           * are fully aware the outcomes are being manipulated.
           */
 
-         // ===== Reel strips (weights) just like physical reels =====
-         // Each symbol appears multiple times → controls its probability.
+         // ===== Reel strips (weights) - ADJUSTED FOR LOWER OVERALL WIN RATE =====
+         // Reduced occurrences of higher-paying symbols (5, 6, 7) to decrease win probability.
          const strip = [
-             ...Array(30).fill(1),
-             ...Array(25).fill(2),
-             ...Array(20).fill(3),
-             ...Array(15).fill(4),
-             ...Array(7).fill(5),
-             ...Array(2).fill(6),
-             ...Array(1).fill(7)
+             ...Array(40).fill(1), // More 1s
+             ...Array(30).fill(2), // More 2s
+             ...Array(15).fill(3), // Fewer 3s
+             ...Array(10).fill(4), // Fewer 4s
+             ...Array(3).fill(5),  // Significantly fewer 5s
+             ...Array(1).fill(6),  // Significantly fewer 6s
+             ...Array(1).fill(7)   // Slightly fewer 7s
          ];
          // shuffle once for each reel
          const reelsData = [ shuffle(strip), shuffle(strip), shuffle(strip) ];
@@ -515,7 +515,7 @@
              return a;
          }
 
-         // pick a random symbol from a given reel strip (original fair logic)
+         // pick a random symbol from a given reel strip (used by non-rigged users)
          function spinReelValue(reel) {
              const idx = Math.floor(Math.random() * reel.length);
              return reel[idx];
@@ -523,10 +523,10 @@
 
          // --- Rigging Logic ---
          // !!! IMPORTANT: Replace with the actual emails you want to target !!!
-         const riggedUsers = ['tootja30@minerva.sparcc.org', 'jace.toot@icloud.com', '4simpleproblems@gmail.com' ];
+         const riggedUsers = ['4simpleproblems@gmail.com', 'tootja30@minerva.sparcc.org'];
          let currentUserEmail = null; // Variable to store the logged-in user's email
 
-         // Function to generate a losing outcome (guaranteed no pairs or triples)
+         // Function to generate a losing outcome (guaranteed no pairs or triples) for rigged users
          function generateRiggedOutcome(strips) {
              // Collect all unique symbols from all strips
              const allUniqueSymbols = new Set();
@@ -553,6 +553,20 @@
               console.log("Generated rigged outcome (guaranteed loss):", outcome);
               return outcome; // This guarantees three distinct numbers = loss
          }
+
+         // Array of insulting messages for rigged users when they lose
+         const insultLossMessages = [
+             'LOL, YOU LOST AGAIN!',
+             'SHOULD HAVE QUIT WHILE YOU WERE BEHIND.',
+             'BETTER LUCK NEVER!',
+             'YOU ARE NOT WINNING THIS. EVER.',
+             'LOST YOUR MONEY. CLASSIC.',
+             'JUST GIVE UP ALREADY.',
+             'AS EXPECTED. YOU LOST.',
+             'DID YOU REALLY THINK YOU WOULD WIN?',
+             'HA! ANOTHER LOSS FOR YOU.',
+             'KEEP LOSING, IT\'S FUNNY.'
+         ];
          // --- End Rigging Logic ---
 
 
@@ -564,7 +578,7 @@
          const msgEl = document.getElementById('message');
          const logoutBtn = document.getElementById('logoutBtn'); // Get the logout button
 
-         let balance = 500; // Starting balance
+         let balance = 1000; // Starting balance
 
          // --- Firebase Auth Listener & Logout ---
          let auth;
@@ -701,7 +715,7 @@
                   // Generate a rigged outcome (guaranteed loss)
                   finals = generateRiggedOutcome(reelsData);
              } else {
-                  // Original logic for non-rigged users (still has a house edge due to strip weights)
+                  // Weighted random outcome for non-rigged users (still biased towards losing)
                   finals = reelsData.map((strip, i) => spinReelValue(strip));
              }
              // --- End Modified Logic ---
@@ -726,7 +740,16 @@
                  msgEl.textContent = '✨ NICE! 2× WIN!'; // Uppercase message
                  cls = 'x2';
              } else {
-                 msgEl.textContent = '😢 YOU LOSE'; // Uppercase message
+                 // It's a loss
+                 if (currentUserEmail && riggedUsers.includes(currentUserEmail)) {
+                     // Insult the rigged user on loss
+                     const randomInsult = insultLossMessages[Math.floor(Math.random() * insultLossMessages.length)];
+                     msgEl.textContent = randomInsult;
+                     console.log(`Insulting rigged user ${currentUserEmail}: ${randomInsult}`); // Log the insult
+                 } else {
+                     // Standard lose message for others
+                     msgEl.textContent = '😢 YOU LOSE';
+                 }
                  msgEl.className = 'lose';
              }
 
