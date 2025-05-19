@@ -301,7 +301,7 @@
         .soundButtonsContainer {
             display: grid;
             /* Use grid for better control over layout */
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             /* Responsive grid */
             gap: 15px;
             padding: 1rem 0;
@@ -309,43 +309,44 @@
             width: 100%;
         }
 
-        .sound-button {
-            width: 100%;
-            /* Make buttons fill grid cell */
-            aspect-ratio: 1 / 1;
-            /* Maintain square aspect ratio */
-            border-radius: 20px;
-            /* Adjusted border-radius */
-            background-color: var(--sound-button-bg);
-            /* Light background */
-            color: var(--sound-button-text);
-            /* Dark text */
-            border: 2px solid var(--sound-button-border);
-            /* Medium gray border */
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
-            /* Bolder */
-            padding: 0 1.5rem;
-            transition: background-color 0.3s ease, transform 0.1s ease, border-color 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            line-height: 1.2;
-            max-width: 500px;
-            /* Constrain width slightly */
-            word-wrap: break-word;
-            hyphens: auto;
-            text-transform: uppercase;
-            /* All caps */
-            overflow: hidden;
-            /* Prevent text overflow */
-            text-overflow: ellipsis;
-            /* Add ellipsis for overflow */
-            white-space: normal;
-            /* Allow wrapping */
-        }
+.sound-button {
+    width: 100%;
+    /* Make buttons fill grid cell */
+    aspect-ratio: 1 / 1;
+    /* Maintain square aspect ratio */
+    border-radius: 20px;
+    /* Adjusted border-radius */
+    background-color: var(--sound-button-bg);
+    /* Light background */
+    color: var(--sound-button-text);
+    /* Dark text */
+    border: 2px solid var(--sound-button-border);
+    /* Medium gray border */
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    /* Bolder */
+    padding: 0 1.5rem;
+    transition: background-color 0.3s ease, transform 0.1s ease, border-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* text-align: center; Removed as flexbox handles centering */
+    /* line-height: 1.2; Can be kept or adjusted based on desired vertical spacing */
+    max-width: 500px;
+    /* Constrain width slightly */
+
+    /* --- Changes for one-line text --- */
+    white-space: nowrap; /* Prevent text from wrapping onto multiple lines */
+    overflow: hidden; /* Hide text that overflows the button's width */
+    text-overflow: ellipsis; /* Add an ellipsis (...) to truncated text */
+    /* --- End changes --- */
+
+    /* word-wrap: break-word; Removed as nowrap prevents wrapping */
+    /* hyphens: auto; Removed as nowrap prevents wrapping */
+    text-transform: uppercase;
+    /* All caps */
+}
 
         .sound-button:hover {
             background-color: var(--sound-button-hover-bg);
