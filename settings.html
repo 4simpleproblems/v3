@@ -1247,6 +1247,93 @@
             const defaultPhotoURL = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23eee%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%20text-anchor%3D%22middle%22%20font-family%3D%22Outfit%22%20font-size%3D%2210px%22%20fill%3D%22%23aaa%22%3ENO%20PHOTO%3C/text%3E%3C/svg%3E';
 
 
+            // --- User Profile Functions (MOVED HERE) ---
+            const loadUserProfile = async (user) => {
+                if (!user || !db) {
+                     console.error("User or Firestore not available for loading profile.");
+                     // Display error messages on the page elements
+                     userDisplayNameElement.textContent = 'Name: Error Loading';
+                     userEmailElement.textContent = 'Email: Error Loading';
+                     authProviderElement.textContent = 'Sign-in Method: Error Loading';
+                     creationTimeElement.textContent = 'Created: Error Loading';
+                     lastSignInElement.textContent = 'Last Sign-in: Error Loading';
+                     userUIDElement.textContent = 'User ID: Error Loading';
+                     userPhotoElement.src = defaultPhotoURL; // Set default photo on error
+                     userPhotoElement.onerror = null; // Prevent infinite error loop
+                     return;
+                }
+
+                // Display loading state initially
+                userDisplayNameElement.textContent = 'Name: Loading...';
+                userEmailElement.textContent = 'Email: Loading...';
+                authProviderElement.textContent = 'Sign-in Method: Loading...';
+                creationTimeElement.textContent = 'Created: Loading...';
+                lastSignInElement.textContent = 'Last Sign-in: Loading...';
+                userUIDElement.textContent = 'User ID: Loading...';
+                userPhotoElement.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23ddd%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%20text-anchor%3D%22middle%22%20font-family%3D%22Outfit%22%20font-size%3D%2210px%22%20fill%3D%22%23777%22%3ELoading%3C/text%3E%3C/svg%3E'; // Loading SVG
+                userPhotoElement.onerror = null; // Temporarily remove error handler
+
+                try {
+                    // Set basic auth info that doesn't rely on Firestore first
+                    userEmailElement.textContent = `Email: ${user.email || 'N/A'}`;
+                    creationTimeElement.textContent = `Created: ${user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'N/A'}`;
+                    lastSignInElement.textContent = `Last Sign-in: ${user.metadata.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleString() : 'N/A'}`;
+                    userUIDElement.textContent = `User ID: ${user.uid}`;
+
+
+                    const userDocRef = db.collection('users').doc(user.uid);
+                    const docSnap = await userDocRef.get();
+
+                    let displayNameToSet = user.displayName || 'Not Set';
+                    let photoURLToSet = user.photoURL || defaultPhotoURL;
+
+
+                    if (docSnap.exists()) {
+                        const profileData = docSnap.data();
+                        displayNameToSet = profileData.displayName || displayNameToSet; // Prioritize Firestore data
+                        photoURLToSet = profileData.photoURL || photoURLToSet; // Prioritize Firestore data
+                    } else {
+                        // If Firestore document doesn't exist, create it with initial Auth data
+                        if (user.displayName || user.photoURL || user.email) { // Only create if there's some data
+                            await userDocRef.set({
+                                displayName: user.displayName || 'Not Set',
+                                photoURL: user.photoURL || '', // Use empty string if null to avoid issues
+                                email: user.email || ''
+                            }, { merge: true });
+                            console.log("Created new user profile document in Firestore.");
+                        }
+                    }
+
+                    userDisplayNameElement.textContent = `Name: ${displayNameToSet}`;
+                    userPhotoElement.src = photoURLToSet;
+                    // Add error handler back after setting the source
+                    userPhotoElement.onerror = () => { userPhotoElement.src = defaultPhotoURL; };
+
+
+                    // For edit modal prefill - populate input values
+                    if (profileDisplayNameInput) profileDisplayNameInput.value = (displayNameToSet === 'Not Set' || displayNameToSet === 'Error') ? '' : displayNameToSet;
+                    if (profilePhotoURLInput) profilePhotoURLInput.value = (photoURLToSet === defaultPhotoURL || !photoURLToSet || photoURLToSet.startsWith('data:')) ? '' : photoURLToSet;
+
+
+                } catch (error) {
+                    console.error("Error loading user profile:", error);
+                    // Display error messages on the page elements
+                    userDisplayNameElement.textContent = `Name: ${user.displayName || 'Error Loading'}`;
+                    userEmailElement.textContent = `Email: ${user.email || 'Error Loading'}`;
+                    authProviderElement.textContent = 'Sign-in Method: Error Loading';
+                    creationTimeElement.textContent = `Created: ${user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'Error Loading'}`;
+                    lastSignInElement.textContent = `Last Sign-in: ${user.metadata.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleString() : 'Error Loading'}`;
+                    userUIDElement.textContent = `User ID: ${user.uid || 'Error Loading'}`;
+                    userPhotoElement.src = user.photoURL || defaultPhotoURL; // Fallback to Auth photo or default
+                    userPhotoElement.onerror = () => { userPhotoElement.src = defaultPhotoURL; }; // Ensure error handler is present
+                }
+
+                 // After loading profile, check auth provider to update modal content visibility
+                 checkAuthProvider(user);
+
+            };
+
+
             // --- Auth State Change Handler ---
             const handleAuthState = (user) => {
                  currentUser = user; // Update currentUser variable
@@ -1254,7 +1341,7 @@
                  if (user) {
                      console.log("User is logged in:", user.email);
                      // User is logged in, load profile, check provider, setup listeners
-                     loadUserProfile(user);
+                     loadUserProfile(user); // This will now work
                      checkAuthProvider(user);
                      setupAuthDependentListeners(); // Setup listeners that require authenticated user
 
@@ -1305,93 +1392,6 @@
 
                          }, 300); // Match CSS transition duration
                      }
-                 };
-
-
-                 // --- User Profile Functions ---
-                 const loadUserProfile = async (user) => {
-                     if (!user || !db) {
-                          console.error("User or Firestore not available for loading profile.");
-                          // Display error messages on the page elements
-                          userDisplayNameElement.textContent = 'Name: Error Loading';
-                          userEmailElement.textContent = 'Email: Error Loading';
-                          authProviderElement.textContent = 'Sign-in Method: Error Loading';
-                          creationTimeElement.textContent = 'Created: Error Loading';
-                          lastSignInElement.textContent = 'Last Sign-in: Error Loading';
-                          userUIDElement.textContent = 'User ID: Error Loading';
-                          userPhotoElement.src = defaultPhotoURL; // Set default photo on error
-                          userPhotoElement.onerror = null; // Prevent infinite error loop
-                          return;
-                     }
-
-                     // Display loading state initially
-                     userDisplayNameElement.textContent = 'Name: Loading...';
-                     userEmailElement.textContent = 'Email: Loading...';
-                     authProviderElement.textContent = 'Sign-in Method: Loading...';
-                     creationTimeElement.textContent = 'Created: Loading...';
-                     lastSignInElement.textContent = 'Last Sign-in: Loading...';
-                     userUIDElement.textContent = 'User ID: Loading...';
-                     userPhotoElement.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20viewBox%3D%220%200%2080%2080%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%2280%22%20height%3D%2280%22%20fill%3D%22%23ddd%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%20text-anchor%3D%22middle%22%20font-family%3D%22Outfit%22%20font-size%3D%2210px%22%20fill%3D%22%23777%22%3ELoading%3C/text%3E%3C/svg%3E'; // Loading SVG
-                     userPhotoElement.onerror = null; // Temporarily remove error handler
-
-                     try {
-                         // Set basic auth info that doesn't rely on Firestore first
-                         userEmailElement.textContent = `Email: ${user.email || 'N/A'}`;
-                         creationTimeElement.textContent = `Created: ${new Date(user.metadata.creationTime).toLocaleDateString()}`;
-                         lastSignInElement.textContent = `Last Sign-in: ${new Date(user.metadata.lastSignInTime).toLocaleString()}`;
-                         userUIDElement.textContent = `User ID: ${user.uid}`;
-
-
-                         const userDocRef = db.collection('users').doc(user.uid);
-                         const docSnap = await userDocRef.get();
-
-                         let displayNameToSet = user.displayName || 'Not Set';
-                         let photoURLToSet = user.photoURL || defaultPhotoURL;
-
-
-                         if (docSnap.exists()) {
-                             const profileData = docSnap.data();
-                             displayNameToSet = profileData.displayName || displayNameToSet; // Prioritize Firestore data
-                             photoURLToSet = profileData.photoURL || photoURLToSet; // Prioritize Firestore data
-                         } else {
-                             // If Firestore document doesn't exist, create it with initial Auth data
-                             if (user.displayName || user.photoURL || user.email) { // Only create if there's some data
-                                 await userDocRef.set({
-                                     displayName: user.displayName || 'Not Set',
-                                     photoURL: user.photoURL || '', // Use empty string if null to avoid issues
-                                     email: user.email || ''
-                                 }, { merge: true });
-                                 console.log("Created new user profile document in Firestore.");
-                             }
-                         }
-
-                         userDisplayNameElement.textContent = `Name: ${displayNameToSet}`;
-                         userPhotoElement.src = photoURLToSet;
-                         // Add error handler back after setting the source
-                         userPhotoElement.onerror = () => { userPhotoElement.src = defaultPhotoURL; };
-
-
-                         // For edit modal prefill - populate input values
-                         if (profileDisplayNameInput) profileDisplayNameInput.value = (displayNameToSet === 'Not Set' || displayNameToSet === 'Error') ? '' : displayNameToSet;
-                         if (profilePhotoURLInput) profilePhotoURLInput.value = (photoURLToSet === defaultPhotoURL || !photoURLToSet || photoURLToSet.startsWith('data:')) ? '' : photoURLToSet;
-
-
-                     } catch (error) {
-                         console.error("Error loading user profile:", error);
-                         // Display error messages on the page elements
-                         userDisplayNameElement.textContent = `Name: ${user.displayName || 'Error Loading'}`;
-                         userEmailElement.textContent = `Email: ${user.email || 'Error Loading'}`;
-                         authProviderElement.textContent = 'Sign-in Method: Error Loading';
-                         creationTimeElement.textContent = `Created: ${user.metadata.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'Error Loading'}`;
-                         lastSignInElement.textContent = `Last Sign-in: ${user.metadata.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleString() : 'Error Loading'}`;
-                         userUIDElement.textContent = `User ID: ${user.uid || 'Error Loading'}`;
-                         userPhotoElement.src = user.photoURL || defaultPhotoURL; // Fallback to Auth photo or default
-                         userPhotoElement.onerror = () => { userPhotoElement.src = defaultPhotoURL; }; // Ensure error handler is present
-                     }
-
-                      // After loading profile, check auth provider to update modal content visibility
-                      checkAuthProvider(user);
-
                  };
 
 
