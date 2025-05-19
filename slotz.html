@@ -11,10 +11,8 @@
 
     <style>
         * {
-            /* Removed !important overrides */
             font-family: 'Outfit', sans-serif;
             box-sizing: border-box;
-             /* Removed default margin/padding/font-weight/color */
         }
 
         :root {
@@ -39,6 +37,7 @@
             --input-bg-color: var(--bg-color);
             --input-text-color: var(--text-color);
             --input-focus-border-color: var(--accent-color);
+            --card-bg: #ffffff; /* Explicitly defined for reel background */
         }
 
         body {
@@ -46,88 +45,76 @@
             color: var(--text-color);
             display: flex;
             flex-direction: column;
-             /* Centered content */
-            align-items: center; /* Center horizontally */
-            justify-content: flex-start; /* Align to top initially */
+            align-items: center;
+            justify-content: flex-start;
             min-height: 100vh;
             margin: 0;
             padding: 0;
             font-family: 'Outfit', sans-serif;
             line-height: 1.6;
             text-transform: uppercase;
-            text-align: center; /* Center content by default */
+            text-align: center;
             position: relative;
             overflow-x: hidden;
-
-             /* Add padding to account for fixed navbar and footer */
-             padding-top: 80px; /* Default padding for fixed navbar */
-             padding-bottom: 60px; /* Default padding for fixed footer */
-
-             /* Grid Background */
+            padding-top: 80px;
+            padding-bottom: 60px;
             background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
                               repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
-            background-size: 20px 20px; /* Size of each grid cell */
+            background-size: 20px 20px;
         }
 
-         /* Remove triangular gradients */
         body::before, body::after {
             content: none;
         }
 
-         a {
-              /* Inherit color or set theme color, text decoration handled by specific classes */
-             color: var(--text-color);
-             text-decoration: none;
-         }
+        a {
+            color: var(--text-color);
+            text-decoration: none;
+        }
 
-        /* Navbar - consistent with other pages */
+        /* Navbar */
         .navbar {
             display: flex;
-            justify-content: space-between; /* Pushes logo to left, buttons to right */
-            align-items: center; /* Vertically centers items in navbar */
+            justify-content: space-between;
+            align-items: center;
             padding: 20px 20px;
-            /* Adjusted padding */
             background-color: var(--navbar-bg);
-            /* Light gray */
             color: var(--text-color);
-            /* Dark text */
-             text-align: left; /* Override center for navbar layout */
+            text-align: left;
             width: 100%;
-            position: fixed; /* Ensure navbar is fixed */
+            position: fixed;
             top: 0;
-            left: 0; /* Ensure it starts from the left edge */
-            z-index: 100; /* Ensure it's above other content */
+            left: 0;
+            z-index: 100;
         }
 
         .logo {
             font-size: 24px;
             font-weight: 900;
-             color: var(--text-color);
-             /* Removed specific letter-spacing */
+            color: var(--text-color);
         }
 
         .nav-buttons {
             display: flex;
             gap: 15px;
-            /* Adjusted gap */
-            align-items: center; /* Vertically centers buttons within nav-buttons */
-             text-align: left; /* Ensure text in buttons is not affected by body center */
-             margin-left: auto; /* Pushes the nav-buttons group to the right */
+            align-items: center;
+            text-align: left;
+            margin-left: auto;
         }
 
         /* Buttons (Base Styles) */
         .btn {
-            display: inline-flex; /* Use inline-flex */
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 10px 20px; /* Adjusted padding */
+            padding: 10px 20px;
             min-height: 40px;
-            border-radius: 5px; /* Less rounded */
+            border-radius: 5px;
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            border: none; /* Removed default transparent border */
+            border: none;
             font-family: 'Outfit', sans-serif;
             text-transform: uppercase;
             font-size: 14px;
@@ -136,71 +123,69 @@
 
         .btn.primary {
             background-color: var(--primary-color);
-            color: var(--bg-color); /* White text on dark primary */
+            color: var(--bg-color);
             border: 1px solid var(--primary-color);
         }
 
         .btn.secondary {
             background-color: transparent;
-            color: var(--text-color); /* Dark text on light secondary */
+            color: var(--text-color);
             border: 1px solid var(--secondary-border-color);
         }
 
         .btn.primary:hover {
             background-color: var(--hover-bg);
-             color: var(--text-color);
-             border-color: var(--hover-bg);
-         }
+            color: var(--text-color);
+            border-color: var(--hover-bg);
+        }
 
         .btn.secondary:hover {
             background-color: var(--hover-bg);
-             border-color: var(--hover-bg);
+            border-color: var(--hover-bg);
         }
 
-         /* Button with Arrow */
+        /* Button with Arrow */
         .btn-with-arrow::before {
-            content: '\2192'; /* Right arrow character */
-            margin-right: 8px; /* Space between arrow and text */
-            font-weight: bold; /* Make arrow slightly bolder */
-             color: var(--accent-color); /* Dark accent color for arrow */
+            content: '\2192';
+            margin-right: 8px;
+            font-weight: bold;
+            color: var(--accent-color);
         }
 
         /* Slot Machine Title */
         h1 {
             margin: 2rem 0 1rem;
-            font-size: 3rem; /* Adjusted size */
-            letter-spacing: normal; /* Removed letter-spacing */
-             color: var(--primary-color); /* Dark text color */
-             font-weight: 900;
-             text-transform: uppercase;
-             animation: none; /* Removed glow animation */
+            font-size: 3rem;
+            letter-spacing: normal;
+            color: var(--primary-color);
+            font-weight: 900;
+            text-transform: uppercase;
+            animation: none;
         }
 
         /* Controls Area */
         #controls {
             display: flex;
-            gap: 1.5rem; /* Adjusted gap */
+            gap: 1.5rem;
             align-items: center;
-            justify-content: center; /* Center controls */
+            justify-content: center;
             margin-bottom: 1.5rem;
-            flex-wrap: wrap; /* Allow wrapping on small screens */
-            color: var(--text-color); /* Apply text color to labels */
-             font-weight: 600; /* Make labels bolder */
+            flex-wrap: wrap;
+            color: var(--text-color);
+            font-weight: 600;
         }
 
         /* Input and Button within Controls */
         #controls input[type="number"],
         #controls button {
-             /* Inherit button/input styles from the theme */
             background-color: var(--input-bg-color);
             border: 1px solid var(--input-border-color);
-            padding: 10px 20px; /* Use theme padding */
-            border-radius: 5px; /* Less rounded */
+            padding: 10px 20px;
+            border-radius: 5px;
             font-family: 'Outfit', sans-serif;
             font-size: 1rem;
             color: var(--input-text-color);
             text-transform: uppercase;
-            /* Apply uppercase to button text */
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -208,81 +193,71 @@
         }
 
         #controls input[type="number"] {
-            width: 100px; /* Wider input */
+            width: 100px;
             text-align: center;
-             text-transform: none; /* Keep input text mixed case */
-             padding: 10px 8px; /* Adjust padding for number input */
+            text-transform: none;
+            padding: 10px 8px;
         }
-         #controls input[type="number"]:focus {
-             border-color: var(--input-focus-border-color);
-             box-shadow: 0 0 5px rgba(51, 51, 51, 0.2);
-         }
+        #controls input[type="number"]:focus {
+            border-color: var(--input-focus-border-color);
+            box-shadow: 0 0 5px rgba(51, 51, 51, 0.2);
+        }
 
 
         #controls button#spin {
-             /* Inherit primary button styles */
             background-color: var(--primary-color);
             color: var(--bg-color);
             border: 1px solid var(--primary-color);
-             /* Removed pseudo-element effects */
-             position: static; /* Remove relative positioning */
-             overflow: visible; /* Remove overflow hidden */
+            position: static;
+            overflow: visible;
         }
-         #controls button#spin:hover {
-             /* Inherit primary button hover styles */
+        #controls button#spin:hover {
             background-color: var(--hover-bg);
             color: var(--text-color);
             border-color: var(--hover-bg);
-             box-shadow: none; /* Remove default hover box shadow */
+            box-shadow: none;
+        }
+         #controls button#spin:active:after {
+             content: none;
          }
-          #controls button#spin:active:after { /* Removed pseudo-element active state */
-              content: none;
-          }
 
 
         /* Slot Machine Reels Container */
         #slot-machine {
             display: flex;
             gap: 20px;
-            /* Wider gap */
             margin-bottom: 1rem;
-            justify-content: center; /* Center reels */
+            justify-content: center;
         }
 
         /* Individual Reels */
         .reel {
             width: 100px;
-            /* Larger reels */
             height: 100px;
             border: 3px solid var(--reel-border-color);
-            /* Theme border */
             border-radius: 10px;
-            /* Less rounded */
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             position: relative;
-             background-color: var(--card-bg); /* Light background for reels */
-             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle shadow */
-            animation: none; /* Removed blink animation */
+            background-color: var(--card-bg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            animation: none;
         }
 
         .number {
             position: absolute;
             font-size: 3rem;
-            /* Larger numbers */
             color: var(--reel-number-color);
-            /* Theme number color */
-             font-weight: 900; /* Bolder numbers */
-             text-transform: uppercase; /* Ensure numbers are uppercase (though they are numbers) */
+            font-weight: 900;
+            text-transform: uppercase;
         }
 
         .reel.spinning .number {
             animation: slide 0.4s linear infinite;
             filter: blur(4px);
-             /* Keep blur effect while spinning */
-             text-transform: uppercase; /* Ensure spinning numbers are uppercase */
+            text-transform: uppercase;
         }
 
         /* Message Area */
@@ -290,16 +265,14 @@
             height: 1.5em;
             margin-bottom: 2rem;
             font-size: 1.5rem;
-            /* Larger message font */
             opacity: 0;
             transition: opacity 0.5s ease;
             text-transform: uppercase;
-            /* All caps */
-             font-weight: 700; /* Bolder message */
-             text-align: center; /* Ensure message is centered */
+            font-weight: 700;
+            text-align: center;
         }
-         #message.win {
-             animation: none; /* Removed glow animation */
+        #message.win {
+             animation: none;
              opacity: 1;
          }
          #message.win.x2 {
@@ -317,18 +290,16 @@
         .confetti {
             position: fixed;
             width: 8px;
-            /* Slightly larger confetti */
             height: 8px;
             background: var(--confetti-color);
-            /* Theme confetti color */
             top: 0;
             opacity: 0.8;
             pointer-events: none;
             animation: fall 2s ease-out forwards;
-             border-radius: 2px; /* Make confetti square or slightly rounded */
+            border-radius: 2px;
         }
 
-        /* Animations - kept slide and fall, removed blink and glow */
+        /* Animations */
         @keyframes slide {
             0% {
                 transform: translateY(100%);
@@ -337,8 +308,6 @@
                 transform: translateY(-100%);
             }
         }
-        /* Removed @keyframes blink */
-        /* Removed @keyframes glow */
         @keyframes fall {
             to {
                 transform: translate(var(--dx), 100vh) rotate(var(--rot));
@@ -346,26 +315,26 @@
             }
         }
 
-         /* Responsive adjustments */
-         @media (max-width: 768px) {
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
              .navbar {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
+                 flex-direction: column;
+                 gap: 10px;
+                 align-items: flex-start;
+             }
 
-            .nav-buttons {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
+             .nav-buttons {
+                 flex-direction: column;
+                 gap: 10px;
+                 align-items: flex-start;
                  margin-left: 0;
                  width: 100%;
-            }
+             }
 
-            body {
-                 padding-top: 120px; /* Adjust padding for stacked navbar */
-                 padding-bottom: 80px; /* Adjust padding for footer */
-            }
+             body {
+                 padding-top: 120px;
+                 padding-bottom: 80px;
+             }
 
              h1 {
                  font-size: 2.5rem;
@@ -415,76 +384,72 @@
          }
 
          @media (max-width: 480px) {
-            .navbar {
-                 padding: 15px 10px;
-             }
-             .logo {
-                font-size: 20px;
-             }
+              .navbar {
+                   padding: 15px 10px;
+               }
+               .logo {
+                   font-size: 20px;
+               }
 
-            .nav-buttons {
-                 gap: 8px;
-             }
+              .nav-buttons {
+                   gap: 8px;
+               }
 
-            .btn {
-                 padding: 8px 15px;
-                 font-size: 12px;
-            }
+               .btn {
+                   padding: 8px 15px;
+                   font-size: 12px;
+               }
 
-             body {
-                 padding-top: 150px; /* Adjust padding for stacked navbar */
-                 padding-bottom: 100px; /* Adjust padding for footer */
-             }
+              body {
+                   padding-top: 150px;
+                   padding-bottom: 100px;
+               }
 
-             h1 {
-                 font-size: 1.8rem;
-                 margin-top: 1rem;
-                 margin-bottom: 0.6rem;
-             }
+               h1 {
+                   font-size: 1.8rem;
+                   margin-top: 1rem;
+                   margin-bottom: 0.6rem;
+               }
 
-              #controls {
-                 gap: 0.8rem;
-                 margin-bottom: 0.8rem;
-                 font-size: 0.8rem;
-             }
-              #controls input[type="number"], #controls button {
-                  padding: 6px 10px;
-                  font-size: 10px;
-              }
-              #controls input[type="number"] {
-                  width: 60px;
-                   padding: 6px 4px;
-              }
+               #controls {
+                   gap: 0.8rem;
+                   margin-bottom: 0.8rem;
+                   font-size: 0.8rem;
+               }
+               #controls input[type="number"], #controls button {
+                   padding: 6px 10px;
+                   font-size: 10px;
+               }
+               #controls input[type="number"] {
+                   width: 60px;
+                    padding: 6px 4px;
+               }
 
 
-             #slot-machine {
-                 gap: 10px;
-                 margin-bottom: 0.6rem;
-             }
-             .reel {
-                 width: 60px;
-                 height: 60px;
-                 border-width: 1px;
-                 border-radius: 5px;
-             }
-             .number {
-                 font-size: 1.8rem;
-             }
-              #message {
-                 font-size: 1rem;
-                 margin-bottom: 1rem;
-             }
+               #slot-machine {
+                   gap: 10px;
+                   margin-bottom: 0.6rem;
+               }
+               .reel {
+                   width: 60px;
+                   height: 60px;
+                   border-width: 1px;
+                   border-radius: 5px;
+               }
+               .number {
+                   font-size: 1.8rem;
+               }
+                #message {
+                   font-size: 1rem;
+                   margin-bottom: 1rem;
+               }
 
-              .confetti {
-                  width: 4px;
-                  height: 4px;
-                  border-radius: 0;
-              }
-        }
-
-         /* Helper to darken color in CSS variables - requires preprocessor or manual calculation */
-        /* This is a placeholder, actual darkening needs to be done manually or with JS/preprocessor */
-        /* function darken(color, percent) { ... } */
+                .confetti {
+                    width: 4px;
+                    height: 4px;
+                    border-radius: 0;
+                }
+           }
 
     </style>
 </head>
@@ -517,48 +482,93 @@
     <div id="message"></div>
 
      <script>
-        // ===== Reel strips (weights) just like physical reels =====
-        // Each symbol appears multiple times → controls its probability.
-        const strip = [
-            ...Array(30).fill(1),
-            ...Array(25).fill(2),
-            ...Array(20).fill(3),
-            ...Array(15).fill(4),
-            ...Array(7).fill(5),
-            ...Array(2).fill(6),
-            ...Array(1).fill(7)
-        ];
-        // shuffle once for each reel
-        const reelsData = [ shuffle(strip), shuffle(strip), shuffle(strip) ];
+         /**
+          * ETHICAL WARNING:
+          * Modifying game outcomes for specific users to make them lose more
+          * is unethical and can be illegal in many jurisdictions. This code
+          * demonstrates the technical request but should NOT be used in any
+          * real application where users expect fair gameplay. This functionality
+          * should only be used for simulations or testing where all participants
+          * are fully aware the outcomes are being manipulated.
+          */
 
-        function shuffle(arr) {
-            const a = arr.slice();
-            for (let i = a.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [a[i], a[j]] = [a[j], a[i]];
-            }
-            return a;
-        }
+         // ===== Reel strips (weights) just like physical reels =====
+         // Each symbol appears multiple times → controls its probability.
+         const strip = [
+             ...Array(30).fill(1),
+             ...Array(25).fill(2),
+             ...Array(20).fill(3),
+             ...Array(15).fill(4),
+             ...Array(7).fill(5),
+             ...Array(2).fill(6),
+             ...Array(1).fill(7)
+         ];
+         // shuffle once for each reel
+         const reelsData = [ shuffle(strip), shuffle(strip), shuffle(strip) ];
 
-        // pick a random symbol from a given reel strip
-        function spinReelValue(reel) {
-            const idx = Math.floor(Math.random() * reel.length);
-            return reel[idx];
-        }
+         function shuffle(arr) {
+             const a = arr.slice();
+             for (let i = a.length - 1; i > 0; i--) {
+                 const j = Math.floor(Math.random() * (i + 1));
+                 [a[i], a[j]] = [a[j], a[i]];
+             }
+             return a;
+         }
 
-        // ===== UI & Logic =====
-        const reelsEls = document.querySelectorAll('.reel .number');
-        const spinBtn = document.getElementById('spin');
-        const balEl = document.getElementById('balance');
-        const betEl = document.getElementById('bet');
-        const msgEl = document.getElementById('message');
-        const logoutBtn = document.getElementById('logoutBtn'); // Get the logout button
+         // pick a random symbol from a given reel strip (original fair logic)
+         function spinReelValue(reel) {
+             const idx = Math.floor(Math.random() * reel.length);
+             return reel[idx];
+         }
 
-        let balance = 1000; // Starting balance
+         // --- Rigging Logic ---
+         // !!! IMPORTANT: Replace with the actual emails you want to target !!!
+         const riggedUsers = ['tootja30@minerva.sparcc.org', 'jace.toot@icloud.com'];
+         let currentUserEmail = null; // Variable to store the logged-in user's email
 
-        // --- Firebase Auth Listener & Logout ---
-        let auth;
-        document.addEventListener('DOMContentLoaded', () => {
+         // Function to generate a losing outcome (guaranteed no pairs or triples)
+         function generateRiggedOutcome(strips) {
+             // Collect all unique symbols from all strips
+             const allUniqueSymbols = new Set();
+             strips.forEach(strip => {
+                 strip.forEach(symbol => allUniqueSymbols.add(symbol));
+             });
+             const uniqueSymbolsArray = Array.from(allUniqueSymbols).sort((a, b) => a - b);
+
+             if (uniqueSymbolsArray.length < 3) {
+                  console.error("Not enough unique symbols across all strips to guarantee a loss. Cannot rig effectively.");
+                  // Fallback to original spin logic if not enough unique symbols
+                  return strips.map(strip => spinReelValue(strip));
+             }
+
+             // Pick three distinct symbols from the unique set to guarantee a loss
+             let outcome = [];
+             while (outcome.length < 3) {
+                 const randomIndex = Math.floor(Math.random() * uniqueSymbolsArray.length);
+                 const symbol = uniqueSymbolsArray[randomIndex];
+                 if (!outcome.includes(symbol)) {
+                     outcome.push(symbol);
+                 }
+             }
+              console.log("Generated rigged outcome (guaranteed loss):", outcome);
+              return outcome; // This guarantees three distinct numbers = loss
+         }
+         // --- End Rigging Logic ---
+
+
+         // ===== UI & Logic =====
+         const reelsEls = document.querySelectorAll('.reel .number');
+         const spinBtn = document.getElementById('spin');
+         const balEl = document.getElementById('balance');
+         const betEl = document.getElementById('bet');
+         const msgEl = document.getElementById('message');
+         const logoutBtn = document.getElementById('logoutBtn'); // Get the logout button
+
+         let balance = 500; // Starting balance
+
+         // --- Firebase Auth Listener & Logout ---
+         let auth;
+         document.addEventListener('DOMContentLoaded', () => {
              // Check if Firebase SDK is available and initialized
              if (typeof firebase !== 'undefined') {
                  // Initialize Firebase app if not already initialized
@@ -566,13 +576,13 @@
                      try {
                           firebase.initializeApp(firebaseConfig);
                      } catch (error) {
-                         console.error("Firebase initialization error:", error);
+                          console.error("Firebase initialization error:", error);
                           // Handle initialization error - maybe show a message on the page
                           msgEl.textContent = 'ERROR LOADING FIREBASE SERVICES.';
                           msgEl.className = 'lose'; // Use lose class for error message styling
                           spinBtn.disabled = true; // Disable spin button
                           if(logoutBtn) logoutBtn.disabled = true; // Disable logout button
-                         return; // Stop script execution if Firebase fails to initialize
+                          return; // Stop script execution if Firebase fails to initialize
                      }
                  }
                   // Assign auth instance
@@ -586,10 +596,13 @@
                           window.location.href = 'index.html';
                       } else {
                            console.log("User logged in:", user.email);
+                           currentUserEmail = user.email; // Store the logged-in user's email
+
                            // User is logged in, enable buttons if they were disabled due to initial load state
                            spinBtn.disabled = false;
                            betEl.disabled = false;
                            if(logoutBtn) logoutBtn.disabled = false;
+
                            // Set up the logout listener here after auth is confirmed and button is enabled
                             if(logoutBtn) {
                                  logoutBtn.addEventListener('click', () => {
@@ -607,11 +620,10 @@
                                      }
                                  });
                              } else {
-                                  console.error("Logout button not found after auth check.");
+                                 console.error("Logout button not found after auth check.");
                              }
                       }
                   });
-
 
              } else {
                  console.error("Firebase SDK not available.");
@@ -621,105 +633,117 @@
                  spinBtn.disabled = true; // Disable spin button
                  if(logoutBtn) logoutBtn.disabled = true; // Disable logout button
              }
-        });
-        // --- End Firebase Auth Listener ---
+         });
+         // --- End Firebase Auth Listener ---
 
 
-        function updateBalance() {
-            balEl.textContent = balance;
-        }
+         function updateBalance() {
+             balEl.textContent = balance;
+         }
 
-        function animateReel(el, duration, final) {
-            const parent = el.parentElement;
-            // Check if parent and classList exist before adding/removing classes
+         function animateReel(el, duration, final) {
+             const parent = el.parentElement;
+             // Check if parent and classList exist before adding/removing classes
              if (parent && parent.classList) {
-                 parent.classList.add('spinning');
+                  parent.classList.add('spinning');
              }
 
-            return new Promise(res => {
-                setTimeout(() => {
-                    // Check if parent and classList exist before adding/removing classes
-                    if (parent && parent.classList) {
-                         parent.classList.remove('spinning');
-                    }
-                    el.textContent = final;
-                    res(final);
-                }, duration);
-            });
-        }
+             return new Promise(res => {
+                 setTimeout(() => {
+                     // Check if parent and classList exist before adding/removing classes
+                     if (parent && parent.classList) {
+                          parent.classList.remove('spinning');
+                     }
+                     el.textContent = final;
+                     res(final);
+                 }, duration);
+             });
+         }
 
-        function burstConfetti(){
-            for(let i=0;i<30;i++){
-                const c = document.createElement('div');
-                c.className = 'confetti';
-                c.style.left = (Math.random()*100)+'vw';
-                c.style.setProperty('--dx', ((Math.random()*2-1)*100)+'vw');
-                c.style.setProperty('--rot', (Math.random()*360)+'deg');
-                document.body.appendChild(c);
-                setTimeout(() => c.remove(), 2000);
-            }
-        }
+         function burstConfetti(){
+             for(let i=0;i<30;i++){
+                 const c = document.createElement('div');
+                 c.className = 'confetti';
+                 c.style.left = (Math.random()*100)+'vw';
+                 c.style.setProperty('--dx', ((Math.random()*2-1)*100)+'vw');
+                 c.style.setProperty('--rot', (Math.random()*360)+'deg');
+                 document.body.appendChild(c);
+                 setTimeout(() => c.remove(), 2000);
+             }
+         }
 
-        spinBtn.addEventListener('click', async () => {
-            const bet = Number(betEl.value);
-            // only whole numbers, ≥1 and ≤balance
-            if (!Number.isInteger(bet) || bet < 1 || bet > balance) {
-                // Use a consistent way to display messages, maybe the message div
-                 msgEl.textContent = 'PLEASE ENTER A WHOLE‑NUMBER BET BETWEEN 1 AND YOUR BALANCE.'; // Uppercase message
-                 msgEl.className = 'lose'; // Use lose class for error message styling
-                 // alert('Please enter a whole‑number bet between 1 and your balance.'); // Fallback to alert
-                return;
-            }
-            // lock controls
-            spinBtn.disabled = true;
-            betEl.disabled = true;
+         spinBtn.addEventListener('click', async () => {
+             const bet = Number(betEl.value);
+             // only whole numbers, ≥1 and ≤balance
+             if (!Number.isInteger(bet) || bet < 1 || bet > balance) {
+                 // Use a consistent way to display messages, maybe the message div
+                  msgEl.textContent = 'PLEASE ENTER A WHOLE‑NUMBER BET BETWEEN 1 AND YOUR BALANCE.'; // Uppercase message
+                  msgEl.className = 'lose'; // Use lose class for error message styling
+                  return;
+             }
+             // lock controls
+             spinBtn.disabled = true;
+             betEl.disabled = true;
 
-            balance -= bet;
-            updateBalance();
-            msgEl.textContent = ''; // Clear message
-            msgEl.className = ''; // Remove win/lose classes
+             balance -= bet;
+             updateBalance();
+             msgEl.textContent = ''; // Clear message
+             msgEl.className = ''; // Remove win/lose classes
 
-            // spin each reel with staggered timing
-            const durations = [1200, 1400, 1600].map(d => d + Math.random()*300);
-            // pick final symbols from weighted strips
-            const finals = reelsData.map((strip, i) => spinReelValue(strip));
-            const results = await Promise.all(finals.map((val, i) =>
-                animateReel(reelsEls[i], durations[i], val)
-            ));
+             // spin each reel with staggered timing
+             const durations = [1200, 1400, 1600].map(d => d + Math.random()*300);
 
-            // count matches
-            const counts = {};
-            results.forEach(n => counts[n] = (counts[n]||0) + 1);
+             // --- Modified Logic for Rigging ---
+             let finals;
+             // Check if the current user is in the rigged list
+             if (currentUserEmail && riggedUsers.includes(currentUserEmail)) {
+                  console.log(`Rigging game for user: ${currentUserEmail}`);
+                  // Generate a rigged outcome (guaranteed loss)
+                  finals = generateRiggedOutcome(reelsData);
+             } else {
+                  // Original logic for non-rigged users (still has a house edge due to strip weights)
+                  finals = reelsData.map((strip, i) => spinReelValue(strip));
+             }
+             // --- End Modified Logic ---
 
-            // determine payout: 3× for any triple, 2× for any pair
-            let payout = 0, cls = '';
-            if (Object.values(counts).includes(3)) {
-                payout = bet * 3;
-                msgEl.textContent = '🎉 JACKPOT! 3× WIN!'; // Uppercase message
-                cls = 'x3';
-            } else if (Object.values(counts).includes(2)) {
-                payout = bet * 2;
-                msgEl.textContent = '✨ NICE! 2× WIN!'; // Uppercase message
-                cls = 'x2';
-            } else {
-                msgEl.textContent = '😢 YOU LOSE'; // Uppercase message
-                msgEl.className = 'lose';
-            }
 
-            if (payout > 0) {
-                msgEl.className = `win ${cls}`;
-                burstConfetti(); // Only burst confetti on win
-            }
-            balance += payout;
-            updateBalance();
+             const results = await Promise.all(finals.map((val, i) =>
+                 animateReel(reelsEls[i], durations[i], val)
+             ));
 
-            // unlock controls
-            spinBtn.disabled = false;
-            betEl.disabled = false;
-        });
+             // count matches
+             const counts = {};
+             results.forEach(n => counts[n] = (counts[n]||0) + 1);
 
-        // Initial balance display on load
-        updateBalance();
-    </script>
+             // determine payout: 3× for any triple, 2× for any pair
+             let payout = 0, cls = '';
+             if (Object.values(counts).includes(3)) {
+                 payout = bet * 3;
+                 msgEl.textContent = '🎉 JACKPOT! 3× WIN!'; // Uppercase message
+                 cls = 'x3';
+             } else if (Object.values(counts).includes(2)) {
+                 payout = bet * 2;
+                 msgEl.textContent = '✨ NICE! 2× WIN!'; // Uppercase message
+                 cls = 'x2';
+             } else {
+                 msgEl.textContent = '😢 YOU LOSE'; // Uppercase message
+                 msgEl.className = 'lose';
+             }
+
+             if (payout > 0) {
+                 msgEl.className = `win ${cls}`;
+                 burstConfetti(); // Only burst confetti on win
+             }
+             balance += payout;
+             updateBalance();
+
+             // unlock controls
+             spinBtn.disabled = false;
+             betEl.disabled = false;
+         });
+
+         // Initial balance display on load
+         updateBalance();
+     </script>
 </body>
 </html>
