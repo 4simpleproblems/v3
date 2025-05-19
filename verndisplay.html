@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>4SP | VERN</title>
-    <link id="dynamic-favicon" rel="icon" type="image/x-icon" href="https://vern4235.surge.sh/favicon.ico">
+    <link id="dynamic-favicon" rel="icon" type="image/x-icon" href="https://vern.surge.sh/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet" />
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -32,12 +32,18 @@
             /* Light gray grid lines */
             --accent-color: #000;
             /* Dark accent color */
-            --modal-bg: #1a1a1a; /* Darker background for modal */
-            --modal-border: #333; /* Border for modal */
-            --input-bg: #333; /* Dark background for input */
-            --input-border: #555; /* Border for input */
-            --input-text: #eee; /* Light text for input */
-            --button-hover-bg-dark: #444; /* Darker hover for buttons in dark modal */
+            --modal-bg: #1a1a1a;
+            /* Darker background for modal */
+            --modal-border: #333;
+            /* Border for modal */
+            --input-bg: #333;
+            /* Dark background for input */
+            --input-border: #555;
+            /* Border for input */
+            --input-text: #eee;
+            /* Light text for input */
+            --button-hover-bg-dark: #444;
+            /* Darker hover for buttons in dark modal */
         }
 
         * {
@@ -166,9 +172,11 @@
         }
 
         .btn.secondary:hover {
-            background-color: var(--hover-bg);
-            border-color: var(--hover-bg);
+            background-color: var(--button-hover-bg-dark);
+            /* Darker hover for dark modal */
+            border-color: var(--button-hover-bg-dark);
         }
+
 
         /* Button with Arrow */
         .btn-with-arrow::before {
@@ -207,6 +215,7 @@
 
         .hidden {
             display: none !important;
+            /* Use !important to ensure it overrides other display properties */
         }
 
         /* --- Cloaking Menu Styles --- */
@@ -216,12 +225,29 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); /* Dim the background */
-            z-index: 101; /* Above navbar */
+            background-color: rgba(0, 0, 0, 0.7);
+            /* Dim the background */
+            z-index: 101;
+            /* Above navbar */
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
+            /* Add padding around the overlay content */
+
+            /* Animation */
+            opacity: 0;
+            /* Start hidden */
+            transition: opacity 0.3s ease-in-out;
+            /* Add transition */
+            pointer-events: none; /* Prevent interaction when hidden */
         }
+
+         .cloaking-menu-overlay:not(.hidden) {
+             opacity: 1; /* Fade in when not hidden */
+             pointer-events: auto; /* Allow interaction when visible */
+         }
+
 
         .cloaking-menu {
             background-color: var(--modal-bg);
@@ -230,18 +256,29 @@
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             max-width: 400px;
-            width: 90%;
+            width: 100%; /* Use 100% width within the padded overlay */
             text-align: left;
-            position: relative; /* Needed for close button positioning */
-            text-transform: none; /* Don't uppercase modal content */
+            position: relative;
+            /* Needed for close button positioning */
+            text-transform: none;
+            /* Don't uppercase modal content */
+            /* Animation - Optional subtle transform */
+             transform: scale(0.95);
+             transition: transform 0.3s ease-in-out;
         }
+
+         .cloaking-menu-overlay:not(.hidden) .cloaking-menu {
+             transform: scale(1); /* Scale back to normal when visible */
+         }
+
 
         .cloaking-menu h3 {
             margin-top: 0;
             margin-bottom: 20px;
             font-size: 1.5em;
             text-align: center;
-            text-transform: uppercase; /* Keep heading uppercase */
+            text-transform: uppercase;
+            /* Keep heading uppercase */
         }
 
         .cloaking-options {
@@ -271,13 +308,16 @@
             width: 100%;
             margin-bottom: 10px;
             /* Space between buttons */
-            text-transform: uppercase; /* Keep button text uppercase */
-            justify-content: center; /* Center button text */
+            text-transform: uppercase;
+            /* Keep button text uppercase */
+            justify-content: center;
+            /* Center button text */
             font-size: 1em;
         }
 
-         .cloaking-menu .btn.secondary:hover {
-            background-color: var(--button-hover-bg-dark); /* Darker hover for dark modal */
+        .cloaking-menu .btn.secondary:hover {
+            background-color: var(--button-hover-bg-dark);
+            /* Darker hover for dark modal */
             border-color: var(--button-hover-bg-dark);
         }
 
@@ -296,7 +336,8 @@
         }
 
         .close-btn:hover {
-            color: var(--primary-color); /* Highlight color on hover */
+            color: var(--primary-color);
+            /* Highlight color on hover */
         }
 
         /* --- End Cloaking Menu Styles --- */
@@ -322,13 +363,20 @@
                 padding-top: 120px;
                 /* Adjust padding for stacked navbar */
             }
-             .cloaking-menu {
+
+            .cloaking-menu-overlay {
+                padding: 15px; /* Reduce padding on smaller screens */
+            }
+
+            .cloaking-menu {
                 padding: 20px;
             }
+
             .cloaking-menu h3 {
-                 font-size: 1.3em;
-                 margin-bottom: 15px;
+                font-size: 1.3em;
+                margin-bottom: 15px;
             }
+
             .cloaking-options input[type="text"] {
                 margin-bottom: 10px;
             }
@@ -356,16 +404,23 @@
                 padding-top: 150px;
                 /* Adjust padding for stacked navbar */
             }
+
+             .cloaking-menu-overlay {
+                padding: 10px; /* Further reduce padding on very small screens */
+            }
+
             .cloaking-menu {
                 padding: 15px;
             }
-             .cloaking-menu h3 {
-                 font-size: 1.1em;
-                 margin-bottom: 10px;
+
+            .cloaking-menu h3 {
+                font-size: 1.1em;
+                margin-bottom: 10px;
             }
-             .cloaking-menu .btn {
-                 font-size: 0.9em;
-             }
+
+            .cloaking-menu .btn {
+                font-size: 0.9em;
+            }
         }
     </style>
 </head>
@@ -375,7 +430,7 @@
     <nav class="navbar">
         <div class="logo">4SP</div>
         <div class="nav-buttons">
-             <button id="cloakBtn" class="btn secondary">Cloak Tab</button>
+            <button id="cloakBtn" class="btn secondary">Cloak Tab</button>
             <a href="index.html" class="btn secondary btn-with-arrow">Home</a>
             <a href="dashboard.html" class="btn secondary btn-with-arrow">Dashboard</a>
             <button id="logoutBtn" class="btn secondary">Log Out</button>
@@ -384,7 +439,7 @@
 
     <div id="cloakingMenuOverlay" class="cloaking-menu-overlay hidden">
         <div class="cloaking-menu">
-             <button class="close-btn" id="closeCloakMenu">&times;</button>
+            <button class="close-btn" id="closeCloakingMenu">&times;</button>
             <h3>Tab Cloaking</h3>
 
             <div class="cloaking-options">
@@ -399,13 +454,14 @@
                 <input type="text" id="customTitleInput" placeholder="Enter custom title">
 
                 <label for="customFaviconInput">Favicon URL:</label>
-                <input type="text" id="customFaviconInput" placeholder="Enter favicon URL (e.g., https://example.com/favicon.ico)">
+                <input type="text" id="customFaviconInput"
+                    placeholder="Enter favicon URL (e.g., https://example.com/favicon.ico)">
 
                 <button id="applyCustomCloak" class="btn primary">Apply Custom</button>
             </div>
 
             <div class="cloaking-options">
-                 <button id="resetCloak" class="btn secondary">Reset to Original</button>
+                <button id="resetCloak" class="btn secondary">Reset to Original</button>
             </div>
         </div>
     </div>
@@ -477,7 +533,7 @@
         // Get DOM elements for cloaking
         const cloakBtn = document.getElementById('cloakBtn');
         const cloakingMenuOverlay = document.getElementById('cloakingMenuOverlay');
-        const closeCloakMenuBtn = document.getElementById('closeCloakMenu');
+        const closeCloakingMenuBtn = document.getElementById('closeCloakingMenu');
         const presetClassroomBtn = document.getElementById('presetClassroom');
         const presetWikipediaBtn = document.getElementById('presetWikipedia');
         const customTitleInput = document.getElementById('customTitleInput');
@@ -485,22 +541,41 @@
         const applyCustomCloakBtn = document.getElementById('applyCustomCloak');
         const resetCloakBtn = document.getElementById('resetCloak');
 
-        // Event listener to open the menu
-        if (cloakBtn) {
-            cloakBtn.addEventListener('click', () => {
-                if (cloakingMenuOverlay) {
-                    cloakingMenuOverlay.classList.remove('hidden');
-                }
-            });
+        // Function to show the menu with fade-in
+        function showCloakMenu() {
+             if (cloakingMenuOverlay) {
+                 cloakingMenuOverlay.classList.remove('hidden');
+                 // The opacity transition is handled by the CSS :not(.hidden) rule
+             }
         }
 
-        // Event listener to close the menu
-         if (closeCloakMenuBtn) {
-            closeCloakMenuBtn.addEventListener('click', () => {
-                 if (cloakingMenuOverlay) {
-                    cloakingMenuOverlay.classList.add('hidden');
-                }
-            });
+        // Function to hide the menu with fade-out
+        function hideCloakMenu() {
+            if (cloakingMenuOverlay) {
+                // Start the fade-out transition by removing the state that sets opacity to 1
+                cloakingMenuOverlay.classList.add('hidden'); // This also sets opacity to 0 via CSS
+            }
+        }
+
+        // Function to toggle menu visibility
+        function toggleCloakMenu() {
+            if (cloakingMenuOverlay.classList.contains('hidden')) {
+                showCloakMenu();
+            } else {
+                hideCloakMenu();
+            }
+        }
+
+
+        // Event listener to open the menu button - This is now the ONLY way to open via user interaction (besides page load persistence)
+        // The check "if (cloakBtn)" ensures this only runs if the button exists.
+        if (cloakBtn) {
+            cloakBtn.addEventListener('click', toggleCloakingMenu); // Corrected function name
+        }
+
+        // Event listener to close the menu button
+         if (closeCloakingMenuBtn) {
+            closeCloakingMenuBtn.addEventListener('click', hideCloakMenu);
         }
 
          // Close menu if clicking outside the modal content
@@ -508,24 +583,28 @@
             cloakingMenuOverlay.addEventListener('click', (event) => {
                 // Check if the click target is the overlay itself, not the menu content
                 if (event.target === cloakingMenuOverlay) {
-                     cloakingMenuOverlay.classList.add('hidden');
+                     hideCloakMenu();
                 }
             });
         }
+
+        // --- REMOVED: Keyboard shortcut listener for the 'f' key ---
+        // document.addEventListener('keydown', function(e) { ... });
+        // All keyboard shortcuts are now disabled by default.
 
 
         // Preset event listeners
         if (presetClassroomBtn) {
             presetClassroomBtn.addEventListener('click', () => {
                 applyCloak('Google Classroom', 'https://ssl.gstatic.com/classroom/favicon.ico');
-                if (cloakingMenuOverlay) cloakingMenuOverlay.classList.add('hidden');
+                hideCloakMenu();
             });
         }
 
         if (presetWikipediaBtn) {
             presetWikipediaBtn.addEventListener('click', () => {
                 applyCloak('Wikipedia', 'https://en.wikipedia.org/static/favicon/wikipedia.ico');
-                 if (cloakingMenuOverlay) cloakingMenuOverlay.classList.add('hidden');
+                 hideCloakMenu();
             });
         }
 
@@ -536,7 +615,7 @@
                 const customFavicon = customFaviconInput ? customFaviconInput.value : '';
                 if (customTitle || customFavicon) { // Apply only if at least one field has a value
                     applyCloak(customTitle || document.title, customFavicon || getFaviconUrl()); // Use existing if field is empty
-                     if (cloakingMenuOverlay) cloakingMenuOverlay.classList.add('hidden');
+                     hideCloakMenu();
                 } else {
                     alert("Please enter a title or favicon URL for custom cloaking.");
                 }
@@ -547,7 +626,7 @@
          if (resetCloakBtn) {
             resetCloakBtn.addEventListener('click', () => {
                 applyCloak(originalTitle, originalFaviconUrl);
-                 if (cloakingMenuOverlay) cloakingMenuOverlay.classList.add('hidden');
+                 hideCloakMenu();
                  // Optional: Clear localStorage items
                  localStorage.removeItem('cachedTitle');
                  localStorage.removeItem('cachedFaviconUrl');
@@ -653,7 +732,7 @@
         // Handle messages from the iframe for potential redirect requests (Existing Code)
         window.addEventListener('message', function(event) {
             // You can add origin checking for security if needed
-            // if (event.origin !== "https://vern4235.surge.sh") return; // Check origin if possible
+            // if (event.origin !== "https://vern.surge.sh") return; // Check origin if possible
 
             if (event.data && event.data.type === 'redirect') {
                 if (event.data.url) {
@@ -668,33 +747,7 @@
             }
         });
 
-                const iframe = document.getElementById('viewer');
-                if (iframe) { // Ensure iframe element exists
-                    // Check if iframe's contentDocument is available and try to request fullscreen on it
-                    // This is often necessary for fullscreen to work correctly from the parent page
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-
-                    if (iframeDoc.documentElement.requestFullscreen) {
-                        iframeDoc.documentElement.requestFullscreen();
-                    } else if (iframe.requestFullscreen) {
-                        // Fallback to requesting fullscreen on the iframe element itself
-                        iframe.requestFullscreen();
-                    } else if (iframe.mozRequestFullScreen) {
-                        iframe.mozRequestFullScreen();
-                    } else if (iframe.webkitRequestFullscreen) {
-                        iframe.webkitRequestFullscreen();
-                    } else if (iframe.msRequestFullscreen) {
-                        iframe.msRequestFullscreen();
-                    } else {
-                        console.warn("Fullscreen API not supported in this browser.");
-                        // Optionally alert the user
-                        // alert("Fullscreen mode is not supported in your browser.");
-                    }
-                } else {
-                    console.error("Iframe element not found.");
-                }
-            }
-        });
+         // The previous keyboard shortcut listeners have been removed as requested.
     </script>
 </body>
 
