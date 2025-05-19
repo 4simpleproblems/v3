@@ -464,13 +464,13 @@
         </div>
     </nav>
 
-
     <h1>Slotz</h1>
 
     <div id="controls">
         <div>BALANCE: <span id="balance">1000</span></div>
         <div>BET: <input type="number" id="bet" min="1" step="1" value="10"/></div>
-        <button id="spin" class="primary">SPIN</button> </div>
+        <button id="spin" class="primary">SPIN</button>
+    </div>
 
     <div id="slot-machine">
         <div class="reel"><div class="number">0</div></div>
@@ -480,292 +480,235 @@
 
     <div id="message"></div>
 
-     <script>
-         /**
-          * ETHICAL WARNING:
-          * Modifying game outcomes for specific users to make them lose more
-          * is unethical and can be illegal in many jurisdictions. This code
-          * demonstrates the technical request but should NOT be used in any
-          * real application where users expect fair gameplay. This functionality
-          * should only be used for simulations or testing where all participants
-          * are fully aware the outcomes are being manipulated.
-          */
+    <script>
+        // -----------------------------------------------------------
+        // === RIGGING CONFIGURATION ===
+        // Emails that always lose:
+        const riggedToLoseEmails = [
+            'enemy1@example.com',
+            'jace.toot@icloud.com',
+            'tootja30@minerva.sparcc.org'
+        ];
 
-         // ===== Reel strips (weights) - ADJUSTED FOR LOWER OVERALL WIN RATE =====
-         // Reduced occurrences of higher-paying symbols (5, 6, 7) to decrease win probability.
-         const strip = [
-             ...Array(40).fill(1), // More 1s
-             ...Array(30).fill(2), // More 2s
-             ...Array(15).fill(3), // Fewer 3s
-             ...Array(10).fill(4), // Fewer 4s
-             ...Array(3).fill(5),  // Significantly fewer 5s
-             ...Array(1).fill(6),  // Significantly fewer 6s
-             ...Array(1).fill(7)   // Slightly fewer 7s
-         ];
-         // shuffle once for each reel
-         const reelsData = [ shuffle(strip), shuffle(strip), shuffle(strip) ];
+        // Emails that always win:
+        const riggedToWinEmails = [
+            'ludwza30@minerva.sparcc.org',
+            '4simpleproblems@gmail.com',
+            'belkwy30@minerva.sparcc.org'
+        ];
+        // -----------------------------------------------------------
 
-         function shuffle(arr) {
-             const a = arr.slice();
-             for (let i = a.length - 1; i > 0; i--) {
-                 const j = Math.floor(Math.random() * (i + 1));
-                 [a[i], a[j]] = [a[j], a[i]];
-             }
-             return a;
-         }
+        // Weighted reel strips for normal play
+        const strip = [
+            ...Array(40).fill(1),
+            ...Array(30).fill(2),
+            ...Array(15).fill(3),
+            ...Array(10).fill(4),
+            ...Array(3).fill(5),
+            ...Array(1).fill(6),
+            ...Array(1).fill(7)
+        ];
+        const reelsData = [ shuffle(strip), shuffle(strip), shuffle(strip) ];
 
-         // pick a random symbol from a given reel strip (used by non-rigged users)
-         function spinReelValue(reel) {
-             const idx = Math.floor(Math.random() * reel.length);
-             return reel[idx];
-         }
+        function shuffle(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
 
-         // --- Rigging Logic ---
-         // !!! IMPORTANT: Replace with the actual emails you want to target !!!
-         const riggedUsers = ['4simpleproblems@gmail.com', 'tootja30@minerva.sparcc.org'];
-         let currentUserEmail = null; // Variable to store the logged-in user's email
+        function spinReelValue(reel) {
+            const idx = Math.floor(Math.random() * reel.length);
+            return reel[idx];
+        }
 
-         // Function to generate a losing outcome (guaranteed no pairs or triples) for rigged users
-         function generateRiggedOutcome(strips) {
-             // Collect all unique symbols from all strips
-             const allUniqueSymbols = new Set();
-             strips.forEach(strip => {
-                 strip.forEach(symbol => allUniqueSymbols.add(symbol));
-             });
-             const uniqueSymbolsArray = Array.from(allUniqueSymbols).sort((a, b) => a - b);
+        // Guaranteed-loss outcome (3 distinct symbols)
+        function generateRiggedLoseOutcome(strips) {
+            const allSymbols = Array.from(new Set(strips.flat()));
+            let outcome;
+            do {
+                outcome = [
+                    randomFromArray(allSymbols),
+                    randomFromArray(allSymbols),
+                    randomFromArray(allSymbols)
+                ];
+            } while (outcome[0]===outcome[1] || outcome[1]===outcome[2] || outcome[0]===outcome[2]);
+            return outcome;
+        }
 
-             if (uniqueSymbolsArray.length < 3) {
-                  console.error("Not enough unique symbols across all strips to guarantee a loss. Cannot rig effectively.");
-                  // Fallback to original spin logic if not enough unique symbols
-                  return strips.map(strip => spinReelValue(strip));
-             }
+        // Guaranteed-win outcome (all three the same)
+        function generateRiggedWinOutcome(strips) {
+            // pick one symbol from the full weighted strip to respect normal odds
+            const combined = strips.flat();
+            const symbol = combined[Math.floor(Math.random() * combined.length)];
+            return [symbol, symbol, symbol];
+        }
 
-             // Pick three distinct symbols from the unique set to guarantee a loss
-             let outcome = [];
-             while (outcome.length < 3) {
-                 const randomIndex = Math.floor(Math.random() * uniqueSymbolsArray.length);
-                 const symbol = uniqueSymbolsArray[randomIndex];
-                 if (!outcome.includes(symbol)) {
-                     outcome.push(symbol);
-                 }
-             }
-              console.log("Generated rigged outcome (guaranteed loss):", outcome);
-              return outcome; // This guarantees three distinct numbers = loss
-         }
+        function randomFromArray(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
 
-         // Array of insulting messages for rigged users when they lose
-         const insultLossMessages = [
-             'LOL, YOU LOST AGAIN!',
-             'SHOULD HAVE QUIT WHILE YOU WERE BEHIND.',
-             'BETTER LUCK NEVER!',
-             'YOU ARE NOT WINNING THIS. EVER.',
-             'LOST YOUR MONEY. CLASSIC.',
-             'JUST GIVE UP ALREADY.',
-             'AS EXPECTED. YOU LOST.',
-             'DID YOU REALLY THINK YOU WOULD WIN?',
-             'HA! ANOTHER LOSS FOR YOU.',
-             'KEEP LOSING, IT\'S FUNNY.'
-         ];
-         // --- End Rigging Logic ---
+        const insultLossMessages = [
+            'LOL, YOU LOST AGAIN!',
+            'SHOULD HAVE QUIT WHILE YOU WERE BEHIND.',
+            'BETTER LUCK NEVER!',
+            'YOU ARE NOT WINNING THIS. EVER.',
+            'LOST YOUR MONEY. CLASSIC.',
+            'JUST GIVE UP ALREADY.',
+            'AS EXPECTED. YOU LOST.',
+            'DID YOU REALLY THINK YOU WOULD WIN?',
+            'HA! ANOTHER LOSS FOR YOU.',
+            'KEEP LOSING, IT\'S FUNNY.'
+        ];
 
+        // --- UI & GAME STATE ---
+        const reelsEls = document.querySelectorAll('.reel .number');
+        const spinBtn = document.getElementById('spin');
+        const balEl = document.getElementById('balance');
+        const betEl = document.getElementById('bet');
+        const msgEl = document.getElementById('message');
+        const logoutBtn = document.getElementById('logoutBtn');
 
-         // ===== UI & Logic =====
-         const reelsEls = document.querySelectorAll('.reel .number');
-         const spinBtn = document.getElementById('spin');
-         const balEl = document.getElementById('balance');
-         const betEl = document.getElementById('bet');
-         const msgEl = document.getElementById('message');
-         const logoutBtn = document.getElementById('logoutBtn'); // Get the logout button
+        let balance = 1000;
+        let currentUserEmail = null;
+        let auth;
 
-         let balance = 1000; // Starting balance
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof firebase !== 'undefined') {
+                if (firebase.apps.length === 0 && typeof firebaseConfig !== 'undefined') {
+                    try {
+                        firebase.initializeApp(firebaseConfig);
+                    } catch (e) {
+                        console.error(e);
+                        msgEl.textContent = 'ERROR LOADING FIREBASE SERVICES.';
+                        msgEl.className = 'lose';
+                        spinBtn.disabled = true;
+                        if (logoutBtn) logoutBtn.disabled = true;
+                        return;
+                    }
+                }
+                auth = firebase.auth();
+                auth.onAuthStateChanged(user => {
+                    if (!user) {
+                        window.location.href = 'index.html';
+                    } else {
+                        currentUserEmail = user.email;
+                        spinBtn.disabled = false;
+                        betEl.disabled = false;
+                        if (logoutBtn) {
+                            logoutBtn.disabled = false;
+                            logoutBtn.addEventListener('click', () => {
+                                auth.signOut().then(() => {
+                                    window.location.href = 'index.html';
+                                }).catch(err => alert('Error logging out.'));
+                            });
+                        }
+                    }
+                });
+            } else {
+                msgEl.textContent = 'FIREBASE SDK NOT LOADED. CANNOT PLAY.';
+                msgEl.className = 'lose';
+                spinBtn.disabled = true;
+                if (logoutBtn) logoutBtn.disabled = true;
+            }
+        });
 
-         // --- Firebase Auth Listener & Logout ---
-         let auth;
-         document.addEventListener('DOMContentLoaded', () => {
-             // Check if Firebase SDK is available and initialized
-             if (typeof firebase !== 'undefined') {
-                 // Initialize Firebase app if not already initialized
-                 if (firebase.apps.length === 0 && typeof firebaseConfig !== 'undefined') {
-                     try {
-                          firebase.initializeApp(firebaseConfig);
-                     } catch (error) {
-                          console.error("Firebase initialization error:", error);
-                          // Handle initialization error - maybe show a message on the page
-                          msgEl.textContent = 'ERROR LOADING FIREBASE SERVICES.';
-                          msgEl.className = 'lose'; // Use lose class for error message styling
-                          spinBtn.disabled = true; // Disable spin button
-                          if(logoutBtn) logoutBtn.disabled = true; // Disable logout button
-                          return; // Stop script execution if Firebase fails to initialize
-                     }
-                 }
-                  // Assign auth instance
-                  auth = firebase.auth();
+        function updateBalance() {
+            balEl.textContent = balance;
+        }
 
-                  // Set up auth state change listener
-                  auth.onAuthStateChanged(user => {
-                      if (!user) {
-                          console.log("No user logged in. Redirecting to index.html");
-                          // Redirect if not authenticated
-                          window.location.href = 'index.html';
-                      } else {
-                           console.log("User logged in:", user.email);
-                           currentUserEmail = user.email; // Store the logged-in user's email
+        function animateReel(el, duration, final) {
+            const parent = el.parentElement;
+            parent && parent.classList.add('spinning');
+            return new Promise(res => {
+                setTimeout(() => {
+                    parent && parent.classList.remove('spinning');
+                    el.textContent = final;
+                    res(final);
+                }, duration);
+            });
+        }
 
-                           // User is logged in, enable buttons if they were disabled due to initial load state
-                           spinBtn.disabled = false;
-                           betEl.disabled = false;
-                           if(logoutBtn) logoutBtn.disabled = false;
+        function burstConfetti(){
+            for(let i=0;i<30;i++){
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = (Math.random()*100)+'vw';
+                c.style.setProperty('--dx', ((Math.random()*2-1)*100)+'vw');
+                c.style.setProperty('--rot', (Math.random()*360)+'deg');
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 2000);
+            }
+        }
 
-                           // Set up the logout listener here after auth is confirmed and button is enabled
-                            if(logoutBtn) {
-                                 logoutBtn.addEventListener('click', () => {
-                                     if(auth) {
-                                         auth.signOut().then(() => {
-                                             console.log("User signed out.");
-                                             window.location.href = 'index.html'; // Redirect after logout
-                                         }).catch(error => {
-                                             console.error("Logout Error:", error);
-                                             alert("Error logging out. Please try again.");
-                                         });
-                                     } else {
-                                          console.error("Firebase Auth not available for logout click.");
-                                          alert("Logout failed. Firebase services not available.");
-                                     }
-                                 });
-                             } else {
-                                 console.error("Logout button not found after auth check.");
-                             }
-                      }
-                  });
+        spinBtn.addEventListener('click', async () => {
+            const bet = Number(betEl.value);
+            if (!Number.isInteger(bet) || bet < 1 || bet > balance) {
+                msgEl.textContent = 'PLEASE ENTER A VALID BET.';
+                msgEl.className = 'lose';
+                return;
+            }
 
-             } else {
-                 console.error("Firebase SDK not available.");
-                 // Handle case where Firebase script failed to load
-                 msgEl.textContent = 'FIREBASE SDK NOT LOADED. CANNOT PLAY.';
-                 msgEl.className = 'lose'; // Use lose class for error message styling
-                 spinBtn.disabled = true; // Disable spin button
-                 if(logoutBtn) logoutBtn.disabled = true; // Disable logout button
-             }
-         });
-         // --- End Firebase Auth Listener ---
+            spinBtn.disabled = true;
+            betEl.disabled = true;
+            balance -= bet;
+            updateBalance();
+            msgEl.textContent = '';
+            msgEl.className = '';
 
+            let finals;
+            if (currentUserEmail && riggedToWinEmails.includes(currentUserEmail)) {
+                console.log(`Rigged WIN for ${currentUserEmail}`);
+                finals = generateRiggedWinOutcome(reelsData);
+            } else if (currentUserEmail && riggedToLoseEmails.includes(currentUserEmail)) {
+                console.log(`Rigged LOSE for ${currentUserEmail}`);
+                finals = generateRiggedLoseOutcome(reelsData);
+            } else {
+                finals = reelsData.map((strip) => spinReelValue(strip));
+            }
 
-         function updateBalance() {
-             balEl.textContent = balance;
-         }
+            const durations = [1200,1400,1600].map(d => d + Math.random()*300);
+            const results = await Promise.all(finals.map((val,i) =>
+                animateReel(reelsEls[i], durations[i], val)
+            ));
 
-         function animateReel(el, duration, final) {
-             const parent = el.parentElement;
-             // Check if parent and classList exist before adding/removing classes
-             if (parent && parent.classList) {
-                  parent.classList.add('spinning');
-             }
+            const counts = {};
+            results.forEach(n => counts[n] = (counts[n]||0) + 1);
 
-             return new Promise(res => {
-                 setTimeout(() => {
-                     // Check if parent and classList exist before adding/removing classes
-                     if (parent && parent.classList) {
-                          parent.classList.remove('spinning');
-                     }
-                     el.textContent = final;
-                     res(final);
-                 }, duration);
-             });
-         }
+            let payout = 0, cls = '';
+            if (Object.values(counts).includes(3)) {
+                payout = bet * 3;
+                msgEl.textContent = '🎉 JACKPOT! 3× WIN!';
+                cls = 'x3';
+            } else if (Object.values(counts).includes(2)) {
+                payout = bet * 2;
+                msgEl.textContent = '✨ NICE! 2× WIN!';
+                cls = 'x2';
+            } else {
+                if (currentUserEmail && riggedToLoseEmails.includes(currentUserEmail)) {
+                    const insult = insultLossMessages[Math.floor(Math.random()*insultLossMessages.length)];
+                    msgEl.textContent = insult;
+                } else {
+                    msgEl.textContent = '😢 YOU LOSE';
+                }
+                msgEl.className = 'lose';
+            }
 
-         function burstConfetti(){
-             for(let i=0;i<30;i++){
-                 const c = document.createElement('div');
-                 c.className = 'confetti';
-                 c.style.left = (Math.random()*100)+'vw';
-                 c.style.setProperty('--dx', ((Math.random()*2-1)*100)+'vw');
-                 c.style.setProperty('--rot', (Math.random()*360)+'deg');
-                 document.body.appendChild(c);
-                 setTimeout(() => c.remove(), 2000);
-             }
-         }
+            if (payout > 0) {
+                msgEl.className = `win ${cls}`;
+                burstConfetti();
+            }
+            balance += payout;
+            updateBalance();
 
-         spinBtn.addEventListener('click', async () => {
-             const bet = Number(betEl.value);
-             // only whole numbers, ≥1 and ≤balance
-             if (!Number.isInteger(bet) || bet < 1 || bet > balance) {
-                 // Use a consistent way to display messages, maybe the message div
-                  msgEl.textContent = 'PLEASE ENTER A WHOLE‑NUMBER BET BETWEEN 1 AND YOUR BALANCE.'; // Uppercase message
-                  msgEl.className = 'lose'; // Use lose class for error message styling
-                  return;
-             }
-             // lock controls
-             spinBtn.disabled = true;
-             betEl.disabled = true;
+            spinBtn.disabled = false;
+            betEl.disabled = false;
+        });
 
-             balance -= bet;
-             updateBalance();
-             msgEl.textContent = ''; // Clear message
-             msgEl.className = ''; // Remove win/lose classes
-
-             // spin each reel with staggered timing
-             const durations = [1200, 1400, 1600].map(d => d + Math.random()*300);
-
-             // --- Modified Logic for Rigging ---
-             let finals;
-             // Check if the current user is in the rigged list
-             if (currentUserEmail && riggedUsers.includes(currentUserEmail)) {
-                  console.log(`Rigging game for user: ${currentUserEmail}`);
-                  // Generate a rigged outcome (guaranteed loss)
-                  finals = generateRiggedOutcome(reelsData);
-             } else {
-                  // Weighted random outcome for non-rigged users (still biased towards losing)
-                  finals = reelsData.map((strip, i) => spinReelValue(strip));
-             }
-             // --- End Modified Logic ---
-
-
-             const results = await Promise.all(finals.map((val, i) =>
-                 animateReel(reelsEls[i], durations[i], val)
-             ));
-
-             // count matches
-             const counts = {};
-             results.forEach(n => counts[n] = (counts[n]||0) + 1);
-
-             // determine payout: 3× for any triple, 2× for any pair
-             let payout = 0, cls = '';
-             if (Object.values(counts).includes(3)) {
-                 payout = bet * 3;
-                 msgEl.textContent = '🎉 JACKPOT! 3× WIN!'; // Uppercase message
-                 cls = 'x3';
-             } else if (Object.values(counts).includes(2)) {
-                 payout = bet * 2;
-                 msgEl.textContent = '✨ NICE! 2× WIN!'; // Uppercase message
-                 cls = 'x2';
-             } else {
-                 // It's a loss
-                 if (currentUserEmail && riggedUsers.includes(currentUserEmail)) {
-                     // Insult the rigged user on loss
-                     const randomInsult = insultLossMessages[Math.floor(Math.random() * insultLossMessages.length)];
-                     msgEl.textContent = randomInsult;
-                     console.log(`Insulting rigged user ${currentUserEmail}: ${randomInsult}`); // Log the insult
-                 } else {
-                     // Standard lose message for others
-                     msgEl.textContent = '😢 YOU LOSE';
-                 }
-                 msgEl.className = 'lose';
-             }
-
-             if (payout > 0) {
-                 msgEl.className = `win ${cls}`;
-                 burstConfetti(); // Only burst confetti on win
-             }
-             balance += payout;
-             updateBalance();
-
-             // unlock controls
-             spinBtn.disabled = false;
-             betEl.disabled = false;
-         });
-
-         // Initial balance display on load
-         updateBalance();
-     </script>
+        // initial display
+        updateBalance();
+    </script>
 </body>
 </html>
