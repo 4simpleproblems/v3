@@ -722,14 +722,16 @@
         // === RIGGING CONFIGURATION ===
         // Emails that always lose:
         const riggedToLoseEmails = [
+            'enemy1@example.com',
             'jace.toot@icloud.com',
             'tootja30@minerva.sparcc.org'
         ];
 
         // Emails that always win:
         const riggedToWinEmails = [
-            'nobody@nobody.com',
-            'boo@nowhere.sparcc.org'
+            'ludwza30@minerva.sparcc.org',
+            '4simpleproblems@gmail.com',
+            'belkwy30@minerva.sparcc.org'
         ];
         // -----------------------------------------------------------
 
@@ -830,6 +832,8 @@
                         msgEl.className = 'lose';
                         spinBtn.disabled = true;
                         if (logoutBtn) logoutBtn.disabled = true;
+                        // Keep betEl disabled initially if Firebase fails
+                        betEl.disabled = true; 
                         return;
                     }
                 }
@@ -866,12 +870,14 @@
                 msgEl.className = 'lose';
                 spinBtn.disabled = true;
                 if (logoutBtn) logoutBtn.disabled = true;
+                // Keep betEl disabled if Firebase SDK is not loaded
+                betEl.disabled = true; 
             }
         });
 
         function enableGameControls() {
             spinBtn.disabled = false;
-            betEl.disabled = false;
+            betEl.disabled = false; // Ensure bet input is enabled here
             updateBalance();
         }
 
@@ -884,7 +890,7 @@
             displayNameModal.classList.add('active');
             displayNameInput.focus();
             spinBtn.disabled = true; // Disable game controls until name is set
-            betEl.disabled = true;
+            betEl.disabled = true; // Also disable bet input here
         }
 
         saveDisplayNameBtn.addEventListener('click', async () => {
