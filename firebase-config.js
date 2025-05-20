@@ -38,7 +38,7 @@ const staticBannedEmails = [
   "hornbr30@minerva.sparcc.org",
   "russsi30@minerva.sparcc.org",
   "tootja30@minerva.sparcc.org",
-  "4simpleproblems@gmail.com"
+  "jace.toot@icloud.com"
 ];
 
 // Function to fetch dynamic banned emails from Firestore
