@@ -59,7 +59,7 @@
             padding-top: 80px;
             padding-bottom: 60px;
             background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
-                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+                                    repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
             background-size: 20px 20px;
         }
 
@@ -220,6 +220,19 @@
          #controls button#spin:active:after {
              content: none;
          }
+
+        /* ALL IN button specific style */
+        #allInBtn {
+            background-color: transparent; /* Transparent background */
+            color: #ff0000; /* Red text */
+            border: 1px solid #cc0000; /* Darker red border */
+        }
+
+        #allInBtn:hover {
+            background-color: #ff0000; /* Red background on hover */
+            color: white; /* White text on hover */
+            border-color: #ff0000; /* Red border on hover (optional, matches bg) */
+        }
 
 
         /* Slot Machine Reels Container */
@@ -383,73 +396,73 @@
               }
          }
 
-         @media (max-width: 480px) {
+          @media (max-width: 480px) {
               .navbar {
-                   padding: 15px 10px;
-               }
-               .logo {
-                   font-size: 20px;
-               }
+                 padding: 15px 10px;
+             }
+             .logo {
+                 font-size: 20px;
+             }
 
               .nav-buttons {
-                   gap: 8px;
-               }
+                 gap: 8px;
+             }
 
-               .btn {
-                   padding: 8px 15px;
-                   font-size: 12px;
-               }
+              .btn {
+                 padding: 8px 15px;
+                 font-size: 12px;
+             }
 
-              body {
-                   padding-top: 150px;
-                   padding-bottom: 100px;
-               }
+             body {
+                 padding-top: 150px;
+                 padding-bottom: 100px;
+             }
 
-               h1 {
-                   font-size: 1.8rem;
-                   margin-top: 1rem;
-                   margin-bottom: 0.6rem;
-               }
+              h1 {
+                 font-size: 1.8rem;
+                 margin-top: 1rem;
+                 margin-bottom: 0.6rem;
+             }
 
-               #controls {
-                   gap: 0.8rem;
-                   margin-bottom: 0.8rem;
-                   font-size: 0.8rem;
-               }
-               #controls input[type="number"], #controls button {
-                   padding: 6px 10px;
-                   font-size: 10px;
-               }
-               #controls input[type="number"] {
-                   width: 60px;
-                    padding: 6px 4px;
-               }
+              #controls {
+                 gap: 0.8rem;
+                 margin-bottom: 0.8rem;
+                 font-size: 0.8rem;
+             }
+             #controls input[type="number"], #controls button {
+                 padding: 6px 10px;
+                 font-size: 10px;
+             }
+             #controls input[type="number"] {
+                 width: 60px;
+                  padding: 6px 4px;
+             }
 
 
-               #slot-machine {
-                   gap: 10px;
-                   margin-bottom: 0.6rem;
-               }
-               .reel {
-                   width: 60px;
-                   height: 60px;
-                   border-width: 1px;
-                   border-radius: 5px;
-               }
-               .number {
-                   font-size: 1.8rem;
-               }
-                #message {
-                   font-size: 1rem;
-                   margin-bottom: 1rem;
-               }
+              #slot-machine {
+                 gap: 10px;
+                 margin-bottom: 0.6rem;
+             }
+             .reel {
+                 width: 60px;
+                 height: 60px;
+                 border-width: 1px;
+                 border-radius: 5px;
+             }
+             .number {
+                 font-size: 1.8rem;
+             }
+              #message {
+                 font-size: 1rem;
+                 margin-bottom: 1rem;
+             }
 
-                .confetti {
-                    width: 4px;
-                    height: 4px;
-                    border-radius: 0;
-                }
-           }
+              .confetti {
+                  width: 4px;
+                  height: 4px;
+                  border-radius: 0;
+              }
+         }
 
     </style>
 </head>
@@ -470,6 +483,7 @@
         <div>BALANCE: <span id="balance">1000</span></div>
         <div>BET: <input type="number" id="bet" min="1" step="1" value="10"/></div>
         <button id="spin" class="primary">SPIN</button>
+        <button id="allInBtn" class="btn primary">ALL IN!</button>
     </div>
 
     <div id="slot-machine">
@@ -499,14 +513,16 @@
         // -----------------------------------------------------------
 
         // Weighted reel strips for normal play
+        // Balanced the strip so that all numbers (1-7) have a reasonable chance of appearing.
+        // We'll control 2x/3x odds programmatically.
         const strip = [
-            ...Array(40).fill(1),
-            ...Array(30).fill(2),
+            ...Array(15).fill(1),
+            ...Array(15).fill(2),
             ...Array(15).fill(3),
             ...Array(10).fill(4),
-            ...Array(3).fill(5),
-            ...Array(1).fill(6),
-            ...Array(1).fill(7)
+            ...Array(5).fill(5),
+            ...Array(3).fill(6),
+            ...Array(2).fill(7)
         ];
         const reelsData = [ shuffle(strip), shuffle(strip), shuffle(strip) ];
 
@@ -570,6 +586,7 @@
         const betEl = document.getElementById('bet');
         const msgEl = document.getElementById('message');
         const logoutBtn = document.getElementById('logoutBtn');
+        const allInBtn = document.getElementById('allInBtn');
 
         let balance = 1000;
         let currentUserEmail = null;
@@ -586,6 +603,7 @@
                         msgEl.className = 'lose';
                         spinBtn.disabled = true;
                         if (logoutBtn) logoutBtn.disabled = true;
+                        if (allInBtn) allInBtn.disabled = true;
                         return;
                     }
                 }
@@ -597,6 +615,7 @@
                         currentUserEmail = user.email;
                         spinBtn.disabled = false;
                         betEl.disabled = false;
+                        allInBtn.disabled = false;
                         if (logoutBtn) {
                             logoutBtn.disabled = false;
                             logoutBtn.addEventListener('click', () => {
@@ -612,6 +631,7 @@
                 msgEl.className = 'lose';
                 spinBtn.disabled = true;
                 if (logoutBtn) logoutBtn.disabled = true;
+                if (allInBtn) allInBtn.disabled = true;
             }
         });
 
@@ -643,9 +663,8 @@
             }
         }
 
-        spinBtn.addEventListener('click', async () => {
-            const bet = Number(betEl.value);
-            if (!Number.isInteger(bet) || bet < 1 || bet > balance) {
+        async function performSpin(betAmount) {
+            if (!Number.isInteger(betAmount) || betAmount < 1 || betAmount > balance) {
                 msgEl.textContent = 'PLEASE ENTER A VALID BET.';
                 msgEl.className = 'lose';
                 return;
@@ -653,12 +672,17 @@
 
             spinBtn.disabled = true;
             betEl.disabled = true;
-            balance -= bet;
+            allInBtn.disabled = true;
+
+            balance -= betAmount;
             updateBalance();
             msgEl.textContent = '';
             msgEl.className = '';
 
             let finals;
+            const allSymbols = Array.from(new Set(strip)); // Get unique symbols from the strip
+
+            // --- Probability-based outcome generation ---
             if (currentUserEmail && riggedToWinEmails.includes(currentUserEmail)) {
                 console.log(`Rigged WIN for ${currentUserEmail}`);
                 finals = generateRiggedWinOutcome(reelsData);
@@ -666,8 +690,36 @@
                 console.log(`Rigged LOSE for ${currentUserEmail}`);
                 finals = generateRiggedLoseOutcome(reelsData);
             } else {
-                finals = reelsData.map((strip) => spinReelValue(strip));
+                const randomRoll = Math.random() * 100; // 0 to 99.99...
+
+                if (randomRoll < 10) { // 10% chance for 3x jackpot
+                    const winningSymbol = randomFromArray(allSymbols);
+                    finals = [winningSymbol, winningSymbol, winningSymbol];
+                    console.log(`Forced 3x win with ${winningSymbol}`);
+                } else if (randomRoll < 10 + 25) { // 25% chance for 2x jackpot (from 10% to 35%)
+                    const winningSymbol = randomFromArray(allSymbols);
+                    // Ensure two are the same, and the third is different
+                    let thirdSymbol;
+                    do {
+                        thirdSymbol = randomFromArray(allSymbols);
+                    } while (thirdSymbol === winningSymbol);
+                    finals = [winningSymbol, winningSymbol, thirdSymbol];
+                    // Shuffle to make sure the matching pair isn't always the first two
+                    shuffleArrayInPlace(finals);
+                    console.log(`Forced 2x win with ${winningSymbol}`);
+                } else { // Remaining chance for a loss
+                    finals = reelsData.map((s) => spinReelValue(s));
+                    // Ensure it's not accidentally a win if it was supposed to be a loss
+                    let counts = {};
+                    finals.forEach(n => counts[n] = (counts[n]||0) + 1);
+                    if (Object.values(counts).includes(3) || Object.values(counts).includes(2)) {
+                        // If by random chance it landed on a win, force a loss
+                        finals = generateRiggedLoseOutcome(reelsData);
+                        console.log("Accidental win, forced a loss.");
+                    }
+                }
             }
+            // --- End of probability-based outcome generation ---
 
             const durations = [1200,1400,1600].map(d => d + Math.random()*300);
             const results = await Promise.all(finals.map((val,i) =>
@@ -679,11 +731,11 @@
 
             let payout = 0, cls = '';
             if (Object.values(counts).includes(3)) {
-                payout = bet * 3;
+                payout = betAmount * 3;
                 msgEl.textContent = '🎉 JACKPOT! 3× WIN!';
                 cls = 'x3';
             } else if (Object.values(counts).includes(2)) {
-                payout = bet * 2;
+                payout = betAmount * 2;
                 msgEl.textContent = '✨ NICE! 2× WIN!';
                 cls = 'x2';
             } else {
@@ -705,9 +757,33 @@
 
             spinBtn.disabled = false;
             betEl.disabled = false;
+            allInBtn.disabled = false;
+        }
+
+        // Helper to shuffle an array in place (for 2x wins)
+        function shuffleArrayInPlace(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+
+        spinBtn.addEventListener('click', () => {
+            const bet = Number(betEl.value);
+            performSpin(bet);
         });
 
-        // initial display
+        allInBtn.addEventListener('click', () => {
+            if (balance > 0) {
+                betEl.value = balance;
+                performSpin(balance);
+            } else {
+                msgEl.textContent = 'YOU HAVE NO MONEY TO GO ALL IN!';
+                msgEl.className = 'lose';
+            }
+        });
+
         updateBalance();
     </script>
 </body>
