@@ -154,7 +154,7 @@
             padding: 10px 20px;
             /* Adjusted padding */
             min-height: 40px;
-            border-radius: 5px;
+            border-radius: 8px;
             /* Less rounded */
             text-decoration: none;
             font-weight: 600;
@@ -267,7 +267,8 @@
         .sound-button {
             min-width: 100px;
             height: 100px;
-            border-radius: 20px; /* Adjusted border-radius */
+            border-radius: 24px;
+            /* Adjusted border-radius */
             background-color: var(--sound-button-bg);
             /* Light background */
             color: var(--sound-button-text);
@@ -294,9 +295,9 @@
         }
 
         /* Remove specific short-text styling as all buttons will have the same border-radius */
-         .sound-button.short-text {
-             /* Removed border-radius: 50%; and width/height overrides */
-         }
+        .sound-button.short-text {
+            /* Removed border-radius: 50%; and width/height overrides */
+        }
 
 
         .sound-button:hover {
@@ -325,7 +326,7 @@
             /* Matches other buttons */
             border: 1px solid var(--secondary-border-color);
             /* Matches other buttons */
-            border-radius: 5px;
+            border-radius: 8px;
             /* Matches other buttons */
             cursor: pointer;
             text-transform: uppercase;
@@ -336,8 +337,9 @@
             align-items: center;
             justify-content: center;
         }
-         /* Add arrow to options button? */
-         /* .options-button.btn-with-arrow::before {
+
+        /* Add arrow to options button? */
+        /* .options-button.btn-with-arrow::before {
              content: '\2192';
              margin-right: 8px;
              font-weight: bold;
@@ -380,7 +382,7 @@
             padding: 1rem;
             z-index: 2;
             right: 0;
-            border-radius: 5px;
+            border-radius: 8px;
             /* Less rounded */
             color: var(--options-text);
             /* Dark text */
@@ -422,7 +424,7 @@
             height: 16px;
             cursor: pointer;
             position: relative;
-            border-radius: 3px;
+            border-radius: 4px;
             /* Slightly rounded checkbox */
             outline: none;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -529,6 +531,70 @@
             /* Background for dropdown options */
             color: var(--options-text);
             /* Text color for dropdown options */
+        }
+
+        /* Styles for the playback speed slider */
+        .playback-speed-slider-container {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .playback-speed-slider-container label {
+            flex-shrink: 0;
+            margin-right: 0.5rem;
+            margin-bottom: 0;
+            /* Override default label margin-bottom */
+            font-size: 0.9rem;
+        }
+
+        .playback-speed-slider-container input[type="range"] {
+            flex-grow: 1;
+            -webkit-appearance: none;
+            /* Remove default slider styles */
+            width: 100%;
+            height: 8px;
+            background: var(--secondary-border-color);
+            outline: none;
+            border-radius: 2px;
+            transition: opacity 0.2s;
+        }
+
+        .playback-speed-slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: grab;
+            transition: background-color 0.2s;
+            border: 2px solid var(--options-bg);
+            /* White border for contrast */
+        }
+
+        .playback-speed-slider-container input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: grab;
+            transition: background-color 0.2s;
+            border: 2px solid var(--options-bg);
+        }
+
+        .playback-speed-slider-container input[type="range"]:hover::-webkit-slider-thumb,
+        .playback-speed-slider-container input[type="range"]:hover::-moz-range-thumb {
+            background: darken(var(--accent-color), 10%);
+        }
+
+        .playback-speed-slider-container #playbackSpeedValue {
+            margin-left: 0.5rem;
+            font-size: 0.9rem;
+            width: 40px;
+            text-align: right;
+            flex-shrink: 0;
         }
 
 
@@ -831,7 +897,8 @@
                 height: 80px;
                 font-size: 0.75rem;
                 padding: 0 1rem;
-                border-radius: 15px; /* Adjusted for smaller screens */
+                border-radius: 15px;
+                /* Adjusted for smaller screens */
             }
 
             .sound-button.short-text {
@@ -887,7 +954,8 @@
                 height: 70px;
                 font-size: 0.7rem;
                 padding: 0 0.5rem;
-                 border-radius: 10px; /* Adjusted for very small screens */
+                border-radius: 10px;
+                /* Adjusted for very small screens */
             }
 
             .sound-button.short-text {
@@ -937,22 +1005,26 @@
                         <label>
                             <input type="checkbox" id="soundOverlayCheckbox" />Sound Overlay
                         </label>
-                        <label for="playbackSpeed" class="playback-speed-label">Playback Speed:
-                            <select id="playbackSpeed">
-                                <option value="0.25">0.25x</option>
-                                <option value="0.5">0.5x</option>
-                                <option value="0.75">0.75x</option>
-                                <option value="1" selected>1x (Normal)</option>
-                                <option value="1.25">1.25x</option>
-                                <option value="1.5">1.5x</option>
-                                <option value="1.75">1.75x</option>
-                                <option value="2">2x</option>
-                                <option value="2.25">2.25x</option>
-                                <option value="2.5">2.5x</option>
-                                <option value="2.75">2.75x</option>
-                                <option value="3">3x</option>
-                            </select>
-                        </label>
+                        <label for="playbackSpeed" class="playback-speed-label">Playback Speed Presets:</label>
+                        <select id="playbackSpeed">
+                            <option value="0.25">0.25x</option>
+                            <option value="0.5">0.5x</option>
+                            <option value="0.75">0.75x</option>
+                            <option value="1" selected>1x (Normal)</option>
+                            <option value="1.25">1.25x</option>
+                            <option value="1.5">1.5x</option>
+                            <option value="1.75">1.75x</option>
+                            <option value="2">2x</option>
+                            <option value="2.25">2.25x</option>
+                            <option value="2.5">2.5x</option>
+                            <option value="2.75">2.75x</option>
+                            <option value="3">3x</option>
+                        </select>
+                        <div class="playback-speed-slider-container">
+                            <label for="playbackSpeedSlider">Speed: </label>
+                            <input type="range" id="playbackSpeedSlider" min="0.1" max="5" step="0.1" value="1">
+                            <span id="playbackSpeedValue">1.0x</span>
+                        </div>
                         <label>
                             <input type="checkbox" id="autoClickerCheckbox" />Auto Clicker
                         </label>
@@ -1012,20 +1084,20 @@
         // --- Firebase initialization & Auth guard ---
         let auth;
         try {
-             // Check if firebaseConfig is defined and firebase is not already initialized
-             if (typeof firebaseConfig !== 'undefined' && firebase.apps.length === 0) {
-                 firebase.initializeApp(firebaseConfig);
-                 auth = firebase.auth();
-             } else if (firebase.apps.length > 0) {
-                  // Firebase is already initialized, get the auth instance
-                 auth = firebase.auth();
-             } else {
-                 console.error("Firebase configuration not found or Firebase app not initialized.");
-                 // Handle error, maybe redirect to a static error page
-             }
+            // Check if firebaseConfig is defined and firebase is not already initialized
+            if (typeof firebaseConfig !== 'undefined' && firebase.apps.length === 0) {
+                firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+            } else if (firebase.apps.length > 0) {
+                // Firebase is already initialized, get the auth instance
+                auth = firebase.auth();
+            } else {
+                console.error("Firebase configuration not found or Firebase app not initialized.");
+                // Handle error, maybe redirect to a static error page
+            }
         } catch (e) {
             console.error("Firebase initialization error:", e);
-             // Handle error
+            // Handle error
         }
 
         function handleAuthState(user) {
@@ -1039,21 +1111,21 @@
         }
 
         function initAuth() {
-             if (!auth) {
-                 console.error("Firebase Auth not initialized.");
-                 // Handle error, maybe redirect
-                 window.location.href = 'login.html';
-                 return;
-             }
+            if (!auth) {
+                console.error("Firebase Auth not initialized.");
+                // Handle error, maybe redirect
+                window.location.href = 'login.html';
+                return;
+            }
 
             auth.onAuthStateChanged(handleAuthState);
 
             const logoutButton = document.getElementById('logoutBtn');
-             // Ensure the element exists before adding a listener
+            // Ensure the element exists before adding a listener
             if (logoutButton) {
-                  // Remove any existing listeners before adding a new one to prevent duplicates
-                 const newLogoutButton = logoutButton.cloneNode(true);
-                 logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
+                // Remove any existing listeners before adding a new one to prevent duplicates
+                const newLogoutButton = logoutButton.cloneNode(true);
+                logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
 
 
                 newLogoutButton.addEventListener('click', e => {
@@ -1066,15 +1138,15 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-             // Initialize Auth if Firebase and Auth are available
+            // Initialize Auth if Firebase and Auth are available
             if (typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined' && auth) {
                 initAuth();
             } else {
                 console.error("Firebase SDK or Auth not available on DOM load.");
-                 // Fallback redirect if Firebase is not critical for initial render but needed for auth
-                 // This might cause a flicker if Firebase loads slowly.
-                 // A loading spinner and delayed check might be better in a production app.
-                 // window.location.href = 'login.html';
+                // Fallback redirect if Firebase is not critical for initial render but needed for auth
+                // This might cause a flicker if Firebase loads slowly.
+                // A loading spinner and delayed check might be better in a production app.
+                // window.location.href = 'login.html';
             }
 
             // DOM Elements (re-get references as initAuth might replace logoutBtn)
@@ -1092,6 +1164,9 @@
             const clearAllSoundsBtn = document.getElementById('clearAllSoundsBtn');
             const rippleContainer = clearAllSoundsBtn.querySelector('.ripple-container');
             const playbackSpeedSelect = document.getElementById('playbackSpeed');
+            const playbackSpeedSlider = document.getElementById('playbackSpeedSlider');
+            const playbackSpeedValue = document.getElementById('playbackSpeedValue');
+
 
             // State variables
             let playingAudios = [];
@@ -1366,9 +1441,29 @@
 
             playbackSpeedSelect.addEventListener('change', function() {
                 currentPlaybackSpeed = parseFloat(this.value);
+                playbackSpeedSlider.value = currentPlaybackSpeed; // Update slider to match preset
+                playbackSpeedValue.textContent = `${currentPlaybackSpeed.toFixed(2)}x`; // Update slider value display
                 localStorage.setItem('playbackSpeed', currentPlaybackSpeed.toString());
                 playingAudios.forEach(applyPlaybackSpeedToAudio); // Update speed for already playing sounds
                 showStatus(`PLAYBACK SPEED SET TO ${currentPlaybackSpeed}X`, 'info'); // Uppercase status
+            });
+
+            playbackSpeedSlider.addEventListener('input', function() {
+                currentPlaybackSpeed = parseFloat(this.value);
+                playbackSpeedValue.textContent = `${currentPlaybackSpeed.toFixed(1)}x`; // Update slider value display
+                // If a preset matches, update the select. Otherwise, reset select.
+                const presetOption = Array.from(playbackSpeedSelect.options).find(option => parseFloat(option.value) === currentPlaybackSpeed);
+                if (presetOption) {
+                    playbackSpeedSelect.value = presetOption.value;
+                } else {
+                    playbackSpeedSelect.value = ""; // No preset selected
+                }
+                playingAudios.forEach(applyPlaybackSpeedToAudio); // Update speed for already playing sounds
+            });
+
+            playbackSpeedSlider.addEventListener('change', function() {
+                localStorage.setItem('playbackSpeed', currentPlaybackSpeed.toString());
+                showStatus(`PLAYBACK SPEED SET TO ${currentPlaybackSpeed.toFixed(1)}X`, 'info'); // Uppercase status
             });
 
 
@@ -1386,8 +1481,12 @@
                 if (savedPlaybackSpeed !== null) {
                     currentPlaybackSpeed = parseFloat(savedPlaybackSpeed);
                     playbackSpeedSelect.value = currentPlaybackSpeed.toString();
+                    playbackSpeedSlider.value = currentPlaybackSpeed;
+                    playbackSpeedValue.textContent = `${currentPlaybackSpeed.toFixed(1)}x`;
                 } else {
                     playbackSpeedSelect.value = "1"; // Default to 1x if nothing saved
+                    playbackSpeedSlider.value = "1";
+                    playbackSpeedValue.textContent = "1.0x";
                     currentPlaybackSpeed = 1.0;
                 }
                 playingAudios.forEach(applyPlaybackSpeedToAudio); // Apply to any sounds that might be playing on load
@@ -1423,6 +1522,6 @@
                 });
         });
     </script>
-    </body>
+</body>
 
 </html>
