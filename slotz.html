@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet"/>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
 
     <style>
@@ -60,7 +59,7 @@
             padding-top: 80px;
             padding-bottom: 60px;
             background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
-                                  repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
             background-size: 20px 20px;
         }
 
@@ -219,19 +218,8 @@
             box-shadow: none;
         }
          #controls button#spin:active:after {
-            content: none;
-        }
-
-        /* Spin button hard press styles */
-        #spin.pressing {
-            background-color: var(--accent-color);
-            transform: scale(0.98);
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
-        }
-        #spin.disabled-click {
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
+             content: none;
+         }
 
 
         /* Slot Machine Reels Container */
@@ -284,19 +272,19 @@
             text-align: center;
         }
         #message.win {
-            animation: none;
-            opacity: 1;
-        }
-        #message.win.x2 {
-            color: var(--win-message-color-x2);
-        }
-        #message.win.x3 {
-            color: var(--win-message-color-x3);
-        }
-        #message.lose {
-            color: var(--lose-message-color);
-            opacity: 1;
-        }
+             animation: none;
+             opacity: 1;
+         }
+         #message.win.x2 {
+             color: var(--win-message-color-x2);
+         }
+         #message.win.x3 {
+             color: var(--win-message-color-x3);
+         }
+         #message.lose {
+             color: var(--lose-message-color);
+             opacity: 1;
+         }
 
         /* Confetti */
         .confetti {
@@ -310,173 +298,6 @@
             animation: fall 2s ease-out forwards;
             border-radius: 2px;
         }
-
-        /* --- Leaderboard Styles --- */
-        #leaderboards-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 2rem;
-            width: 100%;
-            max-width: 1200px;
-            padding: 0 20px;
-        }
-
-        .leaderboard {
-            background-color: var(--card-bg);
-            border: 1px solid var(--secondary-border-color);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            width: 100%;
-            max-width: 350px; /* Adjust as needed for layout */
-            text-align: left;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; /* For scrolling content */
-        }
-
-        .leaderboard h2 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-top: 0;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .leaderboard-list {
-            max-height: 300px; /* Fixed height for scrolling */
-            overflow-y: auto;
-            border-top: 1px solid var(--grid-line-color);
-            padding-top: 10px;
-            scrollbar-width: thin; /* Firefox */
-            scrollbar-color: var(--accent-color) var(--grid-line-color); /* Firefox */
-        }
-
-        /* Custom scrollbar for Webkit browsers */
-        .leaderboard-list::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .leaderboard-list::-webkit-scrollbar-track {
-            background: var(--grid-line-color);
-            border-radius: 10px;
-        }
-
-        .leaderboard-list::-webkit-scrollbar-thumb {
-            background-color: var(--accent-color);
-            border-radius: 10px;
-            border: 2px solid var(--grid-line-color);
-        }
-
-        .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px dashed var(--grid-line-color);
-            font-size: 1rem;
-            color: var(--text-color);
-            font-weight: 400;
-        }
-
-        .leaderboard-item:last-child {
-            border-bottom: none;
-        }
-
-        .leaderboard-item .rank {
-            font-weight: 700;
-            width: 30px;
-            flex-shrink: 0;
-        }
-
-        .leaderboard-item .username {
-            flex-grow: 1;
-            text-align: left;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding-right: 10px;
-        }
-
-        .leaderboard-item .score {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-        /* --- End Leaderboard Styles --- */
-
-        /* --- Display Name Modal Styles --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .modal-content {
-            background-color: var(--bg-color);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-            transform: translateY(-20px);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.active .modal-content {
-            transform: translateY(0);
-        }
-
-        .modal-content h3 {
-            margin-top: 0;
-            font-size: 1.8rem;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-
-        .modal-content input[type="text"] {
-            width: calc(100% - 20px);
-            padding: 12px 10px;
-            margin-bottom: 20px;
-            border: 1px solid var(--secondary-border-color);
-            border-radius: 5px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
-            color: var(--input-text-color);
-            outline: none;
-            text-transform: none; /* Allow normal casing for display name */
-        }
-
-        .modal-content input[type="text"]:focus {
-            border-color: var(--input-focus-border-color);
-            box-shadow: 0 0 5px rgba(51, 51, 51, 0.2);
-        }
-
-        .modal-content button {
-            width: 100%;
-            padding: 12px 20px;
-            font-size: 1rem;
-        }
-        /* --- End Display Name Modal Styles --- */
-
 
         /* Animations */
         @keyframes slide {
@@ -497,173 +318,138 @@
         /* Responsive adjustments */
         @media (max-width: 768px) {
              .navbar {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
+                 flex-direction: column;
+                 gap: 10px;
+                 align-items: flex-start;
+             }
 
              .nav-buttons {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-                margin-left: 0;
-                width: 100%;
-            }
+                 flex-direction: column;
+                 gap: 10px;
+                 align-items: flex-start;
+                 margin-left: 0;
+                 width: 100%;
+             }
 
              body {
-                padding-top: 120px;
-                padding-bottom: 80px;
-            }
+                 padding-top: 120px;
+                 padding-bottom: 80px;
+             }
 
              h1 {
-                font-size: 2.5rem;
-                margin-top: 1.5rem;
-                margin-bottom: 0.8rem;
-            }
+                 font-size: 2.5rem;
+                 margin-top: 1.5rem;
+                 margin-bottom: 0.8rem;
+             }
 
              #controls {
-                gap: 1rem;
-                margin-bottom: 1rem;
-                font-size: 0.9rem;
-            }
-             #controls input[type="number"], #controls button {
-                 padding: 8px 15px;
-                 font-size: 12px;
+                 gap: 1rem;
+                 margin-bottom: 1rem;
+                 font-size: 0.9rem;
              }
-             #controls input[type="number"] {
+              #controls input[type="number"], #controls button {
+                  padding: 8px 15px;
+                  font-size: 12px;
+              }
+              #controls input[type="number"] {
+                  width: 80px;
+                   padding: 8px 6px;
+              }
+
+
+             #slot-machine {
+                 gap: 15px;
+                 margin-bottom: 0.8rem;
+             }
+             .reel {
                  width: 80px;
-                 padding: 8px 6px;
+                 height: 80px;
+                 border-width: 2px;
+                 border-radius: 8px;
              }
-
-
-             #slot-machine {
-                gap: 15px;
-                margin-bottom: 0.8rem;
-            }
-             .reel {
-                width: 80px;
-                height: 80px;
-                border-width: 2px;
-                border-radius: 8px;
-            }
              .number {
-                font-size: 2.5rem;
-            }
+                 font-size: 2.5rem;
+             }
 
              #message {
-                font-size: 1.2rem;
-                margin-bottom: 1.5rem;
-            }
-
-             .confetti {
-                 width: 6px;
-                 height: 6px;
-                 border-radius: 1px;
+                 font-size: 1.2rem;
+                 margin-bottom: 1.5rem;
              }
 
-            #leaderboards-container {
-                flex-direction: column;
-                align-items: center;
-                gap: 20px;
-                padding: 0 15px;
-            }
-            .leaderboard {
-                max-width: 90%; /* Allow wider on smaller screens */
-            }
+              .confetti {
+                  width: 6px;
+                  height: 6px;
+                  border-radius: 1px;
+              }
+         }
 
-            .modal-content {
-                padding: 20px;
-            }
-            .modal-content h3 {
-                font-size: 1.5rem;
-                margin-bottom: 15px;
-            }
-        }
+         @media (max-width: 480px) {
+              .navbar {
+                   padding: 15px 10px;
+               }
+               .logo {
+                   font-size: 20px;
+               }
 
-        @media (max-width: 480px) {
-             .navbar {
-                padding: 15px 10px;
-            }
-            .logo {
-                font-size: 20px;
-            }
+              .nav-buttons {
+                   gap: 8px;
+               }
 
-             .nav-buttons {
-                gap: 8px;
-            }
+               .btn {
+                   padding: 8px 15px;
+                   font-size: 12px;
+               }
 
-             .btn {
-                padding: 8px 15px;
-                font-size: 12px;
-            }
+              body {
+                   padding-top: 150px;
+                   padding-bottom: 100px;
+               }
 
-             body {
-                padding-top: 150px;
-                padding-bottom: 100px;
-            }
+               h1 {
+                   font-size: 1.8rem;
+                   margin-top: 1rem;
+                   margin-bottom: 0.6rem;
+               }
 
-             h1 {
-                font-size: 1.8rem;
-                margin-top: 1rem;
-                margin-bottom: 0.6rem;
-            }
-
-             #controls {
-                gap: 0.8rem;
-                margin-bottom: 0.8rem;
-                font-size: 0.8rem;
-            }
-             #controls input[type="number"], #controls button {
-                 padding: 6px 10px;
-                 font-size: 10px;
-             }
-             #controls input[type="number"] {
-                 width: 60px;
-                 padding: 6px 4px;
-             }
+               #controls {
+                   gap: 0.8rem;
+                   margin-bottom: 0.8rem;
+                   font-size: 0.8rem;
+               }
+               #controls input[type="number"], #controls button {
+                   padding: 6px 10px;
+                   font-size: 10px;
+               }
+               #controls input[type="number"] {
+                   width: 60px;
+                    padding: 6px 4px;
+               }
 
 
-             #slot-machine {
-                gap: 10px;
-                margin-bottom: 0.6rem;
-            }
-             .reel {
-                width: 60px;
-                height: 60px;
-                border-width: 1px;
-                border-radius: 5px;
-            }
-             .number {
-                font-size: 1.8rem;
-            }
-             #message {
-                font-size: 1rem;
-                margin-bottom: 1rem;
-            }
+               #slot-machine {
+                   gap: 10px;
+                   margin-bottom: 0.6rem;
+               }
+               .reel {
+                   width: 60px;
+                   height: 60px;
+                   border-width: 1px;
+                   border-radius: 5px;
+               }
+               .number {
+                   font-size: 1.8rem;
+               }
+                #message {
+                   font-size: 1rem;
+                   margin-bottom: 1rem;
+               }
 
-             .confetti {
-                 width: 4px;
-                 height: 4px;
-                 border-radius: 0;
-             }
-
-            .leaderboard h2 {
-                font-size: 1.5rem;
-            }
-            .leaderboard-item {
-                font-size: 0.9rem;
-            }
-            .modal-content {
-                padding: 15px;
-            }
-            .modal-content h3 {
-                font-size: 1.2rem;
-            }
-            .modal-content input[type="text"], .modal-content button {
-                font-size: 0.9rem;
-                padding: 10px 10px;
-            }
-        }
+                .confetti {
+                    width: 4px;
+                    height: 4px;
+                    border-radius: 0;
+                }
+           }
 
     </style>
 </head>
@@ -693,29 +479,6 @@
     </div>
 
     <div id="message"></div>
-
-    <div id="leaderboards-container">
-        <div class="leaderboard">
-            <h2>Top Slotz Score</h2>
-            <div id="leaderboard-slotz" class="leaderboard-list">
-                </div>
-        </div>
-
-        <div class="leaderboard">
-            <h2>Highest Risk Takers</h2>
-            <div id="leaderboard-risk" class="leaderboard-list">
-                </div>
-        </div>
-    </div>
-
-    <div id="displayNameModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Set Your Display Name</h3>
-            <p>This name will appear on the leaderboards.</p>
-            <input type="text" id="displayNameInput" placeholder="Enter your unique name" maxlength="20">
-            <button id="saveDisplayNameBtn" class="btn primary">Save Name</button>
-        </div>
-    </div>
 
     <script>
         // -----------------------------------------------------------
@@ -808,18 +571,9 @@
         const msgEl = document.getElementById('message');
         const logoutBtn = document.getElementById('logoutBtn');
 
-        const displayNameModal = document.getElementById('displayNameModal');
-        const displayNameInput = document.getElementById('displayNameInput');
-        const saveDisplayNameBtn = document.getElementById('saveDisplayNameBtn');
-
-        const HARD_PRESS_DURATION = 500; // milliseconds for "hard press"
-        let pressTimer;
-        let isSpinning = false; // Flag to prevent rapid spins
-
         let balance = 1000;
-        let currentUser = null; // Store the full Firebase User object
+        let currentUserEmail = null;
         let auth;
-        let db; // Firestore instance
 
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof firebase !== 'undefined') {
@@ -832,31 +586,19 @@
                         msgEl.className = 'lose';
                         spinBtn.disabled = true;
                         if (logoutBtn) logoutBtn.disabled = true;
-                        // Keep betEl disabled initially if Firebase fails
-                        betEl.disabled = true;
                         return;
                     }
                 }
                 auth = firebase.auth();
-                db = firebase.firestore(); // Initialize Firestore
-
-                auth.onAuthStateChanged(async user => {
+                auth.onAuthStateChanged(user => {
                     if (!user) {
                         window.location.href = 'index.html';
                     } else {
-                        currentUser = user; // Set the current user object
-                        
-                        // Check if display name is set
-                        if (!currentUser.displayName) {
-                            showDisplayNameModal();
-                        } else {
-                            // If display name is set, enable game and load leaderboards
-                            enableGameControls();
-                            loadLeaderboard('slotz', 'highestSlotz');
-                            loadLeaderboard('risk', 'highestRisk');
-                        }
-
+                        currentUserEmail = user.email;
+                        spinBtn.disabled = false;
+                        betEl.disabled = false;
                         if (logoutBtn) {
+                            logoutBtn.disabled = false;
                             logoutBtn.addEventListener('click', () => {
                                 auth.signOut().then(() => {
                                     window.location.href = 'index.html';
@@ -870,66 +612,8 @@
                 msgEl.className = 'lose';
                 spinBtn.disabled = true;
                 if (logoutBtn) logoutBtn.disabled = true;
-                // Keep betEl disabled if Firebase SDK is not loaded
-                betEl.disabled = true;
             }
         });
-
-        function enableGameControls() {
-            spinBtn.disabled = false;
-            betEl.disabled = false; // Ensure bet input is enabled here
-            updateBalance();
-        }
-
-        function disableGameControls() {
-            spinBtn.disabled = true;
-            betEl.disabled = true;
-        }
-
-        async function showDisplayNameModal() {
-            displayNameModal.classList.add('active');
-            displayNameInput.focus();
-            spinBtn.disabled = true; // Disable game controls until name is set
-            betEl.disabled = true; // Also disable bet input here
-        }
-
-        saveDisplayNameBtn.addEventListener('click', async () => {
-            const name = displayNameInput.value.trim();
-            if (name.length < 3 || name.length > 20) {
-                alert('Display name must be between 3 and 20 characters.');
-                return;
-            }
-
-            try {
-                // Update Firebase Auth profile
-                await currentUser.updateProfile({ displayName: name });
-                console.log('Firebase Auth display name updated.');
-
-                // Update Firestore document for leaderboard
-                const userRef = db.collection('users').doc(currentUser.email);
-                await userRef.set({ username: name }, { merge: true });
-                console.log('Firestore username updated.');
-
-                displayNameModal.classList.remove('active');
-                enableGameControls();
-                // Reload leaderboards to show new name if applicable
-                loadLeaderboard('slotz', 'highestSlotz');
-                loadLeaderboard('risk', 'highestRisk');
-
-            } catch (error) {
-                console.error('Error setting display name:', error);
-                alert('Failed to set display name. Please try again. ' + error.message);
-            }
-        });
-
-        // Prevent Enter key from submitting the display name input
-        displayNameInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                saveDisplayNameBtn.click(); // Programmatically click the save button
-            }
-        });
-
 
         function updateBalance() {
             balEl.textContent = balance;
@@ -959,166 +643,27 @@
             }
         }
 
-        async function updateLeaderboard(scoreType, scoreValue, betAmount) {
-            if (!db || !currentUser || !currentUser.email || !currentUser.displayName) return; // Ensure user is fully logged in and has a display name
-
-            const userRef = db.collection('users').doc(currentUser.email);
-
-            try {
-                await db.runTransaction(async (transaction) => {
-                    const doc = await transaction.get(userRef);
-
-                    let currentHighestSlotz = doc.exists ? (doc.data().highestSlotz || 0) : 0;
-                    let currentHighestRisk = doc.exists ? (doc.data().highestRisk || 0) : 0;
-
-                    const updates = {};
-                    let updated = false;
-
-                    if (scoreType === 'slotz' && scoreValue > currentHighestSlotz) {
-                        updates.highestSlotz = scoreValue;
-                        updated = true;
-                    }
-
-                    if (betAmount > currentHighestRisk) {
-                        updates.highestRisk = betAmount;
-                        updated = true;
-                    }
-
-                    if (updated) {
-                        transaction.set(userRef, {
-                            username: currentUser.displayName, // Always use the current display name
-                            highestSlotz: updates.highestSlotz || currentHighestSlotz,
-                            highestRisk: updates.highestRisk || currentHighestRisk
-                        }, { merge: true });
-                    }
-                });
-                console.log("Leaderboard data updated successfully!");
-                // Reload leaderboards after successful update
-                loadLeaderboard('slotz', 'highestSlotz');
-                loadLeaderboard('risk', 'highestRisk');
-            } catch (e) {
-                console.error("Error updating leaderboard data: ", e);
-            }
-        }
-
-        async function loadLeaderboard(leaderboardId, fieldName) {
-            if (!db) return;
-
-            const leaderboardListEl = document.getElementById(`leaderboard-${leaderboardId}`);
-            leaderboardListEl.innerHTML = '<div style="text-align:center; padding: 10px;">Loading...</div>';
-
-            try {
-                const snapshot = await db.collection('users')
-                    .where(fieldName, '>', 0)
-                    .orderBy(fieldName, 'desc')
-                    .limit(100)
-                    .get();
-
-                leaderboardListEl.innerHTML = ''; // Clear loading message
-
-                if (snapshot.empty) {
-                    leaderboardListEl.innerHTML = '<div style="text-align:center; padding: 10px;">No entries yet.</div>';
-                    return;
-                }
-
-                snapshot.forEach((doc, index) => {
-                    const data = doc.data();
-                    const username = data.username || doc.id.split('@')[0];
-                    const score = data[fieldName];
-
-                    const item = document.createElement('div');
-                    item.classList.add('leaderboard-item');
-                    item.innerHTML = `
-                        <span class="rank">${index + 1}.</span>
-                        <span class="username">${username}</span>
-                        <span class="score">${score}</span>
-                    `;
-                    leaderboardListEl.appendChild(item);
-                });
-            } catch (e) {
-                console.error(`Error loading ${leaderboardId} leaderboard: `, e);
-                leaderboardListEl.innerHTML = '<div style="text-align:center; padding: 10px; color: var(--lose-message-color);">Error loading leaderboard.</div>';
-            }
-        }
-
-        // --- Hard Press Spin Button Logic ---
-        spinBtn.addEventListener('mousedown', (e) => {
-            if (spinBtn.disabled || isSpinning) return;
-            spinBtn.classList.add('pressing');
-            pressTimer = setTimeout(async () => {
-                // Only trigger spin if button is still pressed after duration
-                if (spinBtn.classList.contains('pressing')) {
-                    await handleSpin();
-                }
-            }, HARD_PRESS_DURATION);
-        });
-
-        spinBtn.addEventListener('mouseup', () => {
-            clearTimeout(pressTimer);
-            spinBtn.classList.remove('pressing');
-        });
-
-        spinBtn.addEventListener('mouseleave', () => {
-            clearTimeout(pressTimer);
-            spinBtn.classList.remove('pressing');
-        });
-
-        // For touch devices (equivalent to mousedown/mouseup)
-        spinBtn.addEventListener('touchstart', (e) => {
-            if (spinBtn.disabled || isSpinning) return;
-            e.preventDefault(); // Prevent scrolling
-            spinBtn.classList.add('pressing');
-            pressTimer = setTimeout(async () => {
-                if (spinBtn.classList.contains('pressing')) {
-                    await handleSpin();
-                }
-            }, HARD_PRESS_DURATION);
-        }, { passive: false }); // Use passive: false to allow preventDefault
-
-        spinBtn.addEventListener('touchend', () => {
-            clearTimeout(pressTimer);
-            spinBtn.classList.remove('pressing');
-        });
-
-        spinBtn.addEventListener('touchcancel', () => {
-            clearTimeout(pressTimer);
-            spinBtn.classList.remove('pressing');
-        });
-        // --- End Hard Press Spin Button Logic ---
-
-        // Prevent Enter key from triggering spin on bet input
-        betEl.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault(); // Stop the default form submission/button click
-            }
-        });
-
-        // Function to handle the actual spin logic
-        async function handleSpin() {
-            if (isSpinning) return; // Prevent multiple spins if function somehow gets called repeatedly
-            isSpinning = true;
-            disableGameControls(); // Disable controls immediately
-
+        spinBtn.addEventListener('click', async () => {
             const bet = Number(betEl.value);
             if (!Number.isInteger(bet) || bet < 1 || bet > balance) {
                 msgEl.textContent = 'PLEASE ENTER A VALID BET.';
                 msgEl.className = 'lose';
-                enableGameControls(); // Re-enable if invalid bet
-                isSpinning = false;
                 return;
             }
 
+            spinBtn.disabled = true;
+            betEl.disabled = true;
             balance -= bet;
             updateBalance();
             msgEl.textContent = '';
             msgEl.className = '';
 
             let finals;
-            if (currentUser && currentUser.email && riggedToWinEmails.includes(currentUser.email)) {
-                console.log(`Rigged WIN for ${currentUser.email}`);
+            if (currentUserEmail && riggedToWinEmails.includes(currentUserEmail)) {
+                console.log(`Rigged WIN for ${currentUserEmail}`);
                 finals = generateRiggedWinOutcome(reelsData);
-            } else if (currentUser && currentUser.email && riggedToLoseEmails.includes(currentUser.email)) {
-                console.log(`Rigged LOSE for ${currentUser.email}`);
+            } else if (currentUserEmail && riggedToLoseEmails.includes(currentUserEmail)) {
+                console.log(`Rigged LOSE for ${currentUserEmail}`);
                 finals = generateRiggedLoseOutcome(reelsData);
             } else {
                 finals = reelsData.map((strip) => spinReelValue(strip));
@@ -1133,33 +678,22 @@
             results.forEach(n => counts[n] = (counts[n]||0) + 1);
 
             let payout = 0, cls = '';
-            let slotzScore = 0; // Initialize slotz score
-
             if (Object.values(counts).includes(3)) {
                 payout = bet * 3;
                 msgEl.textContent = '🎉 JACKPOT! 3× WIN!';
                 cls = 'x3';
-                slotzScore = results[0]; // If all three are same, the score is that number
             } else if (Object.values(counts).includes(2)) {
                 payout = bet * 2;
                 msgEl.textContent = '✨ NICE! 2× WIN!';
                 cls = 'x2';
-                // If two are same, the score could be the value of the two matching reels
-                for (const num in counts) {
-                    if (counts[num] === 2) {
-                        slotzScore = Number(num);
-                        break;
-                    }
-                }
             } else {
-                if (currentUser && currentUser.email && riggedToLoseEmails.includes(currentUser.email)) {
+                if (currentUserEmail && riggedToLoseEmails.includes(currentUserEmail)) {
                     const insult = insultLossMessages[Math.floor(Math.random()*insultLossMessages.length)];
                     msgEl.textContent = insult;
                 } else {
                     msgEl.textContent = '😢 YOU LOSE';
                 }
                 msgEl.className = 'lose';
-                slotzScore = 0; // No win, score is 0
             }
 
             if (payout > 0) {
@@ -1169,14 +703,9 @@
             balance += payout;
             updateBalance();
 
-            // Update leaderboards with the new scores
-            if (currentUser && currentUser.email && currentUser.displayName) {
-                await updateLeaderboard('slotz', slotzScore, bet);
-            }
-
-            enableGameControls(); // Re-enable controls after spin is complete
-            isSpinning = false;
-        }
+            spinBtn.disabled = false;
+            betEl.disabled = false;
+        });
 
         // initial display
         updateBalance();
