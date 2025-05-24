@@ -11,15 +11,15 @@
 
     <style>
         :root {
-            --bg-color: #ffffff; /* Light background */
-            --text-color: #333333; /* Dark text */
-            --primary-color: #333333; /* Dark primary for contrast on light */
-            --secondary-border-color: #cccccc; /* Medium gray border */
-            --navbar-bg: #f0f0f0; /* Light gray for navbar */
-            --footer-bg: #f0f0f0; /* Light gray for footer */
-            --hover-bg: #e0e0e0; /* Lighter gray on hover */
-            --grid-line-color: #f0f0f0; /* Light gray grid lines */
-            --accent-color: #333333; /* Dark accent color */
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --primary-color: #333333;
+            --secondary-border-color: #cccccc;
+            --navbar-bg: #f0f0f0;
+            --footer-bg: #f0f0f0;
+            --hover-bg: #e0e0e0;
+            --grid-line-color: #f0f0f0;
+            --accent-color: #333333;
         }
 
         * {
@@ -34,32 +34,24 @@
             color: var(--text-color);
             line-height: 1.6;
             text-transform: uppercase;
-            text-align: center; /* Center all text by default */
+            text-align: center;
             position: relative;
-             overflow-x: hidden;
-            display: flex; /* Use flex to push footer to bottom */
-            flex-direction: column; /* Arrange content and footer vertically */
-            min-height: 100vh; /* Make body at least viewport height */
-
-
-            /* Grid Background */
-            background-image: repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
-                              repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
-            background-size: 20px 20px; /* Size of each grid cell */
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-image:
+                repeating-linear-gradient(0deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px),
+                repeating-linear-gradient(90deg, var(--grid-line-color), var(--grid-line-color) 1px, transparent 1px, transparent 20px);
+            background-size: 20px 20px;
         }
-
-        /* Remove triangular gradients */
-        body::before, body::after {
-            content: none;
-        }
-
 
         .container {
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
-             flex-grow: 1; /* Allow container to take up available space */
+            flex-grow: 1;
         }
 
         /* Navbar */
@@ -67,10 +59,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 20px;
+            padding: 20px;
             background-color: var(--navbar-bg);
-             text-align: left; /* Override center for navbar layout */
-            width: 100%;
+            text-align: left;
         }
 
         .logo {
@@ -83,7 +74,7 @@
             display: flex;
             gap: 15px;
             align-items: center;
-             text-align: left; /* Ensure text in buttons is not affected by body center */
+            text-align: left;
         }
 
         .btn {
@@ -97,14 +88,13 @@
             font-family: 'Outfit', sans-serif;
             text-transform: uppercase;
             font-size: 14px;
-            text-align: center; /* Center button text */
-             display: inline-flex; /* Use flex to align content and arrow */
-            align-items: center; /* Vertically center content and arrow */
+            display: inline-flex;
+            align-items: center;
         }
 
         .btn.primary {
             background-color: var(--primary-color);
-            color: var(--bg-color); /* White text on dark primary */
+            color: var(--bg-color);
             border: 1px solid var(--primary-color);
         }
 
@@ -114,15 +104,15 @@
             border: 1px solid var(--secondary-border-color);
         }
 
-        .btn.google { /* Keeping google style as a distinct option if needed */
-             background-color: #4285F4;
+        .btn.google {
+            background-color: #4285F4;
             color: #ffffff;
             border: 1px solid #4285F4;
         }
 
         .btn.primary:hover {
             background-color: var(--hover-bg);
-            color: var(--text-color); /* Dark text on light hover */
+            color: var(--text-color);
             border-color: var(--hover-bg);
         }
 
@@ -130,17 +120,17 @@
             background-color: var(--hover-bg);
             border-color: var(--hover-bg);
         }
-         .btn.google:hover {
-             background-color: darken(#4285F4, 10%);
-             border-color: darken(#4285F4, 10%);
-         }
 
-        /* Button with Arrow */
+        .btn.google:hover {
+            background-color: #357ae8;
+            border-color: #357ae8;
+        }
+
         .btn-with-arrow::before {
-            content: '\2192'; /* Right arrow character */
-            margin-right: 8px; /* Space between arrow and text */
-            font-weight: bold; /* Make arrow slightly bolder */
-             color: var(--accent-color); /* Dark accent color for arrow */
+            content: '\2192';
+            margin-right: 8px;
+            font-weight: bold;
+            color: var(--accent-color);
         }
 
         /* Hero Section */
@@ -149,11 +139,8 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center; /* Ensure hero section text is centered */
-            min-height: calc(100vh - 140px); /* Adjust min-height considering navbar and footer */
+            min-height: calc(100vh - 140px);
             padding: 40px 20px;
-            background-color: transparent; /* Make hero background transparent to see grid */
-            color: var(--text-color);
         }
 
         .hero-title {
@@ -161,17 +148,27 @@
             font-weight: 900;
             margin-bottom: 20px;
             line-height: 1.1;
-            color: var(--text-color);
         }
 
         .hero-subtitle {
             font-size: 20px;
             font-weight: 400;
-            color: rgba(51, 51, 51, 0.8); /* Slightly lighter dark color for subtitle */
+            color: rgba(51, 51, 51, 0.8);
             margin-bottom: 40px;
             max-width: 800px;
-            min-height: 24px; /* Ensure space is reserved for the typing quote */
-             white-space: pre-wrap; /* Preserve whitespace and allow wrapping */
+            min-height: 24px;
+            white-space: pre-wrap;
+        }
+
+        .hero-subtitle::after {
+            content: '|';
+            animation: blink-caret .75s step-end infinite;
+            color: var(--text-color);
+        }
+
+        @keyframes blink-caret {
+            from, to { color: transparent; }
+            50% { color: var(--text-color); }
         }
 
         .hero-cta-buttons {
@@ -185,109 +182,64 @@
             min-width: 150px;
         }
 
-         /* Ad container styling */
         .ad-container {
-            margin: 30px auto; /* Add some space around the ad and center it */
-            text-align: center; /* Center the ad within its container */
-            max-width: 728px; /* Example max width, adjust as needed */
+            margin: 30px auto;
+            text-align: center;
+            max-width: 728px;
         }
-
 
         /* Footer */
         footer {
-            text-align: center; /* Ensure footer text is centered */
+            text-align: center;
             padding: 20px;
-            color: rgba(51, 51, 51, 0.6); /* Slightly lighter dark color for footer text */
+            color: rgba(51, 51, 51, 0.6);
             font-size: 14px;
             background-color: var(--footer-bg);
             text-transform: uppercase;
             width: 100%;
-            margin-top: auto; /* Push footer to the bottom */
+            margin-top: auto;
         }
 
-        /* Hide elements utility */
         .hidden {
-            display: none !important; /* Use !important to ensure it overrides other styles */
+            display: none !important;
         }
 
-         /* Typing Effect Cursor */
-         .hero-subtitle::after {
-            content: '|';
-            animation: blink-caret .75s step-end infinite;
-             color: var(--text-color); /* Cursor color matches text */
-         }
+        /* “Unsupported” notice */
+        .unsupported-notice {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(255, 230, 230, 0.95);
+            border: 1px solid #ff8888;
+            border-radius: 4px;
+            padding: 0.75em 1em;
+            font-size: 14px;
+            color: #880000;
+            font-weight: 700;
+            z-index: 1000;
+            max-width: 200px;
+            text-align: center;
+            line-height: 1.2;
+        }
 
-         @keyframes blink-caret {
-             from, to { color: transparent }
-             50% { color: var(--text-color); }
-         }
-
-
-         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .nav-buttons {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .hero-title {
-                font-size: 40px;
-            }
-
-            .hero-subtitle {
-                font-size: 16px;
-            }
-
-            .hero-cta-buttons {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .hero-cta-buttons .btn {
-                 width: 100%;
-                 min-width: unset;
-            }
-
-             .ad-container {
-                 margin: 20px auto; /* Adjust margin for smaller screens */
-             }
+            .navbar { flex-direction: column; gap: 10px; }
+            .nav-buttons { flex-direction: column; gap: 10px; }
+            .hero-title { font-size: 40px; }
+            .hero-subtitle { font-size: 16px; }
+            .hero-cta-buttons .btn { width: 100%; min-width: unset; }
+            .ad-container { margin: 20px auto; }
         }
 
-         @media (max-width: 480px) {
-            .navbar {
-                padding: 15px 10px;
-            }
-             .logo {
-                font-size: 20px;
-             }
-
-            .nav-buttons {
-                 gap: 8px;
-             }
-
-            .btn {
-                 padding: 8px 15px;
-                 font-size: 12px;
-            }
-
-             .hero-section {
-                 padding: 30px 10px;
-             }
-
-             .hero-title {
-                 font-size: 30px;
-             }
-
-             .hero-subtitle {
-                 font-size: 14px;
-             }
-         }
-
+        @media (max-width: 480px) {
+            .navbar { padding: 15px 10px; }
+            .logo { font-size: 20px; }
+            .nav-buttons { gap: 8px; }
+            .btn { padding: 8px 15px; font-size: 12px; }
+            .hero-section { padding: 30px 10px; }
+            .hero-title { font-size: 30px; }
+            .hero-subtitle { font-size: 14px; }
+        }
     </style>
 </head>
 <body>
@@ -314,15 +266,19 @@
                 </div>
             </section>
 
-            <div class="ad-container" id="indexAdUnit1">
-                 </div>
-
+            <div class="ad-container" id="indexAdUnit1"></div>
         </div>
     </main>
 
     <footer>
         <p>&copy; <span id="currentYear"></span> 4SP</p>
     </footer>
+
+    <!-- New unsupported notice -->
+    <div class="unsupported-notice">
+        This site is no longer supported<br>
+        while we build 4SP V4.
+    </div>
 
     <script>
         // Display current year in footer
@@ -353,8 +309,6 @@
             "STOP ASKING ME AND JUST REQUEST FOR SOUNDS ON THE WEBSITE!",
             "IM NOT ACCEPTING SOUND REQUESTS IN PERSON!!",
             "AMERICA🇺🇸",
-            "WHAT YOU GONNA DO ABOUT IT IF I SHOW ALL THEM WHAT YOU SENT ME?",
-            "I LOVE MESSING UP THAT BIRD SCIENCE PROJECT.",
             "I'M SINGLE!",
             "GET SAUCY WITH ME🤑",
             "YEEHAW",
@@ -379,7 +333,7 @@
             "GIMME A SMOOCH💀",
             "YES KINGGG",
             "REBRANDED VERN PRO TO VERN MAX",
-
+            "bro v4 is gunna b crazy fr",
         ];
 
         // Typing effect function
@@ -401,12 +355,10 @@
             type();
         }
 
-        // Select a random quote and start typing effect on DOMContentLoaded
         document.addEventListener('DOMContentLoaded', () => {
             const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
             typeQuote('randomQuote', randomQuote);
         });
-
 
         // Toggle the authentication UI by showing/hiding elements
         function toggleAuthUI(user) {
@@ -418,19 +370,14 @@
             const logoutNavBtn = document.getElementById('logoutNavBtn');
             const goToDashboardBtn = document.getElementById('goToDashboardBtn');
 
-            // Ad containers to potentially hide
-             const adContainers = [
-                document.getElementById('indexAdUnit1') // Add IDs for your ad containers here
-                 // Add more if you have multiple ad units on this page
+            const adContainers = [
+                document.getElementById('indexAdUnit1')
             ];
 
-            // Full‑admin emails (Copy these from your dashboard.html script)
             const adminEmails = [
                 '4simpleproblems@gmail.com',
                 'belkwy30@minerva.sparcc.org'
             ];
-
-            // Sub‑admin emails (Copy these from your dashboard.html script)
             const subAdminEmails = [
                 '4simpleproblems@gmail.com',
                 'alleda30@minerva.sparcc.org',
@@ -442,7 +389,6 @@
                 'kernai30@minerva.sparcc.org',
             ];
 
-
             if (user) {
                 loginNavBtn.classList.add('hidden');
                 signupNavBtn.classList.add('hidden');
@@ -452,26 +398,12 @@
                 logoutNavBtn.classList.remove('hidden');
                 goToDashboardBtn.classList.remove('hidden');
 
-                 // Hide ad containers if the user is an admin or sub-admin
                 if (adminEmails.includes(user.email) || subAdminEmails.includes(user.email)) {
-                    adContainers.forEach(container => {
-                         if (container) { // Check if container exists
-                            container.classList.add('hidden');
-                         }
-                    });
+                    adContainers.forEach(c => c && c.classList.add('hidden'));
                 } else {
-                     // Ensure ads are visible for non-admins/sub-admins (they are visible by default)
-                     adContainers.forEach(container => {
-                         if (container) { // Check if container exists
-                            container.classList.remove('hidden');
-                         }
-                    });
-                     // Trigger adsbygoogle push for non-admins/sub-admins
-                     // This is often needed when ad units are dynamically added or conditionally shown.
-                     (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    adContainers.forEach(c => c && c.classList.remove('hidden'));
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
                 }
-
-
             } else {
                 loginNavBtn.classList.remove('hidden');
                 signupNavBtn.classList.remove('hidden');
@@ -481,14 +413,8 @@
                 logoutNavBtn.classList.add('hidden');
                 goToDashboardBtn.classList.add('hidden');
 
-                 // Ensure ads are visible when no user is logged in (they are visible by default)
-                 adContainers.forEach(container => {
-                     if (container) { // Check if container exists
-                        container.classList.remove('hidden');
-                     }
-                });
-                 // Trigger adsbygoogle push when no user is logged in
-                 (window.adsbygoogle = window.adsbygoogle || []).push({});
+                adContainers.forEach(c => c && c.classList.remove('hidden'));
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
             }
         }
 
@@ -496,50 +422,33 @@
             try {
                 const auth = firebase.auth();
                 auth.onAuthStateChanged(user => {
-                     toggleAuthUI(user); // Call toggleAuthUI first to handle UI visibility based on auth state
-                     const logoutButton = document.getElementById('logoutNavBtn');
-                     // Ensure the element exists before adding a listener
-                     if (logoutButton) {
-                         // Remove any existing listeners before adding a new one to prevent duplicates
-                         const newLogoutButton = logoutButton.cloneNode(true);
-                         logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
-
-                         newLogoutButton.addEventListener('click', () => {
-                             auth.signOut().catch(error => {
-                                 console.error("Logout error:", error);
-                             });
-                         });
-                     }
+                    toggleAuthUI(user);
+                    const logoutButton = document.getElementById('logoutNavBtn');
+                    if (logoutButton) {
+                        const newLogoutButton = logoutButton.cloneNode(true);
+                        logoutButton.parentNode.replaceChild(newLogoutButton, logoutButton);
+                        newLogoutButton.addEventListener('click', () => {
+                            auth.signOut().catch(error => console.error("Logout error:", error));
+                        });
+                    }
                 });
             } catch (error) {
                 console.error("Auth initialization error:", error);
-                 // If Firebase init fails, still try to toggle UI to logged out state
-                 document.addEventListener('DOMContentLoaded', () => toggleAuthUI(null));
+                document.addEventListener('DOMContentLoaded', () => toggleAuthUI(null));
             }
         }
-
-         /*
-          Initialize Firebase Auth after Firebase scripts are loaded.
-          The Firebase scripts are placed at the end of the body for better performance,
-          so we should wait for the window load event or place the initAuth call after scripts.
-          Placing scripts at the end of the body is standard practice.
-          We'll rely on the DOMContentLoaded listener within initAuth.
-         */
-
     </script>
-     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-     <script src="firebase-config.js"></script>
-      <script>
-         // Call initAuth after Firebase scripts are guaranteed to be loaded
-         // This section ensures initAuth is called regardless of script placement/loading order
-         if (typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined') {
-             initAuth();
-         } else {
-             console.error("Firebase SDK or Auth not loaded.");
-             // Fallback UI toggle if Firebase is still undefined
-              document.addEventListener('DOMContentLoaded', () => toggleAuthUI(null));
-         }
-     </script>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        if (typeof firebase !== 'undefined' && typeof firebase.auth !== 'undefined') {
+            initAuth();
+        } else {
+            console.error("Firebase SDK or Auth not loaded.");
+            document.addEventListener('DOMContentLoaded', () => toggleAuthUI(null));
+        }
+    </script>
 </body>
 </html>
